@@ -143,6 +143,24 @@
     .osc-control-bar { display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center; justify-content: space-between; padding: 0.35rem 0.6rem; background: rgba(15,23,42,0.6); border-radius: var(--radius-sm); margin-bottom: 0.4rem; }
     .osc-ctrl-item { display: flex; align-items: center; gap: 0.35rem; font-size: 0.78rem; color: var(--text-secondary); }
     .osc-select { background: var(--bg-primary); border: 1px solid var(--glass-border); border-radius: 4px; color: var(--text-primary); font-family: var(--font-mono); font-size: 0.75rem; padding: 0.2rem 0.4rem; cursor: pointer; }
+    /* Parameter Glossary Cards & Grid */
+    .param-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1rem; margin-top: 1rem; }
+    .param-card { background: rgba(15, 23, 42, 0.75); border: 1px solid var(--glass-border); border-radius: var(--radius-md); padding: 1.1rem; transition: all 0.25s ease; backdrop-filter: blur(10px); position: relative; overflow: hidden; }
+    .param-card:hover { transform: translateY(-3px); border-color: var(--accent-primary); box-shadow: 0 8px 24px rgba(6,182,212,0.18); }
+    .param-card-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 0.65rem; }
+    .param-symbol { font-family: var(--font-mono); font-size: 1.25rem; font-weight: 700; color: #38bdf8; display: flex; align-items: center; gap: 0.35rem; }
+    .param-title { font-size: 0.92rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.2rem; }
+    .param-badge { font-size: 0.68rem; font-family: var(--font-mono); padding: 0.15rem 0.5rem; border-radius: 4px; font-weight: 600; }
+    .param-badge.dc { background: rgba(6,182,212,0.15); color: #38bdf8; border: 1px solid rgba(6,182,212,0.3); }
+    .param-badge.ac { background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.3); }
+    .param-badge.limit { background: rgba(244,63,94,0.15); color: #fb7185; border: 1px solid rgba(244,63,94,0.3); }
+    .param-formula { font-family: var(--font-mono); font-size: 0.82rem; background: rgba(6,182,212,0.08); border-left: 3px solid var(--accent-primary); padding: 0.45rem 0.65rem; border-radius: 0 4px 4px 0; color: #a5f3fc; margin: 0.5rem 0; }
+    .param-desc { font-size: 0.82rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 0.6rem; }
+    .param-specs { display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem; background: rgba(0,0,0,0.25); padding: 0.5rem 0.65rem; border-radius: 6px; font-size: 0.75rem; }
+    .param-spec-item { color: var(--text-muted); }
+    .param-spec-item strong { color: var(--text-primary); font-family: var(--font-mono); }
+    .param-search-box { display: flex; gap: 0.5rem; margin-bottom: 1rem; align-items: center; flex-wrap: wrap; }
+    .param-search-input { flex: 1; min-width: 200px; }
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: var(--bg-primary); }
     ::-webkit-scrollbar-thumb { background: var(--bg-tertiary); border-radius: 3px; }
@@ -332,24 +350,321 @@
         </div>
         <input type="range" id="slider-ib-curves" min="0" max="200" step="5" value="60" oninput="onCurvesChange()">
       </div>
-      <div class="readout-grid">
-        <div class="readout-card"><div class="readout-title">V<sub>CE(Q)</sub> (Operating Voltage)</div><div class="readout-val" id="crv-vce-val">6.0 <span class="readout-unit">V</span></div></div>
-        <div class="readout-card green"><div class="readout-title">I<sub>C(Q)</sub> (Operating Current)</div><div class="readout-val" id="crv-ic-val">6.0 <span class="readout-unit">mA</span></div></div>
+      <div class="readout-grid" style="grid-template-columns:repeat(3, 1fr);">
+        <div class="readout-card"><div class="readout-title">V<sub>CE(Q)</sub> (Operating Voltage)</div><div class="readout-val" id="crv-vce-val">6.00 <span class="readout-unit">V</span></div></div>
+        <div class="readout-card green"><div class="readout-title">I<sub>C(Q)</sub> (Collector Current)</div><div class="readout-val" id="crv-ic-val">6.00 <span class="readout-unit">mA</span></div></div>
+        <div class="readout-card secondary"><div class="readout-title">&beta; / h<sub>FE</sub> (DC Gain)</div><div class="readout-val" id="crv-beta-val">200</div></div>
+        <div class="readout-card"><div class="readout-title">I<sub>B(Q)</sub> (Base Current)</div><div class="readout-val" id="crv-ib-val">60.0 <span class="readout-unit">μA</span></div></div>
+        <div class="readout-card green"><div class="readout-title">I<sub>E(Q)</sub> (Emitter Current)</div><div class="readout-val" id="crv-ie-val">6.06 <span class="readout-unit">mA</span></div></div>
         <div class="readout-card amber"><div class="readout-title">P<sub>D</sub> (กำลังงานสูญเสีย)</div><div class="readout-val" id="crv-pd-val">36.0 <span class="readout-unit">mW</span></div></div>
-        <div class="readout-card secondary"><div class="readout-title">I<sub>C(sat)</sub> (กระแสอิ่มตัว)</div><div class="readout-val" id="crv-icsat-val">12.0 <span class="readout-unit">mA</span></div></div>
       </div>
       <div style="margin-bottom:0.75rem;">
         <span id="curves-region-badge" class="status-badge active-region" style="padding:0.45rem 0.9rem;font-size:0.82rem;width:100%;justify-content:center;">
           <i class="fa-solid fa-wave-square"></i> Active Region — BJT ขยายสัญญาณได้เต็มช่วง
         </span>
       </div>
-      <div class="theory-box">
-        <strong>สูตรคำนวณจุดทำงาน (DC Operating Point):</strong><br>
-        • I<sub>C(sat)</sub> = V<sub>CC</sub> / R<sub>C</sub> = <strong id="ic-sat-formula">12.0 mA</strong> (จุดตัดแกนตั้งเมื่อ V<sub>CE</sub> = 0)<br>
-        • V<sub>CE(cutoff)</sub> = V<sub>CC</sub> (จุดตัดแกนนอนเมื่อ I<sub>C</sub> = 0)<br>
-        • V<sub>CE(Q)</sub> = V<sub>CC</sub> − (I<sub>C(Q)</sub> · R<sub>C</sub>)<br>
-        • กำลังงานสูญเสีย: P<sub>D</sub> = I<sub>C(Q)</sub> · V<sub>CE(Q)</sub> (ต้องไม่เกินพิกัด P<sub>D(max)</sub>)
+      <div class="theory-box" id="curves-theory-box">
+        <div style="font-size:0.85rem;font-weight:700;color:var(--accent-primary);margin-bottom:0.4rem;display:flex;align-items:center;gap:0.4rem;">
+          <i class="fa-solid fa-calculator"></i> สมการและขั้นตอนการคำนวณสด (Live Step-by-Step Solver):
+        </div>
+        <div id="curves-calc-details" style="font-size:0.8rem;line-height:1.65;color:var(--text-secondary);">
+          <!-- Dynamic calculations inserted by JavaScript -->
+        </div>
       </div>
+    </div>
+  </div>
+
+  <!-- BJT PARAMETER GLOSSARY & ENGINEERING REFERENCE SECTION -->
+  <div class="glass-card" style="margin-top:1.5rem;" id="bjt-param-glossary-section">
+    <div class="card-title" style="border-bottom:1px solid var(--glass-border);padding-bottom:0.75rem;margin-bottom:1rem;">
+      <div class="card-title-text"><i class="fa-solid fa-book-open"></i> พจนานุกรมและความหมายของพารามิเตอร์ BJT (BJT Parameters &amp; Datasheet Glossary)</div>
+      <span class="badge" style="background:rgba(6,182,212,0.15);color:var(--accent-primary);border:1px solid rgba(6,182,212,0.3);font-family:var(--font-mono);font-size:0.75rem;padding:0.25rem 0.6rem;border-radius:4px;">
+        9 Parameters &bull; Standard JEDEC / IEC Models
+      </span>
+    </div>
+
+    <!-- Search & Category Filter Controls -->
+    <div class="param-search-box">
+      <input type="text" id="bjt-param-search" class="param-search-input" placeholder="🔍 ค้นหาพารามิเตอร์ เช่น beta, VBE, VCE(sat), gm, re, Early Voltage..." oninput="filterBjtParameterCards()">
+      <div class="pill-group" style="margin:0;">
+        <button class="pill-btn active" id="btn-bjt-param-all" onclick="filterBjtParameterCategory('all',this)"><i class="fa-solid fa-layer-group"></i> ทั้งหมด</button>
+        <button class="pill-btn" id="btn-bjt-param-dc" onclick="filterBjtParameterCategory('dc_params',this)"><i class="fa-solid fa-battery-half"></i> DC Bias &amp; DC Params</button>
+        <button class="pill-btn" id="btn-bjt-param-ac" onclick="filterBjtParameterCategory('ac_params',this)"><i class="fa-solid fa-wave-square"></i> AC Small-Signal</button>
+        <button class="pill-btn" id="btn-bjt-param-limit" onclick="filterBjtParameterCategory('limits',this)"><i class="fa-solid fa-shield-halved"></i> Maximum Ratings</button>
+      </div>
+    </div>
+
+    <!-- Parameter Cards Grid -->
+    <div class="param-grid" id="bjt-param-grid">
+
+      <!-- 1. Beta (h_FE) -->
+      <div class="param-card" data-category="dc_params" data-keywords="beta hfe dc current gain อัตราขยายกระแส กระแสคอลเล็กเตอร์ ic ib">
+        <div class="param-card-header">
+          <div>
+            <div class="param-symbol">&beta; / h<sub>FE</sub></div>
+            <div class="param-title">DC Current Gain (อัตราขยายกระแส DC)</div>
+          </div>
+          <span class="param-badge dc">DC PARAM</span>
+        </div>
+        <div class="param-formula">I<sub>C</sub> = &beta; &times; I<sub>B</sub> &nbsp;&bull;&nbsp; &beta; = I<sub>C</sub> / I<sub>B</sub></div>
+        <div class="param-desc">
+          อัตราส่วนระหว่างกระแสคอลเล็กเตอร์ (I<sub>C</sub>) ต่อกระแสเบส (I<sub>B</sub>) ในย่าน Active เป็นตัวระบุความสามารถในการขยายกระแสของทรานซิสเตอร์ โดยค่า &beta; จะแปรผันตามอุณหภูมิและกระแส I<sub>C</sub>
+        </div>
+        <div class="param-specs">
+          <div class="param-spec-item">หน่วย: <strong>ไม่มีหน่วย (Ratio)</strong></div>
+          <div class="param-spec-item">ช่วงทั่วไป: <strong>50 – 400</strong></div>
+          <div class="param-spec-item">Datasheet: <strong>h<sub>FE</sub> (DC), h<sub>fe</sub> (AC)</strong></div>
+          <div class="param-spec-item">ผลกระทบ: <strong>เพิ่มขึ้นตามอุณหภูมิ (~0.5%/°C)</strong></div>
+        </div>
+      </div>
+
+      <!-- 2. Alpha (alpha / h_FB) -->
+      <div class="param-card" data-category="dc_params" data-keywords="alpha hfb common base gain อัตราขยายกระแสเบสร่วม ic ie">
+        <div class="param-card-header">
+          <div>
+            <div class="param-symbol">&alpha; / h<sub>FB</sub></div>
+            <div class="param-title">Common-Base Current Gain (อัตราขยายกระแสเบสร่วม)</div>
+          </div>
+          <span class="param-badge dc">DC PARAM</span>
+        </div>
+        <div class="param-formula">&alpha; = I<sub>C</sub> / I<sub>E</sub> = &beta; / (&beta; + 1) &nbsp;&bull;&nbsp; &beta; = &alpha; / (1 &minus; &alpha;)</div>
+        <div class="param-desc">
+          สัดส่วนของกระแสที่ถูกฉีดจาก Emitter แล้วข้ามรอยต่อ Base ไปยัง Collector ได้สำเร็จ มีค่าใกล้เคียง 1.0 เสมอ (0.950 ถึง 0.998)
+        </div>
+        <div class="param-specs">
+          <div class="param-spec-item">หน่วย: <strong>ไม่มีหน่วย (Ratio)</strong></div>
+          <div class="param-spec-item">ช่วงทั่วไป: <strong>0.980 – 0.998</strong></div>
+          <div class="param-spec-item">ความสัมพันธ์: <strong>I<sub>E</sub> = I<sub>C</sub> + I<sub>B</sub> = (&beta;+1)I<sub>B</sub></strong></div>
+          <div class="param-spec-item">การประยุกต์: <strong>วงจร Common Base RF Amp</strong></div>
+        </div>
+      </div>
+
+      <!-- 3. V_BE(on) -->
+      <div class="param-card" data-category="dc_params" data-keywords="vbe vbe_on base emitter forward voltage แรงดันนำกระแสเบสอิมิตเตอร์ 0.7v diode">
+        <div class="param-card-header">
+          <div>
+            <div class="param-symbol">V<sub>BE(on)</sub></div>
+            <div class="param-title">Base-Emitter Forward Voltage (แรงดันไบอัสตรงเบส-อิมิตเตอร์)</div>
+          </div>
+          <span class="param-badge dc">DC PARAM</span>
+        </div>
+        <div class="param-formula">V<sub>BE(on)</sub> &approx; 0.65V – 0.75V (Silicon) &nbsp;&bull;&nbsp; &Delta;V<sub>BE</sub>/&Delta;T &approx; &minus;2 mV/°C</div>
+        <div class="param-desc">
+          แรงดันตกคร่อมรอยต่อ p-n ระหว่างขา Base และ Emitter ขณะนำกระแสในย่าน Active มีสัมประสิทธิ์อุณหภูมิเป็นลบ (-2 mV/°C) ซึ่งอาจทำให้เกิด Thermal Runaway หากไม่มีตัวต้านทาน R<sub>E</sub>
+        </div>
+        <div class="param-specs">
+          <div class="param-spec-item">หน่วย: <strong>โวลต์ (V)</strong></div>
+          <div class="param-spec-item">ค่ามาตรฐาน: <strong>0.70 V (Silicon)</strong></div>
+          <div class="param-spec-item">Cut-in Voltage: <strong>&approx; 0.55 V</strong></div>
+          <div class="param-spec-item">Temp Drift: <strong>&minus;2.0 mV / °C</strong></div>
+        </div>
+      </div>
+
+      <!-- 4. V_CE(sat) -->
+      <div class="param-card" data-category="dc_params" data-keywords="vce_sat vcesat saturation voltage แรงดันอิ่มตัว สวิตช์เปิด saturation">
+        <div class="param-card-header">
+          <div>
+            <div class="param-symbol">V<sub>CE(sat)</sub></div>
+            <div class="param-title">Collector-Emitter Saturation Voltage (แรงดันคอลเล็กเตอร์อิ่มตัว)</div>
+          </div>
+          <span class="param-badge dc">DC / SWITCH</span>
+        </div>
+        <div class="param-formula">V<sub>CE(sat)</sub> &approx; 0.1V – 0.3V &nbsp;&bull;&nbsp; I<sub>B(sat)</sub> &ge; I<sub>C(sat)</sub> / &beta;<sub>forced</sub></div>
+        <div class="param-desc">
+          แรงดันตกคร่อมระหว่างขา C และ E เมื่อ BJT ถูกไบอัสให้อยู่ในสถานะอิ่มตัว (Saturation) ทั้งรอยต่อ B-E และ B-C ไบอัสตรง BJT ทำหน้าที่เสมือนสวิตช์ปิดวงจร (Closed Switch / ON)
+        </div>
+        <div class="param-specs">
+          <div class="param-spec-item">หน่วย: <strong>โวลต์ (V)</strong></div>
+          <div class="param-spec-item">ค่าทั่วไป: <strong>0.05 V – 0.25 V</strong></div>
+          <div class="param-spec-item">Overdrive Ratio: <strong>&beta;<sub>forced</sub> = 10 (นิยมใช้)</strong></div>
+          <div class="param-spec-item">Power Switch: <strong>P<sub>loss</sub> = V<sub>CE(sat)</sub> &times; I<sub>C(sat)</sub></strong></div>
+        </div>
+      </div>
+
+      <!-- 5. I_CBO / I_CEO -->
+      <div class="param-card" data-category="dc_params" data-keywords="icbo iceo leakage current กระแสรั่วไหล cutoff คัตออฟ reverse">
+        <div class="param-card-header">
+          <div>
+            <div class="param-symbol">I<sub>CBO</sub> / I<sub>CEO</sub></div>
+            <div class="param-title">Collector Cutoff Leakage Current (กระแสรั่วไหลขณะคัตออฟ)</div>
+          </div>
+          <span class="param-badge dc">DC PARAM</span>
+        </div>
+        <div class="param-formula">I<sub>CEO</sub> = (&beta; + 1) &times; I<sub>CBO</sub> &nbsp;&bull;&nbsp; I<sub>C</sub> = &beta;&middot;I<sub>B</sub> + I<sub>CEO</sub></div>
+        <div class="param-desc">
+          กระแสรั่วไหลย้อนกลับที่รอยต่อ B-C เมื่อ Base เปิดวงจร (I<sub>CEO</sub>) หรือเมื่อ Emitter เปิดวงจร (I<sub>CBO</sub>) มีค่าน้อยมากในระดับ nA ถึง &mu;A แต่จะเพิ่มเป็น 2 เท่าทุกๆ อุณหภูมิที่สูงขึ้น 10°C
+        </div>
+        <div class="param-specs">
+          <div class="param-spec-item">หน่วย: <strong>นาโนแอมป์ (nA) / ไมโครแอมป์ (&mu;A)</strong></div>
+          <div class="param-spec-item">ค่าที่ 25°C: <strong>&lt; 10 – 50 nA</strong></div>
+          <div class="param-spec-item">ที่ 125°C: <strong>เพิ่มขึ้น 100 – 1000 เท่า</strong></div>
+          <div class="param-spec-item">สภาวะ Cutoff: <strong>I<sub>B</sub> = 0, V<sub>BE</sub> &le; 0V</strong></div>
+        </div>
+      </div>
+
+      <!-- 6. r_e (Dynamic Emitter Resistance) -->
+      <div class="param-card" data-category="ac_params" data-keywords="re dynamic resistance ความต้านทานไดนามิก thermal voltage vt 26mv ac model">
+        <div class="param-card-header">
+          <div>
+            <div class="param-symbol">r<sub>e</sub></div>
+            <div class="param-title">Dynamic Emitter Resistance (ความต้านทานไดนามิกของรอยต่อ Emitter)</div>
+          </div>
+          <span class="param-badge ac">AC MODEL</span>
+        </div>
+        <div class="param-formula">r<sub>e</sub> = V<sub>T</sub> / I<sub>E</sub> = 26 mV / I<sub>E</sub> (ที่อุณหภูมิ 25°C / 300K)</div>
+        <div class="param-desc">
+          ความต้านทานสัญญาณขนาดเล็กภายในรอยต่อ Base-Emitter ที่จุดทำงาน DC I<sub>E</sub> เป็นพารามิเตอร์หัวใจในการคำนวณอัตราขยายแรงดัน A<sub>v</sub> = &minus;r<sub>ac</sub> / r<sub>e</sub> และอิมพีแดนซ์อินพุต Z<sub>b</sub> = &beta;&middot;r<sub>e</sub>
+        </div>
+        <div class="param-specs">
+          <div class="param-spec-item">หน่วย: <strong>โอห์ม (&Omega;)</strong></div>
+          <div class="param-spec-item">ที่ I<sub>E</sub> = 1 mA: <strong>r<sub>e</sub> = 26.0 &Omega;</strong></div>
+          <div class="param-spec-item">ที่ I<sub>E</sub> = 2 mA: <strong>r<sub>e</sub> = 13.0 &Omega;</strong></div>
+          <div class="param-spec-item">Thermal Voltage: <strong>V<sub>T</sub> = k&middot;T / q &approx; 25.85 mV</strong></div>
+        </div>
+      </div>
+
+      <!-- 7. g_m (Transconductance) -->
+      <div class="param-card" data-category="ac_params" data-keywords="gm transconductance ความนำข้าม ac gain small signal ic vt">
+        <div class="param-card-header">
+          <div>
+            <div class="param-symbol">g<sub>m</sub></div>
+            <div class="param-title">Transconductance (ความนำข้ามทางสัญญาณขนาดเล็ก)</div>
+          </div>
+          <span class="param-badge ac">AC MODEL</span>
+        </div>
+        <div class="param-formula">g<sub>m</sub> = &Delta;i<sub>c</sub> / &Delta;v<sub>be</sub> = I<sub>C</sub> / V<sub>T</sub> = 1 / r<sub>e</sub> &approx; 40 &times; I<sub>C(mA)</sub> (mS)</div>
+        <div class="param-desc">
+          อัตราการเปลี่ยนแปลงของกระแสเอาต์พุต I<sub>C</sub> ต่อแรงดันอินพุต V<sub>BE</sub> แสดงถึงประสิทธิภาพการแปลงแรงดันสัญญาณเสียง/วิทยุให้กลายเป็นกระแสสัญญาณ
+        </div>
+        <div class="param-specs">
+          <div class="param-spec-item">หน่วย: <strong>มิลลิซีเมนส์ (mS / mA/V)</strong></div>
+          <div class="param-spec-item">ที่ I<sub>C</sub> = 1 mA: <strong>g<sub>m</sub> = 38.5 mS</strong></div>
+          <div class="param-spec-item">ที่ I<sub>C</sub> = 5 mA: <strong>g<sub>m</sub> = 192.3 mS</strong></div>
+          <div class="param-spec-item">Hybrid-&pi; Model: <strong>r<sub>&pi;</sub> = &beta; / g<sub>m</sub> = &beta;&middot;r<sub>e</sub></strong></div>
+        </div>
+      </div>
+
+      <!-- 8. V_A / r_o (Early Voltage & Output Resistance) -->
+      <div class="param-card" data-category="ac_params" data-keywords="va early voltage ro output resistance เออร์ลี ความต้านทานเอาต์พุต slope">
+        <div class="param-card-header">
+          <div>
+            <div class="param-symbol">V<sub>A</sub> &bull; r<sub>o</sub></div>
+            <div class="param-title">Early Voltage &amp; Output Resistance (แรงดันเออร์ลี &amp; ความต้านทานเอาต์พุต)</div>
+          </div>
+          <span class="param-badge ac">AC MODEL</span>
+        </div>
+        <div class="param-formula">r<sub>o</sub> = (V<sub>A</sub> + V<sub>CE(Q)</sub>) / I<sub>C(Q)</sub> &approx; V<sub>A</sub> / I<sub>C(Q)</sub> &nbsp;&bull;&nbsp; 1/h<sub>oe</sub></div>
+        <div class="param-desc">
+          อธิบายปรากฏการณ์ Early Effect (Base-width modulation) ที่ทำให้เส้นกราฟ I<sub>C</sub> vs V<sub>CE</sub> มีความชันเอียงขึ้น โดยจุดตัดแกนแรงดันย้อนกลับคือจุด Early Voltage (&minus;V<sub>A</sub>)
+        </div>
+        <div class="param-specs">
+          <div class="param-spec-item">หน่วย: <strong>V<sub>A</sub> (V), r<sub>o</sub> (k&Omega;)</strong></div>
+          <div class="param-spec-item">V<sub>A</sub> ทั่วไป: <strong>50 V – 150 V</strong></div>
+          <div class="param-spec-item">r<sub>o</sub> ที่ I<sub>C</sub>=1mA: <strong>&approx; 50 k&Omega; – 100 k&Omega;</strong></div>
+          <div class="param-spec-item">Datasheet: <strong>h<sub>oe</sub> = 1 / r<sub>o</sub> (&mu;S)</strong></div>
+        </div>
+      </div>
+
+      <!-- 9. P_D(max) & f_T -->
+      <div class="param-card" data-category="limits" data-keywords="pdmax ft power rating transition frequency ความถี่คัตออฟ พิกัดกำลังงาน breakdown">
+        <div class="param-card-header">
+          <div>
+            <div class="param-symbol">P<sub>D(max)</sub> &bull; f<sub>T</sub></div>
+            <div class="param-title">Power Dissipation &amp; Transition Frequency (พิกัดกำลังงาน &amp; แบนด์วิดท์ความถี่)</div>
+          </div>
+          <span class="param-badge limit">MAX RATINGS</span>
+        </div>
+        <div class="param-formula">P<sub>D</sub> = V<sub>CE</sub> &times; I<sub>C</sub> &le; P<sub>D(max)</sub> &nbsp;&bull;&nbsp; f<sub>T</sub> = &beta;&middot;f<sub>&beta;</sub> (Gain-Bandwidth Product)</div>
+        <div class="param-desc">
+          พิกัดความปลอดภัยสูงสุด (Absolute Maximum Ratings) ป้องกันไม่ให้อุณหภูมิรอยต่อ T<sub>j</sub> เกิน 150°C และ f<sub>T</sub> คือความถี่สูงสุดที่ทรานซิสเตอร์มีอัตราขยายกระแส &beta; = 1 (Unity Gain)
+        </div>
+        <div class="param-specs">
+          <div class="param-spec-item">P<sub>D(max)</sub> TO-92: <strong>300 – 625 mW</strong></div>
+          <div class="param-spec-item">P<sub>D(max)</sub> TO-220: <strong>40 – 65 W (Heatsink)</strong></div>
+          <div class="param-spec-item">f<sub>T</sub> (2N2222/BC547): <strong>250 – 300 MHz</strong></div>
+          <div class="param-spec-item">Breakdown V<sub>CEO</sub>: <strong>30 V – 65 V</strong></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Quick Reference Comparison Table -->
+    <div style="margin-top:1.5rem;overflow-x:auto;">
+      <div style="font-size:0.85rem;font-weight:700;color:var(--accent-primary);margin-bottom:0.6rem;">
+        <i class="fa-solid fa-table"></i> ตารางเปรียบเทียบพารามิเตอร์ของทรานซิสเตอร์ BJT รุ่นยอดนิยม (Popular BJT Comparison Table):
+      </div>
+      <table class="history-table" style="font-size:0.78rem;">
+        <thead>
+          <tr>
+            <th>Part Number</th>
+            <th>Type / Polarity</th>
+            <th>Package</th>
+            <th>&beta; / h<sub>FE</sub> (min-max)</th>
+            <th>I<sub>C(max)</sub></th>
+            <th>V<sub>CEO(max)</sub></th>
+            <th>P<sub>D(max)</sub></th>
+            <th>f<sub>T</sub> (Typ)</th>
+            <th>การใช้งานเด่น</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="font-family:var(--font-mono);font-weight:700;color:#38bdf8;">2N2222A</td>
+            <td>NPN Silicon</td>
+            <td>TO-92 / TO-18</td>
+            <td>100 – 300</td>
+            <td>800 mA</td>
+            <td>40 V</td>
+            <td>625 mW</td>
+            <td>300 MHz</td>
+            <td>General Purpose Switching &amp; RF Driver</td>
+          </tr>
+          <tr>
+            <td style="font-family:var(--font-mono);font-weight:700;color:#38bdf8;">BC547B</td>
+            <td>NPN Silicon</td>
+            <td>TO-92</td>
+            <td>200 – 450</td>
+            <td>100 mA</td>
+            <td>45 V</td>
+            <td>500 mW</td>
+            <td>300 MHz</td>
+            <td>Low-Noise Audio Preamp &amp; Sensor Amp</td>
+          </tr>
+          <tr>
+            <td style="font-family:var(--font-mono);font-weight:700;color:#38bdf8;">2N3904</td>
+            <td>NPN Silicon</td>
+            <td>TO-92</td>
+            <td>100 – 300</td>
+            <td>200 mA</td>
+            <td>40 V</td>
+            <td>625 mW</td>
+            <td>300 MHz</td>
+            <td>General Audio / Signal Processing</td>
+          </tr>
+          <tr>
+            <td style="font-family:var(--font-mono);font-weight:700;color:#38bdf8;">TIP31C</td>
+            <td>NPN Power</td>
+            <td>TO-220</td>
+            <td>25 – 50</td>
+            <td>3.0 A</td>
+            <td>100 V</td>
+            <td>40 W</td>
+            <td>3 MHz</td>
+            <td>Power Audio Amp, Motor Driver &amp; PSU</td>
+          </tr>
+          <tr>
+            <td style="font-family:var(--font-mono);font-weight:700;color:#c084fc;">2N2907A</td>
+            <td>PNP Complement</td>
+            <td>TO-92 / TO-18</td>
+            <td>100 – 300</td>
+            <td>800 mA</td>
+            <td>-40 V</td>
+            <td>625 mW</td>
+            <td>200 MHz</td>
+            <td>PNP High-Side Switch &amp; Push-Pull Stage</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </section>
@@ -1174,22 +1489,103 @@ function onCurvesChange() {
   document.getElementById('vcc-curves-badge').textContent = state.curves.vcc.toFixed(1)+' V';
   document.getElementById('rc-curves-badge').textContent  = state.curves.rc_kohm.toFixed(1)+' kΩ';
   document.getElementById('ib-curves-badge').textContent  = state.curves.ib_uA+' μA';
-  const ic_sat = state.curves.vcc/state.curves.rc_kohm;
-  const ic_q   = Math.min(ic_sat*0.98,(state.curves.ib_uA*m.beta)/1000);
-  const vce_q  = state.curves.vcc-ic_q*state.curves.rc_kohm;
-  const pd_mW  = ic_q*vce_q;
+
+  const vcc = state.curves.vcc;
+  const rc_k = state.curves.rc_kohm;
+  const ib_uA = state.curves.ib_uA;
+  const ib_mA = ib_uA / 1000;
+  const beta = m.beta;
+  const ic_sat = vcc / rc_k; // in mA
+  const ic_calc = ib_mA * beta;
+  const isSat = ic_calc >= ic_sat;
+  const isCutoff = ib_uA === 0;
+  const ic_q = isCutoff ? 0 : Math.min(ic_sat * 0.98, ic_calc);
+  const vce_q = isCutoff ? vcc : Math.max(m.vce_sat, vcc - ic_q * rc_k);
+  const ie_q = ic_q + ib_mA;
+  const pd_mW = ic_q * vce_q;
+  const alpha = beta / (beta + 1);
+  const re_ohm = ie_q > 0 ? (26.0 / ie_q) : Infinity;
+  const gm_mS = ic_q > 0 ? (ic_q / 0.026) : 0;
+
+  // Readout cards
   document.getElementById('crv-vce-val').innerHTML = `${vce_q.toFixed(2)} <span class="readout-unit">V</span>`;
   document.getElementById('crv-ic-val').innerHTML  = `${ic_q.toFixed(2)} <span class="readout-unit">mA</span>`;
-  document.getElementById('crv-pd-val').innerHTML  = `${pd_mW.toFixed(1)} <span class="readout-unit">mW</span>`;
-  document.getElementById('crv-icsat-val').innerHTML = `${ic_sat.toFixed(1)} <span class="readout-unit">mA</span>`;
-  document.getElementById('ic-sat-formula').textContent = `${ic_sat.toFixed(1)} mA`;
+  document.getElementById('crv-beta-val').innerHTML = `${beta} <span class="readout-unit">(α=${alpha.toFixed(4)})</span>`;
+  document.getElementById('crv-ib-val').innerHTML  = `${ib_uA.toFixed(1)} <span class="readout-unit">μA</span>`;
+  document.getElementById('crv-ie-val').innerHTML  = `${ie_q.toFixed(2)} <span class="readout-unit">mA</span>`;
+  document.getElementById('crv-pd-val').innerHTML  = `${pd_mW.toFixed(1)} <span class="readout-unit">mW / max ${m.pd_max_mW}mW</span>`;
+
   document.getElementById('curves-status-badge').innerHTML = `<i class="fa-solid fa-crosshairs"></i> Q(${vce_q.toFixed(1)}V, ${ic_q.toFixed(1)}mA)`;
-  const region = state.curves.ib_uA===0?'cutoff':(vce_q<=m.vce_sat+0.1?'saturation':'active');
-  const rb=document.getElementById('curves-region-badge');
-  const ri={ active:['active-region','fa-wave-square','Active Region — BJT ขยายสัญญาณได้เต็มช่วง'],
-             saturation:['saturation','fa-battery-full','Saturation — BJT เปิดเต็มที่ V_CE ≈ 0.2V'],
-             cutoff:['cutoff','fa-power-off','Cutoff — BJT ปิดสนิท I_C ≈ 0'] }[region];
-  rb.className=`status-badge ${ri[0]}`; rb.innerHTML=`<i class="fa-solid ${ri[1]}"></i> ${ri[2]}`;
+
+  const region = isCutoff ? 'cutoff' : (isSat || vce_q <= m.vce_sat + 0.1 ? 'saturation' : 'active');
+  const rb = document.getElementById('curves-region-badge');
+  const ri = {
+    active: ['active-region', 'fa-wave-square', 'Active Region — BJT ทำงานในย่านขยายสัญญาณเชิงเส้น (Linear Amplification)'],
+    saturation: ['saturation', 'fa-battery-full', `Saturation — BJT นำกระแสอิ่มตัว V_CE ≈ ${m.vce_sat}V เสมือนสวิตช์ปิด (ON)`],
+    cutoff: ['cutoff', 'fa-power-off', 'Cutoff — BJT ปิดสนิท I_B = 0, I_C ≈ 0 เสมือนสวิตช์เปิด (OFF)']
+  }[region];
+  rb.className = `status-badge ${ri[0]}`;
+  rb.innerHTML = `<i class="fa-solid ${ri[1]}"></i> ${ri[2]}`;
+
+  // Live Step-by-Step Solver
+  let solverHtml = 
+    `<div style="margin-bottom:0.45rem;padding:0.45rem;background:rgba(6,182,212,0.06);border-left:3px solid var(--accent-primary);border-radius:4px;">` +
+    `  <strong style="color:var(--accent-primary);"><i class="fa-solid fa-bolt"></i> ขั้นตอนที่ 1: ตรวจสอบสถานะและกระแสเบส (Base Current):</strong><br>` +
+    `  • โมเดล: <strong>${m.name}</strong> (&beta; = ${beta}, V<sub>CE(sat)</sub> = ${m.vce_sat}V, P<sub>D(max)</sub> = ${m.pd_max_mW} mW)<br>` +
+    `  • กระแสเบสที่ป้อน: <strong>I<sub>B</sub> = ${ib_uA.toFixed(1)} &mu;A (${ib_mA.toFixed(4)} mA)</strong> &nbsp;&bull;&nbsp; V<sub>BE</sub> &approx; 0.70 V` +
+    `</div>` +
+    `<div style="margin-bottom:0.45rem;">` +
+    `  <strong>ขั้นตอนที่ 2: คำนวณกระแสคอลเล็กเตอร์ (I<sub>C</sub>) และอิมิตเตอร์ (I<sub>E</sub>):</strong><br>` +
+    `  • I<sub>C</sub> = &beta; &times; I<sub>B</sub> = ${beta} &times; ${ib_mA.toFixed(4)} mA = <span style="color:#10b981;font-weight:700;">${ic_calc.toFixed(2)} mA</span><br>` +
+    `  • I<sub>E</sub> = I<sub>C</sub> + I<sub>B</sub> = (${beta} + 1) &times; I<sub>B</sub> = <span style="color:#38bdf8;font-weight:700;">${ie_q.toFixed(2)} mA</span> &nbsp;(&alpha; = I<sub>C</sub>/I<sub>E</sub> = ${alpha.toFixed(4)})` +
+    `</div>` +
+    `<div style="margin-bottom:0.45rem;">` +
+    `  <strong>ขั้นตอนที่ 3: คำนวณแรงดันตกคร่อมรอยต่อ V<sub>CE(Q)</sub> จากสมการ Loop เอาต์พุต:</strong><br>` +
+    `  • V<sub>CE(Q)</sub> = V<sub>CC</sub> &minus; (I<sub>C</sub> &times; R<sub>C</sub>) = ${vcc.toFixed(1)}V &minus; (${ic_q.toFixed(2)}mA &times; ${rc_k.toFixed(1)}k&Omega;) = <span style="color:#eab308;font-weight:700;font-size:0.95rem;">${vce_q.toFixed(2)} V</span>` +
+    `</div>` +
+    `<div style="margin-bottom:0.45rem;padding:0.45rem;background:rgba(16,185,129,0.06);border-left:3px solid #10b981;border-radius:4px;">` +
+    `  <strong style="color:#34d399;"><i class="fa-solid fa-chart-pie"></i> ขั้นตอนที่ 4: พิกัดกระแสอิ่มตัวและกำลังสูญเสีย (Saturation &amp; Power Dissipation):</strong><br>` +
+    `  • จุดตัดแกนตั้ง (I<sub>C(sat)</sub>): V<sub>CC</sub> / R<sub>C</sub> = ${vcc.toFixed(1)}V / ${rc_k.toFixed(1)}k&Omega; = <strong>${ic_sat.toFixed(2)} mA</strong><br>` +
+    `  • กำลังงานสูญเสีย: P<sub>D</sub> = V<sub>CE</sub> &times; I<sub>C</sub> = ${vce_q.toFixed(2)}V &times; ${ic_q.toFixed(2)}mA = <strong style="color:${pd_mW > m.pd_max_mW ? '#f43f5e' : '#34d399'};">${pd_mW.toFixed(1)} mW</strong> ${pd_mW > m.pd_max_mW ? '⚠️ เกินพิกัดปลอดภัย!' : `(ปลอดภัย &le; ${m.pd_max_mW} mW)`}` +
+    `</div>` +
+    `<div>` +
+    `  <strong>ขั้นตอนที่ 5: พารามิเตอร์สัญญาณขนาดเล็ก (AC Small-Signal Parameters ที่จุด Q นี้):</strong><br>` +
+    `  • r<sub>e</sub> = 26 mV / I<sub>E</sub> = 26 / ${ie_q > 0 ? ie_q.toFixed(2) : '0'} = <span style="color:#a855f7;font-weight:700;">${re_ohm !== Infinity ? re_ohm.toFixed(2) + ' &Omega;' : '&infin;'}</span><br>` +
+    `  • g<sub>m</sub> = I<sub>C</sub> / 26 mV = <span style="color:#06b6d4;font-weight:700;">${gm_mS.toFixed(1)} mS (mA/V)</span> &nbsp;&bull;&nbsp; r<sub>&pi;</sub> = &beta; / g<sub>m</sub> = <span style="color:#38bdf8;font-weight:700;">${(beta * (re_ohm !== Infinity ? re_ohm : 0) / 1000).toFixed(2)} k&Omega;</span>` +
+    `</div>`;
+
+  const solverEl = document.getElementById('curves-calc-details');
+  if (solverEl) solverEl.innerHTML = solverHtml;
+}
+
+let activeBjtParamCategory = 'all';
+
+function filterBjtParameterCategory(cat, btn) {
+  activeBjtParamCategory = cat;
+  document.querySelectorAll('#bjt-param-glossary-section .pill-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  filterBjtParameterCards();
+  playSound('click');
+}
+
+function filterBjtParameterCards() {
+  const query = (document.getElementById('bjt-param-search')?.value || '').toLowerCase().trim();
+  const cards = document.querySelectorAll('#bjt-param-grid .param-card');
+
+  cards.forEach(card => {
+    const cardCat = card.getAttribute('data-category');
+    const cardKeywords = (card.getAttribute('data-keywords') || '').toLowerCase();
+    const cardText = card.textContent.toLowerCase();
+
+    const matchesCat = (activeBjtParamCategory === 'all') || (cardCat === activeBjtParamCategory);
+    const matchesSearch = !query || cardKeywords.includes(query) || cardText.includes(query);
+
+    if (matchesCat && matchesSearch) {
+      card.style.display = 'block';
+    } else {
+      card.style.display = 'none';
+    }
+  });
 }
 
 function drawCharacteristicsCurves() {

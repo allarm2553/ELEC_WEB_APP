@@ -322,24 +322,45 @@
 
 <!-- TAB 3: 4 BJT AMPLIFIER CONFIGURATIONS -->
 <section id="tab-configs" class="tab-content">
-  <div class="pill-group" style="margin-bottom:1.1rem;">
-    <button class="pill-btn active" id="btn-cfg-ce-bypass" onclick="selectConfig('ce_bypass',this)"><i class="fa-solid fa-bolt"></i> 1. CE (มีบายพาส C_E)</button>
-    <button class="pill-btn" id="btn-cfg-ce-unbypass" onclick="selectConfig('ce_unbypass',this)"><i class="fa-solid fa-shield"></i> 2. CE (ไม่มีบายพาส R_E)</button>
-    <button class="pill-btn" id="btn-cfg-cc" onclick="selectConfig('cc',this)"><i class="fa-solid fa-shield-halved"></i> 3. Emitter Follower (CC)</button>
-    <button class="pill-btn" id="btn-cfg-cb" onclick="selectConfig('cb',this)"><i class="fa-solid fa-tower-broadcast"></i> 4. Common Base (CB)</button>
+  <div class="glass-card" style="margin-bottom:1.25rem;">
+    <div class="card-title">
+      <div class="card-title-text"><i class="fa-solid fa-layer-group"></i><span>โครงสร้างและการทำงานของวงจรขยาย BJT 3 โครงแบบ</span></div>
+    </div>
+    <div class="pill-group" style="margin-bottom:0.6rem;">
+      <button class="pill-btn active" id="btn-cfg-ce" onclick="selectConfig('ce',this)"><i class="fa-solid fa-arrow-down-up-across-line"></i> 1. Common Emitter (CE)</button>
+      <button class="pill-btn" id="btn-cfg-cc" onclick="selectConfig('cc',this)"><i class="fa-solid fa-shield-halved"></i> 2. Emitter Follower (CC)</button>
+      <button class="pill-btn" id="btn-cfg-cb" onclick="selectConfig('cb',this)"><i class="fa-solid fa-tower-broadcast"></i> 3. Common Base (CB)</button>
+    </div>
+
+    <!-- CE Bypass Mode Switch (Visible only for CE) -->
+    <div id="cfg-ce-bypass-group" style="margin-bottom:0.75rem;background:rgba(6,182,212,0.06);padding:0.4rem 0.75rem;border-radius:10px;border:1px solid rgba(6,182,212,0.25);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.5rem;">
+      <span style="font-size:0.8rem;color:var(--text-primary);font-weight:600;"><i class="fa-solid fa-code-branch" style="color:var(--accent-primary);"></i> สภาวะตัวเก็บประจุบายพาส C<sub>E</sub> (Bypass Capacitor):</span>
+      <div class="pill-group" style="margin-bottom:0;">
+        <button class="pill-btn active" id="btn-cfg-ce-bypassed" onclick="setCeBypassMode(true)"><i class="fa-solid fa-bolt"></i> 1. มี C<sub>E</sub> (Bypassed - อัตราขยายสูง)</button>
+        <button class="pill-btn" id="btn-cfg-ce-unbypassed" onclick="setCeBypassMode(false)"><i class="fa-solid fa-shield-halved"></i> 2. ไม่มี C<sub>E</sub> (Unbypassed - Negative Feedback)</button>
+      </div>
+    </div>
+
+    <!-- View Mode Buttons -->
+    <div class="pill-group" style="margin-bottom:0.85rem;background:rgba(15,23,42,0.6);padding:0.3rem;border-radius:12px;border:1px solid var(--glass-border);">
+      <button class="pill-btn active" id="btn-cfg-view-schem" onclick="setConfigViewMode('schematic')"><i class="fa-solid fa-diagram-project"></i> 1. ผังวงจรจริง (Complete Circuit)</button>
+      <button class="pill-btn" id="btn-cfg-view-ac" onclick="setConfigViewMode('ac_model')"><i class="fa-solid fa-microchip"></i> 2. แบบจำลอง AC สมมูล (AC Equivalent Model)</button>
+      <button class="pill-btn" id="btn-cfg-view-compare" onclick="setConfigViewMode('compare')"><i class="fa-solid fa-table-columns"></i> 3. เปรียบเทียบการแปลง AC (Conversion)</button>
+    </div>
   </div>
+
   <div class="grid-2col">
     <div class="glass-card">
       <div class="card-title">
-        <div class="card-title-text"><i class="fa-solid fa-diagram-project"></i><span id="config-title-text">วงจรขยาย Common Emitter พร้อมตัวเก็บประจุบายพาส C_E</span></div>
+        <div class="card-title-text"><i class="fa-solid fa-diagram-project"></i><span id="config-title-text">วงจรขยาย Common Emitter (CE Amplifier)</span></div>
       </div>
       <div class="canvas-card-wrapper">
         <div class="canvas-header-bar">
           <div class="canvas-header-title" style="color:var(--accent-primary);" id="config-canvas-title">
-            <i class="fa-solid fa-diagram-project"></i> ผังวงจร AC Schematic
+            <i class="fa-solid fa-diagram-project"></i> โหมด: ผังวงจรจริง (Complete Circuit)
           </div>
         </div>
-        <canvas id="canvas-config-schem" width="640" height="260"></canvas>
+        <canvas id="canvas-config-schem" width="660" height="270"></canvas>
       </div>
       <div class="theory-box" id="config-theory-box">
         <strong>Common Emitter (CE) มีบายพาส C<sub>E</sub>:</strong><br>
@@ -351,10 +372,10 @@
     </div>
 
     <div class="glass-card">
-      <div class="card-title"><div class="card-title-text"><i class="fa-solid fa-sliders"></i> กำหนดค่าอุปกรณ์ในวงจร</div></div>
+      <div class="card-title"><div class="card-title-text"><i class="fa-solid fa-sliders"></i> กำหนดค่าอุปกรณ์และวิเคราะห์สด</div></div>
       <div class="control-group">
         <div class="control-label-row">
-          <span class="control-label-title">ตัวต้านทานเบส R<sub>B</sub> (หรือ R<sub>B1</sub> || R<sub>B2</sub>)</span>
+          <span class="control-label-title">ตัวต้านทานเบส R<sub>B</sub> (หรือ R<sub>B1</sub> ∥ R<sub>B2</sub>)</span>
           <span class="control-value-badge" id="cfg-rb-badge">47.0 kΩ</span>
         </div>
         <input type="range" id="slider-cfg-rb" min="5" max="200" step="5" value="47" oninput="onConfigChange()">
@@ -386,6 +407,15 @@
         <div class="readout-card secondary"><div class="readout-title">Output Impedance Z<sub>out</sub></div><div class="readout-val" id="cfg-zout-val">3.10 <span class="readout-unit">kΩ</span></div></div>
         <div class="readout-card amber"><div class="readout-title">Current Gain A<sub>i</sub></div><div class="readout-val" id="cfg-ai-val">142.1</div></div>
       </div>
+
+      <div style="background:rgba(15,23,42,0.6);border:1px solid var(--glass-border);border-radius:var(--radius-md);padding:0.85rem;margin-top:0.5rem;">
+        <div style="font-size:0.82rem;font-weight:700;color:var(--accent-primary);margin-bottom:0.4rem;">
+          <i class="fa-solid fa-square-root-variable"></i> การคำนวณสดทีละขั้นตอน (Live Step-by-Step Solver):
+        </div>
+        <div id="config-calc-details" style="font-size:0.8rem;line-height:1.6;color:var(--text-secondary);">
+          <!-- Dynamic calculations inserted by JavaScript -->
+        </div>
+      </div>
     </div>
   </div>
 </section>
@@ -394,9 +424,10 @@
 <section id="tab-lab" class="tab-content">
   <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.75rem;margin-bottom:1.1rem;">
     <div class="pill-group">
-      <button class="pill-btn active" id="lab-btn-ce" onclick="switchLabCircuit('ce',this)"><i class="fa-solid fa-wave-square"></i> CE Amplifier</button>
-      <button class="pill-btn" id="lab-btn-cc" onclick="switchLabCircuit('cc',this)"><i class="fa-solid fa-shield-halved"></i> Emitter Follower (CC)</button>
-      <button class="pill-btn" id="lab-btn-cb" onclick="switchLabCircuit('cb',this)"><i class="fa-solid fa-tower-broadcast"></i> Common Base (CB)</button>
+      <button class="pill-btn active" id="lab-btn-ce" onclick="switchLabCircuit('ce',this)"><i class="fa-solid fa-wave-square"></i> 1. CE มี C<sub>E</sub> (High Gain)</button>
+      <button class="pill-btn" id="lab-btn-ce-unbypassed" onclick="switchLabCircuit('ce_unbypassed',this)"><i class="fa-solid fa-shield-halved"></i> 2. CE ไม่มี C<sub>E</sub> (Unbypassed / Low Distortion)</button>
+      <button class="pill-btn" id="lab-btn-cc" onclick="switchLabCircuit('cc',this)"><i class="fa-solid fa-shield-halved"></i> 3. Emitter Follower (CC Buffer)</button>
+      <button class="pill-btn" id="lab-btn-cb" onclick="switchLabCircuit('cb',this)"><i class="fa-solid fa-tower-broadcast"></i> 4. Common Base (CB RF Amp)</button>
     </div>
     <div style="display:flex;align-items:center;gap:0.65rem;background:rgba(6,182,212,0.1);padding:0.4rem 0.85rem;border-radius:50px;border:1px solid rgba(6,182,212,0.25);">
       <span style="font-size:0.8rem;color:var(--text-secondary);font-weight:600;"><i class="fa-solid fa-code-compare"></i> โมเดลคำนวณ:</span>
@@ -586,7 +617,7 @@ const state = {
     hie: 2600, hfe: 200, hoe_uS: 20.0, hre: 1.5e-4
   },
   config: {
-    type: 'ce_bypass', rb_kohm: 47.0, rc_kohm: 3.3, re_kohm: 1.0, rl_kohm: 10.0
+    type: 'ce', hasBypassCe: true, viewMode: 'schematic', rb_kohm: 47.0, rc_kohm: 3.3, re_kohm: 1.0, rl_kohm: 10.0
   },
   lab: {
     circuit: 'ce', modelChoice: 're', isPaused: false, vin_peak: 0.02, freq: 1000, vcc: 12,
@@ -1047,45 +1078,107 @@ function drawBJTSchem(ctx, cx, cy, isActive=true, isNPN=true) {
 const cfgCanvas = document.getElementById('canvas-config-schem');
 const cfgCtx = cfgCanvas.getContext('2d');
 
-function selectConfig(type, btn) {
-  state.config.type = type;
-  document.querySelectorAll('#tab-configs .pill-btn').forEach(b => b.classList.remove('active'));
+function setConfigViewMode(mode) {
+  state.config.viewMode = mode;
+  ['btn-cfg-view-schem', 'btn-cfg-view-ac', 'btn-cfg-view-compare'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('active');
+  });
+  const btn = document.getElementById(`btn-cfg-view-${mode === 'schematic' ? 'schem' : mode === 'ac_model' ? 'ac' : 'compare'}`);
   if (btn) btn.classList.add('active');
+
+  const titleEl = document.getElementById('config-canvas-title');
+  if (titleEl) {
+    titleEl.innerHTML = mode === 'schematic' ? '<i class="fa-solid fa-diagram-project"></i> โหมด: ผังวงจรจริง (Complete Circuit)' :
+                        mode === 'ac_model' ? '<i class="fa-solid fa-microchip"></i> โหมด: แบบจำลองสมมูล AC (re Model)' :
+                        '<i class="fa-solid fa-table-columns"></i> โหมด: เปรียบเทียบการแปลง AC (Schematic ➔ AC Model)';
+  }
+  drawConfigSchematic();
+  playSound('click');
+}
+
+function setCeBypassMode(bypassed) {
+  state.config.hasBypassCe = bypassed;
+  const btnBypassed = document.getElementById('btn-cfg-ce-bypassed');
+  const btnUnbypassed = document.getElementById('btn-cfg-ce-unbypassed');
+  if (btnBypassed) btnBypassed.classList.toggle('active', bypassed);
+  if (btnUnbypassed) btnUnbypassed.classList.toggle('active', !bypassed);
 
   const titleEl = document.getElementById('config-title-text');
   const theoryEl = document.getElementById('config-theory-box');
 
-  if (type === 'ce_bypass') {
-    titleEl.textContent = 'วงจรขยาย Common Emitter พร้อมตัวเก็บประจุบายพาส C_E';
-    theoryEl.innerHTML = 
-      `<strong>Common Emitter (CE) มีบายพาส C<sub>E</sub>:</strong><br>` +
-      `• <strong>Z<sub>in</sub>:</strong> R<sub>B</sub> || (β · r<sub>e</sub>) (ปานกลาง ~1 kΩ ถึง 3 kΩ)<br>` +
-      `• <strong>Z<sub>out</sub>:</strong> R<sub>C</sub> || r<sub>o</sub> ≈ R<sub>C</sub><br>` +
-      `• <strong>Voltage Gain (A<sub>v</sub>):</strong> −(R<sub>C</sub> || R<sub>L</sub>) / r<sub>e</sub> (Gain สูงมาก สัญญาณกลับเฟส 180°)<br>` +
-      `• <strong>Current Gain (A<sub>i</sub>):</strong> ≈ β · [R<sub>B</sub> / (R<sub>B</sub> + β·r<sub>e</sub>)]`;
-  } else if (type === 'ce_unbypass') {
-    titleEl.textContent = 'วงจรขยาย Common Emitter แบบไม่มีบายพาส (Swamped with R_E)';
-    theoryEl.innerHTML = 
-      `<strong>Common Emitter (CE) ไม่มีบายพาส (Unbypassed R<sub>E</sub>):</strong><br>` +
-      `• <strong>Z<sub>in</sub>:</strong> R<sub>B</sub> || [β · (r<sub>e</sub> + R<sub>E</sub>)] (สูงขึ้นเป็นสิบเท่า)<br>` +
-      `• <strong>Z<sub>out</sub>:</strong> R<sub>C</sub><br>` +
-      `• <strong>Voltage Gain (A<sub>v</sub>):</strong> ≈ −(R<sub>C</sub> || R<sub>L</sub>) / (r<sub>e</sub> + R<sub>E</sub>) ≈ <strong>−R<sub>C</sub> / R<sub>E</sub></strong> (Gain ลดลงแต่เสถียรมาก ไม่ขึ้นกับอุณหภูมิ)<br>` +
-      `• ลด Total Harmonic Distortion (THD) ได้อย่างดีเยี่ยม`;
+  if (state.config.type === 'ce') {
+    if (bypassed) {
+      if (titleEl) titleEl.innerHTML = '<i class="fa-solid fa-bolt"></i> วงจรขยาย Common Emitter (CE) — มี C<sub>E</sub> Bypass (High Gain)';
+      if (theoryEl) theoryEl.innerHTML = 
+        `<strong>Common Emitter (CE) มีบายพาส C<sub>E</sub>:</strong><br>` +
+        `• <strong>Z<sub>in</sub>:</strong> R<sub>B</sub> ∥ (β · r<sub>e</sub>) (ปานกลาง ~1 kΩ ถึง 3 kΩ)<br>` +
+        `• <strong>Z<sub>out</sub>:</strong> R<sub>C</sub> ∥ r<sub>o</sub> ≈ R<sub>C</sub><br>` +
+        `• <strong>Voltage Gain (A<sub>v</sub>):</strong> −(R<sub>C</sub> ∥ R<sub>L</sub>) / r<sub>e</sub> (Gain สูงมาก สัญญาณกลับเฟส 180°)<br>` +
+        `• <strong>Current Gain (A<sub>i</sub>):</strong> ≈ β · [R<sub>B</sub> / (R<sub>B</sub> + β·r<sub>e</sub>)]<br>` +
+        `• ตัวเก็บประจุ C<sub>E</sub> ลัดวงจร R<sub>E</sub> ลง AC Ground ทำให้ได้ Gain สูงสุด แต่ความคงที่ของ Gain จะขึ้นกับค่า r<sub>e</sub> ซึ่งแปรผันตามอุณหภูมิ`;
+    } else {
+      if (titleEl) titleEl.innerHTML = '<i class="fa-solid fa-shield-halved"></i> วงจรขยาย Common Emitter (CE) — ไม่มี C<sub>E</sub> (Unbypassed R<sub>E</sub> / Swamped)';
+      if (theoryEl) theoryEl.innerHTML = 
+        `<strong>Common Emitter (CE) ไม่มีบายพาส (Unbypassed R<sub>E</sub> / Swamped):</strong><br>` +
+        `• <strong>Z<sub>in</sub>:</strong> R<sub>B</sub> ∥ [β · (r<sub>e</sub> + R<sub>E</sub>)] (สูงขึ้นเป็น 10–20 เท่า ลดผลกระทบโหลดอินพุต)<br>` +
+        `• <strong>Z<sub>out</sub>:</strong> R<sub>C</sub><br>` +
+        `• <strong>Voltage Gain (A<sub>v</sub>):</strong> ≈ −(R<sub>C</sub> ∥ R<sub>L</sub>) / (r<sub>e</sub> + R<sub>E</sub>) ≈ <strong>−R<sub>C</sub> / R<sub>E</sub></strong> (กลับเฟส 180°)<br>` +
+        `• <strong>กลไกป้อนกลับลบ (Negative Feedback):</strong> สัญญาณแรงดันตกคร่อม R<sub>E</sub> (v<sub>e</sub> = i<sub>e</sub>·R<sub>E</sub>) ช่วยลดความเพี้ยน (THD) และทำให้ Gain เสถียรสูงมาก`;
+    }
+  }
+
+  onConfigChange();
+  playSound('click');
+}
+
+function selectConfig(type, btn) {
+  state.config.type = type;
+  ['btn-cfg-ce', 'btn-cfg-cc', 'btn-cfg-cb'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('active');
+  });
+  if (btn) btn.classList.add('active');
+
+  const ceBypassGroup = document.getElementById('cfg-ce-bypass-group');
+  if (ceBypassGroup) ceBypassGroup.style.display = (type === 'ce') ? 'flex' : 'none';
+
+  const titleEl = document.getElementById('config-title-text');
+  const theoryEl = document.getElementById('config-theory-box');
+
+  if (type === 'ce') {
+    if (state.config.hasBypassCe) {
+      titleEl.innerHTML = '<i class="fa-solid fa-bolt"></i> วงจรขยาย Common Emitter (CE) — มี C<sub>E</sub> Bypass (High Gain)';
+      theoryEl.innerHTML = 
+        `<strong>Common Emitter (CE) มีบายพาส C<sub>E</sub>:</strong><br>` +
+        `• <strong>Z<sub>in</sub>:</strong> R<sub>B</sub> ∥ (β · r<sub>e</sub>) (ปานกลาง ~1 kΩ ถึง 3 kΩ)<br>` +
+        `• <strong>Z<sub>out</sub>:</strong> R<sub>C</sub> ∥ r<sub>o</sub> ≈ R<sub>C</sub><br>` +
+        `• <strong>Voltage Gain (A<sub>v</sub>):</strong> −(R<sub>C</sub> ∥ R<sub>L</sub>) / r<sub>e</sub> (Gain สูงมาก สัญญาณกลับเฟส 180°)<br>` +
+        `• <strong>Current Gain (A<sub>i</sub>):</strong> ≈ β · [R<sub>B</sub> / (R<sub>B</sub> + β·r<sub>e</sub>)]`;
+    } else {
+      titleEl.innerHTML = '<i class="fa-solid fa-shield-halved"></i> วงจรขยาย Common Emitter (CE) — ไม่มี C<sub>E</sub> (Unbypassed R<sub>E</sub> / Swamped)';
+      theoryEl.innerHTML = 
+        `<strong>Common Emitter (CE) ไม่มีบายพาส (Unbypassed R<sub>E</sub> / Swamped):</strong><br>` +
+        `• <strong>Z<sub>in</sub>:</strong> R<sub>B</sub> ∥ [β · (r<sub>e</sub> + R<sub>E</sub>)] (สูงขึ้นเป็น 10–20 เท่า)<br>` +
+        `• <strong>Z<sub>out</sub>:</strong> R<sub>C</sub><br>` +
+        `• <strong>Voltage Gain (A<sub>v</sub>):</strong> ≈ −(R<sub>C</sub> ∥ R<sub>L</sub>) / (r<sub>e</sub> + R<sub>E</sub>) ≈ <strong>−R<sub>C</sub> / R<sub>E</sub></strong> (กลับเฟส 180°)<br>` +
+        `• <strong>กลไกป้อนกลับลบ (Negative Feedback):</strong> สัญญาณแรงดันตกคร่อม R<sub>E</sub> (v<sub>e</sub> = i<sub>e</sub>·R<sub>E</sub>) ช่วยลดความเพี้ยน (THD) และทำให้ Gain เสถียรสูงมาก`;
+    }
   } else if (type === 'cc') {
-    titleEl.textContent = 'วงจร Emitter Follower (Common Collector Buffer)';
+    titleEl.innerHTML = '<i class="fa-solid fa-shield-halved"></i> วงจร Emitter Follower (Common Collector Buffer)';
     theoryEl.innerHTML = 
       `<strong>Emitter Follower / Common Collector (CC):</strong><br>` +
-      `• <strong>Z<sub>in</sub>:</strong> R<sub>B</sub> || [β · (r<sub>e</sub> + R<sub>E</sub> || R<sub>L</sub>)] (สูงมาก ~50 kΩ ถึง 200 kΩ)<br>` +
-      `• <strong>Z<sub>out</sub>:</strong> r<sub>e</sub> || R<sub>E</sub> ≈ <strong>ต่ำมาก (~10–30 Ω)</strong><br>` +
+      `• <strong>Z<sub>in</sub>:</strong> R<sub>B</sub> ∥ [β · (r<sub>e</sub> + R<sub>E</sub> ∥ R<sub>L</sub>)] (สูงมาก ~50 kΩ ถึง 200 kΩ)<br>` +
+      `• <strong>Z<sub>out</sub>:</strong> r<sub>e</sub> ∥ R<sub>E</sub> ≈ <strong>ต่ำมาก (~10–30 Ω)</strong><br>` +
       `• <strong>Voltage Gain (A<sub>v</sub>):</strong> ≈ <strong>1.0 (สัญญาณไม่กลับเฟส 0°)</strong><br>` +
       `• <strong>Current Gain (A<sub>i</sub>):</strong> สูงมาก เหมาะเป็นวงจร Buffer ขับโหลดหนัก`;
   } else if (type === 'cb') {
-    titleEl.textContent = 'วงจรขยาย Common Base (CB RF Amplifier)';
+    titleEl.innerHTML = '<i class="fa-solid fa-tower-broadcast"></i> วงจรขยาย Common Base (CB RF Amplifier)';
     theoryEl.innerHTML = 
       `<strong>Common Base (CB) Amplifier:</strong><br>` +
-      `• <strong>Z<sub>in</sub>:</strong> R<sub>E</sub> || r<sub>e</sub> ≈ <strong>r<sub>e</sub> (ต่ำมาก ~10–25 Ω)</strong><br>` +
+      `• <strong>Z<sub>in</sub>:</strong> R<sub>E</sub> ∥ r<sub>e</sub> ≈ <strong>r<sub>e</sub> (ต่ำมาก ~10–25 Ω)</strong><br>` +
       `• <strong>Z<sub>out</sub>:</strong> R<sub>C</sub><br>` +
-      `• <strong>Voltage Gain (A<sub>v</sub>):</strong> +(R<sub>C</sub> || R<sub>L</sub>) / r<sub>e</sub> (Gain สูงมาก สัญญาณไม่กลับเฟส 0°)<br>` +
+      `• <strong>Voltage Gain (A<sub>v</sub>):</strong> +(R<sub>C</sub> ∥ R<sub>L</sub>) / r<sub>e</sub> (Gain สูงมาก สัญญาณไม่กลับเฟส 0°)<br>` +
       `• <strong>Current Gain (A<sub>i</sub>):</strong> ≈ 1 (α ≈ 0.99) นิยมใช้ในงานความถี่สูง (RF / VHF) เพื่อลด Miller Effect`;
   }
 
@@ -1113,23 +1206,67 @@ function onConfigChange() {
   const rl_k = state.config.rl_kohm * 1000;
 
   let av = 0, zin = 0, zout = 0, ai = 0, phaseStr = '180° (กลับเฟส)';
+  let calcHtml = '';
 
-  if (type === 'ce_bypass') {
+  if (type === 'ce') {
     const r_ac = (rc_k * rl_k) / (rc_k + rl_k);
-    av = -r_ac / re;
-    const zb = beta * re;
-    zin = (rb_k * zb) / (rb_k + zb);
-    zout = rc_k;
-    ai = beta * (rb_k / (rb_k + zb));
-    phaseStr = '180° (กลับเฟส)';
-  } else if (type === 'ce_unbypass') {
-    const r_ac = (rc_k * rl_k) / (rc_k + rl_k);
-    av = -r_ac / (re + re_k);
-    const zb = beta * (re + re_k);
-    zin = (rb_k * zb) / (rb_k + zb);
-    zout = rc_k;
-    ai = beta * (rb_k / (rb_k + zb));
-    phaseStr = '180° (กลับเฟส)';
+
+    if (state.config.hasBypassCe) {
+      // With CE (Bypassed)
+      av = -r_ac / re;
+      const zb = beta * re;
+      zin = (rb_k * zb) / (rb_k + zb);
+      zout = rc_k;
+      ai = beta * (rb_k / (rb_k + zb));
+      phaseStr = '180° (กลับเฟส)';
+
+      calcHtml = 
+        `<div style="margin-bottom:0.45rem;padding:0.45rem;background:rgba(6,182,212,0.06);border-left:3px solid var(--accent-primary);border-radius:4px;">` +
+        `  <strong style="color:var(--accent-primary);"><i class="fa-solid fa-calculator"></i> 1. ขั้นตอนการแปลงแบบจำลอง AC (มี C<sub>E</sub> Bypass):</strong><br>` +
+        `  • แหล่งจ่ายไฟ DC (+V<sub>CC</sub> = +12V) กลายเป็น <strong>AC Ground (0V)</strong><br>` +
+        `  • ตัวเก็บประจุ C<sub>1</sub>, C<sub>2</sub>, C<sub>E</sub> ลัดวงจรในไฟสลับ (X<sub>C</sub> ≈ 0)<br>` +
+        `  • ขา Emitter ถูกดึงลงกราวด์ผ่าน C<sub>E</sub> ทำให้ทรานซิสเตอร์ถูกแทนด้วยความต้านทาน <strong>r<sub>e</sub> (${re.toFixed(2)} Ω)</strong> และแหล่งจ่ายกระแส <strong>β·i<sub>b</sub></strong>` +
+        `</div>` +
+        `<div style="margin-bottom:0.45rem;"><strong>2. คำนวณความต้านทานโหลด AC รวม (r<sub>ac</sub> = R<sub>C</sub> ∥ R<sub>L</sub>):</strong><br>` +
+        `&nbsp;&nbsp;r<sub>ac</sub> = (${(rc_k/1000).toFixed(1)}k × ${(rl_k/1000).toFixed(1)}k) / (${(rc_k/1000).toFixed(1)}k + ${(rl_k/1000).toFixed(1)}k) = <span style="color:#38bdf8;font-weight:700;">${(r_ac/1000).toFixed(2)} kΩ (${r_ac.toFixed(1)} Ω)</span></div>` +
+        `<div style="margin-bottom:0.45rem;"><strong>3. คำนวณอัตราขยายแรงดัน (Voltage Gain A<sub>v</sub>):</strong><br>` +
+        `&nbsp;&nbsp;A<sub>v</sub> = −r<sub>ac</sub> / r<sub>e</sub> = −${r_ac.toFixed(1)} / ${re.toFixed(2)} = <span style="color:#10b981;font-weight:700;font-size:0.95rem;">${av.toFixed(1)}</span> (สัญญาณกลับเฟส 180°)</div>` +
+        `<div style="margin-bottom:0.45rem;"><strong>4. อิมพีแดนซ์อินพุตและเอาต์พุต (Z<sub>in</sub>, Z<sub>out</sub>):</strong><br>` +
+        `&nbsp;&nbsp;• <strong>Z<sub>b</sub></strong> = β · r<sub>e</sub> = ${beta} × ${re.toFixed(2)} Ω = <span style="color:#eab308;font-weight:700;">${(zb/1000).toFixed(2)} kΩ</span><br>` +
+        `&nbsp;&nbsp;• <strong>Z<sub>in</sub></strong> = R<sub>B</sub> ∥ Z<sub>b</sub> = ${(rb_k/1000).toFixed(1)}k ∥ ${(zb/1000).toFixed(2)}k = <span style="color:var(--accent-primary);font-weight:700;">${(zin/1000).toFixed(2)} kΩ</span><br>` +
+        `&nbsp;&nbsp;• <strong>Z<sub>out</sub></strong> = R<sub>C</sub> = <span style="color:#38bdf8;font-weight:700;">${(zout/1000).toFixed(2)} kΩ</span></div>`;
+
+    } else {
+      // Without CE (Unbypassed / Swamped)
+      av = -r_ac / (re + re_k);
+      const zb = beta * (re + re_k);
+      zin = (rb_k * zb) / (rb_k + zb);
+      zout = rc_k;
+      ai = beta * (rb_k / (rb_k + zb));
+      phaseStr = '180° (กลับเฟส)';
+      const av_bypassed = -r_ac / re;
+
+      calcHtml = 
+        `<div style="margin-bottom:0.45rem;padding:0.45rem;background:rgba(244,63,94,0.08);border-left:3px solid #f43f5e;border-radius:4px;">` +
+        `  <strong style="color:#fb7185;"><i class="fa-solid fa-triangle-exclamation"></i> 1. โครงสร้างกรณีไม่มี C<sub>E</sub> (Unbypassed R<sub>E</sub> / Negative Feedback):</strong><br>` +
+        `  • ตัวต้านทาน <strong>R<sub>E</sub> (${(re_k/1000).toFixed(1)} kΩ)</strong> ไม่ถูกลัดวงจรลงกราวด์ในไฟสลับ (No AC Bypass)<br>` +
+        `  • เกิดสัญญาณแรงดันตกคร่อมขา Emitter: <strong>v<sub>e</sub> = i<sub>e</sub> · R<sub>E</sub> ≈ i<sub>c</sub> · R<sub>E</sub></strong><br>` +
+        `  • ส่งผลให้แรงดันคุมรอยต่อเบส <strong>v<sub>be</sub> = v<sub>in</sub> − v<sub>e</sub></strong> ลดทอนลง (Negative Feedback)` +
+        `</div>` +
+        `<div style="margin-bottom:0.45rem;"><strong>2. คำนวณอัตราขยายแรงดัน (Voltage Gain A<sub>v</sub>):</strong><br>` +
+        `&nbsp;&nbsp;A<sub>v</sub> = −r<sub>ac</sub> / (r<sub>e</sub> + R<sub>E</sub>) = −${r_ac.toFixed(1)} / (${re.toFixed(2)} + ${re_k.toFixed(0)}) = <span style="color:#10b981;font-weight:700;font-size:0.95rem;">${av.toFixed(2)}</span> (กลับเฟส 180°)<br>` +
+        `&nbsp;&nbsp;<em>(สูตรประมาณ: A<sub>v</sub> ≈ −R<sub>C</sub> / R<sub>E</sub> = −${(rc_k/1000).toFixed(1)} / ${(re_k/1000).toFixed(1)} = ${(-rc_k/re_k).toFixed(2)})</em></div>` +
+        `<div style="margin-bottom:0.45rem;padding:0.45rem;background:rgba(16,185,129,0.06);border-left:3px solid #10b981;border-radius:4px;">` +
+        `  <strong style="color:#34d399;"><i class="fa-solid fa-scale-balanced"></i> 3. เปรียบเทียบกับกรณีมี C<sub>E</sub>:</strong><br>` +
+        `  • <strong>อัตราขยาย:</strong> ลดลงจาก <span style="color:#38bdf8;text-decoration:line-through;">${av_bypassed.toFixed(1)}</span> เหลือ <strong><span style="color:#10b981;">${av.toFixed(2)}</span></strong> (ลดลง ${(Math.abs(av_bypassed)/Math.abs(av)).toFixed(1)} เท่า)<br>` +
+        `  • <strong>อิมพีแดนซ์อินพุต (Z<sub>in</sub>):</strong> เพิ่มสูงขึ้นจาก ${( (rb_k*beta*re)/(rb_k+beta*re) / 1000 ).toFixed(2)} kΩ เป็น <strong>${(zin/1000).toFixed(2)} kΩ</strong> (สูงขึ้น ${(zin / ((rb_k*beta*re)/(rb_k+beta*re))).toFixed(1)} เท่า)<br>` +
+        `  • <strong>ความคงที่:</strong> ความเพี้ยนลดลงอย่างมาก และ Gain ไม่ขึ้นกับอุณหภูมิเพราะ R<sub>E</sub> ≫ r<sub>e</sub>` +
+        `</div>` +
+        `<div style="margin-bottom:0.45rem;"><strong>4. อิมพีแดนซ์อินพุตและเอาต์พุต (Z<sub>in</sub>, Z<sub>out</sub>):</strong><br>` +
+        `&nbsp;&nbsp;• <strong>Z<sub>b</sub></strong> = β · (r<sub>e</sub> + R<sub>E</sub>) = ${beta} × (${re.toFixed(1)} + ${re_k.toFixed(0)}) = <span style="color:#eab308;font-weight:700;">${(zb/1000).toFixed(2)} kΩ</span><br>` +
+        `&nbsp;&nbsp;• <strong>Z<sub>in</sub></strong> = R<sub>B</sub> ∥ Z<sub>b</sub> = <span style="color:var(--accent-primary);font-weight:700;">${(zin/1000).toFixed(2)} kΩ</span><br>` +
+        `&nbsp;&nbsp;• <strong>Z<sub>out</sub></strong> = R<sub>C</sub> = <span style="color:#38bdf8;font-weight:700;">${(zout/1000).toFixed(2)} kΩ</span></div>`;
+    }
   } else if (type === 'cc') {
     const re_parallel_rl = (re_k * rl_k) / (re_k + rl_k);
     av = re_parallel_rl / (re + re_parallel_rl);
@@ -1138,6 +1275,21 @@ function onConfigChange() {
     zout = (re * re_k) / (re + re_k);
     ai = beta * (rb_k / (rb_k + zb));
     phaseStr = '0° (ตรงเฟส)';
+
+    calcHtml = 
+      `<div style="margin-bottom:0.45rem;padding:0.45rem;background:rgba(6,182,212,0.06);border-left:3px solid var(--accent-primary);border-radius:4px;">` +
+      `  <strong style="color:var(--accent-primary);"><i class="fa-solid fa-calculator"></i> 1. ขั้นตอนการแปลง AC (Emitter Follower):</strong><br>` +
+      `  • ขา Collector ต่อตรงกับ +V<sub>CC</sub> กลายเป็น <strong>AC Ground</strong><br>` +
+      `  • สัญญาณเอาต์พุตดึงออกจากขา Emitter ตกคร่อม R<sub>E</sub> ∥ R<sub>L</sub>` +
+      `</div>` +
+      `<div style="margin-bottom:0.45rem;"><strong>2. คำนวณความต้านทานโหลดที่ขา Emitter (r<sub>e_load</sub> = R<sub>E</sub> ∥ R<sub>L</sub>):</strong><br>` +
+      `&nbsp;&nbsp;r<sub>e_load</sub> = ${(re_parallel_rl/1000).toFixed(2)} kΩ (${re_parallel_rl.toFixed(1)} Ω)</div>` +
+      `<div style="margin-bottom:0.45rem;"><strong>3. คำนวณอัตราขยายแรงดัน (A<sub>v</sub>):</strong><br>` +
+      `&nbsp;&nbsp;A<sub>v</sub> = r<sub>e_load</sub> / (r<sub>e</sub> + r<sub>e_load</sub>) = ${re_parallel_rl.toFixed(1)} / (${re.toFixed(2)} + ${re_parallel_rl.toFixed(1)}) = <span style="color:#10b981;font-weight:700;font-size:0.95rem;">+${av.toFixed(3)}</span> (ตรงเฟส 0°, มีค่าใกล้เคียง 1.0 เสมอ)</div>` +
+      `<div style="margin-bottom:0.45rem;"><strong>4. อิมพีแดนซ์อินพุตและเอาต์พุต (Z<sub>in</sub>, Z<sub>out</sub>):</strong><br>` +
+      `&nbsp;&nbsp;• <strong>Z<sub>in</sub></strong> = R<sub>B</sub> ∥ [β(r<sub>e</sub> + R<sub>E</sub>∥R<sub>L</sub>)] = <span style="color:var(--accent-primary);font-weight:700;">${(zin/1000).toFixed(2)} kΩ</span> (สูงมาก)<br>` +
+      `&nbsp;&nbsp;• <strong>Z<sub>out</sub></strong> = r<sub>e</sub> ∥ R<sub>E</sub> = <span style="color:#38bdf8;font-weight:700;">${zout.toFixed(1)} Ω</span> (ต่ำมาก เหมาะเป็น Buffer)</div>`;
+
   } else if (type === 'cb') {
     const r_ac = (rc_k * rl_k) / (rc_k + rl_k);
     av = r_ac / re;
@@ -1145,12 +1297,25 @@ function onConfigChange() {
     zout = rc_k;
     ai = 0.99;
     phaseStr = '0° (ตรงเฟส)';
+
+    calcHtml = 
+      `<div style="margin-bottom:0.45rem;padding:0.45rem;background:rgba(6,182,212,0.06);border-left:3px solid var(--accent-primary);border-radius:4px;">` +
+      `  <strong style="color:var(--accent-primary);"><i class="fa-solid fa-calculator"></i> 1. ขั้นตอนการแปลง AC (Common Base):</strong><br>` +
+      `  • ขา Base ต่อผ่าน C<sub>B</sub> ลงกราวด์ กลายเป็น <strong>AC Ground</strong><br>` +
+      `  • ป้อนสัญญาณเข้าที่ขา Emitter และดึงเอาต์พุตที่ขา Collector` +
+      `</div>` +
+      `<div style="margin-bottom:0.45rem;"><strong>2. คำนวณอัตราขยายแรงดัน (A<sub>v</sub>):</strong><br>` +
+      `&nbsp;&nbsp;A<sub>v</sub> = +(R<sub>C</sub> ∥ R<sub>L</sub>) / r<sub>e</sub> = ${r_ac.toFixed(1)} / ${re.toFixed(2)} = <span style="color:#10b981;font-weight:700;font-size:0.95rem;">+${av.toFixed(1)}</span> (ไม่กลับเฟส 0°)</div>` +
+      `<div style="margin-bottom:0.45rem;"><strong>3. อิมพีแดนซ์อินพุตและเอาต์พุต (Z<sub>in</sub>, Z<sub>out</sub>):</strong><br>` +
+      `&nbsp;&nbsp;• <strong>Z<sub>in</sub></strong> = R<sub>E</sub> ∥ r<sub>e</sub> ≈ <span style="color:#f59e0b;font-weight:700;">${zin.toFixed(1)} Ω</span> (ต่ำมาก เหมาะกับ RF 50Ω)<br>` +
+      `&nbsp;&nbsp;• <strong>Z<sub>out</sub></strong> = R<sub>C</sub> = <span style="color:#38bdf8;font-weight:700;">${(zout/1000).toFixed(2)} kΩ</span></div>`;
   }
 
   document.getElementById('cfg-av-val').innerHTML = `${av.toFixed(1)} <span class="readout-unit">${phaseStr.includes('180')?'(180°↺)':'(0°)'}</span>`;
   document.getElementById('cfg-zin-val').innerHTML = `${(zin/1000).toFixed(2)} <span class="readout-unit">kΩ</span>`;
   document.getElementById('cfg-zout-val').innerHTML = `${(zout/1000).toFixed(2)} <span class="readout-unit">kΩ</span>`;
   document.getElementById('cfg-ai-val').innerHTML = `${ai.toFixed(1)}`;
+  document.getElementById('config-calc-details').innerHTML = calcHtml;
 
   drawConfigSchematic();
 }
@@ -1161,105 +1326,363 @@ function drawConfigSchematic() {
   cfgCtx.fillStyle = '#050b14'; cfgCtx.fillRect(0, 0, W, H);
 
   const type = state.config.type;
+  const viewMode = state.config.viewMode || 'schematic';
+
+  if (viewMode === 'schematic') {
+    drawPureSchematic(cfgCtx, type, W, H);
+  } else if (viewMode === 'ac_model') {
+    drawPureACModel(cfgCtx, type, W, H);
+  } else if (viewMode === 'compare') {
+    drawSideBySideCompare(cfgCtx, type, W, H);
+  }
+}
+
+function drawPureSchematic(ctx, type, W, H) {
   const bjt_cx = 320, bjt_cy = 135;
 
-  if (type === 'ce_bypass' || type === 'ce_unbypass') {
-    drawAcSrc(cfgCtx, 55, 135, 18, 'v_in', 0.02);
-    drawCapH(cfgCtx, 85, 165, 135, 'C_1 10μF');
-    wire(cfgCtx, 73, 135, 85, 135); wire(cfgCtx, 165, 135, 210, 135);
-    wire(cfgCtx, 55, 153, 55, 235); gndSymbol(cfgCtx, 55, 235);
+  if (type === 'ce') {
+    drawAcSrc(ctx, 55, 135, 18, 'v_in', 0.02);
+    drawCapH(ctx, 85, 165, 135, 'C_1 10μF');
+    wire(ctx, 73, 135, 85, 135); wire(ctx, 165, 135, 210, 135);
+    wire(ctx, 55, 153, 55, 235); gndSymbol(ctx, 55, 235);
 
-    drawResistorV(cfgCtx, 210, 25, 135, 'R_B1', '100kΩ', 'left');
-    drawResistorV(cfgCtx, 210, 135, 235, 'R_B2', '22kΩ', 'left');
-    vccRail(cfgCtx, 210, 25, 12); gndSymbol(cfgCtx, 210, 235); dotNode(cfgCtx, 210, 135);
+    drawResistorV(ctx, 210, 25, 135, 'R_B1', '100kΩ', 'left');
+    drawResistorV(ctx, 210, 135, 235, 'R_B2', '22kΩ', 'left');
+    vccRail(ctx, 210, 25, 12); gndSymbol(ctx, 210, 235); dotNode(ctx, 210, 135);
 
-    wire(cfgCtx, 210, 135, bjt_cx - 20, 135);
-    drawBJTSchem(cfgCtx, bjt_cx, bjt_cy, true, true);
+    wire(ctx, 210, 135, bjt_cx - 20, 135);
+    drawBJTSchem(ctx, bjt_cx, bjt_cy, true, true);
 
     const coll_x = bjt_cx + 20, coll_y = bjt_cy - 16;
-    vccRail(cfgCtx, coll_x, 25, 12);
-    drawResistorV(cfgCtx, coll_x, 25, coll_y, 'R_C', `${state.config.rc_kohm.toFixed(1)}kΩ`, 'right');
-    dotNode(cfgCtx, coll_x, coll_y);
+    vccRail(ctx, coll_x, 25, 12);
+    drawResistorV(ctx, coll_x, 25, coll_y, 'R_C', `${state.config.rc_kohm.toFixed(1)}kΩ`, 'right');
+    dotNode(ctx, coll_x, coll_y);
 
     const emit_x = bjt_cx + 20, emit_y = bjt_cy + 16;
-    if (type === 'ce_bypass') {
-      wire(cfgCtx, emit_x, emit_y, emit_x, 175);
-      drawResistorV(cfgCtx, emit_x, 175, 235, 'R_E', `${state.config.re_kohm.toFixed(1)}kΩ`, 'left');
-      drawCapV(cfgCtx, emit_x + 50, 175, 235, 'C_E 100μF');
-      wire(cfgCtx, emit_x, 175, emit_x + 50, 175);
-      wire(cfgCtx, emit_x, 235, emit_x + 50, 235);
-      gndSymbol(cfgCtx, emit_x + 25, 235); dotNode(cfgCtx, emit_x, 175);
+    if (state.config.hasBypassCe) {
+      wire(ctx, emit_x, emit_y, emit_x, 175);
+      drawResistorV(ctx, emit_x, 175, 235, 'R_E', `${state.config.re_kohm.toFixed(1)}kΩ`, 'left');
+      drawCapV(ctx, emit_x + 50, 175, 235, 'C_E 100μF');
+      wire(ctx, emit_x, 175, emit_x + 50, 175);
+      wire(ctx, emit_x, 235, emit_x + 50, 235);
+      gndSymbol(ctx, emit_x + 25, 235); dotNode(ctx, emit_x, 175);
     } else {
-      wire(cfgCtx, emit_x, emit_y, emit_x, 175);
-      drawResistorV(cfgCtx, emit_x, 175, 235, 'R_E', `${state.config.re_kohm.toFixed(1)}kΩ`, 'right');
-      gndSymbol(cfgCtx, emit_x, 235); dotNode(cfgCtx, emit_x, 175);
+      wire(ctx, emit_x, emit_y, emit_x, 175);
+      drawResistorV(ctx, emit_x, 175, 235, 'R_E', `${state.config.re_kohm.toFixed(1)}kΩ`, 'right');
+      gndSymbol(ctx, emit_x, 235); dotNode(ctx, emit_x, 175, 'E', 'left');
+      ctx.font = 'bold 9px JetBrains Mono'; ctx.fillStyle = '#f43f5e';
+      ctx.fillText('❌ ไม่มี C_E', emit_x + 38, 205);
     }
 
-    wire(cfgCtx, coll_x, coll_y, 440, coll_y);
-    drawCapH(cfgCtx, 440, 520, coll_y, 'C_2 10μF');
-    wire(cfgCtx, 520, coll_y, 580, coll_y);
-    drawResistorV(cfgCtx, 580, coll_y, 235, 'R_L', `${state.config.rl_kohm.toFixed(1)}kΩ`, 'right');
-    gndSymbol(cfgCtx, 580, 235);
-    dotNode(cfgCtx, 580, coll_y, 'v_out (180°↺)', 'top');
+    wire(ctx, coll_x, coll_y, 440, coll_y);
+    drawCapH(ctx, 440, 520, coll_y, 'C_2 10μF');
+    wire(ctx, 520, coll_y, 580, coll_y);
+    drawResistorV(ctx, 580, coll_y, 235, 'R_L', `${state.config.rl_kohm.toFixed(1)}kΩ`, 'right');
+    gndSymbol(ctx, 580, 235);
+    dotNode(ctx, 580, coll_y, 'v_out (180°↺)', 'top');
 
   } else if (type === 'cc') {
-    drawAcSrc(cfgCtx, 55, 135, 18, 'v_in', 0.02);
-    drawCapH(cfgCtx, 85, 165, 135, 'C_1');
-    wire(cfgCtx, 73, 135, 85, 135); wire(cfgCtx, 165, 135, 210, 135);
-    wire(cfgCtx, 55, 153, 55, 235); gndSymbol(cfgCtx, 55, 235);
+    drawAcSrc(ctx, 55, 135, 18, 'v_in', 0.02);
+    drawCapH(ctx, 85, 165, 135, 'C_1');
+    wire(ctx, 73, 135, 85, 135); wire(ctx, 165, 135, 210, 135);
+    wire(ctx, 55, 153, 55, 235); gndSymbol(ctx, 55, 235);
 
-    drawResistorV(cfgCtx, 210, 25, 135, 'R_B1', '100kΩ', 'left');
-    drawResistorV(cfgCtx, 210, 135, 235, 'R_B2', '100kΩ', 'left');
-    vccRail(cfgCtx, 210, 25, 12); gndSymbol(cfgCtx, 210, 235); dotNode(cfgCtx, 210, 135);
+    drawResistorV(ctx, 210, 25, 135, 'R_B1', '100kΩ', 'left');
+    drawResistorV(ctx, 210, 135, 235, 'R_B2', '100kΩ', 'left');
+    vccRail(ctx, 210, 25, 12); gndSymbol(ctx, 210, 235); dotNode(ctx, 210, 135);
 
-    wire(cfgCtx, 210, 135, bjt_cx - 20, 135);
-    drawBJTSchem(cfgCtx, bjt_cx, bjt_cy, true, true);
+    wire(ctx, 210, 135, bjt_cx - 20, 135);
+    drawBJTSchem(ctx, bjt_cx, bjt_cy, true, true);
 
     const coll_x = bjt_cx + 20, coll_y = bjt_cy - 16;
-    vccRail(cfgCtx, coll_x, 25, 12);
-    wire(cfgCtx, coll_x, 25, coll_x, coll_y);
+    vccRail(ctx, coll_x, 25, 12);
+    wire(ctx, coll_x, 25, coll_x, coll_y);
 
     const emit_x = bjt_cx + 20, emit_y = bjt_cy + 16;
-    wire(cfgCtx, emit_x, emit_y, emit_x, 170);
-    drawResistorV(cfgCtx, emit_x, 170, 235, 'R_E', `${state.config.re_kohm.toFixed(1)}kΩ`, 'left');
-    gndSymbol(cfgCtx, emit_x, 235); dotNode(cfgCtx, emit_x, 170);
+    wire(ctx, emit_x, emit_y, emit_x, 170);
+    drawResistorV(ctx, emit_x, 170, 235, 'R_E', `${state.config.re_kohm.toFixed(1)}kΩ`, 'left');
+    gndSymbol(ctx, emit_x, 235); dotNode(ctx, emit_x, 170);
 
-    wire(cfgCtx, emit_x, 170, 440, 170);
-    drawCapH(cfgCtx, 440, 520, 170, 'C_2');
-    wire(cfgCtx, 520, 170, 580, 170);
-    drawResistorV(cfgCtx, 580, 170, 235, 'R_L', `${state.config.rl_kohm.toFixed(1)}kΩ`, 'right');
-    gndSymbol(cfgCtx, 580, 235);
-    dotNode(cfgCtx, 580, 170, 'v_out (Av≈1 Buffer)', 'top');
+    wire(ctx, emit_x, 170, 440, 170);
+    drawCapH(ctx, 440, 520, 170, 'C_2');
+    wire(ctx, 520, 170, 580, 170);
+    drawResistorV(ctx, 580, 170, 235, 'R_L', `${state.config.rl_kohm.toFixed(1)}kΩ`, 'right');
+    gndSymbol(ctx, 580, 235);
+    dotNode(ctx, 580, 170, 'v_out (Av≈1 Buffer)', 'top');
 
   } else if (type === 'cb') {
-    drawAcSrc(cfgCtx, 55, 185, 18, 'v_in', 0.02);
-    drawCapH(cfgCtx, 85, 165, 185, 'C_1');
-    wire(cfgCtx, 73, 185, 85, 185); wire(cfgCtx, 165, 185, 220, 185);
-    wire(cfgCtx, 55, 203, 55, 235); gndSymbol(cfgCtx, 55, 235);
+    drawAcSrc(ctx, 55, 185, 18, 'v_in', 0.02);
+    drawCapH(ctx, 85, 165, 185, 'C_1');
+    wire(ctx, 73, 185, 85, 185); wire(ctx, 165, 185, 220, 185);
+    wire(ctx, 55, 203, 55, 235); gndSymbol(ctx, 55, 235);
 
-    drawResistorV(cfgCtx, 220, 185, 235, 'R_E', `${state.config.re_kohm.toFixed(1)}kΩ`, 'left');
-    gndSymbol(cfgCtx, 220, 235); dotNode(cfgCtx, 220, 185);
+    drawResistorV(ctx, 220, 185, 235, 'R_E', `${state.config.re_kohm.toFixed(1)}kΩ`, 'left');
+    gndSymbol(ctx, 220, 235); dotNode(ctx, 220, 185);
 
     const emit_x = bjt_cx + 20, emit_y = bjt_cy + 16;
-    wire(cfgCtx, 220, 185, emit_x, 185); wire(cfgCtx, emit_x, 185, emit_x, emit_y);
-    drawBJTSchem(cfgCtx, bjt_cx, bjt_cy, true, true);
+    wire(ctx, 220, 185, emit_x, 185); wire(ctx, emit_x, 185, emit_x, emit_y);
+    drawBJTSchem(ctx, bjt_cx, bjt_cy, true, true);
 
-    wire(cfgCtx, bjt_cx - 20, 135, bjt_cx - 45, 135);
-    drawCapV(cfgCtx, bjt_cx - 45, 135, 235, 'C_B 10μF');
-    gndSymbol(cfgCtx, bjt_cx - 45, 235);
+    wire(ctx, bjt_cx - 20, 135, bjt_cx - 45, 135);
+    drawCapV(ctx, bjt_cx - 45, 135, 235, 'C_B 10μF');
+    gndSymbol(ctx, bjt_cx - 45, 235);
 
     const coll_x = bjt_cx + 20, coll_y = bjt_cy - 16;
-    vccRail(cfgCtx, coll_x, 25, 12);
-    drawResistorV(cfgCtx, coll_x, 25, coll_y, 'R_C', `${state.config.rc_kohm.toFixed(1)}kΩ`, 'right');
-    dotNode(cfgCtx, coll_x, coll_y);
+    vccRail(ctx, coll_x, 25, 12);
+    drawResistorV(ctx, coll_x, 25, coll_y, 'R_C', `${state.config.rc_kohm.toFixed(1)}kΩ`, 'right');
+    dotNode(ctx, coll_x, coll_y);
 
-    wire(cfgCtx, coll_x, coll_y, 440, coll_y);
-    drawCapH(cfgCtx, 440, 520, coll_y, 'C_2');
-    wire(cfgCtx, 520, coll_y, 580, coll_y);
-    drawResistorV(cfgCtx, 580, coll_y, 235, 'R_L', `${state.config.rl_kohm.toFixed(1)}kΩ`, 'right');
-    gndSymbol(cfgCtx, 580, 235);
-    dotNode(cfgCtx, 580, coll_y, 'v_out (0° Gain)', 'top');
+    wire(ctx, coll_x, coll_y, 440, coll_y);
+    drawCapH(ctx, 440, 520, coll_y, 'C_2');
+    wire(ctx, 520, coll_y, 580, coll_y);
+    drawResistorV(ctx, 580, coll_y, 235, 'R_L', `${state.config.rl_kohm.toFixed(1)}kΩ`, 'right');
+    gndSymbol(ctx, 580, 235);
+    dotNode(ctx, 580, coll_y, 'v_out (0° Gain)', 'top');
   }
+}
+
+function drawPureACModel(ctx, type, W, H) {
+  ctx.save();
+
+  if (type === 'ce') {
+    if (state.config.hasBypassCe) {
+      // CE AC Model (Bypassed)
+      drawAcSrc(ctx, 55, 120, 18, 'v_in', 0.02);
+      wire(ctx, 55, 138, 55, 220); gndSymbol(ctx, 55, 220);
+      wire(ctx, 73, 120, 130, 120);
+
+      drawResistorV(ctx, 130, 120, 220, 'R_B', `${state.config.rb_kohm.toFixed(1)}kΩ`, 'left');
+      gndSymbol(ctx, 130, 220); dotNode(ctx, 130, 120);
+
+      // Base node
+      wire(ctx, 130, 120, 200, 120);
+      dotNode(ctx, 200, 120, 'B (Base)', 'top');
+
+      // beta*re to AC GND (Emitter)
+      drawResistorV(ctx, 200, 120, 220, 'β·r_e', `${(state.reModel.beta * state.reModel.re / 1000).toFixed(2)}kΩ`, 'left');
+      gndSymbol(ctx, 200, 220); dotNode(ctx, 200, 220, 'E (AC GND)', 'bottom');
+
+      // Current direction i_b
+      ctx.font = 'bold 9px JetBrains Mono'; ctx.fillStyle = '#eab308';
+      ctx.fillText('i_b ➔', 165, 112);
+
+      // Dependent current source beta*i_b from Collector to Ground
+      const csrc_x = 310, csrc_y = 170;
+      wire(ctx, csrc_x, 120, csrc_x, csrc_y - 18);
+      wire(ctx, csrc_x, csrc_y + 18, csrc_x, 220);
+      gndSymbol(ctx, csrc_x, 220);
+
+      ctx.beginPath(); ctx.arc(csrc_x, csrc_y, 18, 0, Math.PI*2);
+      ctx.fillStyle = '#0f172a'; ctx.fill();
+      ctx.strokeStyle = '#06b6d4'; ctx.lineWidth = 2; ctx.stroke();
+      ctx.fillStyle = '#06b6d4';
+      ctx.beginPath();
+      ctx.moveTo(csrc_x, csrc_y + 10); ctx.lineTo(csrc_x - 5, csrc_y - 4); ctx.lineTo(csrc_x + 5, csrc_y - 4);
+      ctx.closePath(); ctx.fill();
+      wire(ctx, csrc_x, csrc_y - 10, csrc_x, csrc_y - 4, '#06b6d4', 2);
+      ctx.font = 'bold 10px JetBrains Mono'; ctx.fillStyle = '#38bdf8';
+      ctx.fillText('β·i_b', csrc_x, csrc_y - 24);
+
+      // Collector node top rail
+      wire(ctx, csrc_x, 120, 560, 120);
+      dotNode(ctx, csrc_x, 120, 'C (Collector)', 'top');
+
+      // r_o internal
+      drawResistorV(ctx, 390, 120, 220, 'r_o', '50kΩ', 'right');
+      gndSymbol(ctx, 390, 220);
+
+      // R_C
+      drawResistorV(ctx, 470, 120, 220, 'R_C', `${state.config.rc_kohm.toFixed(1)}kΩ`, 'right');
+      gndSymbol(ctx, 470, 220);
+
+      // R_L
+      drawResistorV(ctx, 560, 120, 220, 'R_L', `${state.config.rl_kohm.toFixed(1)}kΩ`, 'right');
+      gndSymbol(ctx, 560, 220);
+      dotNode(ctx, 560, 120, 'v_out = −β·i_b·r_ac', 'top');
+
+    } else {
+      // CE AC Model (Unbypassed R_E / Negative Feedback)
+      drawAcSrc(ctx, 55, 95, 18, 'v_in', 0.02);
+      wire(ctx, 55, 113, 55, 235); gndSymbol(ctx, 55, 235);
+      wire(ctx, 73, 95, 130, 95);
+
+      drawResistorV(ctx, 130, 95, 235, 'R_B', `${state.config.rb_kohm.toFixed(1)}kΩ`, 'left');
+      gndSymbol(ctx, 130, 235); dotNode(ctx, 130, 95);
+
+      // Base node
+      wire(ctx, 130, 95, 195, 95);
+      dotNode(ctx, 195, 95, 'B (Base)', 'top');
+
+      // beta*re between Base and Emitter node
+      const emit_node_y = 165;
+      drawResistorV(ctx, 195, 95, emit_node_y, 'β·r_e', `${(state.reModel.beta * state.reModel.re / 1000).toFixed(2)}kΩ`, 'left');
+      dotNode(ctx, 195, emit_node_y, 'E (Emitter)', 'left');
+
+      // R_E from Emitter node to GND
+      drawResistorV(ctx, 195, emit_node_y, 235, 'R_E', `${state.config.re_kohm.toFixed(1)}kΩ`, 'left');
+      gndSymbol(ctx, 195, 235);
+      ctx.font = 'bold 9px JetBrains Mono'; ctx.fillStyle = '#f43f5e';
+      ctx.fillText('+ v_e = i_e·R_E −', 200, 250);
+
+      // Dependent current source beta*i_b into Emitter node
+      const csrc_x = 310, csrc_y = 130;
+      wire(ctx, 195, emit_node_y, csrc_x, emit_node_y);
+      wire(ctx, csrc_x, 95, csrc_x, csrc_y - 18);
+      wire(ctx, csrc_x, csrc_y + 18, csrc_x, emit_node_y);
+
+      ctx.beginPath(); ctx.arc(csrc_x, csrc_y, 18, 0, Math.PI*2);
+      ctx.fillStyle = '#0f172a'; ctx.fill();
+      ctx.strokeStyle = '#06b6d4'; ctx.lineWidth = 2; ctx.stroke();
+      ctx.fillStyle = '#06b6d4';
+      ctx.beginPath();
+      ctx.moveTo(csrc_x, csrc_y + 10); ctx.lineTo(csrc_x - 5, csrc_y - 4); ctx.lineTo(csrc_x + 5, csrc_y - 4);
+      ctx.closePath(); ctx.fill();
+      wire(ctx, csrc_x, csrc_y - 10, csrc_x, csrc_y - 4, '#06b6d4', 2);
+      ctx.font = 'bold 10px JetBrains Mono'; ctx.fillStyle = '#38bdf8';
+      ctx.fillText('β·i_b', csrc_x, csrc_y - 24);
+
+      // Collector top rail
+      wire(ctx, csrc_x, 95, 560, 95);
+      dotNode(ctx, csrc_x, 95, 'C (Collector)', 'top');
+
+      // R_C
+      drawResistorV(ctx, 430, 95, 235, 'R_C', `${state.config.rc_kohm.toFixed(1)}kΩ`, 'right');
+      gndSymbol(ctx, 430, 235);
+
+      // R_L
+      drawResistorV(ctx, 520, 95, 235, 'R_L', `${state.config.rl_kohm.toFixed(1)}kΩ`, 'right');
+      gndSymbol(ctx, 520, 235);
+      dotNode(ctx, 520, 95, 'v_out = −i_c·(R_C ∥ R_L)', 'top');
+
+      // Negative feedback annotation
+      ctx.font = 'bold 9px Sarabun'; ctx.fillStyle = '#fb7185'; ctx.textAlign = 'left';
+      ctx.fillText('⚡ ป้อนกลับลบ Current-Series Feedback: v_in = v_be + v_e  ⟹  A_v ≈ −R_C / (r_e + R_E) ≈ −R_C / R_E', 55, 22);
+    }
+  } else if (type === 'cc') {
+    // CC AC Model (Collector at AC GND)
+    drawAcSrc(ctx, 55, 120, 18, 'v_in', 0.02);
+    wire(ctx, 55, 138, 55, 220); gndSymbol(ctx, 55, 220);
+    wire(ctx, 73, 120, 130, 120);
+
+    drawResistorV(ctx, 130, 120, 220, 'R_B', `${state.config.rb_kohm.toFixed(1)}kΩ`, 'left');
+    gndSymbol(ctx, 130, 220); dotNode(ctx, 130, 120);
+
+    wire(ctx, 130, 120, 200, 120);
+    dotNode(ctx, 200, 120, 'B (Base)', 'top');
+
+    const csrc_x = 310, csrc_y = 120;
+    wire(ctx, csrc_x, 50, csrc_x, csrc_y - 18);
+    gndSymbol(ctx, csrc_x, 40);
+    ctx.font = 'bold 9px JetBrains Mono'; ctx.fillStyle = '#94a3b8'; ctx.fillText('C (Collector AC GND)', csrc_x, 25);
+
+    ctx.beginPath(); ctx.arc(csrc_x, csrc_y, 18, 0, Math.PI*2);
+    ctx.fillStyle = '#0f172a'; ctx.fill();
+    ctx.strokeStyle = '#06b6d4'; ctx.lineWidth = 2; ctx.stroke();
+    ctx.fillStyle = '#06b6d4';
+    ctx.beginPath();
+    ctx.moveTo(csrc_x, csrc_y + 10); ctx.lineTo(csrc_x - 5, csrc_y - 4); ctx.lineTo(csrc_x + 5, csrc_y - 4);
+    ctx.closePath(); ctx.fill();
+    wire(ctx, csrc_x, csrc_y - 10, csrc_x, csrc_y - 4, '#06b6d4', 2);
+    ctx.fillText('β·i_b', csrc_x + 32, csrc_y + 4);
+
+    // Emitter rail at Y=175
+    wire(ctx, csrc_x, csrc_y + 18, csrc_x, 175);
+    wire(ctx, 200, 175, 560, 175);
+    dotNode(ctx, csrc_x, 175, 'E (Emitter)', 'bottom');
+
+    drawResistorV(ctx, 200, 120, 175, 'β·r_e', `${(state.reModel.beta * state.reModel.re / 1000).toFixed(2)}kΩ`, 'left');
+
+    drawResistorV(ctx, 450, 175, 235, 'R_E', `${state.config.re_kohm.toFixed(1)}kΩ`, 'right');
+    gndSymbol(ctx, 450, 235);
+
+    drawResistorV(ctx, 540, 175, 235, 'R_L', `${state.config.rl_kohm.toFixed(1)}kΩ`, 'right');
+    gndSymbol(ctx, 540, 235);
+    dotNode(ctx, 540, 175, 'v_out (across Emitter, Av≈1)', 'top');
+
+  } else if (type === 'cb') {
+    // CB AC Model (Base at AC GND)
+    drawAcSrc(ctx, 55, 160, 18, 'v_in', 0.02);
+    wire(ctx, 55, 178, 55, 235); gndSymbol(ctx, 55, 235);
+    wire(ctx, 73, 160, 140, 160);
+
+    drawResistorV(ctx, 140, 160, 235, 'R_E', `${state.config.re_kohm.toFixed(1)}kΩ`, 'left');
+    gndSymbol(ctx, 140, 235); dotNode(ctx, 140, 160);
+
+    wire(ctx, 140, 160, 220, 160);
+    dotNode(ctx, 220, 160, 'E (Emitter)', 'top');
+
+    // re from Emitter to Base AC GND
+    drawResistorV(ctx, 220, 160, 235, 'r_e', `${state.reModel.re.toFixed(1)}Ω`, 'left');
+    gndSymbol(ctx, 220, 235); dotNode(ctx, 220, 235, 'B (Base AC GND)', 'bottom');
+
+    const csrc_x = 320, csrc_y = 160;
+    wire(ctx, csrc_x, 70, csrc_x, csrc_y - 18);
+    wire(ctx, csrc_x, csrc_y + 18, csrc_x, 235);
+    gndSymbol(ctx, csrc_x, 235);
+
+    ctx.beginPath(); ctx.arc(csrc_x, csrc_y, 18, 0, Math.PI*2);
+    ctx.fillStyle = '#0f172a'; ctx.fill();
+    ctx.strokeStyle = '#06b6d4'; ctx.lineWidth = 2; ctx.stroke();
+    // Arrow pointing up
+    ctx.fillStyle = '#06b6d4';
+    ctx.beginPath();
+    ctx.moveTo(csrc_x, csrc_y - 10); ctx.lineTo(csrc_x - 5, csrc_y + 4); ctx.lineTo(csrc_x + 5, csrc_y + 4);
+    ctx.closePath(); ctx.fill();
+    wire(ctx, csrc_x, csrc_y + 10, csrc_x, csrc_y + 4, '#06b6d4', 2);
+    ctx.font = 'bold 10px JetBrains Mono'; ctx.fillStyle = '#38bdf8';
+    ctx.fillText('α·i_e', csrc_x + 28, csrc_y + 4);
+
+    wire(ctx, csrc_x, 70, 560, 70);
+    dotNode(ctx, csrc_x, 70, 'C (Collector)', 'top');
+
+    drawResistorV(ctx, 450, 70, 235, 'R_C', `${state.config.rc_kohm.toFixed(1)}kΩ`, 'right');
+    gndSymbol(ctx, 450, 235);
+
+    drawResistorV(ctx, 540, 70, 235, 'R_L', `${state.config.rl_kohm.toFixed(1)}kΩ`, 'right');
+    gndSymbol(ctx, 540, 235);
+    dotNode(ctx, 540, 70, 'v_out (0° In-Phase)', 'top');
+  }
+
+  ctx.restore();
+}
+
+function drawSideBySideCompare(ctx, type, W, H) {
+  ctx.save();
+
+  // Left panel (Schematic)
+  ctx.save();
+  ctx.translate(10, 20);
+  ctx.scale(0.48, 0.48);
+  drawPureSchematic(ctx, type, W, H);
+  ctx.restore();
+
+  // Right panel (AC Model)
+  ctx.save();
+  ctx.translate(W * 0.52, 20);
+  ctx.scale(0.48, 0.48);
+  drawPureACModel(ctx, type, W, H);
+  ctx.restore();
+
+  // Middle Conversion Arrow & Badge
+  const midX = W / 2;
+  ctx.fillStyle = 'rgba(6,182,212,0.18)';
+  ctx.fillRect(midX - 35, H / 2 - 25, 70, 50);
+  ctx.strokeStyle = 'rgba(6,182,212,0.5)';
+  ctx.lineWidth = 1.5;
+  ctx.strokeRect(midX - 35, H / 2 - 25, 70, 50);
+
+  ctx.font = 'bold 16px FontAwesome, monospace'; ctx.fillStyle = '#06b6d4'; ctx.textAlign = 'center';
+  ctx.fillText('➔', midX, H / 2 - 4);
+  ctx.font = 'bold 8px Sarabun'; ctx.fillStyle = '#f8fafc';
+  ctx.fillText('AC Transform', midX, H / 2 + 14);
+
+  // Top header labels
+  ctx.font = 'bold 11px Sarabun'; ctx.fillStyle = '#38bdf8'; ctx.textAlign = 'left';
+  ctx.fillText('1. ผังวงจรจริง (Complete Circuit)', 20, 16);
+  ctx.textAlign = 'right';
+  ctx.fillText('2. แบบจำลองสมมูล AC (re Model)', W - 20, 16);
+
+  ctx.restore();
 }
 
 /* ================================================================= */
@@ -1271,22 +1694,42 @@ const oscCanvas = document.getElementById('canvas-osc');
 const oscCtx = oscCanvas.getContext('2d');
 
 function switchLabCircuit(circ, btn) {
-  state.lab.circuit = circ;
-  document.querySelectorAll('#tab-lab .pill-btn').forEach(b => b.classList.remove('active'));
-  if (btn) btn.classList.add('active');
+  document.querySelectorAll('#tab-lab .pill-group button').forEach(b => b.classList.remove('active'));
 
   const title = document.getElementById('lab-circuit-title');
   const bypassWrap = document.getElementById('ce-bypass-wrapper');
+  const bypassCheckbox = document.getElementById('lab-bypass-ce');
+
   if (circ === 'ce') {
-    title.textContent = 'วงจรขยาย Common Emitter (AC Virtual Lab)';
-    bypassWrap.style.display = 'block';
+    state.lab.circuit = 'ce';
+    state.lab.hasBypassCe = true;
+    if (bypassCheckbox) bypassCheckbox.checked = true;
+    if (title) title.textContent = 'วงจรขยาย Common Emitter (มี C_E Bypass)';
+    if (bypassWrap) bypassWrap.style.display = 'block';
+    const b = document.getElementById('lab-btn-ce');
+    if (b) b.classList.add('active');
+  } else if (circ === 'ce_unbypassed') {
+    state.lab.circuit = 'ce';
+    state.lab.hasBypassCe = false;
+    if (bypassCheckbox) bypassCheckbox.checked = false;
+    if (title) title.textContent = 'วงจรขยาย Common Emitter (ไม่มี C_E / Unbypassed)';
+    if (bypassWrap) bypassWrap.style.display = 'block';
+    const b = document.getElementById('lab-btn-ce-unbypassed');
+    if (b) b.classList.add('active');
   } else if (circ === 'cc') {
-    title.textContent = 'วงจร Emitter Follower (Common Collector Buffer)';
-    bypassWrap.style.display = 'none';
+    state.lab.circuit = 'cc';
+    if (title) title.textContent = 'วงจร Emitter Follower (Common Collector Buffer)';
+    if (bypassWrap) bypassWrap.style.display = 'none';
+    const b = document.getElementById('lab-btn-cc');
+    if (b) b.classList.add('active');
   } else if (circ === 'cb') {
-    title.textContent = 'วงจรขยาย Common Base (CB RF Amplifier)';
-    bypassWrap.style.display = 'none';
+    state.lab.circuit = 'cb';
+    if (title) title.textContent = 'วงจรขยาย Common Base (CB RF Amplifier)';
+    if (bypassWrap) bypassWrap.style.display = 'none';
+    const b = document.getElementById('lab-btn-cb');
+    if (b) b.classList.add('active');
   }
+
   onLabChange();
   playSound('click');
 }
@@ -1311,6 +1754,21 @@ function onLabChange() {
   state.lab.re_kohm = parseFloat(document.getElementById('slider-lab-re').value);
   state.lab.hasBypassCe = document.getElementById('lab-bypass-ce').checked;
 
+  if (state.lab.circuit === 'ce') {
+    const bCe = document.getElementById('lab-btn-ce');
+    const bNoCe = document.getElementById('lab-btn-ce-unbypassed');
+    if (bCe && bNoCe) {
+      bCe.classList.toggle('active', state.lab.hasBypassCe);
+      bNoCe.classList.toggle('active', !state.lab.hasBypassCe);
+    }
+    const title = document.getElementById('lab-circuit-title');
+    if (title) {
+      title.textContent = state.lab.hasBypassCe ? 
+        'วงจรขยาย Common Emitter (มี C_E Bypass)' : 
+        'วงจรขยาย Common Emitter (ไม่มี C_E / Unbypassed)';
+    }
+  }
+
   const modelChoice = document.querySelector('input[name="lab-model-choice"]:checked').value;
   state.lab.modelChoice = modelChoice;
 
@@ -1329,6 +1787,7 @@ function onLabChange() {
   const rb_k = 18000;
 
   let av = 0, zin = 0, phaseStr = '180°';
+  let theoryText = '';
 
   if (circ === 'ce') {
     const r_ac = (rc_k * rl_k) / (rc_k + rl_k);
@@ -1342,6 +1801,11 @@ function onLabChange() {
         av = -(hfe * r_ac) / hie;
         zin = (rb_k * hie) / (rb_k + hie);
       }
+      phaseStr = '180° (กลับเฟส)';
+      theoryText = 
+        `<strong>การวิเคราะห์สัญญาณขนาดเล็ก (วงจร CE มี C<sub>E</sub> Bypass):</strong><br>` +
+        `• <strong>อัตราขยายแรงดันสูงสุด:</strong> A<sub>v</sub> = −r<sub>ac</sub> / r<sub>e</sub> = −${r_ac.toFixed(1)} / ${re.toFixed(2)} = <strong>${av.toFixed(1)}</strong><br>` +
+        `• C<sub>E</sub> (100μF) ลัดวงจร R<sub>E</sub> ลง AC Ground ได้ Gain สูงมาก แต่อาจเกิดสัญญาณขลิบยอดคลื่น (Clipping Distortion) หาก V<sub>in</sub> เกินสองสามสิบมิลลิโวลต์`;
     } else {
       if (modelChoice === 're') {
         av = -r_ac / (re + re_k);
@@ -1352,18 +1816,30 @@ function onLabChange() {
         av = -(hfe * r_ac) / (hie + (1 + hfe) * re_k);
         zin = (rb_k * (hie + (1 + hfe) * re_k)) / (rb_k + (hie + (1 + hfe) * re_k));
       }
+      phaseStr = '180° (กลับเฟส)';
+      theoryText = 
+        `<strong>การวิเคราะห์สัญญาณขนาดเล็ก (วงจร CE ไม่มี C<sub>E</sub> / Unbypassed):</strong><br>` +
+        `• <strong>อัตราขยายแรงดัน:</strong> A<sub>v</sub> = −r<sub>ac</sub> / (r<sub>e</sub> + R<sub>E</sub>) ≈ −R<sub>C</sub> / R<sub>E</sub> = <strong style="color:#10b981;">${av.toFixed(2)}</strong><br>` +
+        `• <strong>เกิด Negative Current-Series Feedback:</strong> แรงดัน v<sub>e</sub> = i<sub>e</sub>·R<sub>E</sub> ช่วยลดความเพี้ยน (THD) และขยาย Dynamic Input Range ไม่เกิดการขลิบยอดคลื่นง่าย`;
     }
-    phaseStr = '180° (กลับเฟส)';
   } else if (circ === 'cc') {
     const re_parallel_rl = (re_k * rl_k) / (re_k + rl_k);
     av = re_parallel_rl / (re + re_parallel_rl);
     zin = (rb_k * (beta * (re + re_parallel_rl))) / (rb_k + (beta * (re + re_parallel_rl)));
     phaseStr = '0° (ตรงเฟส)';
+    theoryText = 
+      `<strong>Emitter Follower (Common Collector Buffer):</strong><br>` +
+      `• อัตราขยายแรงดัน A<sub>v</sub> = <strong>+${av.toFixed(3)}</strong> (ใกล้เคียง 1.0 ไม่กลับเฟส)<br>` +
+      `• Z<sub>in</sub> สูงมาก (${(zin/1000).toFixed(1)} kΩ) และ Z<sub>out</sub> ต่ำมาก เหมาะทำหน้าที่ Buffer ขับโหลด`;
   } else if (circ === 'cb') {
     const r_ac = (rc_k * rl_k) / (rc_k + rl_k);
     av = r_ac / re;
     zin = (re_k * re) / (re_k + re);
     phaseStr = '0° (ตรงเฟส)';
+    theoryText = 
+      `<strong>Common Base (CB RF Amplifier):</strong><br>` +
+      `• อัตราขยายแรงดัน A<sub>v</sub> = +r<sub>ac</sub> / r<sub>e</sub> = <strong>+${av.toFixed(1)}</strong> (ไม่กลับเฟส 0° และมี Gain สูง)<br>` +
+      `• อิมพีแดนซ์อินพุตต่ำมาก (${zin.toFixed(1)} Ω) เหมาะกับสายอากาศและวงจรความถี่สูง`;
   }
 
   const vout_unclipped = Math.abs(av) * state.lab.vin_peak;
@@ -1375,6 +1851,9 @@ function onLabChange() {
   document.getElementById('lab-av-val').innerHTML = `${av.toFixed(1)} <span class="readout-unit">${phaseStr.includes('180')?'(180°↺)':'(0°)'}</span>`;
   document.getElementById('lab-zin-val').innerHTML = `${(zin/1000).toFixed(2)} <span class="readout-unit">kΩ</span>`;
   document.getElementById('lab-re-hie-val').innerHTML = modelChoice === 're' ? `${re.toFixed(1)} <span class="readout-unit">Ω (r_e)</span>` : `${(state.hparam.hie/1000).toFixed(2)} <span class="readout-unit">kΩ (h_ie)</span>`;
+
+  const theoryEl = document.getElementById('lab-theory-box');
+  if (theoryEl) theoryEl.innerHTML = theoryText;
 
   document.getElementById('lab-schematic-badge').className = isClipped ? 'status-badge saturation' : 'status-badge connected';
   document.getElementById('lab-schematic-badge').innerHTML = isClipped ? '<i class="fa-solid fa-triangle-exclamation"></i> สัญญาณขริบยอด' : `<i class="fa-solid fa-bolt"></i> ${modelChoice === 're' ? 'r_e Model' : 'h-Param'}`;
@@ -1419,6 +1898,8 @@ function drawLabSchematic() {
       wire(labSchemCtx, emit_x, emit_y, emit_x, 175);
       drawResistorV(labSchemCtx, emit_x, 175, 235, 'R_E', `${state.lab.re_kohm.toFixed(1)}kΩ`, 'right');
       gndSymbol(labSchemCtx, emit_x, 235); dotNode(labSchemCtx, emit_x, 175);
+      labSchemCtx.font = 'bold 9px JetBrains Mono'; labSchemCtx.fillStyle = '#f43f5e';
+      labSchemCtx.fillText('❌ ไม่มี C_E', emit_x + 40, 205);
     }
 
     wire(labSchemCtx, coll_x, coll_y, 440, coll_y);
