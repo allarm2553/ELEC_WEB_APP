@@ -352,7 +352,7 @@
       border: 2px solid #ffffff;
     }
 
-    select, input[type=text], input[type=number] {
+    select, input[type=text], input[type=number], input[type=url] {
       width: 100%;
       background: rgba(15, 23, 42, 0.8);
       border: 1px solid var(--card-border);
@@ -364,7 +364,7 @@
       outline: none;
     }
 
-    select:focus, input[type=text]:focus, input[type=number]:focus {
+    select:focus, input[type=text]:focus, input[type=number]:focus, input[type=url]:focus {
       border-color: var(--accent-primary);
       box-shadow: 0 0 10px var(--accent-glow);
     }
@@ -1917,23 +1917,40 @@
             </div>
           </div>
 
-          <div class="control-group">
-            <div class="control-label-row">
-              <span class="control-label-title">ชื่อ-นามสกุล / รหัสนักศึกษา (Student Info)</span>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.75rem;">
+            <div class="control-group" style="margin-bottom: 0;">
+              <div class="control-label-row">
+                <span class="control-label-title">ชื่อ-นามสกุล / รหัสนักศึกษา:</span>
+              </div>
+              <input type="text" id="student-name-input" placeholder="เช่น นายสมชาย ใจดี (ID: 67012345)" value="นักศึกษาทดลอง">
             </div>
-            <input type="text" id="student-name-input" placeholder="เช่น นายสมชาย ใจดี (ID: 67012345)" value="นักศึกษาทดลอง">
+            <div class="control-group" style="margin-bottom: 0;">
+              <div class="control-label-row">
+                <span class="control-label-title">ระดับชั้น / แผนกวิชา:</span>
+              </div>
+              <input type="text" id="student-class-input" placeholder="เช่น ปวช.2 ช่างอิเล็กทรอนิกส์">
+            </div>
           </div>
 
           <div class="control-group">
             <div class="control-label-row">
-              <span class="control-label-title">หมายเหตุการทดลอง (Lab Note)</span>
+              <span class="control-label-title">
+                <i class="fa-brands fa-google-drive" style="color: #38bdf8;"></i> Google Apps Script Web App URL:
+              </span>
+            </div>
+            <input type="url" id="gas-url" placeholder="https://script.google.com/macros/s/.../exec" style="font-family: var(--font-mono); font-size: 0.8rem;">
+          </div>
+
+          <div class="control-group">
+            <div class="control-label-row">
+              <span class="control-label-title">หมายเหตุการทดลอง (Lab Note):</span>
             </div>
             <input type="text" id="lab-note-input" placeholder="เช่น บันทึกการทดลองวงจรบริดจ์เรกติไฟเออร์">
           </div>
 
           <div style="display: flex; gap: 0.5rem; margin-bottom: 1.25rem;">
             <button class="btn btn-success" style="flex:1;" onclick="saveCurrentExperiment()">
-              <i class="fa-solid fa-cloud-arrow-up"></i> บันทึกผลลงระบบ
+              <i class="fa-solid fa-cloud-arrow-up"></i> บันทึกผลลงระบบ (Save & Sync)
             </button>
             <button class="btn btn-secondary" onclick="exportHistoryCSV()">
               <i class="fa-solid fa-file-csv"></i> Export CSV
@@ -5135,8 +5152,80 @@
     /* ================================================================= */
     /* 7. HISTORY & GOOGLE APPS SCRIPT (GAS) INTEGRATION                 */
     /* ================================================================= */
-    function logHistory(activity, result) {
-      const studentName = document.getElementById('student-name-input').value || 'นักศึกษาทดลอง';
+    function updateGasStatusUI() {
+      const gasBadge = document.getElementById('gas-status');
+      const statusText = document.getElementById('status-text');
+      if (!gasBadge || !statusText) return;
+
+      const gasUrlInput = document.getElementById('gas-url');
+      const gasUrl = gasUrlInput ? gasUrlInput.value.trim() : '';
+
+      if (typeof google !== 'undefined' && google.script && google.script.run) {
+        gasBadge.className = 'status-badge connected';
+        statusText.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> เชื่อมต่อ Google Sheets (GAS Frame)';
+      } else if (gasUrl && (gasUrl.startsWith('http://') || gasUrl.startsWith('https://'))) {
+        gasBadge.className = 'status-badge connected';
+        statusText.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> เชื่อมต่อ Google Sheets (Web App)';
+      } else {
+        gasBadge.className = 'status-badge';
+        statusText.innerHTML = 'โหมดจำลองในเครื่อง (Local Mode)';
+      }
+    }
+
+    async function sendDataToGAS(payload) {
+      // 1. If embedded in Google Apps Script HtmlService:
+      if (typeof google !== 'undefined' && google.script && google.script.run) {
+        try {
+          google.script.run
+            .withSuccessHandler(function(resp) {
+              console.log('Saved to Google Sheets via GAS:', resp);
+            })
+            .saveDiodeToSheet(payload);
+          return { success: true, mode: 'gas_iframe' };
+        } catch(e) {
+          console.warn('GAS run error:', e);
+        }
+      }
+
+      // 2. If standalone / local mode with Web App URL:
+      const gasUrlInput = document.getElementById('gas-url');
+      const gasUrl = gasUrlInput ? gasUrlInput.value.trim() : '';
+      if (gasUrl && (gasUrl.startsWith('http://') || gasUrl.startsWith('https://'))) {
+        try {
+          await fetch(gasUrl, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify(payload)
+          });
+          return { success: true, mode: 'fetch' };
+        } catch (err) {
+          console.error('Error posting to Google Apps Script Web App:', err);
+          return { success: false, error: err };
+        }
+      }
+
+      return { success: false, mode: 'local_only' };
+    }
+
+    function logHistory(activity, result, isAuto = false) {
+      const nameInput = document.getElementById('student-name-input');
+      const classInput = document.getElementById('student-class-input');
+      const noteInput = document.getElementById('lab-note-input');
+      const gasUrlInput = document.getElementById('gas-url');
+
+      const studentName = nameInput ? nameInput.value.trim() || 'นักศึกษาทดลอง' : 'นักศึกษาทดลอง';
+      const studentClass = classInput ? classInput.value.trim() : '';
+      const labNote = noteInput ? noteInput.value.trim() : '';
+      const gasUrl = gasUrlInput ? gasUrlInput.value.trim() : '';
+
+      // Persist student info to localStorage
+      try {
+        localStorage.setItem('diode_student_name', studentName);
+        if (studentClass) localStorage.setItem('diode_student_class', studentClass);
+        if (gasUrl) localStorage.setItem('diode_gas_url', gasUrl);
+      } catch(e) {}
+
       const now = new Date();
       const timeStr = now.toLocaleDateString('th-TH') + ' ' + now.toLocaleTimeString('th-TH');
 
@@ -5144,60 +5233,96 @@
         timestamp: timeStr,
         activity: activity,
         result: result,
-        student: studentName
+        student: studentClass ? `${studentName} (${studentClass})` : studentName,
+        note: labNote
       };
 
       state.history.unshift(entry);
+      if (state.history.length > 50) state.history.pop();
+      try {
+        localStorage.setItem('diode_history', JSON.stringify(state.history));
+      } catch(e) {}
+
       renderHistoryTable();
 
-      // If running inside Google Apps Script iframe:
-      if (typeof google !== 'undefined' && google.script && google.script.run) {
-        google.script.run
-          .withSuccessHandler(function(resp) {
-            console.log('Saved to Google Sheets:', resp);
-          })
-          .saveDiodeToSheet({
-            timestamp: timeStr,
-            activity: activity,
-            result: result,
-            student: studentName,
-            note: document.getElementById('lab-note-input').value || ''
-          });
-      }
+      // Sync to Google Sheets
+      const payload = {
+        timestamp: timeStr,
+        student: studentName,
+        class: studentClass,
+        activity: activity,
+        result: result,
+        note: labNote,
+        app: 'Diode Learning Lab'
+      };
+
+      sendDataToGAS(payload);
     }
 
-    function saveCurrentExperiment() {
+    async function saveCurrentExperiment() {
       const activeTab = state.activeTab;
       let activity = 'การทดลองไดโอด';
       let result = '';
 
       if (activeTab === 'tab-physics') {
-        activity = `การทดลองรอยต่อ PN (${state.pn.material})`;
-        result = `V_bias: ${state.pn.voltage}V, I_D: ${state.pn.current_mA.toFixed(2)}mA`;
+        const sub = state.bias ? state.bias.subMode : 'bias';
+        if (sub === 'bias') {
+          activity = `วงจรไบแอสไดโอด (${state.bias.model.toUpperCase()})`;
+          result = `Vin: ${state.bias.vin.toFixed(1)}V, VD: ${state.bias.vd.toFixed(2)}V, ID: ${state.bias.id_mA.toFixed(2)}mA`;
+        } else if (sub === 'package') {
+          activity = `ตัวถังและสัญลักษณ์ไดโอด (${state.pkg.current})`;
+          result = `Package: ${state.pkg.current}`;
+        } else {
+          activity = `โครงสร้างรอยต่อ PN (${state.pn.material})`;
+          result = `V_bias: ${state.pn.voltage}V, I_D: ${state.pn.current_mA.toFixed(2)}mA`;
+        }
       } else if (activeTab === 'tab-ivcurve') {
-        activity = `วิเคราะห์กราฟ I-V (${state.iv.model})`;
-        result = `Q-Point: (${state.iv.vd.toFixed(2)}V, ${state.iv.id_mA.toFixed(1)}mA)`;
+        activity = `วิเคราะห์กราฟ I-V (${state.iv.model.toUpperCase()})`;
+        result = `Q-Point: (${state.iv.vd.toFixed(2)}V, ${state.iv.id_mA.toFixed(1)}mA), PD: ${(state.iv.vd * state.iv.id_mA).toFixed(1)}mW`;
       } else if (activeTab === 'tab-circuits') {
-        activity = `วงจร ${state.circuit.mode}`;
-        result = `Vin: ${state.circuit.vin_peak}Vp, RL: ${state.circuit.rload}Ω`;
+        const modeNameMap = {
+          'halfwave': 'ฮาล์ฟเวฟเรกติไฟเออร์ (Half-Wave)',
+          'center_tap': 'เซ็นเตอร์แทปเรกติไฟเออร์ (Center-Tapped)',
+          'fullbridge': 'ฟูลบริดจ์เรกติไฟเออร์ (Bridge Rectifier)',
+          'pos_clip': 'วงจรขลิบสัญญาณบวก (Positive Clipper)',
+          'neg_clip': 'วงจรขลิบสัญญาณลบ (Negative Clipper)',
+          'biased_pos': 'วงจรขลิบแบบมีไบแอส (Biased Clipper)',
+          'double_clip': 'วงจรขลิบสองทิศทาง (Double Clipper)',
+          'pos_clamp': 'วงจรแคลมป์บวก (Positive Clamper)',
+          'neg_clamp': 'วงจรแคลมป์ลบ (Negative Clamper)',
+          'biased_clamp': 'วงจรแคลมป์แบบมีไบแอส (Biased Clamper)',
+          'voltage_doubler': 'วงจรทวีแรงดัน 2 เท่า (Voltage Doubler)',
+          'voltage_tripler': 'วงจรทวีแรงดัน 3 เท่า (Voltage Tripler)',
+          'voltage_quadrupler': 'วงจรทวีแรงดัน 4 เท่า (Voltage Quadrupler)'
+        };
+        const cMode = state.circuit.mode;
+        activity = `วงจร ${modeNameMap[cMode] || cMode}`;
+        result = `Vin: ${state.circuit.vin_peak}Vp, RL: ${state.circuit.rload}Ω, C: ${state.circuit.cap_uF}µF`;
       } else if (activeTab === 'tab-tester') {
-        activity = `การทดสอบไดโอดด้วยมัลติมิเตอร์ (${state.tester.health})`;
+        activity = `การทดสอบไดโอดด้วยมัลติมิเตอร์ (${state.tester.model} - ${state.tester.health})`;
         result = `อ่านค่าได้: ${state.tester.reading}`;
       } else {
-        activity = `แบบทดสอบไดโอด`;
-        result = `${state.quiz.score} / ${QUIZ_QUESTIONS.length} คะแนน`;
+        activity = `แบบทดสอบความรู้เรื่องไดโอด (Diode Examination)`;
+        result = `${state.quiz.score} / ${QUIZ_QUESTIONS.length} คะแนน (${Math.round(state.quiz.score/QUIZ_QUESTIONS.length*100)}%)`;
       }
 
       logHistory(activity, result);
       playSound('success');
-      alert(`บันทึกผลสำเร็จ!\nกิจกรรม: ${activity}\nผลลัพธ์: ${result}`);
+
+      const gasUrl = document.getElementById('gas-url') ? document.getElementById('gas-url').value.trim() : '';
+      let syncMsg = gasUrl 
+        ? '\n\n☁️ ส่งข้อมูลไปยัง Google Apps Script Web App เรียบร้อยแล้ว!' 
+        : '\n\n💡 บันทึกในเบราว์เซอร์สำเร็จ (หากต้องการบันทึกลงชีต ให้กรอก Google Apps Script Web App URL)';
+      
+      alert(`✅ บันทึกผลสำเร็จ!\n\n📋 กิจกรรม: ${activity}\n📊 ผลลัพธ์: ${result}${syncMsg}`);
     }
 
     function renderHistoryTable() {
       const tbody = document.getElementById('history-table-body');
+      if (!tbody) return;
       tbody.innerHTML = '';
       if (state.history.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">ยังไม่มีประวัติการบันทึก</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding:1.5rem;">ยังไม่มีประวัติการบันทึก</td></tr>';
         return;
       }
 
@@ -5205,8 +5330,8 @@
         const tr = document.createElement('tr');
         tr.innerHTML = `
           <td>${item.timestamp}</td>
-          <td style="color:#38bdf8;">${item.activity}</td>
-          <td style="font-weight:700; color:#34d399;">${item.result}</td>
+          <td style="color:#38bdf8; font-weight:600;">${item.activity}</td>
+          <td style="font-weight:700; color:#34d399; font-family:var(--font-mono);">${item.result}</td>
           <td>${item.student}</td>
         `;
         tbody.appendChild(tr);
@@ -5218,16 +5343,19 @@
         alert('ยังไม่มีข้อมูลสำหรับส่งออก');
         return;
       }
-      let csv = 'Timestamp,Activity,Result,Student\n';
+      let csv = 'Timestamp,Activity,Result,Student,Note\n';
       state.history.forEach(h => {
-        csv += `"${h.timestamp}","${h.activity}","${h.result}","${h.student}"\n`;
+        csv += `"${h.timestamp}","${h.activity}","${h.result}","${h.student}","${h.note || ''}"\n`;
       });
       const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
       a.download = `diode_learning_log_${Date.now()}.csv`;
+      document.body.appendChild(a);
       a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
       playSound('click');
     }
 
@@ -5251,12 +5379,57 @@
     }
 
     window.addEventListener('DOMContentLoaded', () => {
-      // Check GAS environment
-      if (typeof google !== 'undefined' && google.script && google.script.run) {
-        const gasBadge = document.getElementById('gas-status');
-        gasBadge.className = 'status-badge connected';
-        document.getElementById('status-text').textContent = 'เชื่อมต่อ Google Sheets สำเร็จ';
+      // Restore cached student info and GAS URL
+      try {
+        const savedName = localStorage.getItem('diode_student_name');
+        const savedClass = localStorage.getItem('diode_student_class');
+        const savedUrl = localStorage.getItem('diode_gas_url') || localStorage.getItem('gas_url');
+        const savedHist = localStorage.getItem('diode_history');
+
+        if (savedName && document.getElementById('student-name-input')) {
+          document.getElementById('student-name-input').value = savedName;
+        }
+        if (savedClass && document.getElementById('student-class-input')) {
+          document.getElementById('student-class-input').value = savedClass;
+        }
+        if (savedUrl && document.getElementById('gas-url')) {
+          document.getElementById('gas-url').value = savedUrl;
+        }
+        if (savedHist) {
+          state.history = JSON.parse(savedHist);
+        }
+      } catch(e) {}
+
+      // Listen for GAS URL changes to update UI badge in real time
+      const gasUrlInput = document.getElementById('gas-url');
+      if (gasUrlInput) {
+        gasUrlInput.addEventListener('input', () => {
+          try {
+            localStorage.setItem('diode_gas_url', gasUrlInput.value.trim());
+          } catch(e) {}
+          updateGasStatusUI();
+        });
       }
+
+      const studentNameInput = document.getElementById('student-name-input');
+      if (studentNameInput) {
+        studentNameInput.addEventListener('input', () => {
+          try {
+            localStorage.setItem('diode_student_name', studentNameInput.value.trim());
+          } catch(e) {}
+        });
+      }
+
+      const studentClassInput = document.getElementById('student-class-input');
+      if (studentClassInput) {
+        studentClassInput.addEventListener('input', () => {
+          try {
+            localStorage.setItem('diode_student_class', studentClassInput.value.trim());
+          } catch(e) {}
+        });
+      }
+
+      updateGasStatusUI();
 
       initPnParticles();
       calculatePnState();
@@ -5268,8 +5441,10 @@
       renderQuiz();
       renderHistoryTable();
 
-      // Seed initial history item
-      logHistory('เปิดใช้งานระบบจำลองไดโอด', 'พร้อมสำหรับการทดลอง');
+      if (state.history.length === 0) {
+        // Seed initial history item if brand new
+        logHistory('เปิดใช้งานระบบจำลองไดโอด', 'พร้อมสำหรับการทดลอง', true);
+      }
 
       requestAnimationFrame(mainAnimationLoop);
     });
