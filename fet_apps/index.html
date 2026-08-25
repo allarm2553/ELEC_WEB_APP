@@ -262,6 +262,105 @@ input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.15); }
   background: #0a1324; color: var(--text-primary); border: 1px solid var(--border-glass);
   padding: 0.15rem 0.4rem; border-radius: 4px; font-family: var(--font-mono); font-size: 0.75rem;
 }
+
+/* Parameter Reference & Glossary Section */
+.param-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+.param-card {
+  background: rgba(10, 20, 38, 0.75);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-md);
+  padding: 1rem;
+  transition: all 0.25s ease;
+  position: relative;
+  overflow: hidden;
+  border-left: 4px solid var(--accent-primary);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.param-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+  border-color: rgba(6, 182, 212, 0.4);
+}
+.param-card.accent-cyan { border-left-color: #06b6d4; }
+.param-card.accent-amber { border-left-color: #f59e0b; }
+.param-card.accent-emerald { border-left-color: #10b981; }
+.param-card.accent-rose { border-left-color: #f43f5e; }
+.param-card.accent-purple { border-left-color: #a855f7; }
+.param-card.accent-blue { border-left-color: #38bdf8; }
+
+.param-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.4rem;
+}
+.param-sym {
+  font-family: var(--font-mono);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.param-type-badge {
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.15rem 0.5rem;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid var(--border-glass);
+  color: var(--text-secondary);
+}
+.param-th-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--accent-primary);
+  margin-bottom: 0.4rem;
+}
+.param-formula-box {
+  background: rgba(5, 11, 20, 0.85);
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  border-radius: 6px;
+  padding: 0.4rem 0.6rem;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: #38bdf8;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.param-unit-badge {
+  font-size: 0.72rem;
+  color: #94a3b8;
+  background: rgba(255,255,255,0.06);
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
+}
+.param-desc {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  line-height: 1.55;
+  margin-bottom: 0.4rem;
+}
+.param-tip {
+  font-size: 0.73rem;
+  color: #cbd5e1;
+  background: rgba(15, 23, 42, 0.6);
+  border-left: 2px solid var(--accent-secondary);
+  padding: 0.35rem 0.55rem;
+  border-radius: 0 4px 4px 0;
+  margin-top: 0.35rem;
+  line-height: 1.45;
+}
 </style>
 </head>
 <body>
@@ -511,7 +610,7 @@ input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.15); }
   <div class="grid-2col">
     <div class="glass-card">
       <div class="card-title">
-        <div class="card-title-text"><i class="fa-solid fa-chart-line"></i> กราฟลักษณะเฉพาะเดรน & เส้นโหลด DC (Drain Curves & Load Line)</div>
+        <div class="card-title-text"><i class="fa-solid fa-chart-line"></i> กราฟลักษณะเฉพาะเดรน &amp; เส้นโหลด DC (Drain Curves &amp; Load Line)</div>
       </div>
       <div class="canvas-card-wrapper">
         <div class="canvas-header-bar">
@@ -521,29 +620,37 @@ input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.15); }
         <canvas id="canvas-drain-curves" width="660" height="300"></canvas>
       </div>
 
-      <div class="readout-grid">
+      <div class="readout-grid" style="grid-template-columns: repeat(3, 1fr);">
         <div class="readout-card">
-          <div class="readout-title">I<sub>D(Q)</sub> (จุดทำงาน)</div>
-          <div class="readout-val" id="crv-idq-val">4.50 <span class="readout-unit">mA</span></div>
+          <div class="readout-title">I<sub>D(Q)</sub> (กระแสจุดทำงาน)</div>
+          <div class="readout-val" id="crv-idq-val">3.91 <span class="readout-unit">mA</span></div>
         </div>
         <div class="readout-card secondary">
-          <div class="readout-title">V<sub>DS(Q)</sub> (จุดทำงาน)</div>
-          <div class="readout-val" id="crv-vdsq-val">6.25 <span class="readout-unit">V</span></div>
+          <div class="readout-title">V<sub>DS(Q)</sub> (แรงดันจุดทำงาน)</div>
+          <div class="readout-val" id="crv-vdsq-val">7.97 <span class="readout-unit">V</span></div>
         </div>
         <div class="readout-card green">
           <div class="readout-title">Transconductance (g<sub>m</sub>)</div>
-          <div class="readout-val" id="crv-gm-val">2.8 <span class="readout-unit">mS</span></div>
+          <div class="readout-val" id="crv-gm-val">3.13 <span class="readout-unit">mS</span></div>
+        </div>
+        <div class="readout-card accent-blue" style="border-left: 3px solid #38bdf8;">
+          <div class="readout-title">Max g<sub>m0</sub> (ที่ V<sub>GS</sub>=0)</div>
+          <div class="readout-val" id="crv-gm0-val">5.00 <span class="readout-unit">mS</span></div>
         </div>
         <div class="readout-card amber">
+          <div class="readout-title">พารามิเตอร์อุปกรณ์</div>
+          <div class="readout-val" id="crv-param-val" style="font-size:0.82rem;line-height:1.3;">I<sub>DSS</sub>=10mA, V<sub>P</sub>=-4V</div>
+        </div>
+        <div class="readout-card purple">
           <div class="readout-title">สถานะบริเวณ (State)</div>
-          <div class="readout-val" id="crv-state-val" style="font-size:0.95rem;">Active / Sat</div>
+          <div class="readout-val" id="crv-state-val" style="font-size:0.92rem;">Active / Sat</div>
         </div>
       </div>
     </div>
 
     <div class="glass-card">
       <div class="card-title">
-        <div class="card-title-text"><i class="fa-solid fa-sliders"></i> ปรับแต่งพารามิเตอร์กราฟ & จุด Q</div>
+        <div class="card-title-text"><i class="fa-solid fa-sliders"></i> ปรับแต่งพารามิเตอร์กราฟ &amp; จุด Q</div>
       </div>
 
       <div class="control-group">
@@ -581,15 +688,341 @@ input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.15); }
         <input type="range" id="slider-crv-rd" min="0.5" max="5.0" step="0.1" value="1.8" oninput="onCurvesChange()">
       </div>
 
-      <div class="theory-box">
-        <strong>สมการลักษณะเฉพาะหลัก:</strong><br>
-        • <strong>สมการ Shockley (JFET / D-MOSFET):</strong><br>
-        <span style="font-family:var(--font-mono);color:#38bdf8;">I<sub>D</sub> = I<sub>DSS</sub> · [1 − (V<sub>GS</sub> / V<sub>P</sub>)]²</span><br>
-        • <strong>สมการ E-MOSFET (Square Law):</strong><br>
-        <span style="font-family:var(--font-mono);color:#38bdf8;">I<sub>D</sub> = k · (V<sub>GS</sub> − V<sub>th</sub>)²</span> (เมื่อ V<sub>GS</sub> ≥ V<sub>th</sub>)<br>
-        • <strong>ความชัน Transconductance:</strong> g<sub>m</sub> = ΔI<sub>D</sub> / ΔV<sub>GS</sub>
+      <div class="theory-box" style="margin-top:0.75rem;">
+        <div style="font-weight:700;color:var(--accent-primary);margin-bottom:0.4rem;display:flex;align-items:center;gap:0.4rem;">
+          <i class="fa-solid fa-calculator"></i> สมการและผลการคำนวณสด (Live Step-by-Step Math):
+        </div>
+        <div id="crv-math-breakdown" style="line-height:1.6;font-size:0.8rem;color:#cbd5e1;">
+          <!-- Injected dynamically via onCurvesChange -->
+        </div>
       </div>
     </div>
+  </div>
+
+  <!-- Parameter Reference & Glossary Section -->
+  <div class="glass-card" style="margin-top:1.25rem;">
+    <div class="card-title" style="flex-wrap:wrap;gap:0.75rem;">
+      <div class="card-title-text"><i class="fa-solid fa-book-open"></i> สารานุกรมความหมายและสูตรของค่าพารามิเตอร์ FET &amp; MOSFET (Parameter Glossary &amp; Reference)</div>
+      <div style="display:flex;gap:0.5rem;align-items:center;">
+        <input type="text" id="param-search-input" placeholder="🔍 ค้นหาพารามิเตอร์ (เช่น gm0, gm, IDSS, VP)..." oninput="filterParameterCards()" style="background:rgba(15,23,42,0.8);border:1px solid var(--border-glass);color:var(--text-primary);padding:0.35rem 0.75rem;border-radius:20px;font-size:0.78rem;outline:none;width:260px;">
+      </div>
+    </div>
+
+    <!-- Category Filters -->
+    <div class="pill-group" style="margin-bottom:1rem;">
+      <button class="pill-btn active" id="btn-param-all" onclick="filterParameterCategory('all', this)"><i class="fa-solid fa-shapes"></i> ทั้งหมด (All)</button>
+      <button class="pill-btn" id="btn-param-jfet" onclick="filterParameterCategory('jfet_dmos', this)"><i class="fa-solid fa-bolt"></i> JFET &amp; D-MOSFET (g<sub>m0</sub>, g<sub>m</sub>, I<sub>DSS</sub>, V<sub>P</sub>)</button>
+      <button class="pill-btn" id="btn-param-emos" onclick="filterParameterCategory('emos', this)"><i class="fa-solid fa-microchip"></i> E-MOSFET (V<sub>th</sub>, k, I<sub>D(on)</sub>)</button>
+      <button class="pill-btn" id="btn-param-ac" onclick="filterParameterCategory('ac_circuits', this)"><i class="fa-solid fa-wave-square"></i> วงจรไบอัส &amp; AC (r<sub>d</sub>, I<sub>D(Q)</sub>, V<sub>DS(Q)</sub>, R<sub>D</sub>, R<sub>S</sub>)</button>
+    </div>
+
+    <!-- Parameter Cards Grid -->
+    <div class="param-grid" id="param-cards-container">
+      
+      <!-- Card: gm0 -->
+      <div class="param-card accent-cyan" data-cat="jfet_dmos" data-keys="gm0 transconductance max ความนำถ่ายโอนสูงสุด shockley jfet dmos">
+        <div>
+          <div class="param-header">
+            <span class="param-sym"><i class="fa-solid fa-gauge-high" style="color:#06b6d4;font-size:0.95rem;"></i> g<sub>m0</sub></span>
+            <span class="param-type-badge">JFET / D-MOSFET</span>
+          </div>
+          <div class="param-th-name">ความนำถ่ายโอนสูงสุด (Maximum Transconductance ที่ V<sub>GS</sub> = 0V)</div>
+          <div class="param-formula-box">
+            <span>g<sub>m0</sub> = 2 · I<sub>DSS</sub> / |V<sub>P</sub>|</span>
+            <span class="param-unit-badge">mS (mA/V)</span>
+          </div>
+          <div class="param-desc">
+            <strong>ความหมาย:</strong> คือค่าความชันสูงสุดของกราฟคุณลักษณะถ่ายโอน (Transfer Curve) ซึ่งเกิดขึ้นที่จุดตัดแกนตั้งเมื่อ <strong>V<sub>GS</sub> = 0V</strong> (เกตช็อตกับซอร์ส)
+          </div>
+          <div class="param-desc">
+            <strong>บทบาท:</strong> เป็นเพดานขีดจำกัดความสามารถสูงสุดในการขยายสัญญาณของ FET ตัวนั้น ๆ ก่อนถูกลดทอนลงตามแรงดันไบอัสย้อนกลับ
+          </div>
+        </div>
+        <div class="param-tip">
+          <i class="fa-solid fa-lightbulb" style="color:var(--accent-secondary);"></i> <strong>Tip:</strong> หากทราบ I<sub>DSS</sub> และ V<sub>P</sub> จาก Datasheet จะคำนวณหา g<sub>m0</sub> ได้ทันทีโดยไม่ต้องต่อวงจร
+        </div>
+      </div>
+
+      <!-- Card: gm -->
+      <div class="param-card accent-emerald" data-cat="jfet_dmos emos ac_circuits" data-keys="gm transconductance ความนำถ่ายโอน ความนำข้าม yfs gfs gain av">
+        <div>
+          <div class="param-header">
+            <span class="param-sym"><i class="fa-solid fa-wave-square" style="color:#10b981;font-size:0.95rem;"></i> g<sub>m</sub> (หรือ y<sub>fs</sub>, g<sub>fs</sub>)</span>
+            <span class="param-type-badge">ทุกชนิด FET</span>
+          </div>
+          <div class="param-th-name">ความนำถ่ายโอน ณ จุดทำงาน Q-Point (Transconductance)</div>
+          <div class="param-formula-box">
+            <span>g<sub>m</sub> = g<sub>m0</sub> · [1 − (V<sub>GS</sub> / V<sub>P</sub>)] = ΔI<sub>D</sub> / ΔV<sub>GS</sub></span>
+            <span class="param-unit-badge">mS (mA/V)</span>
+          </div>
+          <div class="param-desc">
+            <strong>ความหมาย:</strong> อัตราการเปลี่ยนแปลงของกระแสเอาต์พุต (ΔI<sub>D</sub>) ต่อการเปลี่ยนแปลงของแรงดันควบคุมอินพุต (ΔV<sub>GS</sub>) ณ จุดทำงาน Q-Point
+          </div>
+          <div class="param-desc">
+            <strong>บทบาท:</strong> เป็นตัวแปรหัวใจหลักที่แปลงสัญญาณแรงดัน AC เล็ก ๆ ให้เป็นกระแสเพื่อสร้าง <strong>อัตราขยายแรงดัน A<sub>v</sub> = −g<sub>m</sub> · (R<sub>D</sub> ∥ r<sub>d</sub>)</strong> ยิ่ง g<sub>m</sub> สูง ยิ่งขยายแรง
+          </div>
+        </div>
+        <div class="param-tip">
+          <i class="fa-solid fa-lightbulb" style="color:var(--accent-secondary);"></i> <strong>สมการ E-MOSFET:</strong> g<sub>m</sub> = 2 · k · (V<sub>GS</sub> − V<sub>th</sub>)
+        </div>
+      </div>
+
+      <!-- Card: IDSS -->
+      <div class="param-card accent-amber" data-cat="jfet_dmos" data-keys="idss saturation current drain กระแสเดรนอิ่มตัวสูงสุด shockley">
+        <div>
+          <div class="param-header">
+            <span class="param-sym"><i class="fa-solid fa-bolt" style="color:#f59e0b;font-size:0.95rem;"></i> I<sub>DSS</sub></span>
+            <span class="param-type-badge">JFET / D-MOSFET</span>
+          </div>
+          <div class="param-th-name">กระแสเดรนอิ่มตัวสูงสุด (Drain-Source Saturation Current)</div>
+          <div class="param-formula-box">
+            <span>I<sub>DSS</sub> = กระแส I<sub>D</sub> สูงสุดเมื่อ V<sub>GS</sub> = 0V</span>
+            <span class="param-unit-badge">mA หรือ A</span>
+          </div>
+          <div class="param-desc">
+            <strong>ความหมาย:</strong> ปริมาณกระแสเดรนสูงสุดที่สามารถไหลผ่านช่องนำกระแส (Channel) ได้ เมื่อไม่มีแรงดันย้อนกลับมาบีบช่องนำกระแส (V<sub>GS</sub> = 0V) ในย่านอิ่มตัว (V<sub>DS</sub> ≥ |V<sub>P</sub>|)
+          </div>
+          <div class="param-desc">
+            <strong>บทบาท:</strong> เป็นค่าพารามิเตอร์ประจำเบอร์ตัวถัง (เช่น 2N5458 มี I<sub>DSS</sub> ≈ 9 mA, MPF102 ≈ 15 mA) ใช้ในสมการช็อกลีย์เพื่อคำนวณจุดไบอัสไฟตรง
+          </div>
+        </div>
+        <div class="param-tip">
+          <i class="fa-solid fa-circle-info" style="color:var(--accent-primary);"></i> หากป้อน V<sub>GS</sub> ติดลบ กระแส I<sub>D</sub> จะลดลงจาก I<sub>DSS</sub> เสมอตามสมการ Shockley
+        </div>
+      </div>
+
+      <!-- Card: VP / VGS(off) -->
+      <div class="param-card accent-rose" data-cat="jfet_dmos" data-keys="vp vgs off pinch-off cutoff แรงดันพินช์ออฟ คัตออฟ">
+        <div>
+          <div class="param-header">
+            <span class="param-sym"><i class="fa-solid fa-circle-stop" style="color:#f43f5e;font-size:0.95rem;"></i> V<sub>P</sub> (หรือ V<sub>GS(off)</sub>)</span>
+            <span class="param-type-badge">JFET / D-MOSFET</span>
+          </div>
+          <div class="param-th-name">แรงดันพินช์ออฟ หรือแรงดันคัตออฟ (Pinch-Off / Cutoff Voltage)</div>
+          <div class="param-formula-box">
+            <span>|V<sub>P</sub>| = |V<sub>GS(off)</sub>| &nbsp;(ทำให้ I<sub>D</sub> ≈ 0A)</span>
+            <span class="param-unit-badge">V (โวลต์)</span>
+          </div>
+          <div class="param-desc">
+            <strong>ความหมาย:</strong> ระดับแรงดันย้อนกลับระหว่างเกต-ซอร์ส ที่ทำให้ชั้นปลอดพาหะ (Depletion Region) ขยายตัวมาแตะกันสนิทจนบีบช่องนำกระแส (Channel) ให้ปิดสนิท
+          </div>
+          <div class="param-desc">
+            <strong>เครื่องหมาย:</strong> สำหรับ N-Channel มีค่าเป็น <strong>ลบ</strong> (เช่น −4V) ส่วน P-Channel จะมีค่าเป็น <strong>บวก</strong> (เช่น +4V)
+          </div>
+        </div>
+        <div class="param-tip">
+          <i class="fa-solid fa-triangle-exclamation" style="color:#f59e0b;"></i> เมื่อ |V<sub>GS</sub>| ≥ |V<sub>P</sub>| ทรานซิสเตอร์จะเข้าสู่สภาวะคัตออฟ (Cutoff) ตัดกระแสเดรน I<sub>D</sub> = 0
+        </div>
+      </div>
+
+      <!-- Card: Vth / VGS(th) -->
+      <div class="param-card accent-purple" data-cat="emos" data-keys="vth vgs th threshold แรงดันขีดเริ่ม emosfet enhancement">
+        <div>
+          <div class="param-header">
+            <span class="param-sym"><i class="fa-solid fa-key" style="color:#a855f7;font-size:0.95rem;"></i> V<sub>th</sub> (หรือ V<sub>GS(th)</sub>)</span>
+            <span class="param-type-badge">E-MOSFET</span>
+          </div>
+          <div class="param-th-name">แรงดันขีดเริ่มนำกระแส (Threshold Voltage)</div>
+          <div class="param-formula-box">
+            <span>V<sub>GS</sub> ≥ V<sub>th</sub> &nbsp;&rarr; เกิด Inversion Layer (เปิดช่องนำกระแส)</span>
+            <span class="param-unit-badge">V (โวลต์)</span>
+          </div>
+          <div class="param-desc">
+            <strong>ความหมาย:</strong> แรงดันเกต-ซอร์สขั้นต่ำสุดที่ต้องป้อนให้ E-MOSFET เพื่อดึงดูดประจุพาหะข้างน้อยมาสร้างช่องนำกระแสเหนี่ยวนำ (Inversion Layer) เชื่อมระหว่าง Drain กับ Source
+          </div>
+          <div class="param-desc">
+            <strong>บทบาท:</strong> หาก V<sub>GS</sub> &lt; V<sub>th</sub> จะไม่มีช่องนำกระแส (Normally OFF, I<sub>D</sub> = 0) มักพบในสวิตชิ่งพาวเวอร์มอสเฟต (เช่น 2N7000 V<sub>th</sub> ≈ +2.0V)
+          </div>
+        </div>
+        <div class="param-tip">
+          <i class="fa-solid fa-lightbulb" style="color:var(--accent-secondary);"></i> E-MOSFET ไม่มี I<sub>DSS</sub> ถาวรเหมือน JFET เพราะไม่มีช่องนำกระแสทางกายภาพจนกว่าจะใส่ V<sub>GS</sub> &gt; V<sub>th</sub>
+        </div>
+      </div>
+
+      <!-- Card: k (Conduction Parameter) -->
+      <div class="param-card accent-blue" data-cat="emos" data-keys="k conduction parameter emosfet square law ค่าคงที่การนำกระแส">
+        <div>
+          <div class="param-header">
+            <span class="param-sym"><i class="fa-solid fa-square-root-variable" style="color:#38bdf8;font-size:0.95rem;"></i> k (หรือ K<sub>n</sub>)</span>
+            <span class="param-type-badge">E-MOSFET</span>
+          </div>
+          <div class="param-th-name">ค่าคงที่การนำกระแสของ E-MOSFET (Conduction Parameter)</div>
+          <div class="param-formula-box">
+            <span>k = I<sub>D(on)</sub> / (V<sub>GS(on)</sub> − V<sub>th</sub>)²</span>
+            <span class="param-unit-badge">mA/V² หรือ A/V²</span>
+          </div>
+          <div class="param-desc">
+            <strong>ความหมาย:</strong> ค่าสัมประสิทธิ์การนำกระแสเฉพาะตัวของ E-MOSFET ซึ่งขึ้นอยู่กับโครงสร้างทางกายภาพ (ความกว้าง/ความยาวแชนแนล W/L, ความหนาชั้นออกไซด์ C<sub>ox</sub>, และความคล่องตัวของอิเล็กตรอน μ<sub>n</sub>)
+          </div>
+          <div class="param-desc">
+            <strong>สมการใช้งาน:</strong> I<sub>D</sub> = k · (V<sub>GS</sub> − V<sub>th</sub>)² ในย่านอิ่มตัว (Saturation)
+          </div>
+        </div>
+        <div class="param-tip">
+          <i class="fa-solid fa-circle-info" style="color:var(--accent-primary);"></i> คำนวณได้โดยตรงจากค่า I<sub>D(on)</sub> และ V<sub>GS(on)</sub> ที่ระบุในสเปกแผ่นข้อมูล (Datasheet)
+        </div>
+      </div>
+
+      <!-- Card: rd / ros -->
+      <div class="param-card accent-amber" data-cat="ac_circuits" data-keys="rd ros yos output resistance ความต้านทานเอาต์พุต ac small signal">
+        <div>
+          <div class="param-header">
+            <span class="param-sym"><i class="fa-solid fa-arrows-left-right" style="color:#f59e0b;font-size:0.95rem;"></i> r<sub>d</sub> (หรือ r<sub>os</sub>, 1/y<sub>os</sub>)</span>
+            <span class="param-type-badge">ทุกชนิด FET (AC Model)</span>
+          </div>
+          <div class="param-th-name">ความต้านทานเอาต์พุตไฟสลับเดรน-ซอร์ส (AC Output Drain Resistance)</div>
+          <div class="param-formula-box">
+            <span>r<sub>d</sub> = ΔV<sub>DS</sub> / ΔI<sub>D</sub> |<sub>V<sub>GS</sub>=คงที่</sub> = 1 / y<sub>os</sub></span>
+            <span class="param-unit-badge">kΩ (กิโลโอห์ม)</span>
+          </div>
+          <div class="param-desc">
+            <strong>ความหมาย:</strong> ความต้านทานภายในระหว่างขั้ว Drain และ Source ในย่านอิ่มตัว สะท้อนความชันของเส้นกราฟลักษณะเฉพาะเดรน (เกิดจาก Channel Length Modulation คล้าย Early Effect ใน BJT)
+          </div>
+          <div class="param-desc">
+            <strong>บทบาท:</strong> มีค่าสูง (ประมาณ 30kΩ - 100kΩ) หาก <strong>r<sub>d</sub> ≥ 10 · R<sub>D</sub></strong> สามารถประมาณละเว้น r<sub>d</sub> ได้เพื่อลดความซับซ้อนในการคำนวณ
+          </div>
+        </div>
+        <div class="param-tip">
+          <i class="fa-solid fa-lightbulb" style="color:var(--accent-secondary);"></i> ส่งผลให้อิมพีแดนซ์เอาต์พุตของวงจรขยายมีค่า Z<sub>out</sub> = R<sub>D</sub> ∥ r<sub>d</sub>
+        </div>
+      </div>
+
+      <!-- Card: ID(Q) & VDS(Q) -->
+      <div class="param-card accent-cyan" data-cat="ac_circuits jfet_dmos emos" data-keys="idq vdsq q-point dc load line จุดทำงานสงบ ไฟตรง">
+        <div>
+          <div class="param-header">
+            <span class="param-sym"><i class="fa-solid fa-crosshairs" style="color:#06b6d4;font-size:0.95rem;"></i> I<sub>D(Q)</sub> &amp; V<sub>DS(Q)</sub></span>
+            <span class="param-type-badge">วงจรไบอัสทุกชนิด</span>
+          </div>
+          <div class="param-th-name">จุดทำงานสงบไฟตรง (DC Quiescent Operating Point / จุด Q)</div>
+          <div class="param-formula-box">
+            <span>V<sub>DS(Q)</sub> = V<sub>DD</sub> − I<sub>D(Q)</sub> · (R<sub>D</sub> + R<sub>S</sub>)</span>
+            <span class="param-unit-badge">mA และ V</span>
+          </div>
+          <div class="param-desc">
+            <strong>ความหมาย:</strong> พิกัดกระแสเดรนและแรงดันตกคร่อม Drain-Source ในสภาวะสงบไฟตรงขณะยังไม่มีสัญญาณ AC เข้ามา เป็นจุดตัดระหว่างสมการทรานซิสเตอร์กับเส้นโหลด DC (DC Load Line)
+          </div>
+          <div class="param-desc">
+            <strong>บทบาท:</strong> การจัดจุด Q ให้อยู่กึ่งกลางเส้นโหลด (Midpoint Bias) ช่วยให้สัญญาณ AC แกว่งตัวได้กว้างที่สุดโดยไม่ถูกตัดยอดคลื่น (No Clipping Distortion)
+          </div>
+        </div>
+        <div class="param-tip">
+          <i class="fa-solid fa-circle-check" style="color:#10b981;"></i> จุด Q ที่ดีสำหรับแอมป์ต้องอยู่ในย่าน Saturation / Active Region เสมอ (V<sub>DS</sub> ≥ V<sub>GS</sub> − V<sub>P</sub>)
+        </div>
+      </div>
+
+      <!-- Card: Biasing Resistors RD, RS, RG -->
+      <div class="param-card accent-emerald" data-cat="ac_circuits" data-keys="rd rs rg bias resistor ตัวต้านทาน ไบอัส fixed self voltage divider">
+        <div>
+          <div class="param-header">
+            <span class="param-sym"><i class="fa-solid fa-microchip" style="color:#10b981;font-size:0.95rem;"></i> R<sub>D</sub>, R<sub>S</sub>, R<sub>G</sub></span>
+            <span class="param-type-badge">ตัวต้านทานในวงจร</span>
+          </div>
+          <div class="param-th-name">ตัวต้านทานกำหนดจุดไบอัสและอัตราขยาย (Biasing Resistors)</div>
+          <div class="param-formula-box">
+            <span>V<sub>S</sub> = I<sub>D</sub> · R<sub>S</sub> &nbsp;|&nbsp; V<sub>GS</sub> = V<sub>G</sub> − I<sub>D</sub> · R<sub>S</sub></span>
+            <span class="param-unit-badge">Ω, kΩ, MΩ</span>
+          </div>
+          <div class="param-desc">
+            <strong>• R<sub>D</sub> (Drain Resistor):</strong> ตัวต้านทานโหลด ทำหน้าที่แปลงการเปลี่ยนแปลงกระแส ΔI<sub>D</sub> ให้เป็นแรงดันสัญญาณเอาต์พุต ΔV<sub>DS</sub><br>
+            <strong>• R<sub>S</sub> (Source Resistor):</strong> ตัวต้านทานที่ขาซอร์ส ใช้สร้างแรงดันไบอัสลบในวงจร Self-Bias และให้ Negative Feedback เพิ่มเสถียรภาพ<br>
+            <strong>• R<sub>G</sub> (Gate Resistor):</strong> ตัวต้านทานเกตค่าสูงระดับ Mega-Ohm (1MΩ - 10MΩ) ช่วยตรึงศักย์ไฟตรงเกตและรักษาระดับ Input Impedance ให้สูงมาก
+          </div>
+        </div>
+        <div class="param-tip">
+          <i class="fa-solid fa-lightbulb" style="color:var(--accent-secondary);"></i> ในวงจรขยาย AC มักต่อคาปาซิเตอร์ C<sub>S</sub> ขนานกับ R<sub>S</sub> เพื่อ Bypass สัญญาณ AC ลงกราวด์ เพิ่มอัตราขยายแรงดัน
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Summary Comparison Table -->
+    <div style="margin-top:1.5rem;">
+      <div style="font-weight:600;font-size:0.9rem;color:var(--accent-primary);margin-bottom:0.6rem;display:flex;align-items:center;gap:0.4rem;">
+        <i class="fa-solid fa-table-list"></i> ตารางสรุปเปรียบเทียบพารามิเตอร์สำคัญของ FET &amp; MOSFET (Quick Reference Cheat-Sheet)
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="table-custom" style="font-size:0.8rem;">
+          <thead>
+            <tr>
+              <th style="width:12%;">สัญลักษณ์</th>
+              <th style="width:22%;">ชื่อภาษาไทย &amp; ภาษาอังกฤษ</th>
+              <th style="width:22%;">สูตรคำนวณ / ความสัมพันธ์</th>
+              <th style="width:10%;">หน่วย</th>
+              <th style="width:14%;">อุปกรณ์</th>
+              <th style="width:20%;">ความสำคัญในการออกแบบ</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong style="color:#06b6d4;font-family:var(--font-mono);">g<sub>m0</sub></strong></td>
+              <td>ความนำถ่ายโอนสูงสุด<br><span style="color:var(--text-muted);font-size:0.72rem;">Max Transconductance</span></td>
+              <td><span style="font-family:var(--font-mono);color:#38bdf8;">2 · I<sub>DSS</sub> / |V<sub>P</sub>|</span></td>
+              <td>mS</td>
+              <td>JFET, D-MOS</td>
+              <td>ขีดจำกัดความสามารถขยายสัญญาณสูงสุดที่ V<sub>GS</sub> = 0V</td>
+            </tr>
+            <tr>
+              <td><strong style="color:#10b981;font-family:var(--font-mono);">g<sub>m</sub></strong></td>
+              <td>ความนำถ่ายโอนที่จุดทำงาน<br><span style="color:var(--text-muted);font-size:0.72rem;">Operating Transconductance</span></td>
+              <td><span style="font-family:var(--font-mono);color:#34d399;">g<sub>m0</sub> · (1 − V<sub>GS</sub>/V<sub>P</sub>)</span></td>
+              <td>mS</td>
+              <td>ทุกชนิด FET</td>
+              <td>ตัวกำหนดอัตราขยายแรงดัน AC หลัก (A<sub>v</sub> = −g<sub>m</sub>·R<sub>D</sub>)</td>
+            </tr>
+            <tr>
+              <td><strong style="color:#f59e0b;font-family:var(--font-mono);">I<sub>DSS</sub></strong></td>
+              <td>กระแสเดรนอิ่มตัวสูงสุด<br><span style="color:var(--text-muted);font-size:0.72rem;">Drain-Source Sat. Current</span></td>
+              <td><span style="font-family:var(--font-mono);color:#fbbf24;">I<sub>D</sub> เมื่อ V<sub>GS</sub> = 0V</span></td>
+              <td>mA</td>
+              <td>JFET, D-MOS</td>
+              <td>กระแสเพดานสูงสุดในสมการช็อกลีย์ ระบุใน Datasheet</td>
+            </tr>
+            <tr>
+              <td><strong style="color:#f43f5e;font-family:var(--font-mono);">V<sub>P</sub> / V<sub>GS(off)</sub></strong></td>
+              <td>แรงดันพินช์ออฟ / คัตออฟ<br><span style="color:var(--text-muted);font-size:0.72rem;">Pinch-off / Cutoff Voltage</span></td>
+              <td><span style="font-family:var(--font-mono);color:#f87171;">แรงดันที่ทำให้ I<sub>D</sub> = 0A</span></td>
+              <td>V</td>
+              <td>JFET, D-MOS</td>
+              <td>ระดับแรงดันที่บีบชั้น Depletion ปิดช่องนำกระแสสนิท</td>
+            </tr>
+            <tr>
+              <td><strong style="color:#a855f7;font-family:var(--font-mono);">V<sub>th</sub></strong></td>
+              <td>แรงดันขีดเริ่มเหนี่ยวนำ<br><span style="color:var(--text-muted);font-size:0.72rem;">Threshold Voltage</span></td>
+              <td><span style="font-family:var(--font-mono);color:#c084fc;">V<sub>GS</sub> ขั้นต่ำเพื่อเปิด Inversion Layer</span></td>
+              <td>V</td>
+              <td>E-MOSFET</td>
+              <td>แรงดันเปิดเกตของ MOSFET แบบ Enhancement (Normally OFF)</td>
+            </tr>
+            <tr>
+              <td><strong style="color:#38bdf8;font-family:var(--font-mono);">k</strong></td>
+              <td>ค่าคงที่การนำกระแส<br><span style="color:var(--text-muted);font-size:0.72rem;">Conduction Parameter</span></td>
+              <td><span style="font-family:var(--font-mono);color:#38bdf8;">I<sub>D(on)</sub> / (V<sub>GS(on)</sub> − V<sub>th</sub>)²</span></td>
+              <td>mA/V²</td>
+              <td>E-MOSFET</td>
+              <td>ความชันการนำกระแสในสมการ Square Law ของ E-MOS</td>
+            </tr>
+            <tr>
+              <td><strong style="color:#f59e0b;font-family:var(--font-mono);">r<sub>d</sub></strong></td>
+              <td>ความต้านทานเอาต์พุต AC<br><span style="color:var(--text-muted);font-size:0.72rem;">AC Output Drain Resistance</span></td>
+              <td><span style="font-family:var(--font-mono);color:#fbbf24;">ΔV<sub>DS</sub> / ΔI<sub>D</sub> = 1 / y<sub>os</sub></span></td>
+              <td>kΩ</td>
+              <td>ทุกชนิด FET</td>
+              <td>ความต้านทานภายในย่าน Saturation กำหนด Z<sub>out</sub> และ A<sub>v</sub></td>
+            </tr>
+            <tr>
+              <td><strong style="color:#06b6d4;font-family:var(--font-mono);">I<sub>D(Q)</sub>, V<sub>DS(Q)</sub></strong></td>
+              <td>พิกัดจุดทำงานสงบไฟตรง<br><span style="color:var(--text-muted);font-size:0.72rem;">DC Quiescent Q-Point</span></td>
+              <td><span style="font-family:var(--font-mono);color:#67e8f9;">จุดตัดกับ DC Load Line</span></td>
+              <td>mA, V</td>
+              <td>วงจรไบอัส</td>
+              <td>จุดอ้างอิงให้สัญญาณ AC แกว่งตัวโดยไม่เกิดความเพี้ยน</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
   </div>
 </section>
 
@@ -2003,47 +2436,118 @@ function onCurvesChange() {
   const vdd = state.curves.vdd;
   const rd = state.curves.rd_kohm;
 
-  let id_q = 0, gm = 0, stateStr = 'Active / Sat';
+  let id_q = 0, gm = 0, gm0 = 0, stateStr = 'Active / Sat';
+  let mathHTML = '';
 
   if (dev === 'jfet') {
     const idss = 10.0, vp = -4.0;
+    gm0 = (2 * idss) / Math.abs(vp);
+    document.getElementById('crv-param-val').innerHTML = `I<sub>DSS</sub> = ${idss.toFixed(1)} mA, V<sub>P</sub> = ${vp.toFixed(1)} V`;
+    document.getElementById('crv-gm0-val').innerHTML = `${gm0.toFixed(2)} <span class="readout-unit">mS</span>`;
+
     if (vgs <= vp) {
-      id_q = 0; gm = 0; stateStr = 'Cutoff';
+      id_q = 0; gm = 0; stateStr = 'Cutoff (บีบช่องนำกระแสปิดสนิท)';
+      mathHTML = `• <strong>สภาวะ Cutoff:</strong> V<sub>GS</sub> (${vgs.toFixed(1)}V) ≤ V<sub>P</sub> (${vp.toFixed(1)}V) &rarr; ชั้น Depletion บีบช่องปิดสนิท <strong>I<sub>D</sub> = 0 mA</strong>, <strong>g<sub>m</sub> = 0 mS</strong><br>` +
+                 `• <strong>g<sub>m0</sub> (ที่ V<sub>GS</sub>=0V):</strong> 2 · I<sub>DSS</sub> / |V<sub>P</sub>| = (2 × ${idss.toFixed(1)} mA) / ${Math.abs(vp).toFixed(1)} V = <strong style="color:#06b6d4;">${gm0.toFixed(2)} mS</strong>`;
     } else {
       id_q = idss * Math.pow(1 - vgs / vp, 2);
-      const gm0 = (2 * idss) / Math.abs(vp);
       gm = gm0 * (1 - vgs / vp);
+      const vds_sat = Math.max(0.5, vgs - vp);
+      mathHTML = `• <strong>g<sub>m0</sub> (Max Transconductance):</strong> 2 · I<sub>DSS</sub> / |V<sub>P</sub>| = (2 × ${idss.toFixed(1)} mA) / ${Math.abs(vp).toFixed(1)} V = <strong style="color:#06b6d4;">${gm0.toFixed(2)} mS</strong><br>` +
+                 `• <strong>g<sub>m</sub> (ความนำที่จุด Q):</strong> g<sub>m0</sub> · (1 − V<sub>GS</sub>/V<sub>P</sub>) = ${gm0.toFixed(2)} · [1 − (${vgs.toFixed(1)} / ${vp.toFixed(1)})] = <strong style="color:#10b981;">${gm.toFixed(2)} mS</strong><br>` +
+                 `• <strong>I<sub>D(Q)</sub> (สมการช็อกลีย์):</strong> I<sub>DSS</sub> · [1 − (V<sub>GS</sub>/V<sub>P</sub>)]² = ${idss.toFixed(1)} · [1 − (${vgs.toFixed(1)} / ${vp.toFixed(1)})]² = <strong style="color:#38bdf8;">${id_q.toFixed(2)} mA</strong><br>` +
+                 `• <strong>V<sub>DS(sat)</sub> (จุดเริ่มอิ่มตัว):</strong> V<sub>GS</sub> − V<sub>P</sub> = ${vgs.toFixed(1)} − (${vp.toFixed(1)}) = <strong>${vds_sat.toFixed(2)} V</strong>`;
     }
   } else if (dev === 'dmos') {
     const idss = 8.0, vp = -4.0;
+    gm0 = (2 * idss) / Math.abs(vp);
+    document.getElementById('crv-param-val').innerHTML = `I<sub>DSS</sub> = ${idss.toFixed(1)} mA, V<sub>P</sub> = ${vp.toFixed(1)} V`;
+    document.getElementById('crv-gm0-val').innerHTML = `${gm0.toFixed(2)} <span class="readout-unit">mS</span>`;
+
     if (vgs <= vp) {
-      id_q = 0; gm = 0; stateStr = 'Cutoff';
+      id_q = 0; gm = 0; stateStr = 'Cutoff (ตัดกระแส)';
+      mathHTML = `• <strong>สภาวะ Cutoff:</strong> V<sub>GS</sub> (${vgs.toFixed(1)}V) ≤ V<sub>P</sub> (${vp.toFixed(1)}V) &rarr; <strong>I<sub>D</sub> = 0 mA</strong>, <strong>g<sub>m</sub> = 0 mS</strong><br>` +
+                 `• <strong>g<sub>m0</sub> (ที่ V<sub>GS</sub>=0V):</strong> 2 · I<sub>DSS</sub> / |V<sub>P</sub>| = (2 × ${idss.toFixed(1)} mA) / ${Math.abs(vp).toFixed(1)} V = <strong style="color:#06b6d4;">${gm0.toFixed(2)} mS</strong>`;
     } else {
       id_q = idss * Math.pow(1 - vgs / vp, 2);
-      const gm0 = (2 * idss) / Math.abs(vp);
       gm = gm0 * (1 - vgs / vp);
+      const modeStr = vgs >= 0 ? 'ย่าน Enhancement (V_GS &gt; 0)' : 'ย่าน Depletion (V_GS &lt; 0)';
       stateStr = vgs >= 0 ? 'Enhancement' : 'Depletion';
+      mathHTML = `• <strong>g<sub>m0</sub> (Max ที่ V<sub>GS</sub>=0V):</strong> 2 · I<sub>DSS</sub> / |V<sub>P</sub>| = (2 × ${idss.toFixed(1)} mA) / ${Math.abs(vp).toFixed(1)} V = <strong style="color:#06b6d4;">${gm0.toFixed(2)} mS</strong><br>` +
+                 `• <strong>g<sub>m</sub> (ความนำที่จุด Q):</strong> g<sub>m0</sub> · (1 − V<sub>GS</sub>/V<sub>P</sub>) = ${gm0.toFixed(2)} · [1 − (${vgs.toFixed(1)} / ${vp.toFixed(1)})] = <strong style="color:#10b981;">${gm.toFixed(2)} mS</strong><br>` +
+                 `• <strong>I<sub>D(Q)</sub> (สมการ D-MOS):</strong> I<sub>DSS</sub> · [1 − (V<sub>GS</sub>/V<sub>P</sub>)]² = ${idss.toFixed(1)} · [1 − (${vgs.toFixed(1)} / ${vp.toFixed(1)})]² = <strong style="color:#38bdf8;">${id_q.toFixed(2)} mA</strong> (${modeStr})`;
     }
   } else if (dev === 'emos') {
     const vth = 2.0, k = 0.5;
+    document.getElementById('crv-param-val').innerHTML = `k = ${k.toFixed(2)} mA/V², V<sub>th</sub> = +${vth.toFixed(1)} V`;
+    document.getElementById('crv-gm0-val').innerHTML = `— <span class="readout-unit">(E-MOS)</span>`;
+
     if (vgs < vth) {
-      id_q = 0; gm = 0; stateStr = 'Cutoff (No Channel)';
+      id_q = 0; gm = 0; stateStr = 'Cutoff (ยังไม่เปิดแชนแนล)';
+      mathHTML = `• <strong>ยังไม่ถึงแรงดันขีดเริ่ม (V<sub>GS</sub> &lt; V<sub>th</sub>):</strong> ${vgs.toFixed(1)}V &lt; ${vth.toFixed(1)}V &rarr; ยังไม่เกิด Inversion Layer (Normally OFF)<br>` +
+                 `• <strong>กระแสเดรน I<sub>D</sub> = 0 mA</strong>, <strong>g<sub>m</sub> = 0 mS</strong> (ต้องป้อน V<sub>GS</sub> &gt; ${vth.toFixed(1)}V เพื่อเริ่มนำกระแส)`;
     } else {
       id_q = k * Math.pow(vgs - vth, 2);
       gm = 2 * k * (vgs - vth);
       stateStr = 'Saturation';
+      mathHTML = `• <strong>สมการ Square-Law (E-MOS):</strong> I<sub>D</sub> = k · (V<sub>GS</sub> − V<sub>th</sub>)² = ${k.toFixed(2)} · (${vgs.toFixed(1)} − ${vth.toFixed(1)})² = <strong style="color:#38bdf8;">${id_q.toFixed(2)} mA</strong><br>` +
+                 `• <strong>ความชัน Transconductance g<sub>m</sub>:</strong> 2 · k · (V<sub>GS</sub> − V<sub>th</sub>) = 2 × ${k.toFixed(2)} × (${vgs.toFixed(1)} − ${vth.toFixed(1)}) = <strong style="color:#10b981;">${gm.toFixed(2)} mS</strong><br>` +
+                 `• <em>(หมายเหตุ: E-MOSFET ไม่มีค่าคงที่ g<sub>m0</sub> ที่ V<sub>GS</sub>=0V เพราะตัวถังเป็น Normally OFF)</em>`;
     }
   }
 
   const vds_q = Math.max(0.2, vdd - id_q * rd);
   if (vds_q <= 1.0 && id_q > 0) stateStr = 'Ohmic / Triode';
 
+  mathHTML += `<br>• <strong>เส้นโหลด DC Load Line:</strong> V<sub>DS(Q)</sub> = V<sub>DD</sub> − (I<sub>D(Q)</sub> · R<sub>D</sub>) = ${vdd.toFixed(1)} − (${id_q.toFixed(2)} mA × ${rd.toFixed(1)} kΩ) = <strong style="color:#f59e0b;">${vds_q.toFixed(2)} V</strong>`;
+
   document.getElementById('crv-idq-val').innerHTML = `${id_q.toFixed(2)} <span class="readout-unit">mA</span>`;
   document.getElementById('crv-vdsq-val').innerHTML = `${vds_q.toFixed(2)} <span class="readout-unit">V</span>`;
   document.getElementById('crv-gm-val').innerHTML = `${gm.toFixed(2)} <span class="readout-unit">mS</span>`;
   document.getElementById('crv-state-val').textContent = stateStr;
 
+  const mathEl = document.getElementById('crv-math-breakdown');
+  if (mathEl) mathEl.innerHTML = mathHTML;
+
   drawDrainCurves();
+}
+
+let currentParamCategory = 'all';
+
+function filterParameterCategory(cat, btn) {
+  currentParamCategory = cat;
+  document.querySelectorAll('#tab-curves .pill-group button').forEach(b => {
+    if (b.id && b.id.startsWith('btn-param-')) b.classList.remove('active');
+  });
+  if (btn) btn.classList.add('active');
+  playSound('click');
+  applyParameterFilters();
+}
+
+function filterParameterCards() {
+  applyParameterFilters();
+}
+
+function applyParameterFilters() {
+  const input = document.getElementById('param-search-input');
+  const query = input ? input.value.toLowerCase().trim() : '';
+  const cards = document.querySelectorAll('#param-cards-container .param-card');
+
+  cards.forEach(card => {
+    const catAttr = card.getAttribute('data-cat') || '';
+    const cats = catAttr.split(' ');
+    const keys = (card.getAttribute('data-keys') || '').toLowerCase();
+    const text = card.textContent.toLowerCase();
+
+    const matchesCat = currentParamCategory === 'all' || cats.includes(currentParamCategory);
+    const matchesSearch = !query || keys.includes(query) || text.includes(query);
+
+    if (matchesCat && matchesSearch) {
+      card.style.display = 'flex';
+    } else {
+      card.style.display = 'none';
+    }
+  });
 }
 
 function drawDrainCurves() {
