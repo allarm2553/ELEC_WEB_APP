@@ -1,0 +1,1945 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>แอปการเรียนรู้วงจรประยุกต์ไดโอด — Diode Applications Lab (Clippers, Clampers, Multipliers)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root {
+  --bg-base: #050b14;
+  --bg-surface: rgba(13, 23, 42, 0.75);
+  --bg-card: rgba(18, 30, 56, 0.65);
+  --bg-card-hover: rgba(26, 43, 79, 0.8);
+  --border-glass: rgba(56, 189, 248, 0.15);
+  --border-active: rgba(6, 182, 212, 0.5);
+  --accent-primary: #06b6d4;
+  --accent-secondary: #3b82f6;
+  --accent-glow: rgba(6, 182, 212, 0.35);
+  --accent-amber: #f59e0b;
+  --accent-green: #10b981;
+  --accent-rose: #f43f5e;
+  --accent-purple: #a855f7;
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --font-thai: 'Sarabun', -apple-system, sans-serif;
+  --font-en: 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --shadow-glow: 0 0 25px rgba(6, 182, 212, 0.15);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: var(--font-thai);
+  background-color: var(--bg-base);
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(6, 182, 212, 0.12) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(59, 130, 246, 0.1) 0px, transparent 50%),
+    radial-gradient(at 50% 50%, rgba(15, 23, 42, 0.6) 0px, transparent 100%);
+  color: var(--text-primary);
+  min-height: 100vh;
+  padding-bottom: 3rem;
+  line-height: 1.6;
+}
+
+header {
+  background: rgba(10, 19, 36, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border-glass);
+  padding: 0.85rem 1.5rem;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.header-left { display: flex; align-items: center; gap: 1rem; }
+.header-logo {
+  width: 44px; height: 44px;
+  background: linear-gradient(135deg, #06b6d4, #3b82f6);
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.4rem; color: white;
+  box-shadow: 0 0 15px rgba(6, 182, 212, 0.4);
+}
+.header-title h1 {
+  font-size: 1.15rem; font-weight: 700; color: var(--text-primary);
+  display: flex; align-items: center; gap: 0.5rem;
+}
+.header-title p { font-size: 0.78rem; color: var(--text-secondary); }
+
+.nav-tabs {
+  display: flex; gap: 0.4rem; background: rgba(5, 11, 20, 0.6);
+  padding: 0.3rem; border-radius: var(--radius-md);
+  border: 1px solid var(--border-glass);
+}
+.tab-btn {
+  background: transparent; border: none; outline: none;
+  color: var(--text-secondary); padding: 0.45rem 1rem;
+  border-radius: var(--radius-sm); font-family: var(--font-thai);
+  font-size: 0.85rem; font-weight: 500; cursor: pointer;
+  transition: all 0.25s ease; display: flex; align-items: center; gap: 0.4rem;
+}
+.tab-btn:hover { color: var(--text-primary); background: rgba(255,255,255,0.05); }
+.tab-btn.active {
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.25), rgba(59, 130, 246, 0.25));
+  color: var(--accent-primary); border: 1px solid var(--border-active);
+  box-shadow: 0 0 12px rgba(6, 182, 212, 0.25);
+}
+
+.main-container { max-width: 1380px; margin: 1.5rem auto; padding: 0 1.25rem; }
+.tab-content { display: none; }
+.tab-content.active { display: block; animation: fadeIn 0.3s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+.grid-2col { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 1.25rem; }
+.grid-3col { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
+@media (max-width: 1024px) {
+  .grid-2col, .grid-3col { grid-template-columns: 1fr; }
+  header { flex-direction: column; gap: 0.8rem; align-items: flex-start; }
+  .nav-tabs { width: 100%; overflow-x: auto; }
+}
+
+.glass-card {
+  background: var(--bg-surface);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  box-shadow: var(--shadow-glow);
+  position: relative;
+}
+.card-title {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 1rem; padding-bottom: 0.6rem; border-bottom: 1px solid var(--border-glass);
+}
+.card-title-text {
+  font-size: 1rem; font-weight: 600; color: var(--text-primary);
+  display: flex; align-items: center; gap: 0.5rem;
+}
+.card-title-text i { color: var(--accent-primary); }
+
+.pill-group { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem; }
+.pill-btn {
+  background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border-glass);
+  color: var(--text-secondary); padding: 0.35rem 0.85rem; border-radius: 20px;
+  font-size: 0.8rem; font-weight: 500; cursor: pointer; transition: all 0.2s;
+  display: flex; align-items: center; gap: 0.35rem;
+}
+.pill-btn:hover { color: var(--text-primary); border-color: var(--accent-primary); }
+.pill-btn.active {
+  background: var(--accent-primary); color: #04101e; font-weight: 700;
+  border-color: var(--accent-primary); box-shadow: 0 0 10px rgba(6, 182, 212, 0.4);
+}
+
+.control-group { margin-bottom: 1rem; }
+.control-label-row {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 0.4rem; font-size: 0.85rem;
+}
+.control-label-title { color: var(--text-secondary); font-weight: 500; }
+.control-value-badge {
+  font-family: var(--font-mono); font-size: 0.82rem; font-weight: 700;
+  color: var(--accent-primary); background: rgba(6, 182, 212, 0.12);
+  padding: 0.15rem 0.5rem; border-radius: 6px; border: 1px solid rgba(6, 182, 212, 0.3);
+}
+
+input[type=range] {
+  width: 100%; -webkit-appearance: none; height: 6px; border-radius: 3px;
+  background: rgba(56, 189, 248, 0.2); outline: none; transition: background 0.2s;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none; width: 18px; height: 18px;
+  border-radius: 50%; background: var(--accent-primary); cursor: pointer;
+  box-shadow: 0 0 8px var(--accent-primary); transition: transform 0.15s;
+}
+input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.15); }
+
+.readout-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; margin-top: 1rem; }
+.readout-card {
+  background: rgba(5, 11, 20, 0.65); border: 1px solid var(--border-glass);
+  border-radius: var(--radius-sm); padding: 0.75rem; border-left: 3px solid var(--accent-primary);
+}
+.readout-card.secondary { border-left-color: var(--accent-secondary); }
+.readout-card.amber { border-left-color: var(--accent-amber); }
+.readout-card.green { border-left-color: var(--accent-green); }
+.readout-card.rose { border-left-color: var(--accent-rose); }
+.readout-card.purple { border-left-color: var(--accent-purple); }
+.readout-title { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.2rem; }
+.readout-val { font-family: var(--font-mono); font-size: 1.15rem; font-weight: 700; color: var(--text-primary); }
+.readout-unit { font-size: 0.8rem; color: var(--text-secondary); font-weight: 400; }
+
+.status-badge {
+  display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.75rem;
+  padding: 0.25rem 0.6rem; border-radius: 20px; font-weight: 600;
+}
+.status-badge.connected { background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); }
+.status-badge.saturation { background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3); }
+.status-badge.cutoff { background: rgba(244, 63, 94, 0.15); color: #f43f5e; border: 1px solid rgba(244, 63, 94, 0.3); }
+.status-badge.active-region { background: rgba(6, 182, 212, 0.15); color: #06b6d4; border: 1px solid rgba(6, 182, 212, 0.3); }
+
+.canvas-card-wrapper {
+  background: #050b14; border-radius: var(--radius-md); border: 1px solid var(--border-glass);
+  overflow: hidden; margin-bottom: 1rem; position: relative;
+}
+.canvas-header-bar {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 0.5rem 0.85rem; background: rgba(15, 23, 42, 0.7);
+  border-bottom: 1px solid var(--border-glass); font-size: 0.8rem; font-weight: 600;
+}
+
+.theory-box {
+  background: rgba(6, 182, 212, 0.05); border: 1px solid rgba(6, 182, 212, 0.2);
+  border-radius: var(--radius-sm); padding: 0.85rem; font-size: 0.82rem;
+  color: var(--text-secondary); line-height: 1.55; margin-top: 1rem;
+}
+.theory-box strong { color: var(--accent-primary); }
+
+.btn {
+  background: var(--accent-primary); color: #04101e; border: none;
+  padding: 0.5rem 1rem; border-radius: var(--radius-sm); font-family: var(--font-thai);
+  font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s;
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem;
+}
+.btn:hover { background: #22d3ee; box-shadow: 0 0 12px rgba(6, 182, 212, 0.4); }
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.08); color: var(--text-primary);
+  border: 1px solid var(--border-glass);
+}
+.btn-secondary:hover { background: rgba(255, 255, 255, 0.15); }
+.btn-sm { padding: 0.3rem 0.65rem; font-size: 0.78rem; }
+.btn-success { background: #10b981; color: white; }
+.btn-danger { background: #f43f5e; color: white; }
+
+.quiz-container { display: flex; flex-direction: column; gap: 1rem; margin-top: 1rem; }
+.quiz-question {
+  background: rgba(5, 11, 20, 0.55); border: 1px solid var(--border-glass);
+  border-radius: var(--radius-md); padding: 1rem; transition: all 0.2s;
+}
+.quiz-question h4 { font-size: 0.92rem; font-weight: 600; margin-bottom: 0.75rem; color: var(--text-primary); }
+.quiz-options { display: flex; flex-direction: column; gap: 0.4rem; }
+.quiz-option {
+  padding: 0.5rem 0.75rem; border-radius: var(--radius-sm);
+  background: rgba(255,255,255,0.03); border: 1px solid var(--border-glass);
+  font-size: 0.83rem; cursor: pointer; transition: all 0.2s;
+  display: flex; align-items: center; gap: 0.5rem;
+}
+.quiz-option:hover { background: rgba(6, 182, 212, 0.1); border-color: var(--accent-primary); }
+.quiz-option.correct { background: rgba(16, 185, 129, 0.2); border-color: #10b981; color: #34d399; font-weight: 600; }
+.quiz-option.wrong { background: rgba(244, 63, 94, 0.2); border-color: #f43f5e; color: #f87171; }
+.quiz-explanation {
+  margin-top: 0.6rem; padding: 0.6rem; border-radius: 6px;
+  background: rgba(6, 182, 212, 0.08); border-left: 3px solid var(--accent-primary);
+  font-size: 0.8rem; color: var(--text-secondary); display: none;
+}
+
+.table-custom { width: 100%; border-collapse: collapse; font-size: 0.8rem; margin-top: 0.8rem; }
+.table-custom th, .table-custom td {
+  padding: 0.55rem 0.75rem; border-bottom: 1px solid var(--border-glass); text-align: left;
+}
+.table-custom th {
+  background: rgba(15, 23, 42, 0.75); color: var(--accent-primary); font-weight: 600;
+}
+.table-custom tr:hover td { background: rgba(255,255,255,0.02); }
+
+.osc-control-bar {
+  display: flex; justify-content: space-between; align-items: center;
+  background: rgba(15, 23, 42, 0.6); padding: 0.35rem 0.75rem;
+  border-radius: var(--radius-sm); border: 1px solid var(--border-glass);
+  margin-top: 0.5rem; font-size: 0.75rem;
+}
+.osc-ctrl-item { display: flex; align-items: center; gap: 0.35rem; }
+.osc-select {
+  background: #0a1324; color: var(--text-primary); border: 1px solid var(--border-glass);
+  padding: 0.15rem 0.4rem; border-radius: 4px; font-family: var(--font-mono); font-size: 0.75rem;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <div class="header-logo"><i class="fa-solid fa-wave-square"></i></div>
+    <div class="header-title">
+      <h1>Diode Applications Lab <span style="font-size:0.75rem;padding:0.15rem 0.45rem;background:rgba(6,182,212,0.15);border:1px solid var(--border-active);border-radius:6px;color:var(--accent-primary);font-weight:600;">Clipper / Clamper / Multiplier</span></h1>
+      <p>แอปการเรียนรู้วงจรประยุกต์ไดโอด: วงจรตัดรูปคลื่น วงจรยกระดับสัญญาณ และวงจรทวีแรงดัน</p>
+    </div>
+  </div>
+  <div class="nav-tabs">
+    <button class="tab-btn active" onclick="switchTab('tab-clippers', this)"><i class="fa-solid fa-scissors"></i> 1. วงจรตัดรูปคลื่น (Clippers)</button>
+    <button class="tab-btn" onclick="switchTab('tab-clampers', this)"><i class="fa-solid fa-arrows-up-down"></i> 2. วงจรยกระดับสัญญาณ (Clampers)</button>
+    <button class="tab-btn" onclick="switchTab('tab-multipliers', this)"><i class="fa-solid fa-bolt-lightning"></i> 3. วงจรทวีแรงดัน (Multipliers)</button>
+    <button class="tab-btn" onclick="switchTab('tab-lab', this)"><i class="fa-solid fa-flask"></i> 4. Virtual Lab & Scope</button>
+    <button class="tab-btn" onclick="switchTab('tab-quiz', this)"><i class="fa-solid fa-graduation-cap"></i> 5. แบบทดสอบ & Sheets</button>
+  </div>
+</header>
+<main class="main-container">
+
+<!-- TAB 1: DIODE CLIPPERS (LIMITERS) -->
+<section id="tab-clippers" class="tab-content active">
+  <div class="pill-group">
+    <button class="pill-btn active" onclick="selectClipperType('pos_shunt', this)"><i class="fa-solid fa-arrow-up"></i> 1. Positive Shunt Clipper (ตัดยอดบวก)</button>
+    <button class="pill-btn" onclick="selectClipperType('neg_shunt', this)"><i class="fa-solid fa-arrow-down"></i> 2. Negative Shunt Clipper (ตัดยอดลบ)</button>
+    <button class="pill-btn" onclick="selectClipperType('biased_shunt', this)"><i class="fa-solid fa-battery-half"></i> 3. Biased Clipper (ตัดด้วยแรงดันไบอัส)</button>
+    <button class="pill-btn" onclick="selectClipperType('dual_slicer', this)"><i class="fa-solid fa-arrows-split-up-and-left"></i> 4. Dual-Level Slicer (ตัดสองระดับ)</button>
+  </div>
+
+  <div class="grid-2col">
+    <div class="glass-card">
+      <div class="card-title">
+        <div class="card-title-text"><i class="fa-solid fa-diagram-project"></i> <span id="clipper-title-text">วงจรตัดยอดคลื่นบวกแบบขนาน (Positive Shunt Clipper)</span></div>
+        <span class="status-badge active-region" id="clipper-state-badge"><i class="fa-solid fa-scissors"></i> กำลังตัดสัญญาณ</span>
+      </div>
+
+      <div class="canvas-card-wrapper">
+        <div class="canvas-header-bar">
+          <span style="color:var(--accent-primary);">ผังวงจรตัดรูปคลื่น (Interactive Clipper Schematic)</span>
+          <span style="font-family:var(--font-mono);font-size:0.75rem;color:var(--text-muted);">Canvas 2D Simulator</span>
+        </div>
+        <canvas id="canvas-clipper-schem" width="660" height="250"></canvas>
+      </div>
+
+      <div class="canvas-card-wrapper">
+        <div class="canvas-header-bar">
+          <span style="color:var(--accent-amber);"><i class="fa-solid fa-chart-line"></i> กราฟคุณลักษณะการถ่ายโอน (Transfer Characteristic: V_out vs V_in)</span>
+          <span style="font-family:var(--font-mono);font-size:0.75rem;color:var(--text-muted);" id="clipper-transfer-label">Transfer Plot</span>
+        </div>
+        <canvas id="canvas-clipper-transfer" width="660" height="180"></canvas>
+      </div>
+    </div>
+
+    <div class="glass-card">
+      <div class="card-title">
+        <div class="card-title-text"><i class="fa-solid fa-sliders"></i> ควบคุมแรงดัน & พารามิเตอร์ไดโอด</div>
+      </div>
+
+      <div class="control-group">
+        <div class="control-label-row">
+          <span class="control-label-title">แรงดันอินพุตยอด V<sub>in(peak)</sub></span>
+          <span class="control-value-badge" id="clip-vin-badge">10.0 Vp</span>
+        </div>
+        <input type="range" id="slider-clip-vin" min="2.0" max="20.0" step="0.5" value="10.0" oninput="onClipperChange()">
+      </div>
+
+      <div class="control-group" id="group-clip-vbias">
+        <div class="control-label-row">
+          <span class="control-label-title">แรงดันไบอัสตัดสัญญาณ V<sub>bias</sub></span>
+          <span class="control-value-badge" id="clip-vbias-badge">3.0 V</span>
+        </div>
+        <input type="range" id="slider-clip-vbias" min="-8.0" max="8.0" step="0.2" value="3.0" oninput="onClipperChange()">
+      </div>
+
+      <div class="control-group">
+        <div class="control-label-row">
+          <span class="control-label-title">แบบจำลองไดโอด (Diode Model)</span>
+        </div>
+        <div class="pill-group" style="margin-bottom:0.5rem;">
+          <button class="pill-btn active" id="btn-clip-d-si" onclick="setClipDiode('si')">Silicon (0.7V)</button>
+          <button class="pill-btn" id="btn-clip-d-ge" onclick="setClipDiode('ge')">Germanium (0.3V)</button>
+          <button class="pill-btn" id="btn-clip-d-ideal" onclick="setClipDiode('ideal')">Ideal (0.0V)</button>
+        </div>
+      </div>
+
+      <div class="readout-grid">
+        <div class="readout-card">
+          <div class="readout-title">แรงดันยอดบวก V<sub>out(+)</sub></div>
+          <div class="readout-val" id="clip-vout-pos-val">0.70 <span class="readout-unit">V</span></div>
+        </div>
+        <div class="readout-card secondary">
+          <div class="readout-title">แรงดันยอดลบ V<sub>out(−)</sub></div>
+          <div class="readout-val" id="clip-vout-neg-val">-10.0 <span class="readout-unit">V</span></div>
+        </div>
+        <div class="readout-card green">
+          <div class="readout-title">ระดับการตัด (Clip Level)</div>
+          <div class="readout-val" id="clip-level-val" style="font-size:0.95rem;">+0.7 V</div>
+        </div>
+        <div class="readout-card amber">
+          <div class="readout-title">สถานะไดโอด D<sub>1</sub></div>
+          <div class="readout-val" id="clip-diode-state-val" style="font-size:0.95rem;">ON / OFF สลับกัน</div>
+        </div>
+      </div>
+
+      <div class="theory-box" id="clipper-theory-box">
+        <strong>หลักการทำงานของ Positive Shunt Clipper:</strong><br>
+        • ในช่วงไซเคิลบวก: V<sub>in</sub> > V<sub>D</sub> ไดโอดได้รับไบอัสตรง (Forward Bias ON) นำกระแสลัดสัญญาณลงกราวด์ แรงดันเอาต์พุตจึงถูกจำกัดอยู่ที่ V<sub>out</sub> = +V<sub>D</sub> ≈ +0.7V<br>
+        • ในช่วงไซเคิลลบ: ไดโอดได้รับไบอัสกลับ (Reverse Bias OFF) เปิดวงจร ทำให้สัญญาณ V<sub>out</sub> = V<sub>in</sub> ผ่านออกไปได้เต็มคลื่น
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TAB 2: DIODE CLAMPERS (DC RESTORERS) -->
+<section id="tab-clampers" class="tab-content">
+  <div class="pill-group">
+    <button class="pill-btn active" onclick="selectClamperType('pos_clamper', this)"><i class="fa-solid fa-arrow-up-from-bracket"></i> 1. Positive Clamper (ยกระดับขึ้นบวก)</button>
+    <button class="pill-btn" onclick="selectClamperType('neg_clamper', this)"><i class="fa-solid fa-arrow-down-from-bracket"></i> 2. Negative Clamper (ยกระดับลงลบ)</button>
+    <button class="pill-btn" onclick="selectClamperType('biased_clamper', this)"><i class="fa-solid fa-battery-three-quarters"></i> 3. Biased Clamper (ยกระดับอิง V_bias)</button>
+  </div>
+
+  <div class="grid-2col">
+    <div class="glass-card">
+      <div class="card-title">
+        <div class="card-title-text"><i class="fa-solid fa-arrows-up-down"></i> <span id="clamper-title-text">วงจรยกระดับสัญญาณขึ้นด้านบวก (Positive Clamper)</span></div>
+        <span class="status-badge connected" id="clamper-state-badge"><i class="fa-solid fa-bolt"></i> ชาร์จประจุ C สำเร็จ (Clamped)</span>
+      </div>
+
+      <div class="canvas-card-wrapper">
+        <div class="canvas-header-bar">
+          <span style="color:var(--accent-primary);">ผังวงจรยกระดับสัญญาณ (Interactive Clamper Schematic)</span>
+          <span style="font-family:var(--font-mono);font-size:0.75rem;color:var(--text-muted);">Capacitor Charging Animation</span>
+        </div>
+        <canvas id="canvas-clamper-schem" width="660" height="260"></canvas>
+      </div>
+
+      <div class="readout-grid">
+        <div class="readout-card">
+          <div class="readout-title">แรงดันประจุบน C (V<sub>C</sub>)</div>
+          <div class="readout-val" id="clamp-vc-val">9.30 <span class="readout-unit">V</span></div>
+        </div>
+        <div class="readout-card secondary">
+          <div class="readout-title">แรงดันเอาต์พุตยอดบวก V<sub>out(max)</sub></div>
+          <div class="readout-val" id="clamp-vout-max-val">+19.3 <span class="readout-unit">V</span></div>
+        </div>
+        <div class="readout-card amber">
+          <div class="readout-title">แรงดันเอาต์พุตยอดลบ V<sub>out(min)</sub></div>
+          <div class="readout-val" id="clamp-vout-min-val">-0.70 <span class="readout-unit">V</span></div>
+        </div>
+        <div class="readout-card green">
+          <div class="readout-title">แรงดันพีคทูพีค V<sub>p-p</sub></div>
+          <div class="readout-val" id="clamp-vpp-val">20.0 <span class="readout-unit">V (คงที่)</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="glass-card">
+      <div class="card-title">
+        <div class="card-title-text"><i class="fa-solid fa-sliders"></i> พารามิเตอร์วงจรยกระดับสัญญาณ</div>
+      </div>
+
+      <div class="control-group">
+        <div class="control-label-row">
+          <span class="control-label-title">แรงดันอินพุตยอด V<sub>in(peak)</sub></span>
+          <span class="control-value-badge" id="clamp-vin-badge">10.0 Vp</span>
+        </div>
+        <input type="range" id="slider-clamp-vin" min="2.0" max="20.0" step="0.5" value="10.0" oninput="onClamperChange()">
+      </div>
+
+      <div class="control-group" id="group-clamp-vbias">
+        <div class="control-label-row">
+          <span class="control-label-title">แรงดันอ้างอิง DC (V<sub>bias</sub>)</span>
+          <span class="control-value-badge" id="clamp-vbias-badge">4.0 V</span>
+        </div>
+        <input type="range" id="slider-clamp-vbias" min="-8.0" max="8.0" step="0.2" value="4.0" oninput="onClamperChange()">
+      </div>
+
+      <div class="control-group">
+        <div class="control-label-row">
+          <span class="control-label-title">ค่าความจุ C</span>
+          <span class="control-value-badge" id="clamp-c-badge">10 μF</span>
+        </div>
+        <input type="range" id="slider-clamp-c" min="1" max="100" step="1" value="10" oninput="onClamperChange()">
+      </div>
+
+      <div class="control-group">
+        <div class="control-label-row">
+          <span class="control-label-title">ค่าความต้านทานโหลด R<sub>L</sub></span>
+          <span class="control-value-badge" id="clamp-rl-badge">100 kΩ</span>
+        </div>
+        <input type="range" id="slider-clamp-rl" min="10" max="500" step="10" value="100" oninput="onClamperChange()">
+        <div style="font-size:0.75rem;color:var(--text-muted);margin-top:4px;">เงื่อนไข Clamping สมบูรณ์: R_L·C ≥ 10·T (ค่าคงที่เวลา τ สูง)</div>
+      </div>
+
+      <div class="theory-box" id="clamper-theory-box">
+        <strong>หลักการทำงานของ Clamper (วงจรยกระดับสัญญาณ):</strong><br>
+        • วงจร Clamper ทำหน้าที่เพิ่มระดับแรงดันไฟฟ้ากระแสตรง (DC Level) ให้กับสัญญาณ AC โดย <strong>ไม่เปลี่ยนรูปทรงและค่าแรงดัน Peak-to-Peak (V<sub>p-p</sub>) ของสัญญาณ</strong><br>
+        • ในช่วงครึ่งไซเคิลแรก ไดโอดจะนำกระแสชาร์จประจุเข้าตัวเก็บประจุ C จนเต็มเท่ากับ V<sub>C</sub> = V<sub>m</sub> − V<sub>D</sub><br>
+        • ในไซเคิลถัดมา ไดโอดจะ OFF ตัวเก็บประจุจะทำหน้าที่เสมือนแบตเตอรี่อนุกรมกับอินพุต ส่งผลให้ V<sub>out</sub> = V<sub>in</sub> + V<sub>C</sub>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TAB 3: VOLTAGE MULTIPLIERS -->
+<section id="tab-multipliers" class="tab-content">
+  <div class="pill-group">
+    <button class="pill-btn active" onclick="selectMultiplierType('half_doubler', this)"><i class="fa-solid fa-bolt"></i> 1. Half-Wave Voltage Doubler (ทวี 2 เท่าครึ่งคลื่น)</button>
+    <button class="pill-btn" onclick="selectMultiplierType('full_doubler', this)"><i class="fa-solid fa-bolt-lightning"></i> 2. Full-Wave Voltage Doubler (ทวี 2 เท่าเต็มคลื่น)</button>
+    <button class="pill-btn" onclick="selectMultiplierType('tripler', this)"><i class="fa-solid fa-tower-broadcast"></i> 3. Voltage Tripler (ทวี 3 เท่า: 3·Vm)</button>
+    <button class="pill-btn" onclick="selectMultiplierType('quadrupler', this)"><i class="fa-solid fa-radiation"></i> 4. Voltage Quadrupler (ทวี 4 เท่า: 4·Vm)</button>
+  </div>
+
+  <div class="grid-2col">
+    <div class="glass-card">
+      <div class="card-title">
+        <div class="card-title-text"><i class="fa-solid fa-bolt"></i> <span id="multiplier-title-text">วงจรทวีแรงดัน 2 เท่าแบบครึ่งคลื่น (Half-Wave Doubler)</span></div>
+        <span class="status-badge connected" id="multiplier-state-badge"><i class="fa-solid fa-charging-station"></i> V_out ≈ 2·Vm</span>
+      </div>
+
+      <div class="canvas-card-wrapper">
+        <div class="canvas-header-bar">
+          <span style="color:var(--accent-primary);">ผังวงจร Cockcroft-Walton Ladder & Charging Phases</span>
+          <span style="font-family:var(--font-mono);font-size:0.75rem;color:var(--text-muted);">Current Phase Animation</span>
+        </div>
+        <canvas id="canvas-multiplier-schem" width="660" height="270"></canvas>
+      </div>
+
+      <div class="readout-grid">
+        <div class="readout-card">
+          <div class="readout-title">แรงดันเอาต์พุต DC (V<sub>out</sub>)</div>
+          <div class="readout-val" id="mul-vout-val">23.6 <span class="readout-unit">V (≈ 2·V<sub>m</sub>)</span></div>
+        </div>
+        <div class="readout-card secondary">
+          <div class="readout-title">อัตราการทวีคูณ (Multiplier Factor)</div>
+          <div class="readout-val" id="mul-factor-val">2.00 <span class="readout-unit">เท่า (× V<sub>m</sub>)</span></div>
+        </div>
+        <div class="readout-card green">
+          <div class="readout-title">แรงดันยอดหม้อแปลง (V<sub>m</sub>)</div>
+          <div class="readout-val" id="mul-vm-val">12.0 <span class="readout-unit">V</span></div>
+        </div>
+        <div class="readout-card amber">
+          <div class="readout-title">แรงดันทนได้ของไดโอด (PIV)</div>
+          <div class="readout-val" id="mul-piv-val">24.0 <span class="readout-unit">V (2·V<sub>m</sub>)</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="glass-card">
+      <div class="card-title">
+        <div class="card-title-text"><i class="fa-solid fa-sliders"></i> ควบคุมแรงดัน & พารามิเตอร์หม้อแปลง</div>
+      </div>
+
+      <div class="control-group">
+        <div class="control-label-row">
+          <span class="control-label-title">แรงดันยอดหม้อแปลงอินพุต V<sub>m</sub></span>
+          <span class="control-value-badge" id="mul-vm-badge">12.0 V</span>
+        </div>
+        <input type="range" id="slider-mul-vm" min="3.0" max="30.0" step="0.5" value="12.0" oninput="onMultiplierChange()">
+      </div>
+
+      <div class="control-group">
+        <div class="control-label-row">
+          <span class="control-label-title">ค่าความจุ C<sub>1</sub> ถึง C<sub>4</sub></span>
+          <span class="control-value-badge" id="mul-c-badge">47 μF</span>
+        </div>
+        <input type="range" id="slider-mul-c" min="10" max="220" step="10" value="47" oninput="onMultiplierChange()">
+      </div>
+
+      <div class="control-group">
+        <div class="control-label-row">
+          <span class="control-label-title">ความถี่แหล่งจ่ายไฟ AC (f)</span>
+          <span class="control-value-badge" id="mul-freq-badge">50 Hz</span>
+        </div>
+        <input type="range" id="slider-mul-freq" min="50" max="1000" step="50" value="50" oninput="onMultiplierChange()">
+      </div>
+
+      <div class="theory-box" id="multiplier-theory-box">
+        <strong>หลักการทำงานของ Voltage Multiplier:</strong><br>
+        • วงจรทวีแรงดันใช้การจัดเรียงไดโอดและตัวเก็บประจุแบบขั้นบันได (Cockcroft-Walton Cascade Ladder)<br>
+        • ในครึ่งไซเคิลลบ: ไดโอด D<sub>1</sub> นำกระแสชาร์จประจุ C<sub>1</sub> จนมีแรงดัน V<sub>C1</sub> = V<sub>m</sub><br>
+        • ในครึ่งไซเคิลบวก: ไดโอด D<sub>2</sub> นำกระแสส่งผลให้แรงดันอินพุตบวกกับ V<sub>C1</sub> รวมเป็น 2·V<sub>m</sub> ชาร์จประจุเข้า C<sub>2</sub><br>
+        • การเพิ่มคู่ขั้น D<sub>3</sub>, C<sub>3</sub> และ D<sub>4</sub>, C<sub>4</sub> จะช่วยให้ได้แรงดันสูงขึ้นเป็น 3·V<sub>m</sub> และ 4·V<sub>m</sub> ตามลำดับ โดยไม่ต้องใช้หม้อแปลงขนาดใหญ่
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TAB 4: VIRTUAL CIRCUIT LAB & OSCILLOSCOPE -->
+<section id="tab-lab" class="tab-content">
+  <div class="pill-group" style="margin-bottom:1.25rem;">
+    <button class="pill-btn active" onclick="switchLabCircuit('pos_clipper', this)"><i class="fa-solid fa-scissors"></i> Positive Clipper</button>
+    <button class="pill-btn" onclick="switchLabCircuit('neg_clipper', this)"><i class="fa-solid fa-scissors"></i> Negative Clipper</button>
+    <button class="pill-btn" onclick="switchLabCircuit('pos_clamper', this)"><i class="fa-solid fa-arrows-up-down"></i> Positive Clamper</button>
+    <button class="pill-btn" onclick="switchLabCircuit('neg_clamper', this)"><i class="fa-solid fa-arrows-up-down"></i> Negative Clamper</button>
+    <button class="pill-btn" onclick="switchLabCircuit('vol_doubler', this)"><i class="fa-solid fa-bolt"></i> Voltage Doubler</button>
+  </div>
+
+  <div class="grid-2col">
+    <div class="glass-card">
+      <div class="card-title">
+        <div class="card-title-text"><i class="fa-solid fa-display"></i> <span id="lab-circuit-title">ห้องทดลองออสซิลโลสโคปเสมือนจริง (Dual-Trace Scope)</span></div>
+        <button class="btn btn-secondary btn-sm" id="btn-pause-sim" onclick="toggleSimPause()">
+          <i class="fa-solid fa-pause"></i> <span id="pause-btn-text">หยุดชั่วคราว</span>
+        </button>
+      </div>
+
+      <div class="canvas-card-wrapper">
+        <div class="canvas-header-bar">
+          <div class="canvas-header-title"><i class="fa-solid fa-wave-square"></i> สัญญาณออสซิลโลสโคป (CH1 Input สีเหลือง / CH2 Output สีฟ้า)</div>
+          <div class="osc-control-bar" style="margin:0;padding:0.2rem 0.5rem;">
+            <div class="osc-ctrl-item">
+              <span>CH1:</span>
+              <select class="osc-select" id="osc-ch1-scale" onchange="onOscScaleChange()">
+                <option value="0.5">0.5V/div</option>
+                <option value="1">1V/div</option>
+                <option value="2" selected>2V/div</option>
+                <option value="5">5V/div</option>
+                <option value="10">10V/div</option>
+              </select>
+            </div>
+            <div class="osc-ctrl-item">
+              <span>CH2:</span>
+              <select class="osc-select" id="osc-ch2-scale" onchange="onOscScaleChange()">
+                <option value="0.5">0.5V/div</option>
+                <option value="1">1V/div</option>
+                <option value="2" selected>2V/div</option>
+                <option value="5">5V/div</option>
+                <option value="10">10V/div</option>
+                <option value="20">20V/div</option>
+              </select>
+            </div>
+            <div class="osc-ctrl-item">
+              <label style="cursor:pointer;display:flex;align-items:center;gap:3px;">
+                <input type="checkbox" id="osc-autoscale" checked onchange="onOscScaleChange()">
+                <span style="font-size:0.72rem;color:var(--accent-primary);">Auto</span>
+              </label>
+            </div>
+          </div>
+        </div>
+        <canvas id="canvas-osc" width="660" height="230"></canvas>
+      </div>
+
+      <div class="readout-grid">
+        <div class="readout-card">
+          <div class="readout-title">CH1 V<sub>in(peak)</sub></div>
+          <div class="readout-val" id="lab-vin-val">10.0 <span class="readout-unit">Vp</span></div>
+        </div>
+        <div class="readout-card secondary">
+          <div class="readout-title">CH2 V<sub>out(peak)</sub> / DC</div>
+          <div class="readout-val" id="lab-vout-val">0.70 <span class="readout-unit">V</span></div>
+        </div>
+        <div class="readout-card green">
+          <div class="readout-title">ความถี่สัญญาณ (Frequency)</div>
+          <div class="readout-val" id="lab-freq-val">1000 <span class="readout-unit">Hz</span></div>
+        </div>
+        <div class="readout-card amber">
+          <div class="readout-title">ลักษณะรูปคลื่นเอาต์พุต</div>
+          <div class="readout-val" id="lab-shape-val" style="font-size:0.92rem;">ตัดยอดบวก</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="glass-card">
+      <div class="card-title"><div class="card-title-text"><i class="fa-solid fa-sliders"></i> ควบคุมพารามิเตอร์สัญญาณ & วงจร</div></div>
+
+      <div class="control-group">
+        <div class="control-label-row"><span class="control-label-title">แรงดันอินพุตยอด V<sub>in(peak)</sub></span><span class="control-value-badge" id="lab-vin-badge">10.0 Vp</span></div>
+        <input type="range" id="slider-lab-vin" min="2.0" max="24.0" step="0.5" value="10.0" oninput="onLabChange()">
+      </div>
+
+      <div class="control-group">
+        <div class="control-label-row"><span class="control-label-title">ความถี่สัญญาณ (Frequency)</span><span class="control-value-badge" id="lab-freq-badge">1000 Hz</span></div>
+        <input type="range" id="slider-lab-freq" min="100" max="5000" step="100" value="1000" oninput="onLabChange()">
+      </div>
+
+      <div class="control-group" id="group-lab-vbias">
+        <div class="control-label-row"><span class="control-label-title">แรงดันไบอัสตัด/ยกระดับ V<sub>bias</sub></span><span class="control-value-badge" id="lab-vbias-badge">3.0 V</span></div>
+        <input type="range" id="slider-lab-vbias" min="-10.0" max="10.0" step="0.5" value="3.0" oninput="onLabChange()">
+      </div>
+
+      <div class="control-group">
+        <div class="control-label-row"><span class="control-label-title">รูปคลื่นอินพุต (Input Waveform)</span></div>
+        <div class="pill-group" style="margin-bottom:0.5rem;">
+          <button class="pill-btn active" id="btn-lab-wave-sin" onclick="setLabWave('sin')"><i class="fa-solid fa-wave-square"></i> Sine Wave</button>
+          <button class="pill-btn" id="btn-lab-wave-sqr" onclick="setLabWave('sqr')"><i class="fa-solid fa-square"></i> Square Wave</button>
+          <button class="pill-btn" id="btn-lab-wave-tri" onclick="setLabWave('tri')"><i class="fa-solid fa-play"></i> Triangular</button>
+        </div>
+      </div>
+
+      <div class="theory-box" id="lab-theory-box">
+        <strong>ข้อสังเกตการวิเคราะห์รูปคลื่น:</strong><br>
+        • <strong>Clipper:</strong> ตัดทอนหรือจำกัดขนาดแอมพลิจูดของคลื่นด้านใดด้านหนึ่ง<br>
+        • <strong>Clamper:</strong> รักษารูปทรงคลื่นเดิมไว้ครบถ้วน แต่ยกแกนอ้างอิง DC ให้สูงขึ้นหรือต่ำลง<br>
+        • <strong>Multiplier:</strong> เปลี่ยนสัญญาณ AC เป็นแรงดัน DC บริสุทธิ์ที่มีค่าสูงเป็น 2×, 3×, 4× ของ V<sub>m</sub>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TAB 5: QUIZ & GOOGLE SHEETS -->
+<section id="tab-quiz" class="tab-content">
+  <div class="grid-2col">
+    <div class="glass-card">
+      <div class="card-title">
+        <div class="card-title-text"><i class="fa-solid fa-graduation-cap"></i> แบบทดสอบวัดความรู้เรื่อง วงจรประยุกต์ไดโอด (12 ข้อ)</div>
+        <span class="status-badge connected" id="quiz-score-badge">คะแนน: 0 / 12</span>
+      </div>
+      <div id="quiz-container" class="quiz-container"></div>
+      <div style="display:flex;gap:0.75rem;margin-top:1.25rem;">
+        <button class="btn" onclick="submitQuiz()"><i class="fa-solid fa-paper-plane"></i> ตรวจคำตอบ</button>
+        <button class="btn btn-secondary" onclick="resetQuiz()"><i class="fa-solid fa-rotate-right"></i> เริ่มทำใหม่</button>
+      </div>
+    </div>
+
+    <div class="glass-card">
+      <div class="card-title"><div class="card-title-text"><i class="fa-solid fa-cloud-arrow-up"></i> บันทึกผลคะแนนสู่ Google Sheets</div></div>
+
+      <div class="control-group">
+        <label style="font-size:0.83rem;color:var(--text-secondary);display:block;margin-bottom:0.35rem;">ชื่อ-นามสกุล ผู้เรียน:</label>
+        <input type="text" id="student-name" placeholder="ระบุชื่อ-นามสกุล..." style="width:100%;padding:0.5rem 0.75rem;background:rgba(5,11,20,0.6);border:1px solid var(--border-glass);border-radius:var(--radius-sm);color:var(--text-primary);font-family:var(--font-thai);outline:none;">
+      </div>
+
+      <div class="control-group">
+        <label style="font-size:0.83rem;color:var(--text-secondary);display:block;margin-bottom:0.35rem;">รหัสนักศึกษา / กลุ่มเรียน:</label>
+        <input type="text" id="student-class" placeholder="ระบุรหัส / กลุ่ม..." style="width:100%;padding:0.5rem 0.75rem;background:rgba(5,11,20,0.6);border:1px solid var(--border-glass);border-radius:var(--radius-sm);color:var(--text-primary);font-family:var(--font-thai);outline:none;">
+      </div>
+
+      <div class="control-group">
+        <label style="font-size:0.83rem;color:var(--text-secondary);display:block;margin-bottom:0.35rem;">Google Apps Script Web App URL:</label>
+        <input type="text" id="gas-url" placeholder="https://script.google.com/macros/s/.../exec" style="width:100%;padding:0.5rem 0.75rem;background:rgba(5,11,20,0.6);border:1px solid var(--border-glass);border-radius:var(--radius-sm);color:var(--text-primary);font-family:var(--font-mono);font-size:0.75rem;outline:none;">
+      </div>
+
+      <div style="display:flex;gap:0.75rem;margin-top:1rem;">
+        <button class="btn" style="flex:1;" onclick="saveToSheets()"><i class="fa-solid fa-floppy-disk"></i> ส่งข้อมูลไป Google Sheet</button>
+        <button class="btn btn-secondary" onclick="exportQuizCSV()"><i class="fa-solid fa-file-csv"></i> Export CSV</button>
+      </div>
+
+      <div style="margin-top:1.5rem;">
+        <div style="font-size:0.85rem;font-weight:600;color:var(--text-primary);margin-bottom:0.5rem;"><i class="fa-solid fa-clock-rotate-left"></i> ประวัติการทำแบบทดสอบ (Local History)</div>
+        <div style="max-height:220px;overflow-y:auto;border:1px solid var(--border-glass);border-radius:var(--radius-sm);">
+          <table class="table-custom" style="margin:0;">
+            <thead>
+              <tr>
+                <th>เวลา</th>
+                <th>ชื่อ</th>
+                <th>กิจกรรม</th>
+                <th>ผลคะแนน</th>
+              </tr>
+            </thead>
+            <tbody id="history-table-body">
+              <tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:1.5rem;">ยังไม่มีประวัติการส่งคะแนน</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+<script>
+
+/* ================================================================= */
+/* 1. GLOBAL STATE & AUDIO SYNTHESIZER                               */
+/* ================================================================= */
+const state = {
+  activeTab: 'tab-clippers',
+  clipper: {
+    type: 'pos_shunt', // 'pos_shunt', 'neg_shunt', 'biased_shunt', 'dual_slicer'
+    vin_peak: 10.0,
+    vbias: 3.0,
+    diodeModel: 'si', // 'si' (0.7V), 'ge' (0.3V), 'ideal' (0.0V)
+    vd: 0.7
+  },
+  clamper: {
+    type: 'pos_clamper', // 'pos_clamper', 'neg_clamper', 'biased_clamper'
+    vin_peak: 10.0,
+    vbias: 4.0,
+    c_uF: 10,
+    rl_kohm: 100,
+    vd: 0.7
+  },
+  multiplier: {
+    type: 'half_doubler', // 'half_doubler', 'full_doubler', 'tripler', 'quadrupler'
+    vm: 12.0,
+    c_uF: 47,
+    freq: 50
+  },
+  lab: {
+    circuit: 'pos_clipper', // 'pos_clipper', 'neg_clipper', 'pos_clamper', 'neg_clamper', 'vol_doubler'
+    waveType: 'sin', // 'sin', 'sqr', 'tri'
+    vin_peak: 10.0,
+    freq: 1000,
+    vbias: 3.0,
+    time: 0,
+    isPaused: false,
+    autoScale: true,
+    ch1Scale: 2.0,
+    ch2Scale: 2.0
+  },
+  quiz: {
+    submitted: false,
+    score: 0,
+    answers: {}
+  },
+  history: []
+};
+
+// Web Audio API
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+function playSound(type) {
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+  const now = audioCtx.currentTime;
+
+  if (type === 'click') {
+    osc.type = 'sine'; osc.frequency.setValueAtTime(800, now);
+    osc.frequency.exponentialRampToValueAtTime(300, now + 0.04);
+    gain.gain.setValueAtTime(0.12, now); gain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+    osc.start(now); osc.stop(now + 0.04);
+  } else if (type === 'success') {
+    osc.type = 'triangle'; osc.frequency.setValueAtTime(523.25, now);
+    osc.frequency.setValueAtTime(659.25, now + 0.08);
+    osc.frequency.setValueAtTime(783.99, now + 0.16);
+    gain.gain.setValueAtTime(0.15, now); gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+    osc.start(now); osc.stop(now + 0.3);
+  } else if (type === 'buzzer') {
+    osc.type = 'sawtooth'; osc.frequency.setValueAtTime(160, now);
+    osc.frequency.setValueAtTime(110, now + 0.1);
+    gain.gain.setValueAtTime(0.2, now); gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+    osc.start(now); osc.stop(now + 0.25);
+  }
+}
+
+/* ================================================================= */
+/* 2. TAB NAVIGATION                                                 */
+/* ================================================================= */
+function switchTab(tabId, btn) {
+  state.activeTab = tabId;
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+  document.getElementById(tabId).classList.add('active');
+  if (btn) btn.classList.add('active');
+  playSound('click');
+
+  if (tabId === 'tab-clippers') onClipperChange();
+  else if (tabId === 'tab-clampers') onClamperChange();
+  else if (tabId === 'tab-multipliers') onMultiplierChange();
+  else if (tabId === 'tab-lab') onLabChange();
+}
+
+/* ================================================================= */
+/* 3. MODULE 1 — DIODE CLIPPERS (LIMITERS)                           */
+/* ================================================================= */
+const clipSchemCanvas = document.getElementById('canvas-clipper-schem');
+const clipSchemCtx = clipSchemCanvas.getContext('2d');
+const clipTrfCanvas = document.getElementById('canvas-clipper-transfer');
+const clipTrfCtx = clipTrfCanvas.getContext('2d');
+
+function selectClipperType(type, btn) {
+  state.clipper.type = type;
+  document.querySelectorAll('#tab-clippers .pill-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+
+  const titleEl = document.getElementById('clipper-title-text');
+  const theoryEl = document.getElementById('clipper-theory-box');
+  const groupVbias = document.getElementById('group-clip-vbias');
+
+  if (type === 'pos_shunt') {
+    groupVbias.style.display = 'none';
+    titleEl.textContent = 'วงจรตัดยอดคลื่นบวกแบบขนาน (Positive Shunt Clipper)';
+    theoryEl.innerHTML = 
+      `<strong>Positive Shunt Clipper (ตัดยอดบวก):</strong><br>` +
+      `• ในไซเคิลบวก (V<sub>in</sub> > +V<sub>D</sub>): ไดโอดได้รับ Forward Bias นำกระแสลัดสัญญาณลงกราวด์ V<sub>out</sub> = +V<sub>D</sub> ≈ +0.7V<br>` +
+      `• ในไซเคิลลบ (V<sub>in</sub> < +V<sub>D</sub>): ไดโอดได้รับ Reverse Bias ตัดวงจร สัญญาณ V<sub>out</sub> = V<sub>in</sub> ส่งออกเต็มคลื่น`;
+  } else if (type === 'neg_shunt') {
+    groupVbias.style.display = 'none';
+    titleEl.textContent = 'วงจรตัดยอดคลื่นลบแบบขนาน (Negative Shunt Clipper)';
+    theoryEl.innerHTML = 
+      `<strong>Negative Shunt Clipper (ตัดยอดลบ):</strong><br>` +
+      `• ในไซเคิลบวก: ไดโอดกลับทิศได้รับ Reverse Bias ตัดวงจร ทำให้ V<sub>out</sub> = V<sub>in</sub> ส่งออกเต็มคลื่น<br>` +
+      `• ในไซเคิลลบ (V<sub>in</sub> < −V<sub>D</sub>): ไดโอดได้รับ Forward Bias นำกระแสลัดสัญญาณลงกราวด์ V<sub>out</sub> = −V<sub>D</sub> ≈ −0.7V`;
+  } else if (type === 'biased_shunt') {
+    groupVbias.style.display = 'block';
+    titleEl.textContent = 'วงจรตัดสัญญาณพร้อมแรงดันไบอัส (Biased Shunt Clipper)';
+    theoryEl.innerHTML = 
+      `<strong>Biased Shunt Clipper (ตัดยอดด้วย V<sub>bias</sub>):</strong><br>` +
+      `• ต่อแบตเตอรี่ V<sub>bias</sub> อนุกรมกับไดโอด เพื่อเลื่อนระดับแรงดันการตัดสัญญาณเป็น <strong>V<sub>clip</sub> = V<sub>bias</sub> + V<sub>D</sub></strong><br>` +
+      `• เมื่อ V<sub>in</sub> > V<sub>bias</sub> + V<sub>D</sub> ไดโอดจะนำกระแส ตัดยอดสัญญาณคงที่อยู่ที่ระดับ V<sub>bias</sub> + V<sub>D</sub>`;
+  } else if (type === 'dual_slicer') {
+    groupVbias.style.display = 'block';
+    titleEl.textContent = 'วงจรตัดสองระดับ (Dual-Level Slicer / Clipper)';
+    theoryEl.innerHTML = 
+      `<strong>Dual-Level Slicer (ตัดทั้งยอดบวกและยอดลบ):</strong><br>` +
+      `• ใช้ไดโอด 2 ตัวต่อขนานกลับทิศกันพร้อมแรงดันไบอัสอิสระ +V<sub>B1</sub> และ −V<sub>B2</sub><br>` +
+      `• ตัดยอดคลื่นบวกที่ +(V<sub>B1</sub> + V<sub>D</sub>) และตัดยอดคลื่นลบที่ −(V<sub>B2</sub> + V<sub>D</sub>) เปลี่ยนสัญญาณไซน์ให้เป็นคลื่นสี่เหลี่ยมคางหมูหรือสี่เหลี่ยม (Square-wave shaper)`;
+  }
+
+  onClipperChange();
+  playSound('click');
+}
+
+function setClipDiode(model) {
+  state.clipper.diodeModel = model;
+  ['btn-clip-d-si', 'btn-clip-d-ge', 'btn-clip-d-ideal'].forEach(id => document.getElementById(id).classList.remove('active'));
+  const m = { si: 'btn-clip-d-si', ge: 'btn-clip-d-ge', ideal: 'btn-clip-d-ideal' };
+  document.getElementById(m[model]).classList.add('active');
+
+  state.clipper.vd = model === 'si' ? 0.7 : model === 'ge' ? 0.3 : 0.0;
+  onClipperChange();
+  playSound('click');
+}
+
+function onClipperChange() {
+  state.clipper.vin_peak = parseFloat(document.getElementById('slider-clip-vin').value);
+  state.clipper.vbias = parseFloat(document.getElementById('slider-clip-vbias').value);
+
+  document.getElementById('clip-vin-badge').textContent = state.clipper.vin_peak.toFixed(1) + ' Vp';
+  document.getElementById('clip-vbias-badge').textContent = state.clipper.vbias.toFixed(1) + ' V';
+
+  const type = state.clipper.type;
+  const vin = state.clipper.vin_peak;
+  const vb = state.clipper.vbias;
+  const vd = state.clipper.vd;
+
+  let vout_pos = 0, vout_neg = 0, clipLvlStr = '', stateStr = 'ON / OFF สลับกัน';
+
+  if (type === 'pos_shunt') {
+    vout_pos = vd;
+    vout_neg = -vin;
+    clipLvlStr = `+${vd.toFixed(2)} V`;
+  } else if (type === 'neg_shunt') {
+    vout_pos = vin;
+    vout_neg = -vd;
+    clipLvlStr = `-${vd.toFixed(2)} V`;
+  } else if (type === 'biased_shunt') {
+    vout_pos = Math.min(vin, vb + vd);
+    vout_neg = -vin;
+    clipLvlStr = `+${(vb + vd).toFixed(2)} V`;
+  } else if (type === 'dual_slicer') {
+    vout_pos = Math.min(vin, vb + vd);
+    vout_neg = Math.max(-vin, -(vb + vd));
+    clipLvlStr = `±${(vb + vd).toFixed(2)} V`;
+  }
+
+  document.getElementById('clip-vout-pos-val').innerHTML = `${vout_pos.toFixed(2)} <span class="readout-unit">V</span>`;
+  document.getElementById('clip-vout-neg-val').innerHTML = `${vout_neg.toFixed(2)} <span class="readout-unit">V</span>`;
+  document.getElementById('clip-level-val').textContent = clipLvlStr;
+  document.getElementById('clip-diode-state-val').textContent = stateStr;
+
+  drawClipperSchematic();
+  drawClipperTransfer();
+}
+
+/* ================================================================= */
+/* 4. MODULE 1 DRAWING & DRAWING PRIMITIVES                          */
+/* ================================================================= */
+function wire(ctx, x1, y1, x2, y2, col='#475569', lw=2) {
+  ctx.strokeStyle = col; ctx.lineWidth = lw;
+  ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+}
+function dotNode(ctx, x, y, label='', side='top') {
+  ctx.beginPath(); ctx.arc(x, y, 4, 0, Math.PI*2); ctx.fillStyle = '#ffffff'; ctx.fill();
+  if (label) {
+    ctx.font = 'bold 10px JetBrains Mono'; ctx.fillStyle = '#38bdf8';
+    if (side === 'top') { ctx.textAlign = 'center'; ctx.fillText(label, x, y - 8); }
+    else if (side === 'right') { ctx.textAlign = 'left'; ctx.fillText(label, x + 8, y + 3); }
+    else if (side === 'bottom') { ctx.textAlign = 'center'; ctx.fillText(label, x, y + 14); }
+    else { ctx.textAlign = 'right'; ctx.fillText(label, x - 8, y + 3); }
+    ctx.textAlign = 'left';
+  }
+}
+function gndSymbol(ctx, x, y) {
+  ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 2;
+  wire(ctx, x, y - 8, x, y);
+  for (let i = 0; i < 3; i++) {
+    const hw = 10 - i * 3.5, yy = y + i * 4;
+    ctx.beginPath(); ctx.moveTo(x - hw, yy); ctx.lineTo(x + hw, yy); ctx.stroke();
+  }
+}
+function drawAcSrc(ctx, x, y, r, lbl, v) {
+  ctx.strokeStyle = '#fbbf24'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI*2); ctx.stroke();
+  ctx.strokeStyle = '#fbbf24'; ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  for (let a = 0; a <= Math.PI*2; a += 0.1) {
+    const sx = x - r*0.6 + a/(Math.PI*2)*r*1.2, sy = y - Math.sin(a)*r*0.35;
+    if (a === 0) ctx.moveTo(sx, sy); else ctx.lineTo(sx, sy);
+  }
+  ctx.stroke();
+  ctx.font = 'bold 10px JetBrains Mono'; ctx.textAlign = 'center';
+  ctx.fillStyle = '#fbbf24'; ctx.fillText(lbl, x, y - r - 6);
+  ctx.fillStyle = '#94a3b8'; ctx.fillText(`${v.toFixed(1)}Vp`, x, y + r + 13);
+  ctx.textAlign = 'left';
+}
+function drawResistorH(ctx, x1, x2, y, lbl, val, labelSide='top') {
+  const mx = (x1 + x2) / 2, segW = 14;
+  wire(ctx, x1, y, mx - segW, y, '#475569');
+  wire(ctx, mx + segW, y, x2, y, '#475569');
+  ctx.strokeStyle = '#f59e0b'; ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(mx - segW, y);
+  ctx.lineTo(mx - 10, y - 6); ctx.lineTo(mx - 5, y + 6);
+  ctx.lineTo(mx, y - 6);      ctx.lineTo(mx + 5, y + 6);
+  ctx.lineTo(mx + 10, y - 6); ctx.lineTo(mx + segW, y);
+  ctx.stroke();
+  ctx.font = 'bold 10px Sarabun'; ctx.textAlign = 'center';
+  if (labelSide === 'top') {
+    ctx.fillStyle = '#94a3b8'; ctx.fillText(lbl, mx, y - 10);
+    ctx.fillStyle = '#f59e0b'; ctx.fillText(val, mx, y + 18);
+  }
+  ctx.textAlign = 'left';
+}
+function drawResistorV(ctx, x, y1, y2, lbl, val, labelSide='left') {
+  const my = (y1 + y2) / 2, segH = 14;
+  wire(ctx, x, y1, x, my - segH, '#475569');
+  wire(ctx, x, my + segH, x, y2, '#475569');
+  ctx.strokeStyle = '#f59e0b'; ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(x, my - segH);
+  ctx.lineTo(x - 6, my - 10); ctx.lineTo(x + 6, my - 5);
+  ctx.lineTo(x - 6, my);      ctx.lineTo(x + 6, my + 5);
+  ctx.lineTo(x - 6, my + 10); ctx.lineTo(x, my + segH);
+  ctx.stroke();
+  ctx.font = 'bold 10px Sarabun';
+  if (labelSide === 'left') {
+    ctx.textAlign = 'right'; ctx.fillStyle = '#94a3b8'; ctx.fillText(lbl, x - 10, my - 2);
+    ctx.fillStyle = '#f59e0b'; ctx.fillText(val, x - 10, my + 11);
+  } else {
+    ctx.textAlign = 'left'; ctx.fillStyle = '#94a3b8'; ctx.fillText(lbl, x + 10, my - 2);
+    ctx.fillStyle = '#f59e0b'; ctx.fillText(val, x + 10, my + 11);
+  }
+  ctx.textAlign = 'left';
+}
+function drawCapH(ctx, x1, x2, y, lbl) {
+  const mx = (x1 + x2) / 2;
+  wire(ctx, x1, y, mx - 4, y, '#475569');
+  wire(ctx, mx + 4, y, x2, y, '#475569');
+  ctx.strokeStyle = '#06b6d4'; ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.moveTo(mx - 4, y - 12); ctx.lineTo(mx - 4, y + 12); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(mx + 4, y - 12); ctx.lineTo(mx + 4, y + 12); ctx.stroke();
+  ctx.fillStyle = '#06b6d4'; ctx.font = 'bold 10px Sarabun'; ctx.textAlign = 'center';
+  ctx.fillText(lbl, mx, y - 16); ctx.textAlign = 'left';
+}
+function drawDiodeV(ctx, x, y1, y2, pointDown=true, lbl='D1') {
+  const my = (y1 + y2) / 2, segH = 12;
+  wire(ctx, x, y1, x, my - segH, '#475569');
+  wire(ctx, x, my + segH, x, y2, '#475569');
+  ctx.fillStyle = '#06b6d4'; ctx.strokeStyle = '#06b6d4'; ctx.lineWidth = 2;
+  ctx.beginPath();
+  if (pointDown) {
+    ctx.moveTo(x - 10, my - segH); ctx.lineTo(x + 10, my - segH); ctx.lineTo(x, my + segH);
+    ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(x - 10, my + segH); ctx.lineTo(x + 10, my + segH); ctx.stroke();
+  } else {
+    ctx.moveTo(x - 10, my + segH); ctx.lineTo(x + 10, my + segH); ctx.lineTo(x, my - segH);
+    ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(x - 10, my - segH); ctx.lineTo(x + 10, my - segH); ctx.stroke();
+  }
+  ctx.font = 'bold 10px JetBrains Mono'; ctx.fillStyle = '#38bdf8';
+  ctx.fillText(lbl, x + 14, my + 4);
+}
+function drawDcBattery(ctx, x, y1, y2, posUp=true, lbl='V_bias') {
+  const my = (y1 + y2) / 2;
+  wire(ctx, x, y1, x, my - 6, '#475569');
+  wire(ctx, x, my + 6, x, y2, '#475569');
+  ctx.strokeStyle = '#f59e0b'; ctx.lineWidth = 2.5;
+  if (posUp) {
+    ctx.beginPath(); ctx.moveTo(x - 12, my - 6); ctx.lineTo(x + 12, my - 6); ctx.stroke(); // Long (+)
+    ctx.lineWidth = 4;
+    ctx.beginPath(); ctx.moveTo(x - 6, my + 6); ctx.lineTo(x + 6, my + 6); ctx.stroke();   // Short (-)
+  } else {
+    ctx.lineWidth = 4;
+    ctx.beginPath(); ctx.moveTo(x - 6, my - 6); ctx.lineTo(x + 6, my - 6); ctx.stroke();
+    ctx.lineWidth = 2.5;
+    ctx.beginPath(); ctx.moveTo(x - 12, my + 6); ctx.lineTo(x + 12, my + 6); ctx.stroke();
+  }
+  ctx.font = 'bold 10px JetBrains Mono'; ctx.fillStyle = '#f59e0b';
+  ctx.fillText(lbl, x + 14, my + 4);
+}
+
+function drawClipperSchematic() {
+  const W = clipSchemCanvas.width, H = clipSchemCanvas.height;
+  clipSchemCtx.clearRect(0, 0, W, H);
+  clipSchemCtx.fillStyle = '#050b14'; clipSchemCtx.fillRect(0, 0, W, H);
+
+  const type = state.clipper.type;
+  const vin = state.clipper.vin_peak;
+  const vb = state.clipper.vbias;
+
+  // Source AC
+  drawAcSrc(clipSchemCtx, 75, 125, 20, 'V_in', vin);
+  wire(clipSchemCtx, 75, 145, 75, 220); gndSymbol(clipSchemCtx, 75, 220);
+  wire(clipSchemCtx, 95, 125, 150, 125);
+
+  // Series Resistor R
+  drawResistorH(clipSchemCtx, 150, 290, 125, 'R', '1 kΩ', 'top');
+  dotNode(clipSchemCtx, 290, 125);
+
+  if (type === 'pos_shunt') {
+    // Diode Pointing Down to GND
+    drawDiodeV(clipSchemCtx, 290, 125, 220, true, 'D1 (Si)');
+    gndSymbol(clipSchemCtx, 290, 220);
+    wire(clipSchemCtx, 290, 125, 550, 125);
+    dotNode(clipSchemCtx, 550, 125, 'V_out (Clipped +0.7V)', 'top');
+    drawResistorV(clipSchemCtx, 550, 125, 220, 'R_L', '100 kΩ', 'right');
+    gndSymbol(clipSchemCtx, 550, 220);
+
+  } else if (type === 'neg_shunt') {
+    // Diode Pointing Up from GND
+    drawDiodeV(clipSchemCtx, 290, 125, 220, false, 'D1 (Si)');
+    gndSymbol(clipSchemCtx, 290, 220);
+    wire(clipSchemCtx, 290, 125, 550, 125);
+    dotNode(clipSchemCtx, 550, 125, 'V_out (Clipped -0.7V)', 'top');
+    drawResistorV(clipSchemCtx, 550, 125, 220, 'R_L', '100 kΩ', 'right');
+    gndSymbol(clipSchemCtx, 550, 220);
+
+  } else if (type === 'biased_shunt') {
+    // Diode + Vbias Battery in series
+    drawDiodeV(clipSchemCtx, 290, 125, 175, true, 'D1');
+    drawDcBattery(clipSchemCtx, 290, 175, 220, vb >= 0, `V_bias (${vb.toFixed(1)}V)`);
+    gndSymbol(clipSchemCtx, 290, 220);
+    wire(clipSchemCtx, 290, 125, 550, 125);
+    dotNode(clipSchemCtx, 550, 125, `V_out (Clipped ${(vb+state.clipper.vd).toFixed(1)}V)`, 'top');
+    drawResistorV(clipSchemCtx, 550, 125, 220, 'R_L', '100 kΩ', 'right');
+    gndSymbol(clipSchemCtx, 550, 220);
+
+  } else if (type === 'dual_slicer') {
+    // Branch 1: D1 + Vb1
+    wire(clipSchemCtx, 290, 125, 240, 125);
+    drawDiodeV(clipSchemCtx, 240, 125, 175, true, 'D1');
+    drawDcBattery(clipSchemCtx, 240, 175, 220, true, `+${vb.toFixed(1)}V`);
+    gndSymbol(clipSchemCtx, 240, 220);
+
+    // Branch 2: D2 + Vb2
+    wire(clipSchemCtx, 290, 125, 340, 125);
+    drawDiodeV(clipSchemCtx, 340, 125, 175, false, 'D2');
+    drawDcBattery(clipSchemCtx, 340, 175, 220, false, `-${vb.toFixed(1)}V`);
+    gndSymbol(clipSchemCtx, 340, 220);
+
+    wire(clipSchemCtx, 340, 125, 550, 125);
+    dotNode(clipSchemCtx, 550, 125, `V_out (Dual Clipped ±${(vb+state.clipper.vd).toFixed(1)}V)`, 'top');
+    drawResistorV(clipSchemCtx, 550, 125, 220, 'R_L', '100 kΩ', 'right');
+    gndSymbol(clipSchemCtx, 550, 220);
+  }
+}
+
+function drawClipperTransfer() {
+  const W = clipTrfCanvas.width, H = clipTrfCanvas.height;
+  clipTrfCtx.clearRect(0, 0, W, H);
+  clipTrfCtx.fillStyle = '#050b14'; clipTrfCtx.fillRect(0, 0, W, H);
+
+  const cx = W / 2, cy = H / 2;
+  const maxV = 15.0, scale = (H - 40) / (2 * maxV);
+
+  // Axes
+  clipTrfCtx.strokeStyle = 'rgba(255,255,255,0.2)'; clipTrfCtx.lineWidth = 1.2;
+  clipTrfCtx.beginPath();
+  clipTrfCtx.moveTo(40, cy); clipTrfCtx.lineTo(W - 40, cy);
+  clipTrfCtx.moveTo(cx, 20); clipTrfCtx.lineTo(cx, H - 20);
+  clipTrfCtx.stroke();
+
+  clipTrfCtx.font = 'bold 9px JetBrains Mono'; clipTrfCtx.fillStyle = '#94a3b8';
+  clipTrfCtx.fillText('+V_in', W - 35, cy + 3);
+  clipTrfCtx.fillText('-V_in', 10, cy + 3);
+  clipTrfCtx.fillText('+V_out', cx + 6, 25);
+  clipTrfCtx.fillText('-V_out', cx + 6, H - 15);
+
+  const type = state.clipper.type;
+  const vb = state.clipper.vbias;
+  const vd = state.clipper.vd;
+
+  clipTrfCtx.strokeStyle = '#06b6d4'; clipTrfCtx.lineWidth = 2.5;
+  clipTrfCtx.beginPath();
+
+  for (let vin = -maxV; vin <= maxV; vin += 0.2) {
+    let vout = 0;
+    if (type === 'pos_shunt') {
+      vout = vin > vd ? vd : vin;
+    } else if (type === 'neg_shunt') {
+      vout = vin < -vd ? -vd : vin;
+    } else if (type === 'biased_shunt') {
+      vout = vin > (vb + vd) ? (vb + vd) : vin;
+    } else if (type === 'dual_slicer') {
+      vout = Math.min(vb + vd, Math.max(-(vb + vd), vin));
+    }
+    const px = cx + vin * scale, py = cy - vout * scale;
+    if (vin === -maxV) clipTrfCtx.moveTo(px, py); else clipTrfCtx.lineTo(px, py);
+  }
+  clipTrfCtx.stroke();
+}
+
+/* ================================================================= */
+/* 5. MODULE 2 — DIODE CLAMPERS (DC RESTORERS)                       */
+/* ================================================================= */
+const clampSchemCanvas = document.getElementById('canvas-clamper-schem');
+const clampSchemCtx = clampSchemCanvas.getContext('2d');
+
+function selectClamperType(type, btn) {
+  state.clamper.type = type;
+  document.querySelectorAll('#tab-clampers .pill-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+
+  const titleEl = document.getElementById('clamper-title-text');
+  const theoryEl = document.getElementById('clamper-theory-box');
+  const groupVbias = document.getElementById('group-clamp-vbias');
+
+  if (type === 'pos_clamper') {
+    groupVbias.style.display = 'none';
+    titleEl.textContent = 'วงจรยกระดับสัญญาณขึ้นด้านบวก (Positive Clamper)';
+    theoryEl.innerHTML = 
+      `<strong>Positive Clamper (ยกแกน DC ขึ้นบวก):</strong><br>` +
+      `• ในช่วงไซเคิลลบ: ไดโอด D<sub>1</sub> ชี้ลงกราวด์ ได้รับ Forward Bias ชาร์จประจุ C จนเต็ม V<sub>C</sub> = V<sub>m</sub> − 0.7V<br>` +
+      `• ในช่วงไซเคิลบวก: ไดโอด OFF ตัวเก็บประจุจะส่งแรงดัน V<sub>C</sub> อนุกรมกับ V<sub>in</sub> ทำให้สัญญาณทั้งลูกถูกยกขึ้นโดยยอดลบแตะที่ −0.7V และยอดบวกพุ่งสูงถึง +2·V<sub>m</sub> − 0.7V`;
+  } else if (type === 'neg_clamper') {
+    groupVbias.style.display = 'none';
+    titleEl.textContent = 'วงจรยกระดับสัญญาณลงด้านลบ (Negative Clamper)';
+    theoryEl.innerHTML = 
+      `<strong>Negative Clamper (ยกแกน DC ลงลบ):</strong><br>` +
+      `• ไดโอดชี้ขึ้น ในช่วงไซเคิลบวก ไดโอดจะนำกระแสชาร์จ C ด้วยขั้วตรงข้าม (V<sub>C</sub> = V<sub>m</sub> − 0.7V)<br>` +
+      `• สัญญาณเอาต์พุตถูกกดลงด้านลบทั้งหมด ยอดบวกแตะที่ +0.7V และยอดลบดิ่งลงถึง −(2·V<sub>m</sub> − 0.7V)`;
+  } else if (type === 'biased_clamper') {
+    groupVbias.style.display = 'block';
+    titleEl.textContent = 'วงจรยกระดับสัญญาณพร้อมแรงดันไบอัส (Biased Clamper)';
+    theoryEl.innerHTML = 
+      `<strong>Biased Clamper (ยกระดับอ้างอิง V<sub>bias</sub>):</strong><br>` +
+      `• ต่อแบตเตอรี่ V<sub>bias</sub> อนุกรมกับไดโอด เพื่อกำหนดระดับแรงดัน Clamping Reference Level ได้ตามต้องการ<br>` +
+      `• ยอดคลื่นจะถูกล็อกไว้ที่ระดับ V<sub>bias</sub> ± V<sub>D</sub>`;
+  }
+
+  onClamperChange();
+  playSound('click');
+}
+
+function onClamperChange() {
+  state.clamper.vin_peak = parseFloat(document.getElementById('slider-clamp-vin').value);
+  state.clamper.vbias = parseFloat(document.getElementById('slider-clamp-vbias').value);
+  state.clamper.c_uF = parseFloat(document.getElementById('slider-clamp-c').value);
+  state.clamper.rl_kohm = parseFloat(document.getElementById('slider-clamp-rl').value);
+
+  document.getElementById('clamp-vin-badge').textContent = state.clamper.vin_peak.toFixed(1) + ' Vp';
+  document.getElementById('clamp-vbias-badge').textContent = state.clamper.vbias.toFixed(1) + ' V';
+  document.getElementById('clamp-c-badge').textContent = state.clamper.c_uF.toFixed(0) + ' μF';
+  document.getElementById('clamp-rl-badge').textContent = state.clamper.rl_kohm.toFixed(0) + ' kΩ';
+
+  const type = state.clamper.type;
+  const vin = state.clamper.vin_peak;
+  const vb = state.clamper.vbias;
+  const vd = 0.7;
+
+  let vc = 0, vout_max = 0, vout_min = 0;
+
+  if (type === 'pos_clamper') {
+    vc = vin - vd;
+    vout_max = vin + vc;
+    vout_min = -vd;
+  } else if (type === 'neg_clamper') {
+    vc = vin - vd;
+    vout_max = vd;
+    vout_min = -(vin + vc);
+  } else if (type === 'biased_clamper') {
+    vc = vin - vd + vb;
+    vout_max = vin + vc;
+    vout_min = -vd + vb;
+  }
+
+  document.getElementById('clamp-vc-val').innerHTML = `${vc.toFixed(2)} <span class="readout-unit">V</span>`;
+  document.getElementById('clamp-vout-max-val').innerHTML = `${vout_max.toFixed(2)} <span class="readout-unit">V</span>`;
+  document.getElementById('clamp-vout-min-val').innerHTML = `${vout_min.toFixed(2)} <span class="readout-unit">V</span>`;
+  document.getElementById('clamp-vpp-val').innerHTML = `${(2*vin).toFixed(1)} <span class="readout-unit">V (คงที่)</span>`;
+
+  drawClamperSchematic();
+}
+
+function drawClamperSchematic() {
+  const W = clampSchemCanvas.width, H = clampSchemCanvas.height;
+  clampSchemCtx.clearRect(0, 0, W, H);
+  clampSchemCtx.fillStyle = '#050b14'; clampSchemCtx.fillRect(0, 0, W, H);
+
+  const type = state.clamper.type;
+  const vin = state.clamper.vin_peak;
+  const cVal = state.clamper.c_uF;
+  const rlVal = state.clamper.rl_kohm;
+
+  // Source AC
+  drawAcSrc(clampSchemCtx, 75, 125, 20, 'V_in', vin);
+  wire(clampSchemCtx, 75, 145, 75, 220); gndSymbol(clampSchemCtx, 75, 220);
+  wire(clampSchemCtx, 95, 125, 150, 125);
+
+  // Capacitor C in series
+  drawCapH(clampSchemCtx, 150, 270, 125, `C (${cVal}μF)`);
+  dotNode(clampSchemCtx, 270, 125);
+
+  if (type === 'pos_clamper') {
+    // Diode Pointing Down
+    drawDiodeV(clampSchemCtx, 340, 125, 220, true, 'D1 (Si)');
+    gndSymbol(clampSchemCtx, 340, 220);
+    wire(clampSchemCtx, 270, 125, 340, 125);
+    wire(clampSchemCtx, 340, 125, 520, 125);
+    dotNode(clampSchemCtx, 520, 125, 'V_out (Clamped Up +)', 'top');
+    drawResistorV(clampSchemCtx, 520, 125, 220, 'R_L', `${rlVal}kΩ`, 'right');
+    gndSymbol(clampSchemCtx, 520, 220);
+
+  } else if (type === 'neg_clamper') {
+    // Diode Pointing Up
+    drawDiodeV(clampSchemCtx, 340, 125, 220, false, 'D1 (Si)');
+    gndSymbol(clampSchemCtx, 340, 220);
+    wire(clampSchemCtx, 270, 125, 340, 125);
+    wire(clampSchemCtx, 340, 125, 520, 125);
+    dotNode(clampSchemCtx, 520, 125, 'V_out (Clamped Down -)', 'top');
+    drawResistorV(clampSchemCtx, 520, 125, 220, 'R_L', `${rlVal}kΩ`, 'right');
+    gndSymbol(clampSchemCtx, 520, 220);
+
+  } else if (type === 'biased_clamper') {
+    const vb = state.clamper.vbias;
+    drawDiodeV(clampSchemCtx, 340, 125, 175, true, 'D1');
+    drawDcBattery(clampSchemCtx, 340, 175, 220, vb >= 0, `V_bias (${vb}V)`);
+    gndSymbol(clampSchemCtx, 340, 220);
+    wire(clampSchemCtx, 270, 125, 340, 125);
+    wire(clampSchemCtx, 340, 125, 520, 125);
+    dotNode(clampSchemCtx, 520, 125, `V_out (Clamped to ${vb}V)`, 'top');
+    drawResistorV(clampSchemCtx, 520, 125, 220, 'R_L', `${rlVal}kΩ`, 'right');
+    gndSymbol(clampSchemCtx, 520, 220);
+  }
+}
+
+/* ================================================================= */
+/* 6. MODULE 3 — VOLTAGE MULTIPLIERS                                 */
+/* ================================================================= */
+const mulSchemCanvas = document.getElementById('canvas-multiplier-schem');
+const mulSchemCtx = mulSchemCanvas.getContext('2d');
+
+function selectMultiplierType(type, btn) {
+  state.multiplier.type = type;
+  document.querySelectorAll('#tab-multipliers .pill-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+
+  const titleEl = document.getElementById('multiplier-title-text');
+  const theoryEl = document.getElementById('multiplier-theory-box');
+
+  if (type === 'half_doubler') {
+    titleEl.textContent = 'วงจรทวีแรงดัน 2 เท่าแบบครึ่งคลื่น (Half-Wave Doubler)';
+    theoryEl.innerHTML = 
+      `<strong>Half-Wave Voltage Doubler (ทวี 2 เท่าครึ่งคลื่น):</strong><br>` +
+      `• ไซเคิลลบ: D<sub>1</sub> ON ชาร์จประจุ C<sub>1</sub> จนมีแรงดัน V<sub>C1</sub> = V<sub>m</sub><br>` +
+      `• ไซเคิลบวก: D<sub>2</sub> ON แรงดันอินพุตบวกกับ V<sub>C1</sub> รวมเป็น 2·V<sub>m</sub> ชาร์จเข้า C<sub>2</sub><br>` +
+      `• แรงดันเอาต์พุต DC ตกคร่อม C<sub>2</sub> มีค่า <strong>V<sub>out</sub> = 2·V<sub>m</sub></strong> โดยไดโอดแต่ละตัวต้องทน PIV 2·V<sub>m</sub>`;
+  } else if (type === 'full_doubler') {
+    titleEl.textContent = 'วงจรทวีแรงดัน 2 เท่าแบบเต็มคลื่น (Full-Wave Doubler)';
+    theoryEl.innerHTML = 
+      `<strong>Full-Wave Voltage Doubler (ทวี 2 เท่าเต็มคลื่น):</strong><br>` +
+      `• ไซเคิลบวก: D<sub>1</sub> ON ชาร์จ C<sub>1</sub> เท่ากับ +V<sub>m</sub><br>` +
+      `• ไซเคิลลบ: D<sub>2</sub> ON ชาร์จ C<sub>2</sub> เท่ากับ +V<sub>m</sub><br>` +
+      `• ต่อ C<sub>1</sub> และ C<sub>2</sub> อนุกรมกัน ทำให้ได้แรงดันเอาต์พุตรวม <strong>V<sub>out</sub> = V<sub>C1</sub> + V<sub>C2</sub> = 2·V<sub>m</sub></strong> โดยมีความถี่ริปเปิลเป็น 2f (เรียบกว่าแบบครึ่งคลื่น)`;
+  } else if (type === 'tripler') {
+    titleEl.textContent = 'วงจรทวีแรงดัน 3 เท่า (Voltage Tripler: 3·Vm)';
+    theoryEl.innerHTML = 
+      `<strong>Voltage Tripler (ทวี 3 เท่าแบบบันได):</strong><br>` +
+      `• เพิ่มไดโอด D<sub>3</sub> และคาปาซิเตอร์ C<sub>3</sub> ต่อเนื่องจากวงจร Doubler<br>` +
+      `• C<sub>1</sub> เก็บ V<sub>m</sub>, C<sub>2</sub> เก็บ 2·V<sub>m</sub>, และ C<sub>3</sub> เก็บ 2·V<sub>m</sub><br>` +
+      `• แรงดันเอาต์พุตระหว่าง C<sub>1</sub> อนุกรมกับ C<sub>3</sub> จะได้ <strong>V<sub>out</sub> = V<sub>C1</sub> + V<sub>C3</sub> = V<sub>m</sub> + 2·V<sub>m</sub> = 3·V<sub>m</sub></strong>`;
+  } else if (type === 'quadrupler') {
+    titleEl.textContent = 'วงจรทวีแรงดัน 4 เท่า (Voltage Quadrupler: 4·Vm)';
+    theoryEl.innerHTML = 
+      `<strong>Voltage Quadrupler (ทวี 4 เท่า):</strong><br>` +
+      `• เพิ่มขั้น D<sub>4</sub>, C<sub>4</sub> (เก็บ 2·V<sub>m</sub>) เข้ากับวงจร Tripler<br>` +
+      `• วัดแรงดันตกคร่อม C<sub>2</sub> อนุกรมกับ C<sub>4</sub> จะได้ <strong>V<sub>out</sub> = V<sub>C2</sub> + V<sub>C4</sub> = 2·V<sub>m</sub> + 2·V<sub>m</sub> = 4·V<sub>m</sub></strong><br>` +
+      `• เป็นโครงสร้างพื้นฐานของเครื่องกำเนิดไฟฟ้าแรงสูง Cockcroft-Walton สำหรับหลอดรังสีแคโทด (CRT) และเครื่องเร่งอนุภาค`;
+  }
+
+  onMultiplierChange();
+  playSound('click');
+}
+
+function onMultiplierChange() {
+  state.multiplier.vm = parseFloat(document.getElementById('slider-mul-vm').value);
+  state.multiplier.c_uF = parseFloat(document.getElementById('slider-mul-c').value);
+  state.multiplier.freq = parseFloat(document.getElementById('slider-mul-freq').value);
+
+  document.getElementById('mul-vm-badge').textContent = state.multiplier.vm.toFixed(1) + ' V';
+  document.getElementById('mul-c-badge').textContent = state.multiplier.c_uF.toFixed(0) + ' μF';
+  document.getElementById('mul-freq-badge').textContent = state.multiplier.freq.toFixed(0) + ' Hz';
+
+  const type = state.multiplier.type;
+  const vm = state.multiplier.vm;
+  const vd = 0.7;
+
+  let factor = 2, vout = 0, piv = 2 * vm;
+
+  if (type === 'half_doubler') {
+    factor = 2; vout = 2 * vm - 2 * vd;
+  } else if (type === 'full_doubler') {
+    factor = 2; vout = 2 * vm - 2 * vd;
+  } else if (type === 'tripler') {
+    factor = 3; vout = 3 * vm - 3 * vd;
+  } else if (type === 'quadrupler') {
+    factor = 4; vout = 4 * vm - 4 * vd;
+  }
+
+  document.getElementById('mul-vout-val').innerHTML = `${vout.toFixed(1)} <span class="readout-unit">V (≈ ${factor}·V<sub>m</sub>)</span>`;
+  document.getElementById('mul-factor-val').innerHTML = `${factor}.00 <span class="readout-unit">เท่า</span>`;
+  document.getElementById('mul-vm-val').innerHTML = `${vm.toFixed(1)} <span class="readout-unit">V</span>`;
+  document.getElementById('mul-piv-val').innerHTML = `${piv.toFixed(1)} <span class="readout-unit">V</span>`;
+
+  drawMultiplierSchematic();
+}
+
+function drawMultiplierSchematic() {
+  const W = mulSchemCanvas.width, H = mulSchemCanvas.height;
+  mulSchemCtx.clearRect(0, 0, W, H);
+  mulSchemCtx.fillStyle = '#050b14'; mulSchemCtx.fillRect(0, 0, W, H);
+
+  const type = state.multiplier.type;
+  const vm = state.multiplier.vm;
+
+  // Source AC
+  drawAcSrc(mulSchemCtx, 70, 135, 18, 'V_in (AC)', vm);
+  wire(mulSchemCtx, 70, 153, 70, 225); gndSymbol(mulSchemCtx, 70, 225);
+  wire(mulSchemCtx, 88, 135, 140, 135);
+
+  if (type === 'half_doubler') {
+    // Half-Wave Doubler Ladder
+    drawCapH(mulSchemCtx, 140, 230, 135, 'C1 (Vm)');
+    dotNode(mulSchemCtx, 230, 135);
+
+    // D1 pointing down to GND
+    drawDiodeV(mulSchemCtx, 230, 135, 225, true, 'D1');
+    gndSymbol(mulSchemCtx, 230, 225);
+
+    // D2 pointing right
+    wire(mulSchemCtx, 230, 135, 340, 135);
+    drawDiodeV(mulSchemCtx, 340, 135, 80, false, 'D2');
+    dotNode(mulSchemCtx, 340, 80);
+
+    // C2 to GND
+    drawCapH(mulSchemCtx, 340, 480, 80, 'C2 (2·Vm)');
+    wire(mulSchemCtx, 480, 80, 560, 80);
+    wire(mulSchemCtx, 560, 80, 560, 225);
+    gndSymbol(mulSchemCtx, 560, 225);
+    dotNode(mulSchemCtx, 560, 80, `V_out = ${(2*vm-1.4).toFixed(1)}V (2·Vm)`, 'top');
+
+  } else if (type === 'full_doubler') {
+    // Full-Wave Doubler
+    wire(mulSchemCtx, 140, 135, 230, 135);
+    dotNode(mulSchemCtx, 230, 135);
+
+    // Upper branch: D1 + C1
+    wire(mulSchemCtx, 230, 135, 230, 75);
+    wire(mulSchemCtx, 230, 75, 300, 75);
+    drawDiodeV(mulSchemCtx, 300, 75, 75, true, 'D1');
+    wire(mulSchemCtx, 300, 75, 370, 75);
+    drawCapH(mulSchemCtx, 370, 470, 75, 'C1 (+Vm)');
+    wire(mulSchemCtx, 470, 75, 470, 135);
+    dotNode(mulSchemCtx, 470, 135, 'Center GND', 'right');
+    gndSymbol(mulSchemCtx, 470, 135);
+
+    // Lower branch: D2 + C2
+    wire(mulSchemCtx, 230, 135, 230, 195);
+    wire(mulSchemCtx, 230, 195, 300, 195);
+    drawDiodeV(mulSchemCtx, 300, 195, 195, false, 'D2');
+    wire(mulSchemCtx, 300, 195, 370, 195);
+    drawCapH(mulSchemCtx, 370, 470, 195, 'C2 (+Vm)');
+    wire(mulSchemCtx, 470, 195, 470, 135);
+
+    // Output between Top of C1 and Bottom of C2
+    wire(mulSchemCtx, 370, 75, 560, 75);
+    wire(mulSchemCtx, 370, 195, 560, 195);
+    dotNode(mulSchemCtx, 560, 75, '+V_out (2·Vm)', 'top');
+    dotNode(mulSchemCtx, 560, 195, '-V_out (0V)', 'bottom');
+
+  } else if (type === 'tripler' || type === 'quadrupler') {
+    // Multi-stage Cockcroft-Walton Cascade Ladder
+    drawCapH(mulSchemCtx, 140, 230, 135, 'C1');
+    dotNode(mulSchemCtx, 230, 135);
+    drawDiodeV(mulSchemCtx, 230, 135, 225, true, 'D1');
+    gndSymbol(mulSchemCtx, 230, 225);
+
+    // Stage 2
+    wire(mulSchemCtx, 230, 135, 310, 80);
+    drawDiodeV(mulSchemCtx, 310, 80, 80, false, 'D2');
+    drawCapH(mulSchemCtx, 310, 420, 80, 'C2 (2·Vm)');
+    dotNode(mulSchemCtx, 420, 80);
+
+    // Stage 3
+    wire(mulSchemCtx, 420, 80, 460, 135);
+    drawDiodeV(mulSchemCtx, 460, 135, 135, true, 'D3');
+    drawCapH(mulSchemCtx, 230, 460, 225, 'C3 (2·Vm)');
+    dotNode(mulSchemCtx, 460, 225);
+
+    if (type === 'tripler') {
+      wire(mulSchemCtx, 420, 80, 560, 80);
+      dotNode(mulSchemCtx, 560, 80, `V_out = ${(3*vm-2.1).toFixed(1)}V (3·Vm)`, 'top');
+    } else {
+      // Stage 4
+      wire(mulSchemCtx, 460, 225, 520, 80);
+      drawDiodeV(mulSchemCtx, 520, 80, 80, false, 'D4');
+      drawCapH(mulSchemCtx, 420, 560, 80, 'C4 (2·Vm)');
+      dotNode(mulSchemCtx, 560, 80, `V_out = ${(4*vm-2.8).toFixed(1)}V (4·Vm)`, 'top');
+    }
+  }
+}
+
+/* ================================================================= */
+/* 7. MODULE 4 — VIRTUAL LAB & OSCILLOSCOPE                          */
+/* ================================================================= */
+const oscCanvas = document.getElementById('canvas-osc');
+const oscCtx = oscCanvas.getContext('2d');
+
+function switchLabCircuit(circ, btn) {
+  state.lab.circuit = circ;
+  document.querySelectorAll('#tab-lab .pill-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+
+  const titleEl = document.getElementById('lab-circuit-title');
+  const groupVbias = document.getElementById('group-lab-vbias');
+
+  if (circ === 'pos_clipper') {
+    titleEl.textContent = 'ห้องทดลอง: วงจรตัดยอดคลื่นบวก (Positive Clipper Lab)';
+    groupVbias.style.display = 'none';
+  } else if (circ === 'neg_clipper') {
+    titleEl.textContent = 'ห้องทดลอง: วงจรตัดยอดคลื่นลบ (Negative Clipper Lab)';
+    groupVbias.style.display = 'none';
+  } else if (circ === 'pos_clamper') {
+    titleEl.textContent = 'ห้องทดลอง: วงจรยกระดับสัญญาณขึ้นบวก (Positive Clamper Lab)';
+    groupVbias.style.display = 'none';
+  } else if (circ === 'neg_clamper') {
+    titleEl.textContent = 'ห้องทดลอง: วงจรยกระดับสัญญาณลงลบ (Negative Clamper Lab)';
+    groupVbias.style.display = 'none';
+  } else if (circ === 'vol_doubler') {
+    titleEl.textContent = 'ห้องทดลอง: วงจรทวีแรงดัน 2 เท่า (Voltage Doubler Lab)';
+    groupVbias.style.display = 'none';
+  }
+
+  onLabChange();
+  playSound('click');
+}
+
+function setLabWave(wave) {
+  state.lab.waveType = wave;
+  ['btn-lab-wave-sin', 'btn-lab-wave-sqr', 'btn-lab-wave-tri'].forEach(id => document.getElementById(id).classList.remove('active'));
+  const m = { sin: 'btn-lab-wave-sin', sqr: 'btn-lab-wave-sqr', tri: 'btn-lab-wave-tri' };
+  document.getElementById(m[wave]).classList.add('active');
+  playSound('click');
+}
+
+function toggleSimPause() {
+  state.lab.isPaused = !state.lab.isPaused;
+  document.getElementById('pause-btn-text').textContent = state.lab.isPaused ? 'เล่นต่อ' : 'หยุดชั่วคราว';
+  document.getElementById('btn-pause-sim').querySelector('i').className = state.lab.isPaused ? 'fa-solid fa-play' : 'fa-solid fa-pause';
+}
+
+function onOscScaleChange() {
+  state.lab.autoScale = document.getElementById('osc-autoscale').checked;
+  state.lab.ch1Scale = parseFloat(document.getElementById('osc-ch1-scale').value);
+  state.lab.ch2Scale = parseFloat(document.getElementById('osc-ch2-scale').value);
+}
+
+function onLabChange() {
+  state.lab.vin_peak = parseFloat(document.getElementById('slider-lab-vin').value);
+  state.lab.freq = parseFloat(document.getElementById('slider-lab-freq').value);
+  state.lab.vbias = parseFloat(document.getElementById('slider-lab-vbias').value);
+
+  document.getElementById('lab-vin-badge').textContent = state.lab.vin_peak.toFixed(1) + ' Vp';
+  document.getElementById('lab-freq-badge').textContent = state.lab.freq + ' Hz';
+  document.getElementById('lab-vbias-badge').textContent = state.lab.vbias.toFixed(1) + ' V';
+
+  const circ = state.lab.circuit;
+  const vin = state.lab.vin_peak;
+  let vout_str = '0.70 V', shape_str = 'ตัดยอดบวก';
+
+  if (circ === 'pos_clipper') {
+    vout_str = '+0.70 V'; shape_str = 'ตัดยอดบวก';
+  } else if (circ === 'neg_clipper') {
+    vout_str = '-0.70 V'; shape_str = 'ตัดยอดลบ';
+  } else if (circ === 'pos_clamper') {
+    vout_str = `+${(2*vin-0.7).toFixed(1)} Vp`; shape_str = 'ยกระดับขึ้นบวก';
+  } else if (circ === 'neg_clamper') {
+    vout_str = `-${(2*vin-0.7).toFixed(1)} Vp`; shape_str = 'ยกระดับลงลบ';
+  } else if (circ === 'vol_doubler') {
+    vout_str = `+${(2*vin-1.4).toFixed(1)} V (DC)`; shape_str = 'ทวีแรงดัน 2 เท่า DC';
+  }
+
+  document.getElementById('lab-vin-val').innerHTML = `${vin.toFixed(1)} <span class="readout-unit">Vp</span>`;
+  document.getElementById('lab-vout-val').innerHTML = `${vout_str}`;
+  document.getElementById('lab-freq-val').innerHTML = `${state.lab.freq} <span class="readout-unit">Hz</span>`;
+  document.getElementById('lab-shape-val').textContent = shape_str;
+}
+
+function drawOscilloscope() {
+  const W = oscCanvas.width, H = oscCanvas.height;
+  oscCtx.clearRect(0, 0, W, H);
+  oscCtx.fillStyle = '#050b14'; oscCtx.fillRect(0, 0, W, H);
+
+  // Grid
+  oscCtx.strokeStyle = 'rgba(6,182,212,0.12)'; oscCtx.lineWidth = 1;
+  const numDivX = 10, numDivY = 8;
+  const divW = W / numDivX, divH = H / numDivY;
+
+  for (let x = 0; x <= W; x += divW) {
+    oscCtx.beginPath(); oscCtx.moveTo(x, 0); oscCtx.lineTo(x, H); oscCtx.stroke();
+  }
+  for (let y = 0; y <= H; y += divH) {
+    oscCtx.beginPath(); oscCtx.moveTo(0, y); oscCtx.lineTo(W, y); oscCtx.stroke();
+  }
+  const midY = H / 2;
+  oscCtx.strokeStyle = 'rgba(255,255,255,0.25)'; oscCtx.lineWidth = 1.2;
+  oscCtx.beginPath(); oscCtx.moveTo(0, midY); oscCtx.lineTo(W, midY); oscCtx.stroke();
+
+  if (!state.lab.isPaused) state.lab.time += 0.05;
+  const t = state.lab.time, circ = state.lab.circuit, wave = state.lab.waveType, pts = 300, stepX = W / pts;
+
+  let ch1Scale = state.lab.ch1Scale;
+  let ch2Scale = state.lab.ch2Scale;
+
+  let vInArr = new Float32Array(pts);
+  let vOutArr = new Float32Array(pts);
+  let maxVout = 0.1;
+  const vin_p = state.lab.vin_peak;
+
+  for (let i = 0; i < pts; i++) {
+    const st = t + (i / pts) * 4 * Math.PI;
+    let vin_val = 0;
+    if (wave === 'sin') {
+      vin_val = vin_p * Math.sin(st);
+    } else if (wave === 'sqr') {
+      vin_val = Math.sin(st) >= 0 ? vin_p : -vin_p;
+    } else if (wave === 'tri') {
+      vin_val = (2 * vin_p / Math.PI) * Math.asin(Math.sin(st));
+    }
+
+    let vout_val = 0;
+    if (circ === 'pos_clipper') {
+      vout_val = vin_val > 0.7 ? 0.7 : vin_val;
+    } else if (circ === 'neg_clipper') {
+      vout_val = vin_val < -0.7 ? -0.7 : vin_val;
+    } else if (circ === 'pos_clamper') {
+      vout_val = vin_val + (vin_p - 0.7);
+    } else if (circ === 'neg_clamper') {
+      vout_val = vin_val - (vin_p - 0.7);
+    } else if (circ === 'vol_doubler') {
+      vout_val = 2 * vin_p - 1.4;
+    }
+
+    vInArr[i] = vin_val;
+    vOutArr[i] = vout_val;
+    if (Math.abs(vout_val) > maxVout) maxVout = Math.abs(vout_val);
+  }
+
+  // Auto-scale
+  if (state.lab.autoScale) {
+    if (vin_p <= 2.5) ch1Scale = 0.5;
+    else if (vin_p <= 5.0) ch1Scale = 1.0;
+    else if (vin_p <= 10.0) ch1Scale = 2.0;
+    else ch1Scale = 5.0;
+
+    if (maxVout <= 2.0) ch2Scale = 0.5;
+    else if (maxVout <= 5.0) ch2Scale = 1.0;
+    else if (maxVout <= 12.0) ch2Scale = 2.0;
+    else if (maxVout <= 25.0) ch2Scale = 5.0;
+    else ch2Scale = 10.0;
+  }
+
+  const pxPerVolt_CH1 = divH / ch1Scale;
+  const pxPerVolt_CH2 = divH / ch2Scale;
+
+  // CH1: Input (Yellow)
+  oscCtx.strokeStyle = '#fbbf24'; oscCtx.lineWidth = 2;
+  oscCtx.beginPath();
+  for (let i = 0; i < pts; i++) {
+    const px = i * stepX, py = midY - vInArr[i] * pxPerVolt_CH1;
+    if (i === 0) oscCtx.moveTo(px, py); else oscCtx.lineTo(px, py);
+  }
+  oscCtx.stroke();
+
+  // CH2: Output (Cyan)
+  oscCtx.strokeStyle = '#06b6d4'; oscCtx.lineWidth = 2.5;
+  oscCtx.beginPath();
+  for (let i = 0; i < pts; i++) {
+    const px = i * stepX, py = midY - vOutArr[i] * pxPerVolt_CH2;
+    if (i === 0) oscCtx.moveTo(px, py); else oscCtx.lineTo(px, py);
+  }
+  oscCtx.stroke();
+
+  // Header Labels
+  oscCtx.font = 'bold 10px JetBrains Mono';
+  oscCtx.fillStyle = '#fbbf24'; oscCtx.fillText(`— CH1: V_in (${ch1Scale}V/div)`, 15, 18);
+  oscCtx.fillStyle = '#06b6d4'; oscCtx.fillText(`— CH2: V_out (${ch2Scale}V/div)`, 190, 18);
+}
+
+/* ================================================================= */
+/* 8. MODULE 5 — QUIZ & GOOGLE SHEETS                                */
+/* ================================================================= */
+const quizQuestions = [
+  {
+    q: 'วงจรตัดรูปคลื่น (Diode Clipper หรือ Limiter) มีหน้าที่หลักตามข้อใด?',
+    opts: [
+      'ตัดทอนหรือจำกัดขนาดแรงดันของสัญญาณไม่ให้เกินระดับที่กำหนด โดยไม่เปลี่ยนรูปคลื่นส่วนที่เหลือ',
+      'แปลงแรงดันไฟฟ้ากระแสสลับเป็นกระแสตรงแบบเรียบสนิท',
+      'ยกระดับแกนอ้างอิง DC ของสัญญาณให้สูงขึ้น',
+      'เพิ่มความถี่ของสัญญาณขึ้นเป็น 2 เท่า'
+    ],
+    ans: 0,
+    exp: 'วงจร Clipper หรือ Limiter ทำหน้าที่ตัดทอนยอดคลื่นส่วนที่สูงเกินหรือต่ำกว่าระดับอ้างอิงทิ้ง เพื่อป้องกันวงจรภาคถัดไปเสียหายจาก Over-voltage'
+  },
+  {
+    q: 'ในวงจร Positive Shunt Clipper (ไดโอดซิลิคอนต่อขนานชี้ลงกราวด์) เมื่อป้อนสัญญาณ Vin = 10 Vp ยอดคลื่นบวกที่เอาต์พุตจะมีค่าประมาณเท่าใด?',
+    opts: [
+      '+0.7 V (แรงดันตกคร่อมรอยต่อไดโอด V_D)',
+      '+10.0 V',
+      '0.0 V',
+      '+20.0 V'
+    ],
+    ans: 0,
+    exp: 'ในช่วงไซเคิลบวก ไดโอดจะได้รับ Forward Bias และนำกระแสลัดสัญญาณลงกราวด์ ทำให้แรงดันเอาต์พุตถูกจำกัดไว้ที่แรงดันตกคร่อมของไดโอดซิลิคอนคือ +0.7V'
+  },
+  {
+    q: 'หากต้องการให้วงจร Clipper ตัดยอดคลื่นบวกที่ระดับ +4.7 V ต้องต่อวงจรอย่างไร (ใช้ไดโอดซิลิคอน)?',
+    opts: [
+      'ต่อไดโอดอนุกรมกับแหล่งจ่ายแรงดันไบอัส DC V_bias = +4.0 V ชี้ลงกราวด์',
+      'ต่อตัวต้านทาน 4.7 kΩ ขนานกับอินพุต',
+      'ต่อตัวเก็บประจุ 4.7 μF อนุกรมกับโหลด',
+      'ใช้ไดโอดเจอร์เมเนียมต่อกลับทิศ'
+    ],
+    ans: 0,
+    exp: 'ระดับการตัดสัญญาณของ Biased Clipper คือ V_clip = V_bias + V_D = 4.0V + 0.7V = +4.7V'
+  },
+  {
+    q: 'วงจรยกระดับสัญญาณ (Diode Clamper หรือ DC Restorer) มีคุณสมบัติเด่นตามข้อใด?',
+    opts: [
+      'เปลี่ยนระดับแรงดัน DC อ้างอิง โดยรักษาขนาดแรงดันพีคทูพีค (V_p-p) และรูปทรงคลื่นเดิมไว้ครบถ้วน',
+      'ตัดยอดคลื่นส่วนบนและส่วนล่างทิ้ง',
+      'เพิ่มกำลังงานของสัญญาณให้สูงขึ้นเป็นสิบเท่า',
+      'แปลงสัญญาณไซน์ให้เป็นคลื่นสี่เหลี่ยม'
+    ],
+    ans: 0,
+    exp: 'วงจร Clamper ทำหน้าที่เติมระดับแรงดันไฟฟ้ากระแสตรง (DC Offset) ให้กับสัญญาณ AC โดยค่าแรงดัน Peak-to-Peak (V_p-p) ของสัญญาณเอาต์พุตจะยังคงเท่ากับอินพุตเสมอ'
+  },
+  {
+    q: 'ในการออกแบบวงจร Clamper ให้ทำงานได้อย่างสมบูรณ์ ค่าคงที่เวลา (Time Constant τ = R_L·C) ควรมีเงื่อนไขอย่างไร?',
+    opts: [
+      'R_L·C ≥ 10·T (ค่าคงที่เวลาต้องมากกว่าคาบเวลาของสัญญาณอย่างน้อย 10 เท่า)',
+      'R_L·C ≤ 0.1·T',
+      'R_L·C = 0',
+      'ไม่ขึ้นกับค่าความจุของตัวเก็บประจุ'
+    ],
+    ans: 0,
+    exp: 'ค่าคงที่เวลา τ = R_L·C ต้องมีค่ามากพอ (อย่างน้อย 10 เท่าของคาบ T) เพื่อป้องกันไม่ให้ตัวเก็บประจุคายประจุเร็วจนรูปคลื่นเอาต์พุตเกิดความเพี้ยน (Tilt Distortion)'
+  },
+  {
+    q: 'เมื่อป้อนสัญญาณ Vin = 10 Vp (V_p-p = 20V) เข้าวงจร Positive Clamper แรงดันเอาต์พุตจะมีช่วงการแกว่งประมาณเท่าใด (ไดโอดซิลิคอน)?',
+    opts: [
+      'แกว่งระหว่าง −0.7 V ถึง +19.3 V (V_p-p = 20 V)',
+      'แกว่งระหว่าง −10 V ถึง +10 V',
+      'แกว่งระหว่าง 0 V ถึง +10 V',
+      'มีค่าคงที่ +20 V DC'
+    ],
+    ans: 0,
+    exp: 'Positive Clamper จะดันสัญญาณขึ้นจนยอดลบแตะที่ −0.7V ดังนั้นยอดบวกจะพุ่งขึ้นไปถึง (−0.7V + 20V) = +19.3V โดย V_p-p = 20V คงที่'
+  },
+  {
+    q: 'วงจรทวีแรงดัน 2 เท่าแบบครึ่งคลื่น (Half-Wave Voltage Doubler) ใช้ไดโอดและตัวเก็บประจุอย่างละกี่ตัว?',
+    opts: [
+      'ไดโอด 2 ตัว และ คาปาซิเตอร์ 2 ตัว',
+      'ไดโอด 4 ตัว และ คาปาซิเตอร์ 1 ตัว',
+      'ไดโอด 1 ตัว และ คาปาซิเตอร์ 2 ตัว',
+      'ไดโอด 3 ตัว และ คาปาซิเตอร์ 3 ตัว'
+    ],
+    ans: 0,
+    exp: 'วงจร Half-Wave Voltage Doubler ประกอบด้วยไดโอด 2 ตัว (D1, D2) และคาปาซิเตอร์ 2 ตัว (C1, C2) สลับกันชาร์จประจุในแต่ละครึ่งไซเคิล'
+  },
+  {
+    q: 'ในวงจร Half-Wave Voltage Doubler ตัวเก็บประจุ C1 และ C2 จะถูกชาร์จประจุจนมีแรงดันเท่าใดตามลำดับ (เมื่อ Vm คือแรงดันยอดอินพุต)?',
+    opts: [
+      'V_C1 = V_m และ V_C2 = 2·V_m',
+      'V_C1 = 2·V_m และ V_C2 = V_m',
+      'V_C1 = V_m และ V_C2 = V_m',
+      'V_C1 = 4·V_m และ V_C2 = 2·V_m'
+    ],
+    ans: 0,
+    exp: 'ในช่วงไซเคิลลบ C1 จะถูกชาร์จจนเต็ม V_m จากนั้นในไซเคิลบวก แรงดันอินพุตบวกกับ V_C1 จะรวมกันเป็น 2·V_m ชาร์จเข้าตัวเก็บประจุ C2'
+  },
+  {
+    q: 'ข้อใดคือข้อได้เปรียบหลักของ Full-Wave Voltage Doubler เมื่อเปรียบเทียบกับ Half-Wave Doubler?',
+    opts: [
+      'ความถี่ริปเปิลเอาต์พุตเป็น 2 เท่า (2f) ทำให้กรองแรงดัน DC ให้เรียบได้ง่ายขึ้น',
+      'ใช้ชิ้นส่วนอุปกรณ์น้อยกว่าครึ่งหนึ่ง',
+      'ทวีแรงดันได้สูงถึง 4 เท่า',
+      'ไม่ต้องใช้ไดโอดในการทำงาน'
+    ],
+    ans: 0,
+    exp: 'Full-Wave Doubler ชาร์จประจุทั้งในไซเคิลบวก (ชาร์จ C1) และไซเคิลลบ (ชาร์จ C2) ทำให้มีความถี่ริปเปิลเอาต์พุตเป็น 2 เท่าของความถี่ไฟบ้าน (100 Hz) กรองเรียบได้ดีกว่า'
+  },
+  {
+    q: 'วงจรบันได Cockcroft-Walton Cascade Multiplier นิยมนำไปประยุกต์ใช้งานในอุปกรณ์ประเภทใดมากที่สุด?',
+    opts: [
+      'แหล่งจ่ายไฟฟ้าแรงดันสูงมากกระแสต่ำ (HV DC) เช่น หลอดรังสีแคโทด CRT, เครื่อง X-ray, เครื่องดักจับฝุ่นไอออน',
+      'วงจรขยายเสียงสเตอริโอ Hi-Fi',
+      'เครื่องชาร์จแบตเตอรี่รถยนต์กระแสสูง 100A',
+      'วงจรออสซิลเลเตอร์กำเนิดความถี่วิทยุ'
+    ],
+    ans: 0,
+    exp: 'Cockcroft-Walton Multiplier เหมาะสำหรับสร้างแรงดันไฟฟ้ากระแสตรงสูงมากระดับกิโลโวลต์ (kV) สำหรับหลอดภาพ CRT, หลอดเลเซอร์, เครื่องเร่งอนุภาค โดยไม่ต้องใช้หม้อแปลงขนาดใหญ่'
+  },
+  {
+    q: 'แรงดันทนได้สูงสุดขณะไบอัสกลับ (Peak Inverse Voltage: PIV) ของไดโอดแต่ละตัวในวงจร Voltage Doubler ต้องมีค่าอย่างน้อยเท่าใด?',
+    opts: [
+      'PIV ≥ 2·V_m',
+      'PIV ≥ V_m',
+      'PIV ≥ 0.7 V',
+      'PIV ≥ 4·V_m'
+    ],
+    ans: 0,
+    exp: 'ในวงจร Voltage Doubler ไดโอดแต่ละตัวจะต้องรับแรงดันไบอัสกลับสูงสุดเท่ากับ 2·V_m เสมอในจังหวะที่ไดโอดอีกตัวกำลังนำกระแส'
+  },
+  {
+    q: 'หากต้องการสร้างวงจรตัดสัญญาณทั้งยอดบวกและยอดลบ (Dual Slicer) เพื่อแปลงสัญญาณไซน์ 12Vp ให้เป็นคลื่นสี่เหลี่ยม ±2.7V ต้องใช้การต่อวงจรอย่างไร?',
+    opts: [
+      'ใช้ไดโอดซิลิคอน 2 ตัวต่อขนานกลับทิศกัน โดยแต่ละตัวอนุกรมกับแหล่งจ่ายไบอัส V_bias = 2.0 V',
+      'ต่อตัวเก็บประจุ 100 μF ขนานกับเอาต์พุต',
+      'ต่อตัวต้านทาน 10 kΩ อนุกรมกับแหล่งจ่ายไฟ DC 12V',
+      'ใช้ไดโอดตัวเดียวต่อขนานกับหม้อแปลง'
+    ],
+    ans: 0,
+    exp: 'การตัดสองระดับใช้ไดโอดคู่ขนานกลับทิศร่วมกับ V_bias = 2.0V จะได้ระดับการตัดยอดบวกที่ +(2.0V + 0.7V) = +2.7V และยอดลบที่ −(2.0V + 0.7V) = −2.7V'
+  }
+];
+
+function renderQuiz() {
+  const container = document.getElementById('quiz-container');
+  container.innerHTML = '';
+  quizQuestions.forEach((q, qi) => {
+    const div = document.createElement('div');
+    div.className = 'quiz-question';
+    div.id = `quiz-q${qi}`;
+    let optsHtml = '';
+    q.opts.forEach((opt, oi) => {
+      optsHtml += `<label class="quiz-option" id="quiz-opt-${qi}-${oi}" onclick="selectAnswer(${qi},${oi})">` +
+        `<span style="font-family:var(--font-mono);font-size:0.75rem;color:var(--text-muted);font-weight:700;">${String.fromCharCode(65+oi)}.</span>${opt}</label>`;
+    });
+    div.innerHTML = `<h4>ข้อที่ ${qi+1}. ${q.q}</h4><div class="quiz-options">${optsHtml}</div><div class="quiz-explanation" id="quiz-exp-${qi}"><i class="fa-solid fa-circle-info" style="color:var(--accent-primary)"></i> <strong>คำอธิบาย:</strong> ${q.exp}</div>`;
+    container.appendChild(div);
+  });
+  updateQuizScore();
+}
+
+function selectAnswer(qi, oi) {
+  if (state.quiz.submitted) return;
+  state.quiz.answers[qi] = oi;
+  quizQuestions[qi].opts.forEach((_, i) => {
+    const el = document.getElementById(`quiz-opt-${qi}-${i}`);
+    el.classList.remove('correct', 'wrong');
+    el.style.borderColor = '';
+    el.style.background = '';
+  });
+  const selEl = document.getElementById(`quiz-opt-${qi}-${oi}`);
+  selEl.style.borderColor = 'var(--accent-primary)';
+  selEl.style.background = 'rgba(6,182,212,0.15)';
+  playSound('click');
+}
+
+function submitQuiz() {
+  if (state.quiz.submitted) return;
+  state.quiz.submitted = true;
+  let score = 0;
+  quizQuestions.forEach((q, qi) => {
+    const sel = state.quiz.answers[qi];
+    q.opts.forEach((_, i) => {
+      const el = document.getElementById(`quiz-opt-${qi}-${i}`);
+      el.classList.remove('correct', 'wrong');
+      el.style.borderColor = '';
+      el.style.background = '';
+      if (i === q.ans) el.classList.add('correct');
+      else if (i === sel && i !== q.ans) el.classList.add('wrong');
+    });
+    document.getElementById(`quiz-exp-${qi}`).style.display = 'block';
+    if (sel === q.ans) score++;
+  });
+  state.quiz.score = score;
+  updateQuizScore();
+  playSound(score >= 8 ? 'success' : 'buzzer');
+
+  const entry = {
+    timestamp: new Date().toLocaleString('th-TH'),
+    student: document.getElementById('student-name').value.trim() || 'นักศึกษา',
+    activity: 'Diode Applications (Clippers, Clampers, Multipliers) Quiz',
+    result: `${score}/12 (${(score/12*100).toFixed(0)}%)`
+  };
+  state.history.unshift(entry);
+  renderHistory();
+}
+
+function updateQuizScore() {
+  document.getElementById('quiz-score-badge').textContent = `คะแนน: ${state.quiz.score} / 12`;
+}
+
+function resetQuiz() {
+  state.quiz = { submitted: false, score: 0, answers: {} };
+  renderQuiz();
+  playSound('click');
+}
+
+function renderHistory() {
+  const tbody = document.getElementById('history-table-body');
+  if (state.history.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:1.5rem;">ยังไม่มีประวัติการส่งคะแนน</td></tr>';
+    return;
+  }
+  tbody.innerHTML = '';
+  state.history.slice(0, 20).forEach(r => {
+    tbody.innerHTML += `<tr><td>${r.timestamp}</td><td>${r.student}</td><td>${r.activity}</td><td style="color:var(--accent-primary);font-family:var(--font-mono);font-weight:700;">${r.result}</td></tr>`;
+  });
+}
+
+function exportQuizCSV() {
+  const rows = [['Timestamp', 'Student', 'Activity', 'Score']];
+  state.history.forEach(r => rows.push([r.timestamp, r.student, r.activity, r.result]));
+  const csvContent = rows.map(r => r.join(',')).join(String.fromCharCode(10));
+  const blob = new Blob([String.fromCharCode(0xFEFF) + csvContent], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'diode_application_quiz_history.csv';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+async function saveToSheets() {
+  const url = document.getElementById('gas-url').value.trim();
+  if (!url) { alert('กรุณากรอก Google Apps Script Web App URL ก่อนครับ'); return; }
+  try {
+    const payload = {
+      student: document.getElementById('student-name').value.trim() || 'นักศึกษา',
+      class: document.getElementById('student-class').value.trim() || '',
+      activity: 'Diode Applications Learning Lab Quiz',
+      result: `${state.quiz.score}/12`,
+      note: `คะแนน ${state.quiz.score} จาก 12 ข้อ (${(state.quiz.score/12*100).toFixed(0)}%)`
+    };
+    await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload)
+    });
+    alert('บันทึกข้อมูลวงจรประยุกต์ไดโอดลง Google Sheets สำเร็จเรียบร้อยแล้ว!');
+  } catch(e) {
+    alert('ส่งข้อมูลไปยัง Google Apps Script แล้ว (หากตั้งค่า Web App ถูกต้องตรวจสอบในชีตได้เลย)');
+  }
+}
+
+/* ================================================================= */
+/* 9. MAIN ANIMATION LOOP & INIT                                     */
+/* ================================================================= */
+let animTime = 0;
+function mainLoop() {
+  animTime += 0.03;
+  if (state.activeTab === 'tab-lab') {
+    drawOscilloscope();
+  }
+  requestAnimationFrame(mainLoop);
+}
+
+function init() {
+  onClipperChange();
+  onClamperChange();
+  onMultiplierChange();
+  onLabChange();
+  renderQuiz();
+  mainLoop();
+}
+
+init();
+</script>
+</body>
+</html>

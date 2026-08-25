@@ -1,0 +1,2765 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>เครื่องมืออ่านค่าสีตัวต้านทาน (Resistor Color Code)</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <style>
+    /* Design Tokens & CSS Reset */
+    :root {
+      --bg-gradient-start: #0f172a;
+      --bg-gradient-end: #020617;
+      --card-bg: rgba(30, 41, 59, 0.7);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --card-hover-border: rgba(99, 102, 241, 0.4);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent: #6366f1;
+      --accent-glow: rgba(99, 102, 241, 0.3);
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --body-font: 'Sarabun', 'Outfit', sans-serif;
+      --mono-font: 'JetBrains Mono', monospace;
+      
+      --resistor-body-color: #8fa9c4; /* Metal film resistor light blue */
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    }
+
+    body {
+      background: linear-gradient(135deg, var(--bg-gradient-start), var(--bg-gradient-end));
+      color: var(--text-main);
+      font-family: var(--body-font);
+      min-height: 100vh;
+      line-height: 1.6;
+      padding: 2rem 1rem;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* Header styling */
+    header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+      position: relative;
+    }
+
+    .logo-container {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .logo-icon {
+      font-size: 2.5rem;
+      background: linear-gradient(135deg, #818cf8, #c084fc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: pulse 3s infinite alternate;
+    }
+
+    h1 {
+      font-family: 'Outfit', 'Sarabun', sans-serif;
+      font-size: 2.25rem;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      background: linear-gradient(to right, #f8fafc, #cbd5e1);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 1rem;
+      max-width: 600px;
+      margin: 0.5rem auto 0;
+    }
+
+    /* Badges */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.35rem 0.85rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      margin-top: 1rem;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .status-badge.local {
+      background: rgba(245, 158, 11, 0.1);
+      color: #fbbf24;
+      border-color: rgba(245, 158, 11, 0.2);
+    }
+
+    .status-badge.gas {
+      background: rgba(16, 185, 129, 0.1);
+      color: #34d399;
+      border-color: rgba(16, 185, 129, 0.2);
+    }
+
+    .status-badge i {
+      font-size: 0.5rem;
+    }
+
+    /* Dashboard Layout */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 1.3fr 1fr;
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    @media (max-width: 968px) {
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Glass Card Style */
+    .glass-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 1.75rem;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .glass-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(90deg, #6366f1, #a855f7);
+      opacity: 0.8;
+    }
+
+    .card-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      color: var(--text-main);
+    }
+
+    .card-title i {
+      color: var(--accent);
+    }
+
+    /* Resistor Visualizer */
+    .resistor-display-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2.5rem 1rem;
+      background: rgba(15, 23, 42, 0.6);
+      border-radius: 12px;
+      margin-bottom: 1.5rem;
+      border: 1px solid rgba(255, 255, 255, 0.03);
+      position: relative;
+    }
+
+    .resistor-graphic {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 120px;
+      position: relative;
+      margin-bottom: 1.5rem;
+    }
+
+    /* Resistor wires (leads) */
+    .resistor-wire {
+      position: absolute;
+      width: 90%;
+      height: 6px;
+      background: linear-gradient(to bottom, #94a3b8, #cbd5e1, #64748b);
+      border-radius: 3px;
+      z-index: 1;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+    }
+
+    /* Resistor body shape */
+    .resistor-body {
+      width: 320px;
+      height: 70px;
+      background: linear-gradient(to bottom, var(--resistor-body-color), #b0c9e8 20%, var(--resistor-body-color) 50%, #6885a3 85%, #506982);
+      border-radius: 35px / 35px;
+      position: relative;
+      z-index: 2;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), inset 0 2px 5px rgba(255,255,255,0.2);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 35px;
+      overflow: visible;
+    }
+
+    /* Resistor body bulbous ends look */
+    .resistor-body::before, .resistor-body::after {
+      content: '';
+      position: absolute;
+      top: -2px;
+      width: 45px;
+      height: 74px;
+      background: inherit;
+      border-radius: 50%;
+      z-index: -1;
+    }
+    .resistor-body::before { left: -10px; }
+    .resistor-body::after { right: -10px; }
+
+    /* Stripe (Color band) */
+    .color-band {
+      width: 14px;
+      height: 70px;
+      position: relative;
+      z-index: 3;
+      cursor: pointer;
+      box-shadow: inset 1px 0 2px rgba(255,255,255,0.2), inset -1px 0 2px rgba(0,0,0,0.3), 0 3px 5px rgba(0,0,0,0.3);
+      transform: scaleY(1.03);
+    }
+
+    .color-band.active {
+      outline: 3px solid #6366f1;
+      outline-offset: 4px;
+      border-radius: 2px;
+      animation: pulse-glow 1.5s infinite alternate;
+      z-index: 10;
+    }
+
+    .color-band.hidden {
+      display: none;
+    }
+
+    /* Result readout styling */
+    .result-readout {
+      text-align: center;
+      margin-top: 1rem;
+    }
+
+    .resistor-value-display {
+      font-size: 2.25rem;
+      font-weight: 700;
+      font-family: var(--mono-font);
+      background: linear-gradient(135deg, #ffffff, #94a3b8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 0.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .resistor-details-display {
+      color: var(--text-muted);
+      font-size: 1rem;
+      display: flex;
+      gap: 1.5rem;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .detail-badge {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 0.25rem 0.75rem;
+      border-radius: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.03);
+      font-family: var(--mono-font);
+      font-size: 0.9rem;
+    }
+
+    /* Band selector buttons / tabs */
+    .band-mode-toggle {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+      background: rgba(15, 23, 42, 0.4);
+      padding: 0.35rem;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .mode-btn {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 0.6rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+    }
+
+    .mode-btn.active {
+      background: var(--accent);
+      color: #ffffff;
+      box-shadow: 0 4px 12px var(--accent-glow);
+    }
+
+    /* Color Grid & Swatches */
+    .band-edit-container {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .band-tabs {
+      display: flex;
+      overflow-x: auto;
+      gap: 0.5rem;
+      padding-bottom: 0.5rem;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255,255,255,0.1) transparent;
+    }
+
+    .band-tab {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+      padding: 0.5rem 1rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      white-space: nowrap;
+      font-size: 0.85rem;
+      font-weight: 500;
+      text-align: center;
+      min-width: 90px;
+    }
+
+    .band-tab.active {
+      background: rgba(99, 102, 241, 0.15);
+      border-color: var(--accent);
+      color: var(--text-main);
+    }
+
+    .band-tab-color-dot {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      margin-right: 0.5rem;
+      vertical-align: middle;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .color-swatch-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.75rem;
+    }
+
+    @media (max-width: 480px) {
+      .color-swatch-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    .swatch-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      background: rgba(30, 41, 59, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+      padding: 0.65rem 0.5rem;
+      cursor: pointer;
+      color: var(--text-main);
+      font-family: var(--body-font);
+      font-size: 0.8rem;
+      position: relative;
+    }
+
+    .swatch-btn:hover:not(:disabled) {
+      border-color: var(--accent-glow);
+      transform: translateY(-2px);
+    }
+
+    .swatch-btn.selected {
+      border-color: var(--accent);
+      box-shadow: 0 0 10px rgba(99, 102, 241, 0.2);
+      background: rgba(99, 102, 241, 0.08);
+    }
+
+    .swatch-btn:disabled {
+      opacity: 0.15;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    .color-dot {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(255, 255, 255, 0.25);
+      box-shadow: inset 0 2px 4px rgba(255,255,255,0.2), 0 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .swatch-value {
+      font-family: var(--mono-font);
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+
+    /* Right Column Card Inputs */
+    .input-section {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    label {
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .input-wrapper {
+      position: relative;
+      display: flex;
+    }
+
+    .input-icon {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    input[type="text"], textarea, select {
+      width: 100%;
+      background: rgba(15, 23, 42, 0.5);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      color: var(--text-main);
+      padding: 0.75rem 1rem 0.75rem 2.5rem;
+      font-family: var(--body-font);
+      font-size: 0.95rem;
+      outline: none;
+    }
+
+    select {
+      padding-left: 2.5rem;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 1rem center;
+      background-size: 1.25rem;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+
+    .input-help {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 0.25rem;
+    }
+
+    /* Convert Button */
+    .btn {
+      background: linear-gradient(135deg, #6366f1, #4f46e5);
+      color: #ffffff;
+      border: none;
+      border-radius: 8px;
+      padding: 0.75rem 1.5rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      box-shadow: 0 4px 14px rgba(99, 102, 241, 0.3);
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+    }
+
+    .btn:active {
+      transform: translateY(1px);
+    }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: var(--text-main);
+      box-shadow: none;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.08);
+      box-shadow: none;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 0.75rem;
+      margin-top: 0.5rem;
+    }
+
+    .button-group .btn {
+      flex: 1;
+    }
+
+    /* History / Logs Section */
+    .history-card {
+      margin-top: 1.5rem;
+    }
+
+    .table-container {
+      width: 100%;
+      overflow-x: auto;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      background: rgba(15, 23, 42, 0.3);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.9rem;
+    }
+
+    th {
+      background: rgba(15, 23, 42, 0.6);
+      padding: 0.85rem 1rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    td {
+      padding: 0.85rem 1rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+      vertical-align: middle;
+      color: var(--text-main);
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .timestamp-col {
+      font-family: var(--mono-font);
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    .resistor-val-col {
+      font-family: var(--mono-font);
+      font-weight: 600;
+      color: #38bdf8;
+    }
+
+    .history-color-pill {
+      display: inline-flex;
+      gap: 3px;
+      background: rgba(0, 0, 0, 0.2);
+      padding: 4px 6px;
+      border-radius: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .history-color-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      border: 0.5px solid rgba(255,255,255,0.3);
+    }
+
+    .empty-state {
+      padding: 3rem 1rem;
+      text-align: center;
+      color: var(--text-muted);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .empty-state i {
+      font-size: 2rem;
+      opacity: 0.5;
+    }
+
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background: #1e293b;
+      border-left: 4px solid var(--accent);
+      border-radius: 8px;
+      padding: 1rem 1.5rem;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      z-index: 9999;
+      transform: translateY(150%);
+      transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-left-width: 4px;
+    }
+
+    .toast.show {
+      transform: translateY(0);
+    }
+
+    .toast.success { border-left-color: var(--success); }
+    .toast.warning { border-left-color: var(--warning); }
+    .toast.danger { border-left-color: var(--danger); }
+
+    /* Animations */
+    @keyframes pulse {
+      0% { transform: scale(1); filter: drop-shadow(0 0 2px var(--accent-glow)); }
+      100% { transform: scale(1.05); filter: drop-shadow(0 0 8px var(--accent)); }
+    }
+
+    @keyframes pulse-glow {
+      0% { box-shadow: 0 0 2px var(--accent); }
+      100% { box-shadow: 0 0 15px var(--accent); }
+    }
+
+    /* Utility classes */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    .loading-spinner {
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* ===== LEARNING SECTION: Resistor Connections ===== */
+    .learning-section {
+      margin-top: 1.5rem;
+    }
+
+    .learning-section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    /* Circuit Type Tabs */
+    .circuit-tabs {
+      display: flex;
+      gap: 0.5rem;
+      background: rgba(15, 23, 42, 0.4);
+      padding: 0.35rem;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      margin-bottom: 1.75rem;
+    }
+
+    .circuit-tab-btn {
+      flex: 1;
+      padding: 0.65rem 1rem;
+      background: transparent;
+      border: none;
+      border-radius: 8px;
+      color: var(--text-muted);
+      font-family: var(--body-font);
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      transition: all 0.2s;
+    }
+
+    .circuit-tab-btn.active {
+      background: linear-gradient(135deg, #6366f1, #4f46e5);
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
+    }
+
+    .circuit-tab-btn:hover:not(.active) {
+      background: rgba(255,255,255,0.05);
+      color: var(--text-main);
+    }
+
+    /* Circuit Panels */
+    .circuit-panel {
+      display: none;
+    }
+
+    .circuit-panel.active {
+      display: block;
+    }
+
+    /* SVG circuit diagram */
+    .circuit-svg-wrapper {
+      background: rgba(10, 18, 36, 0.7);
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      padding: 1.25rem 0.5rem;
+      margin-bottom: 1.5rem;
+      overflow-x: auto;
+      display: flex;
+      justify-content: center;
+      min-height: 160px;
+      align-items: center;
+    }
+
+    .circuit-svg-wrapper svg {
+      max-width: 100%;
+      height: auto;
+      display: block;
+      margin: 0 auto;
+      font-family: var(--body-font);
+    }
+
+    /* Resistor Inputs Area */
+    .resistor-inputs-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .r-input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .r-input-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .r-input-label .r-dot {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(255,255,255,0.3);
+    }
+
+    .r-input-field {
+      background: rgba(15, 23, 42, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      color: var(--text-main);
+      padding: 0.6rem 0.75rem;
+      font-family: var(--mono-font);
+      font-size: 0.9rem;
+      outline: none;
+      width: 100%;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .r-input-field:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+
+    .r-input-field.input-error {
+      border-color: var(--danger);
+      box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+    }
+
+    /* Add/Remove resistor buttons */
+    .r-count-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .r-count-controls .r-count-label {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-right: 0.25rem;
+    }
+
+    .r-count-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      color: var(--text-main);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      transition: background 0.2s;
+    }
+
+    .r-count-btn:hover:not(:disabled) {
+      background: rgba(99, 102, 241, 0.2);
+      border-color: var(--accent);
+    }
+
+    .r-count-btn:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+
+    .r-count-num {
+      font-family: var(--mono-font);
+      font-weight: 700;
+      font-size: 1rem;
+      min-width: 1.25rem;
+      text-align: center;
+    }
+
+    /* Formula Display */
+    .formula-display {
+      background: rgba(15, 23, 42, 0.5);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 10px;
+      padding: 0.85rem 1rem;
+      margin-bottom: 1rem;
+      font-family: var(--mono-font);
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      word-break: break-all;
+      line-height: 1.7;
+    }
+
+    .formula-display .formula-title {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--accent);
+      font-weight: 600;
+      margin-bottom: 0.35rem;
+    }
+
+    .formula-display .formula-eq {
+      color: var(--text-main);
+      font-size: 0.9rem;
+    }
+
+    /* Result Box */
+    .circuit-result-box {
+      background: rgba(99, 102, 241, 0.08);
+      border: 1px solid rgba(99, 102, 241, 0.25);
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .circuit-result-value {
+      font-family: var(--mono-font);
+      font-size: 1.85rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #818cf8, #c084fc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .circuit-result-label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 0.15rem;
+    }
+
+    .btn-send-to-calc {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 0.6rem 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.85rem;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+      font-family: var(--body-font);
+      white-space: nowrap;
+    }
+
+    .btn-send-to-calc:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+    }
+
+    /* Action buttons row */
+    .circuit-action-row {
+      display: flex;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+
+    /* Theory Info Box */
+    .theory-box {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-left: 3px solid var(--accent);
+      border-radius: 8px;
+      padding: 0.85rem 1rem;
+      margin-bottom: 1.25rem;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    .theory-box strong {
+      color: var(--text-main);
+    }
+
+    /* Mixed circuit special layout */
+    .mixed-groups {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    @media (max-width: 600px) {
+      .mixed-groups {
+        grid-template-columns: 1fr;
+      }
+      .circuit-tabs {
+        flex-direction: column;
+      }
+      .circuit-result-value {
+        font-size: 1.4rem;
+      }
+    }
+
+    .mixed-group-card {
+      background: rgba(15,23,42,0.4);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 10px;
+      padding: 1rem;
+    }
+
+    .mixed-group-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--accent);
+      margin-bottom: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    @keyframes result-pop {
+      0% { transform: scale(0.95); opacity: 0.5; }
+      60% { transform: scale(1.03); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .result-animate {
+      animation: result-pop 0.35s ease forwards;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    
+    <!-- Header -->
+    <header>
+      <div class="logo-container">
+        <i class="fa-solid fa-microchip logo-icon"></i>
+        <h1>เครื่องมืออ่านค่าสีตัวต้านทาน</h1>
+      </div>
+      <p class="subtitle">คำนวณรหัสสีตัวต้านทาน 4, 5, และ 6 แถบสี แปลงไป-กลับ และบันทึกข้อมูลประวัติลงใน Google Sheet</p>
+      
+      <div id="connection-status" class="status-badge local">
+        <i class="fa-solid fa-circle"></i> <span>ตรวจหาโหมดเชื่อมต่อ...</span>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="dashboard-grid">
+      
+      <!-- Column 1: Graphic + Colors Grid -->
+      <div class="glass-card">
+        <div class="card-title">
+          <i class="fa-solid fa-eye"></i>
+          <span>เครื่องคำนวณและแสดงผลตัวต้านทาน</span>
+        </div>
+
+        <!-- Band Mode Selector -->
+        <div class="band-mode-toggle">
+          <button type="button" class="mode-btn active" onclick="setBandCount(4)">
+            <i class="fa-solid fa-bars"></i> 4 แถบสี (4-Band)
+          </button>
+          <button type="button" class="mode-btn" onclick="setBandCount(5)">
+            <i class="fa-solid fa-bars"></i> 5 แถบสี (5-Band)
+          </button>
+          <button type="button" class="mode-btn" onclick="setBandCount(6)">
+            <i class="fa-solid fa-bars"></i> 6 แถบสี (6-Band)
+          </button>
+        </div>
+
+        <!-- Resistor Live Visualizer -->
+        <div class="resistor-display-container">
+          <div class="resistor-graphic">
+            <div class="resistor-wire"></div>
+            <div class="resistor-body">
+              <div id="band-1" class="color-band" onclick="setActiveBand(1)"></div>
+              <div id="band-2" class="color-band" onclick="setActiveBand(2)"></div>
+              <div id="band-3" class="color-band" onclick="setActiveBand(3)"></div>
+              <div id="band-4" class="color-band" onclick="setActiveBand(4)"></div>
+              <div id="band-5" class="color-band" onclick="setActiveBand(5)"></div>
+              <div id="band-6" class="color-band" onclick="setActiveBand(6)"></div>
+            </div>
+          </div>
+
+          <!-- Value Output Display -->
+          <div class="result-readout">
+            <div id="resistor-value" class="resistor-value-display">1.0 kΩ</div>
+            <div class="resistor-details-display">
+              <span id="resistor-tolerance" class="detail-badge">ความคลาดเคลื่อน: ±5%</span>
+              <span id="resistor-temp-coeff" class="detail-badge hidden">สัมประสิทธิ์อุณหภูมิ: 100 ppm/K</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Color Palette Picker -->
+        <div class="band-edit-container">
+          <!-- Active Band Tabs -->
+          <div id="band-tabs-container" class="band-tabs">
+            <!-- Dynamic generated tabs based on band count -->
+          </div>
+
+          <!-- Color Grid -->
+          <div id="color-palette" class="color-swatch-grid">
+            <!-- Dynamic color buttons based on valid choices for active band -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Column 2: Conversions + Google Sheets Logger -->
+      <div class="glass-card">
+        <div class="card-title">
+          <i class="fa-solid fa-calculator"></i>
+          <span>เครื่องมือแปลงและบันทึกข้อมูล</span>
+        </div>
+
+        <div class="input-section">
+          
+          <!-- Value-to-Colors input converter -->
+          <div class="form-group">
+            <label for="resistance-input">
+              <i class="fa-solid fa-right-left"></i> แปลงจากค่าความต้านทานเป็นสี
+            </label>
+            <div style="display: flex; gap: 0.5rem;">
+              <div class="input-wrapper" style="flex: 1;">
+                <span class="input-icon"><i class="fa-solid fa-wave-square"></i></span>
+                <input type="text" id="resistance-input" placeholder="ตัวอย่าง: 220, 4.7k, 1.5M, 10R5" style="padding-left: 2.5rem;">
+              </div>
+              <button class="btn" type="button" onclick="convertValueToColors()">แปลงค่า</button>
+            </div>
+            <span class="input-help">ใส่หน่วย k = กิโลโอห์ม, M = เมกะโอห์ม, R หรือไม่ต้องใส่หน่วยสำหรับโอห์ม</span>
+          </div>
+
+          <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.05); margin: 0.5rem 0;">
+
+          <!-- Logger to Sheets Form -->
+          <div class="form-group">
+            <label for="resistor-note">
+              <i class="fa-solid fa-pen-clip"></i> บันทึกเพิ่มเติมลง Google Sheet
+            </label>
+            <div class="input-wrapper">
+              <span class="input-icon" style="top: 1.25rem;"><i class="fa-solid fa-note-sticky"></i></span>
+              <textarea id="resistor-note" rows="2" placeholder="เช่น ตัวต้านทานในวงจรภาคจ่ายไฟ R1, ใช้สำหรับจำลองวงจรแอลอีดี" style="padding-left: 2.5rem; resize: none;"></textarea>
+            </div>
+          </div>
+
+          <div class="button-group">
+            <button id="save-btn" class="btn" type="button" onclick="saveToSheet()">
+              <i class="fa-solid fa-cloud-arrow-up"></i> บันทึกค่าลง Google Sheet
+            </button>
+          </div>
+
+          <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.05); margin: 0.5rem 0;">
+          
+          <!-- Informative Helper Info -->
+          <div style="background: rgba(255, 255, 255, 0.02); border-radius: 8px; padding: 0.75rem; border: 1px solid rgba(255, 255, 255, 0.03); font-size: 0.8rem; color: var(--text-muted);">
+            <div style="font-weight: 600; color: var(--text-main); margin-bottom: 0.25rem;">
+              <i class="fa-solid fa-circle-info" style="color: var(--accent);"></i> แนะนำวิธีการใช้แถบสี:
+            </div>
+            <ul style="padding-left: 1.25rem; display: flex; flex-direction: column; gap: 0.25rem;">
+              <li><strong>4 แถบ:</strong> ตัวเลขที่ 1, ตัวเลขที่ 2, ตัวคูณ, ความคลาดเคลื่อน</li>
+              <li><strong>5 แถบ:</strong> ตัวเลขที่ 1, ตัวเลขที่ 2, ตัวเลขที่ 3, ตัวคูณ, ความคลาดเคลื่อน</li>
+              <li><strong>6 แถบ:</strong> เหมือน 5 แถบ โดยเพิ่มแถบสัมประสิทธิ์อุณหภูมิ (ppm/K)</li>
+            </ul>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+    <!-- History / Logs Table -->
+    <div class="glass-card history-card">
+      <div class="card-title" style="margin-bottom: 1rem; justify-content: space-between;">
+        <span style="display: flex; align-items: center; gap: 0.75rem;">
+          <i class="fa-solid fa-clock-rotate-left"></i>
+          <span>ประวัติการคำนวณและบันทึก</span>
+        </span>
+        <button class="btn btn-secondary" style="padding: 0.35rem 0.75rem; font-size: 0.8rem;" type="button" onclick="loadHistory()">
+          <i id="refresh-icon" class="fa-solid fa-rotate-right"></i> รีเฟรชประวัติ
+        </button>
+      </div>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 18%;">วัน-เวลา</th>
+              <th style="width: 18%;">ค่าความต้านทาน</th>
+              <th style="width: 10%; text-align: center;">แถบสี</th>
+              <th style="width: 25%;">ลำดับแถบสี</th>
+              <th style="width: 10%;">ความคลาดเคลื่อน</th>
+              <th style="width: 10%;">อุณหภูมิ (ppm)</th>
+              <th style="width: 19%;">บันทึกเพิ่มเติม</th>
+            </tr>
+          </thead>
+          <tbody id="history-table-body">
+            <!-- Dynamic rows will be inserted here -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ===== LEARNING SECTION: Resistor Connections ===== -->
+  <div class="glass-card learning-section">
+
+    <!-- Header -->
+    <div class="learning-section-header">
+      <div class="card-title" style="margin-bottom:0;">
+        <i class="fa-solid fa-plug-circle-bolt" style="color:#818cf8;"></i>
+        <span>การต่อตัวต้านทาน — อนุกรม / ขนาน / ผสม</span>
+      </div>
+      <span style="font-size:0.8rem;color:var(--text-muted);">
+        <i class="fa-solid fa-circle-info" style="color:var(--accent);"></i>
+        กรอกค่า R แล้วกดคำนวณเพื่อดูผลและวงจร
+      </span>
+    </div>
+
+    <!-- Tab Buttons -->
+    <div class="circuit-tabs">
+      <button class="circuit-tab-btn active" onclick="switchCircuitTab('series')" id="tab-series">
+        <i class="fa-solid fa-minus"></i> อนุกรม (Series)
+      </button>
+      <button class="circuit-tab-btn" onclick="switchCircuitTab('parallel')" id="tab-parallel">
+        <i class="fa-solid fa-equals"></i> ขนาน (Parallel)
+      </button>
+      <button class="circuit-tab-btn" onclick="switchCircuitTab('mixed')" id="tab-mixed">
+        <i class="fa-solid fa-shuffle"></i> ผสม (Mixed)
+      </button>
+    </div>
+
+    <!-- ========== PANEL: SERIES ========== -->
+    <div id="panel-series" class="circuit-panel active">
+      <div class="theory-box">
+        <strong><i class="fa-solid fa-book-open" style="color:var(--accent);margin-right:0.3rem;"></i>ทฤษฎีการต่ออนุกรม:</strong><br>
+        การต่อตัวต้านทานแบบอนุกรม กระแสไฟฟ้าไหลผ่านทุกตัวต้านทานเท่ากัน แต่แรงดันตกคร่อมแต่ละตัวต่างกัน<br>
+        <strong>สูตร:</strong> R<sub>total</sub> = R₁ + R₂ + R₃ + ... + Rn
+      </div>
+
+      <!-- SVG Diagram -->
+      <div class="circuit-svg-wrapper">
+        <svg id="svg-series" xmlns="http://www.w3.org/2000/svg"></svg>
+      </div>
+
+      <!-- Count Controls -->
+      <div class="r-count-controls">
+        <span class="r-count-label"><i class="fa-solid fa-microchip"></i> จำนวนตัวต้านทาน:</span>
+        <button class="r-count-btn" id="series-dec" onclick="changeResistorCount('series',-1)">
+          <i class="fa-solid fa-minus"></i>
+        </button>
+        <span class="r-count-num" id="series-count-display">3</span>
+        <button class="r-count-btn" id="series-inc" onclick="changeResistorCount('series',1)">
+          <i class="fa-solid fa-plus"></i>
+        </button>
+      </div>
+
+      <!-- Input Fields -->
+      <div class="resistor-inputs-grid" id="series-inputs"></div>
+
+      <!-- Calculate Button -->
+      <div class="circuit-action-row">
+        <button class="btn" type="button" onclick="calculateSeries()" style="flex:1;">
+          <i class="fa-solid fa-calculator"></i> คำนวณวงจรอนุกรม
+        </button>
+        <button class="btn btn-secondary" type="button" onclick="resetPanel('series')">
+          <i class="fa-solid fa-rotate-left"></i> รีเซ็ต
+        </button>
+      </div>
+
+      <!-- Formula + Result -->
+      <div class="formula-display" id="series-formula">
+        <div class="formula-title">สูตรการคำนวณ</div>
+        <div class="formula-eq" id="series-formula-eq">R<sub>total</sub> = R₁ + R₂ + R₃</div>
+      </div>
+
+      <div class="circuit-result-box" id="series-result-box">
+        <div>
+          <div class="circuit-result-value" id="series-result-val">— Ω</div>
+          <div class="circuit-result-label">ค่าความต้านทานรวม (R<sub>total</sub>)</div>
+        </div>
+        <button class="btn-send-to-calc" onclick="sendResultToCalculator('series')" title="ส่งค่า Rtotal ไปแสดงบนเครื่องคำนวณรหัสสี">
+          <i class="fa-solid fa-arrow-up-right-from-square"></i> ส่งไปอ่านค่าสี
+        </button>
+      </div>
+    </div>
+
+    <!-- ========== PANEL: PARALLEL ========== -->
+    <div id="panel-parallel" class="circuit-panel">
+      <div class="theory-box">
+        <strong><i class="fa-solid fa-book-open" style="color:var(--accent);margin-right:0.3rem;"></i>ทฤษฎีการต่อขนาน:</strong><br>
+        การต่อตัวต้านทานแบบขนาน แรงดันตกคร่อมทุกตัวเท่ากัน แต่กระแสแยกออกแต่ละสาย ค่าความต้านทานรวมจะน้อยกว่าค่าต่ำสุดในวงจร<br>
+        <strong>สูตร:</strong> 1/R<sub>total</sub> = 1/R₁ + 1/R₂ + 1/R₃ + ... + 1/Rn
+      </div>
+
+      <!-- SVG Diagram -->
+      <div class="circuit-svg-wrapper">
+        <svg id="svg-parallel" xmlns="http://www.w3.org/2000/svg"></svg>
+      </div>
+
+      <!-- Count Controls -->
+      <div class="r-count-controls">
+        <span class="r-count-label"><i class="fa-solid fa-microchip"></i> จำนวนตัวต้านทาน:</span>
+        <button class="r-count-btn" id="parallel-dec" onclick="changeResistorCount('parallel',-1)">
+          <i class="fa-solid fa-minus"></i>
+        </button>
+        <span class="r-count-num" id="parallel-count-display">3</span>
+        <button class="r-count-btn" id="parallel-inc" onclick="changeResistorCount('parallel',1)">
+          <i class="fa-solid fa-plus"></i>
+        </button>
+      </div>
+
+      <!-- Input Fields -->
+      <div class="resistor-inputs-grid" id="parallel-inputs"></div>
+
+      <!-- Calculate Button -->
+      <div class="circuit-action-row">
+        <button class="btn" type="button" onclick="calculateParallel()" style="flex:1;">
+          <i class="fa-solid fa-calculator"></i> คำนวณวงจรขนาน
+        </button>
+        <button class="btn btn-secondary" type="button" onclick="resetPanel('parallel')">
+          <i class="fa-solid fa-rotate-left"></i> รีเซ็ต
+        </button>
+      </div>
+
+      <!-- Formula + Result -->
+      <div class="formula-display" id="parallel-formula">
+        <div class="formula-title">สูตรการคำนวณ</div>
+        <div class="formula-eq" id="parallel-formula-eq">1/R<sub>total</sub> = 1/R₁ + 1/R₂ + 1/R₃</div>
+      </div>
+
+      <div class="circuit-result-box" id="parallel-result-box">
+        <div>
+          <div class="circuit-result-value" id="parallel-result-val">— Ω</div>
+          <div class="circuit-result-label">ค่าความต้านทานรวม (R<sub>total</sub>)</div>
+        </div>
+        <button class="btn-send-to-calc" onclick="sendResultToCalculator('parallel')">
+          <i class="fa-solid fa-arrow-up-right-from-square"></i> ส่งไปอ่านค่าสี
+        </button>
+      </div>
+    </div>
+
+    <!-- ========== PANEL: MIXED ========== -->
+    <div id="panel-mixed" class="circuit-panel">
+      <div class="theory-box">
+        <strong><i class="fa-solid fa-book-open" style="color:var(--accent);margin-right:0.3rem;"></i>ทฤษฎีการต่อแบบผสม:</strong><br>
+        วงจรผสมคือการรวมการต่ออนุกรมและขนานในวงจรเดียวกัน วิธีคำนวณคือแยกส่วนขนานออกก่อน แล้วนำผลลัพธ์มาบวกกับส่วนอนุกรม<br>
+        <strong>สูตร (ตัวอย่างนี้):</strong> R<sub>total</sub> = R₁ + (R₂ ∥ R₃) + R₄ &nbsp;|&nbsp; โดย R₂ ∥ R₃ = (R₂ × R₃) / (R₂ + R₃)
+      </div>
+
+      <!-- SVG Diagram -->
+      <div class="circuit-svg-wrapper">
+        <svg id="svg-mixed" xmlns="http://www.w3.org/2000/svg"></svg>
+      </div>
+
+      <!-- Input Groups -->
+      <div class="mixed-groups">
+        <div class="mixed-group-card">
+          <div class="mixed-group-title"><i class="fa-solid fa-minus"></i> ส่วนอนุกรม (ด้านนอก)</div>
+          <div class="resistor-inputs-grid" id="mixed-series-inputs" style="grid-template-columns:1fr 1fr;"></div>
+        </div>
+        <div class="mixed-group-card">
+          <div class="mixed-group-title"><i class="fa-solid fa-equals"></i> ส่วนขนาน (กลางวงจร)</div>
+          <div class="resistor-inputs-grid" id="mixed-parallel-inputs" style="grid-template-columns:1fr 1fr;"></div>
+        </div>
+      </div>
+
+      <!-- Calculate Button -->
+      <div class="circuit-action-row">
+        <button class="btn" type="button" onclick="calculateMixed()" style="flex:1;">
+          <i class="fa-solid fa-calculator"></i> คำนวณวงจรผสม
+        </button>
+        <button class="btn btn-secondary" type="button" onclick="resetPanel('mixed')">
+          <i class="fa-solid fa-rotate-left"></i> รีเซ็ต
+        </button>
+      </div>
+
+      <!-- Formula + Result -->
+      <div class="formula-display">
+        <div class="formula-title">สูตรการคำนวณ</div>
+        <div class="formula-eq" id="mixed-formula-eq">
+          R<sub>total</sub> = R₁ + (R₂ ∥ R₃) + R₄
+        </div>
+      </div>
+
+      <!-- Step-by-step -->
+      <div class="formula-display" id="mixed-steps" style="display:none;">
+        <div class="formula-title">ขั้นตอนการคำนวณ</div>
+        <div class="formula-eq" id="mixed-steps-content"></div>
+      </div>
+
+      <div class="circuit-result-box" id="mixed-result-box">
+        <div>
+          <div class="circuit-result-value" id="mixed-result-val">— Ω</div>
+          <div class="circuit-result-label">ค่าความต้านทานรวม (R<sub>total</sub>)</div>
+        </div>
+        <button class="btn-send-to-calc" onclick="sendResultToCalculator('mixed')">
+          <i class="fa-solid fa-arrow-up-right-from-square"></i> ส่งไปอ่านค่าสี
+        </button>
+      </div>
+    </div>
+
+  </div><!-- end learning-section -->
+
+  <!-- Toast Element -->
+  <div id="toast" class="toast">
+    <i id="toast-icon" class="fa-solid"></i>
+    <span id="toast-msg">ข้อความเตือนความจำ</span>
+  </div>
+
+  <!-- Script logic for calculations and sheet communications -->
+  <script>
+    // Data definition for Resistor Color Codes
+    const BANDS_DATA = {
+      colors: [
+        { name: 'ดำ (Black)', code: 'black', hex: '#000000', text: '#ffffff', digit: 0, mult: 1, tol: null, temp: 250 },
+        { name: 'น้ำตาล (Brown)', code: 'brown', hex: '#8B4513', text: '#ffffff', digit: 1, mult: 10, tol: 1, temp: 100 },
+        { name: 'แดง (Red)', code: 'red', hex: '#FF0000', text: '#ffffff', digit: 2, mult: 100, tol: 2, temp: 50 },
+        { name: 'ส้ม (Orange)', code: 'orange', hex: '#FF8C00', text: '#000000', digit: 3, mult: 1000, tol: 0.05, temp: 15 },
+        { name: 'เหลือง (Yellow)', code: 'yellow', hex: '#FFD700', text: '#000000', digit: 4, mult: 10000, tol: null, temp: 25 },
+        { name: 'เขียว (Green)', code: 'green', hex: '#008000', text: '#ffffff', digit: 5, mult: 100000, tol: 0.5, temp: 20 },
+        { name: 'น้ำเงิน (Blue)', code: 'blue', hex: '#0000FF', text: '#ffffff', digit: 6, mult: 1000000, tol: 0.25, temp: 10 },
+        { name: 'ม่วง (Violet)', code: 'violet', hex: '#8B00FF', text: '#ffffff', digit: 7, mult: 10000000, tol: 0.1, temp: 5 },
+        { name: 'เทา (Grey)', code: 'grey', hex: '#808080', text: '#ffffff', digit: 8, mult: 100000000, tol: 0.05, temp: 1 },
+        { name: 'ขาว (White)', code: 'white', hex: '#FFFFFF', text: '#000000', digit: 9, mult: 1000000000, tol: null, temp: null },
+        { name: 'ทอง (Gold)', code: 'gold', hex: '#D4AF37', text: '#000000', digit: null, mult: 0.1, tol: 5, temp: null },
+        { name: 'เงิน (Silver)', code: 'silver', hex: '#C0C0C0', text: '#000000', digit: null, mult: 0.01, tol: 10, temp: null }
+      ]
+    };
+
+    // Mapping details for bands mapping in terms of band role
+    // 4-band: digit1, digit2, mult, tol
+    // 5-band: digit1, digit2, digit3, mult, tol
+    // 6-band: digit1, digit2, digit3, mult, tol, temp
+    const BAND_ROLES = {
+      4: ['digit', 'digit', 'mult', 'tol'],
+      5: ['digit', 'digit', 'digit', 'mult', 'tol'],
+      6: ['digit', 'digit', 'digit', 'mult', 'tol', 'temp']
+    };
+
+    // State Variables
+    let currentBandsCount = 4;
+    let selectedColors = ['brown', 'black', 'red', 'gold', 'black', 'brown']; // Default colors (1.0k ±5%)
+    let activeBandIndex = 1; // 1-indexed (1 to currentBandsCount)
+    let isGoogleAppsScript = false;
+
+    // Run on startup
+    window.addEventListener('DOMContentLoaded', () => {
+      detectEnvironment();
+      initializeState();
+      renderUI();
+      loadHistory();
+    });
+
+    // Detect if we are running in Google Apps Script or standalone browser
+    function detectEnvironment() {
+      const statusBadge = document.getElementById('connection-status');
+      if (typeof google !== 'undefined' && google.script && google.script.run) {
+        isGoogleAppsScript = true;
+        statusBadge.className = 'status-badge gas';
+        statusBadge.querySelector('span').innerText = 'เชื่อมต่อ Google Sheet แล้ว';
+        statusBadge.querySelector('i').className = 'fa-solid fa-circle-nodes';
+      } else {
+        isGoogleAppsScript = false;
+        statusBadge.className = 'status-badge local';
+        statusBadge.querySelector('span').innerText = 'Local Preview Mode (Demo)';
+      }
+    }
+
+    function initializeState() {
+      // Setup initial colors for default state
+      // 4-Band: Brown (1), Black (0), Red (x100 = 1000) = 1.0k, Gold (5%)
+      // 5-Band: Brown (1), Black (0), Black (0), Red (x100) = 10k, Gold (5%)
+      // 6-Band: Brown (1), Black (0), Black (0), Red (x100) = 10k, Gold (5%), Brown (100ppm)
+      setBandCount(4, false);
+    }
+
+    function setBandCount(count, triggerRender = true) {
+      currentBandsCount = count;
+      
+      // Update toggle buttons in UI
+      const buttons = document.querySelectorAll('.band-mode-toggle .mode-btn');
+      buttons.forEach(btn => btn.classList.remove('active'));
+      
+      const activeBtnIndex = count === 4 ? 0 : (count === 5 ? 1 : 2);
+      buttons[activeBtnIndex].classList.add('active');
+
+      // Adjust default active band index if out of bounds
+      if (activeBandIndex > count) {
+        activeBandIndex = 1;
+      }
+
+      // Reset and validate default active colors for new band structure
+      if (count === 4) {
+        // Ensure valid 4 band colors
+        selectedColors[0] = validateColorForRole('digit', selectedColors[0]) ? selectedColors[0] : 'brown';
+        selectedColors[1] = validateColorForRole('digit', selectedColors[1]) ? selectedColors[1] : 'black';
+        selectedColors[2] = validateColorForRole('mult', selectedColors[2]) ? selectedColors[2] : 'red';
+        selectedColors[3] = validateColorForRole('tol', selectedColors[3]) ? selectedColors[3] : 'gold';
+      } else if (count === 5) {
+        // Ensure valid 5 band colors
+        selectedColors[0] = validateColorForRole('digit', selectedColors[0]) ? selectedColors[0] : 'brown';
+        selectedColors[1] = validateColorForRole('digit', selectedColors[1]) ? selectedColors[1] : 'black';
+        selectedColors[2] = validateColorForRole('digit', selectedColors[2]) ? selectedColors[2] : 'black';
+        selectedColors[3] = validateColorForRole('mult', selectedColors[3]) ? selectedColors[3] : 'red';
+        selectedColors[4] = validateColorForRole('tol', selectedColors[4]) ? selectedColors[4] : 'gold';
+      } else if (count === 6) {
+        // Ensure valid 6 band colors
+        selectedColors[0] = validateColorForRole('digit', selectedColors[0]) ? selectedColors[0] : 'brown';
+        selectedColors[1] = validateColorForRole('digit', selectedColors[1]) ? selectedColors[1] : 'black';
+        selectedColors[2] = validateColorForRole('digit', selectedColors[2]) ? selectedColors[2] : 'black';
+        selectedColors[3] = validateColorForRole('mult', selectedColors[3]) ? selectedColors[3] : 'red';
+        selectedColors[4] = validateColorForRole('tol', selectedColors[4]) ? selectedColors[4] : 'gold';
+        selectedColors[5] = validateColorForRole('temp', selectedColors[5]) ? selectedColors[5] : 'brown';
+      }
+
+      if (triggerRender) {
+        renderUI();
+      }
+    }
+
+    function setActiveBand(index) {
+      activeBandIndex = index;
+      renderTabs();
+      renderPalette();
+      highlightActiveStripe();
+    }
+
+    // Highlight the active stripe on the resistor model
+    function highlightActiveStripe() {
+      for (let i = 1; i <= 6; i++) {
+        const stripe = document.getElementById(`band-${i}`);
+        if (stripe) {
+          if (i === activeBandIndex) {
+            stripe.classList.add('active');
+          } else {
+            stripe.classList.remove('active');
+          }
+        }
+      }
+    }
+
+    // Main render function
+    function renderUI() {
+      renderResistorGraphic();
+      renderTabs();
+      renderPalette();
+      calculateResistance();
+    }
+
+    // Render the stripes and widths on the resistor graphic
+    function renderResistorGraphic() {
+      for (let i = 1; i <= 6; i++) {
+        const bandEl = document.getElementById(`band-${i}`);
+        if (!bandEl) continue;
+
+        if (i <= currentBandsCount) {
+          bandEl.classList.remove('hidden');
+          const colorCode = selectedColors[i - 1];
+          const colorData = BANDS_DATA.colors.find(c => c.code === colorCode);
+          
+          if (colorData) {
+            bandEl.style.backgroundColor = colorData.hex;
+          }
+        } else {
+          bandEl.classList.add('hidden');
+        }
+      }
+      highlightActiveStripe();
+    }
+
+    // Render the selector tabs
+    function renderTabs() {
+      const tabsContainer = document.getElementById('band-tabs-container');
+      tabsContainer.innerHTML = '';
+      
+      const roles = BAND_ROLES[currentBandsCount];
+      
+      for (let i = 1; i <= currentBandsCount; i++) {
+        const role = roles[i - 1];
+        const colorCode = selectedColors[i - 1];
+        const colorData = BANDS_DATA.colors.find(c => c.code === colorCode);
+        
+        let label = `แถบ ${i}`;
+        if (role === 'digit') label = `หลักที่ ${i}`;
+        else if (role === 'mult') label = `ตัวคูณ`;
+        else if (role === 'tol') label = `คลาดเคลื่อน`;
+        else if (role === 'temp') label = `สัมประสิทธิ์อุณหภูมิ`;
+
+        const tab = document.createElement('div');
+        tab.className = `band-tab ${i === activeBandIndex ? 'active' : ''}`;
+        tab.onclick = () => setActiveBand(i);
+        
+        const dot = document.createElement('span');
+        dot.className = 'band-tab-color-dot';
+        dot.style.backgroundColor = colorData ? colorData.hex : '#ccc';
+        
+        tab.appendChild(dot);
+        tab.appendChild(document.createTextNode(label));
+        tabsContainer.appendChild(tab);
+      }
+    }
+
+    // Render the palette of colors for the active band
+    function renderPalette() {
+      const paletteContainer = document.getElementById('color-palette');
+      paletteContainer.innerHTML = '';
+      
+      const role = BAND_ROLES[currentBandsCount][activeBandIndex - 1];
+      const currentColor = selectedColors[activeBandIndex - 1];
+
+      BANDS_DATA.colors.forEach(color => {
+        const isValid = validateColorForRole(role, color.code);
+        
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = `swatch-btn ${color.code === currentColor ? 'selected' : ''}`;
+        button.disabled = !isValid;
+        
+        if (isValid) {
+          button.onclick = () => selectColor(color.code);
+        }
+
+        const dot = document.createElement('div');
+        dot.className = 'color-dot';
+        dot.style.backgroundColor = color.hex;
+        
+        const nameSpan = document.createElement('span');
+        nameSpan.innerText = color.name.split(' ')[0]; // Use Thai name only for swatch space
+        
+        const valSpan = document.createElement('span');
+        valSpan.className = 'swatch-value';
+        
+        // Show what value this color represents in the active role
+        if (role === 'digit') {
+          valSpan.innerText = color.digit !== null ? color.digit : '-';
+        } else if (role === 'mult') {
+          valSpan.innerText = formatMultiplierShort(color.mult);
+        } else if (role === 'tol') {
+          valSpan.innerText = color.tol !== null ? `±${color.tol}%` : '-';
+        } else if (role === 'temp') {
+          valSpan.innerText = color.temp !== null ? `${color.temp} ppm` : '-';
+        }
+
+        button.appendChild(dot);
+        button.appendChild(nameSpan);
+        button.appendChild(valSpan);
+        paletteContainer.appendChild(button);
+      });
+    }
+
+    // Helper to validate if a color is suitable for a specific role
+    function validateColorForRole(role, colorCode) {
+      const color = BANDS_DATA.colors.find(c => c.code === colorCode);
+      if (!color) return false;
+
+      if (role === 'digit') {
+        return color.digit !== null;
+      }
+      if (role === 'mult') {
+        return color.mult !== null;
+      }
+      if (role === 'tol') {
+        return color.tol !== null;
+      }
+      if (role === 'temp') {
+        return color.temp !== null;
+      }
+      return false;
+    }
+
+    function selectColor(colorCode) {
+      selectedColors[activeBandIndex - 1] = colorCode;
+      renderUI();
+      
+      // Auto advance to next band for better UX (if not at last band)
+      if (activeBandIndex < currentBandsCount) {
+        setTimeout(() => {
+          setActiveBand(activeBandIndex + 1);
+        }, 150);
+      }
+    }
+
+    // Helper to format multipliers
+    function formatMultiplierShort(mult) {
+      if (mult === null) return '-';
+      if (mult >= 1000000000) return `x${mult/1e9}G`;
+      if (mult >= 1000000) return `x${mult/1e6}M`;
+      if (mult >= 1000) return `x${mult/1000}k`;
+      if (mult === 1) return 'x1';
+      return `x${mult}`;
+    }
+
+    // Core Calculation: Colors -> Value
+    function calculateResistance() {
+      const roles = BAND_ROLES[currentBandsCount];
+      let value = 0;
+      let tolerance = '';
+      let tempCoeff = '';
+
+      const colorData = selectedColors.map(code => BANDS_DATA.colors.find(c => c.code === code));
+
+      if (currentBandsCount === 4) {
+        const d1 = colorData[0].digit;
+        const d2 = colorData[1].digit;
+        const mult = colorData[2].mult;
+        value = (d1 * 10 + d2) * mult;
+        tolerance = `±${colorData[3].tol}%`;
+      } else if (currentBandsCount === 5) {
+        const d1 = colorData[0].digit;
+        const d2 = colorData[1].digit;
+        const d3 = colorData[2].digit;
+        const mult = colorData[3].mult;
+        value = (d1 * 100 + d2 * 10 + d3) * mult;
+        tolerance = `±${colorData[4].tol}%`;
+      } else if (currentBandsCount === 6) {
+        const d1 = colorData[0].digit;
+        const d2 = colorData[1].digit;
+        const d3 = colorData[2].digit;
+        const mult = colorData[3].mult;
+        value = (d1 * 100 + d2 * 10 + d3) * mult;
+        tolerance = `±${colorData[4].tol}%`;
+        tempCoeff = `${colorData[5].temp} ppm/K`;
+      }
+
+      // Display formatted resistance
+      document.getElementById('resistor-value').innerText = formatOhms(value);
+      document.getElementById('resistor-tolerance').innerText = `ความคลาดเคลื่อน: ${tolerance}`;
+      
+      const tempEl = document.getElementById('resistor-temp-coeff');
+      if (currentBandsCount === 6) {
+        tempEl.classList.remove('hidden');
+        tempEl.innerText = `สัมประสิทธิ์อุณหภูมิ: ${tempCoeff}`;
+      } else {
+        tempEl.classList.add('hidden');
+      }
+    }
+
+    // Format ohms value to human readable format (e.g. 1.5 kΩ, 2.2 MΩ)
+    function formatOhms(val) {
+      if (val >= 1000000000) {
+        return `${parseFloat((val / 1e9).toFixed(2))} GΩ`;
+      }
+      if (val >= 1000000) {
+        return `${parseFloat((val / 1e6).toFixed(2))} MΩ`;
+      }
+      if (val >= 1000) {
+        return `${parseFloat((val / 1000).toFixed(2))} kΩ`;
+      }
+      return `${parseFloat(val.toFixed(2))} Ω`;
+    }
+
+    // Core Calculation: Value -> Colors
+    function convertValueToColors() {
+      const inputVal = document.getElementById('resistance-input').value.trim();
+      if (!inputVal) {
+        showToast('กรุณากรอกค่าความต้านทาน', 'warning');
+        return;
+      }
+
+      try {
+        const parsed = parseResistanceInput(inputVal);
+        if (parsed === null) {
+          showToast('ฟอร์แมตไม่ถูกต้อง! ตัวอย่าง: 220, 4.7k, 1M5, 0.22', 'danger');
+          return;
+        }
+
+        const value = parsed;
+        
+        // Limits Check
+        if (value < 0.01) {
+          showToast('ค่าความต้านทานต้องไม่น้อยกว่า 0.01 Ω', 'warning');
+          return;
+        }
+        if (value > 999000000000) {
+          showToast('ค่าความต้านทานสูงเกินไป (สูงสุด 999 GΩ)', 'warning');
+          return;
+        }
+
+        // Determine number of significant digits needed
+        const sigDigitsCount = currentBandsCount === 4 ? 2 : 3;
+        
+        // Calculate scientific notation properties
+        const exponent = Math.floor(Math.log10(value));
+        const divider = Math.pow(10, exponent - (sigDigitsCount - 1));
+        let baseValue = Math.round(value / divider);
+
+        // Adjust if rounding leads to an increase in digits (e.g. 99.6 -> 100)
+        let finalExponent = exponent - (sigDigitsCount - 1);
+        const limitUpper = Math.pow(10, sigDigitsCount); // 100 for 2 digits, 1000 for 3 digits
+        
+        if (baseValue >= limitUpper) {
+          baseValue = baseValue / 10;
+          finalExponent += 1;
+        }
+
+        // Deconstruct baseValue into digits
+        const digits = [];
+        const strVal = baseValue.toString();
+        for (let i = 0; i < sigDigitsCount; i++) {
+          digits.push(parseInt(strVal[i]));
+        }
+
+        // Determine multiplier
+        const targetMultiplier = Math.pow(10, finalExponent);
+        
+        // Look up colors
+        const colorCodes = [];
+        
+        // 1. Digits
+        for (let i = 0; i < sigDigitsCount; i++) {
+          const colorMatch = BANDS_DATA.colors.find(c => c.digit === digits[i]);
+          if (!colorMatch) throw new Error('Cannot find digit color mapping');
+          colorCodes.push(colorMatch.code);
+        }
+
+        // 2. Multiplier Color Match (Allowing float tolerance matches)
+        const multMatch = BANDS_DATA.colors.find(c => {
+          if (c.mult === null) return false;
+          // Float equality check
+          return Math.abs(c.mult - targetMultiplier) < 0.0001 * targetMultiplier;
+        });
+
+        if (!multMatch) {
+          showToast('ไม่สามารถคำนวณตัวคูณสำหรับค่านี้ในรูปแบบแถบสีได้', 'danger');
+          return;
+        }
+        colorCodes.push(multMatch.code);
+
+        // 3. Keep current tolerance and temp coeff (or fallbacks)
+        if (currentBandsCount === 4) {
+          colorCodes.push(selectedColors[3]); // Keep existing tolerance
+        } else if (currentBandsCount === 5) {
+          colorCodes.push(selectedColors[4]); // Keep existing tolerance
+        } else {
+          colorCodes.push(selectedColors[4]); // Keep existing tolerance
+          colorCodes.push(selectedColors[5]); // Keep existing temp
+        }
+
+        // Write back to state
+        for (let i = 0; i < colorCodes.length; i++) {
+          selectedColors[i] = colorCodes[i];
+        }
+
+        // Reset active selection tab to first band
+        activeBandIndex = 1;
+        
+        // Redraw UI
+        renderUI();
+        showToast('แปลงค่าเป็นรหัสสีเรียบร้อยแล้ว!', 'success');
+
+      } catch (e) {
+        showToast('เกิดข้อผิดพลาดในการคำนวณ: ' + e.message, 'danger');
+        console.error(e);
+      }
+    }
+
+    // Helper parser for inputs (e.g. 4.7k, 4k7, 220, 1M, 0.22, 10R5)
+    function parseResistanceInput(input) {
+      input = input.replace(/\s+/g, '').replace(/ohm|ohms|โอห์ม/gi, '').toLowerCase();
+      
+      // Infix notation support (e.g. 4k7 -> 4.7k, 1M5 -> 1.5M, 2R2 -> 2.2)
+      input = input.replace(/([0-9]+)([krmg])([0-9]+)/, '$1.$3$2');
+      
+      // Detect last letter multiplier
+      let multiplier = 1;
+      let numericStr = input;
+      
+      if (input.endsWith('k')) {
+        multiplier = 1000;
+        numericStr = input.slice(0, -1);
+      } else if (input.endsWith('m')) {
+        multiplier = 1000000;
+        numericStr = input.slice(0, -1);
+      } else if (input.endsWith('g')) {
+        multiplier = 1000000000;
+        numericStr = input.slice(0, -1);
+      } else if (input.endsWith('r')) {
+        multiplier = 1;
+        numericStr = input.slice(0, -1);
+      }
+
+      const val = parseFloat(numericStr);
+      if (isNaN(val)) return null;
+      
+      return val * multiplier;
+    }
+
+    // Communication: Save current resistor data to Google Sheet / Local Storage
+    function saveToSheet() {
+      const saveBtn = document.getElementById('save-btn');
+      const originalHtml = saveBtn.innerHTML;
+      
+      // Form values
+      const valText = document.getElementById('resistor-value').innerText;
+      const tolText = document.getElementById('resistor-tolerance').innerText.replace('ความคลาดเคลื่อน: ', '');
+      const note = document.getElementById('resistor-note').value.trim();
+      
+      const roles = BAND_ROLES[currentBandsCount];
+      const bandsText = `${currentBandsCount} แถบ`;
+      
+      // Join colors with dashes (in English for standardized sheet entries)
+      const colorsText = selectedColors.slice(0, currentBandsCount)
+          .map(code => BANDS_DATA.colors.find(c => c.code === code).name.split(' ')[0])
+          .join('-');
+
+      let tempCoeffVal = '-';
+      if (currentBandsCount === 6) {
+        tempCoeffVal = document.getElementById('resistor-temp-coeff').innerText.replace('สัมประสิทธิ์อุณหภูมิ: ', '');
+      }
+
+      const dataObj = {
+        value: valText,
+        bandsCount: currentBandsCount,
+        colors: colorsText,
+        tolerance: tolText,
+        tempCoeff: tempCoeffVal,
+        note: note
+      };
+
+      // Set loading state
+      saveBtn.disabled = true;
+      saveBtn.innerHTML = '<i class="fa-solid fa-spinner loading-spinner"></i> กำลังบันทึก...';
+
+      if (isGoogleAppsScript) {
+        // Call Google Apps Script backend
+        google.script.run
+          .withSuccessHandler((response) => {
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = originalHtml;
+            
+            if (response.success) {
+              showToast(response.message, 'success');
+              document.getElementById('resistor-note').value = ''; // Reset note
+              loadHistory();
+            } else {
+              showToast(response.message, 'danger');
+            }
+          })
+          .withFailureHandler((err) => {
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = originalHtml;
+            showToast('เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์!', 'danger');
+            console.error(err);
+          })
+          .saveResistorToSheet(dataObj);
+      } else {
+        // Local preview simulation
+        setTimeout(() => {
+          saveBtn.disabled = false;
+          saveBtn.innerHTML = originalHtml;
+
+          try {
+            // Save to localStorage
+            const localHistory = JSON.parse(localStorage.getItem('resistor_history') || '[]');
+            const now = new Date();
+            const formattedDate = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth()+1).padStart(2, '0')}/${now.getFullYear()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+            
+            dataObj.timestamp = formattedDate;
+            localHistory.unshift(dataObj); // Add to beginning
+            
+            // Limit to 20 local records
+            if (localHistory.length > 20) {
+              localHistory.pop();
+            }
+            
+            localStorage.setItem('resistor_history', JSON.stringify(localHistory));
+            
+            showToast('จำลองการบันทึกสำเร็จ (บันทึกในเครื่อง)!', 'success');
+            document.getElementById('resistor-note').value = ''; // Reset note
+            loadHistory();
+          } catch (e) {
+            showToast('บันทึกจำลองล้มเหลว', 'danger');
+            console.error(e);
+          }
+        }, 800);
+      }
+    }
+
+    // Communication: Load history logs
+    function loadHistory() {
+      const tbody = document.getElementById('history-table-body');
+      const refreshIcon = document.getElementById('refresh-icon');
+      
+      // Start spin animation on icon
+      if (refreshIcon) refreshIcon.classList.add('loading-spinner');
+      
+      if (isGoogleAppsScript) {
+        google.script.run
+          .withSuccessHandler((historyList) => {
+            if (refreshIcon) refreshIcon.classList.remove('loading-spinner');
+            populateHistoryTable(historyList);
+          })
+          .withFailureHandler((err) => {
+            if (refreshIcon) refreshIcon.classList.remove('loading-spinner');
+            showToast('โหลดประวัติล้มเหลว', 'danger');
+            console.error(err);
+          })
+          .getResistorHistory();
+      } else {
+        // Simulate reading from local storage
+        setTimeout(() => {
+          if (refreshIcon) refreshIcon.classList.remove('loading-spinner');
+          const historyList = JSON.parse(localStorage.getItem('resistor_history') || '[]');
+          populateHistoryTable(historyList);
+        }, 500);
+      }
+    }
+
+    // Populate history DOM table
+    function populateHistoryTable(historyList) {
+      const tbody = document.getElementById('history-table-body');
+      tbody.innerHTML = '';
+
+      if (!historyList || historyList.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="7">
+              <div class="empty-state">
+                <i class="fa-solid fa-folder-open"></i>
+                <div>ไม่มีข้อมูลประวัติในขณะนี้</div>
+                <div style="font-size: 0.75rem;">ข้อมูลที่คำนวณและกดบันทึกจะแสดงผลที่นี่</div>
+              </div>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      historyList.forEach(item => {
+        const tr = document.createElement('tr');
+        
+        // Format band colors display with color dots in table
+        const colorsList = item.colors.split('-');
+        let colorsHtml = '<div class="history-color-pill">';
+        
+        colorsList.forEach(cName => {
+          // Find matching hex color
+          const cData = BANDS_DATA.colors.find(col => col.name.startsWith(cName));
+          const hex = cData ? cData.hex : '#ffffff';
+          colorsHtml += `<span class="history-color-dot" style="background-color: ${hex};" title="${cName}"></span>`;
+        });
+        colorsHtml += '</div>';
+
+        tr.innerHTML = `
+          <td class="timestamp-col">${item.timestamp}</td>
+          <td class="resistor-val-col">${item.value}</td>
+          <td style="text-align: center;"><span class="detail-badge">${item.bandsCount} แถบ</span></td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              ${colorsHtml}
+              <span style="font-size: 0.8rem; color: var(--text-muted);">${item.colors}</span>
+            </div>
+          </td>
+          <td><span style="font-family: var(--mono-font);">${item.tolerance}</span></td>
+          <td><span style="font-family: var(--mono-font); font-size: 0.85rem;">${item.tempCoeff || '-'}</span></td>
+          <td style="font-size: 0.85rem; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${item.note || ''}">${item.note || '-'}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // UI Toast Notification helper
+    let toastTimeout = null;
+    function showToast(msg, type = 'info') {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toast-msg');
+      const toastIcon = document.getElementById('toast-icon');
+
+      // Clear existing timer
+      if (toastTimeout) {
+        clearTimeout(toastTimeout);
+        toast.classList.remove('show');
+      }
+
+      toastMsg.innerText = msg;
+      
+      // Set color type
+      toast.className = `toast ${type}`;
+      
+      // Set matching icon
+      if (type === 'success') {
+        toastIcon.className = 'fa-solid fa-circle-check' + ' text-success';
+        toastIcon.style.color = 'var(--success)';
+      } else if (type === 'warning') {
+        toastIcon.className = 'fa-solid fa-circle-exclamation';
+        toastIcon.style.color = 'var(--warning)';
+      } else if (type === 'danger') {
+        toastIcon.className = 'fa-solid fa-circle-xmark';
+        toastIcon.style.color = 'var(--danger)';
+      } else {
+        toastIcon.className = 'fa-solid fa-circle-info';
+        toastIcon.style.color = 'var(--accent)';
+      }
+
+      // Trigger animation
+      setTimeout(() => {
+        toast.classList.add('show');
+      }, 50);
+
+      // Hide after 3 seconds
+      toastTimeout = setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3500);
+    }
+  </script>
+
+  <!-- ===== LEARNING SECTION JAVASCRIPT ===== -->
+  <script>
+    // ─────────────────────────────────────────────────
+    // COLOR PALETTE for resistor bodies in SVG
+    // ─────────────────────────────────────────────────
+    const R_COLORS = [
+      '#6366f1', '#f59e0b', '#10b981', '#ef4444', '#06b6d4',
+    ];
+
+    // ─────────────────────────────────────────────────
+    // STATE
+    // ─────────────────────────────────────────────────
+    const circuitState = {
+      series:   { count: 3, values: [220, 470, 1000], result: null },
+      parallel: { count: 3, values: [220, 470, 1000], result: null },
+      mixed:    {
+        seriesValues:   [220, 1000],
+        parallelValues: [470, 1000],
+        result: null
+      }
+    };
+
+    const MAX_R = 5;
+    const MIN_R = 2;
+
+    // ─────────────────────────────────────────────────
+    // INIT on DOMContentLoaded
+    // ─────────────────────────────────────────────────
+    window.addEventListener('DOMContentLoaded', () => {
+      initCircuitPanel('series');
+      initCircuitPanel('parallel');
+      initMixedPanel();
+      drawSeriesSVG();
+      drawParallelSVG();
+      drawMixedSVG();
+    });
+
+    // ─────────────────────────────────────────────────
+    // TAB SWITCHING
+    // ─────────────────────────────────────────────────
+    function switchCircuitTab(type) {
+      ['series', 'parallel', 'mixed'].forEach(t => {
+        document.getElementById(`tab-${t}`).classList.toggle('active', t === type);
+        document.getElementById(`panel-${t}`).classList.toggle('active', t === type);
+      });
+    }
+
+    // ─────────────────────────────────────────────────
+    // BUILD INPUT FIELDS
+    // ─────────────────────────────────────────────────
+    function initCircuitPanel(type) {
+      const container = document.getElementById(`${type}-inputs`);
+      const state = circuitState[type];
+      container.innerHTML = '';
+      for (let i = 0; i < state.count; i++) {
+        container.appendChild(buildRInputGroup(type, i, state.values[i] || 0));
+      }
+      updateCountDisplay(type);
+    }
+
+    function initMixedPanel() {
+      const sContainer = document.getElementById('mixed-series-inputs');
+      const pContainer = document.getElementById('mixed-parallel-inputs');
+      sContainer.innerHTML = '';
+      pContainer.innerHTML = '';
+
+      // Series (outside): R₁ (index 0) and R₄ (index 3 → color/label)
+      const seriesLabels = ['R₁', 'R₄'];
+      const seriesColorIdx = [0, 3]; // purple, red — matching SVG colors
+      circuitState.mixed.seriesValues.forEach((v, i) => {
+        sContainer.appendChild(buildRInputGroup('mixed-series', i, v, seriesLabels[i], seriesColorIdx[i]));
+      });
+
+      // Parallel (inside): R₂ (index 1) and R₃ (index 2)
+      const parallelLabels = ['R₂', 'R₃'];
+      const parallelColorIdx = [1, 2]; // orange, green — matching SVG colors
+      circuitState.mixed.parallelValues.forEach((v, i) => {
+        pContainer.appendChild(buildRInputGroup('mixed-parallel', i, v, parallelLabels[i], parallelColorIdx[i]));
+      });
+    }
+
+    function buildRInputGroup(type, index, defaultVal, customLabel, colorIndex) {
+      const rIndex = index + 1;
+      const colorIdx = (colorIndex !== undefined) ? colorIndex : index;
+      const color = R_COLORS[colorIdx % R_COLORS.length];
+      const label_text = customLabel || `R${rIndex}`;
+
+      const group = document.createElement('div');
+      group.className = 'r-input-group';
+
+      const label = document.createElement('label');
+      label.className = 'r-input-label';
+      label.innerHTML = `
+        <span class="r-dot" style="background:${color};"></span>
+        ${label_text} (Ω / k / M)
+      `;
+
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.className = 'r-input-field';
+      input.id = `r-input-${type}-${index}`;
+      input.placeholder = `เช่น 220, 4.7k`;
+      input.value = defaultVal ? formatInputValue(defaultVal) : '';
+      input.setAttribute('autocomplete', 'off');
+      input.addEventListener('input', () => input.classList.remove('input-error'));
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          if (type === 'series') calculateSeries();
+          else if (type === 'parallel') calculateParallel();
+          else if (type.startsWith('mixed')) calculateMixed();
+        }
+      });
+
+      group.appendChild(label);
+      group.appendChild(input);
+      return group;
+    }
+
+    function formatInputValue(val) {
+      if (val >= 1000000) return (val / 1000000) + 'M';
+      if (val >= 1000)    return (val / 1000) + 'k';
+      return String(val);
+    }
+
+    // ─────────────────────────────────────────────────
+    // COUNT CONTROLS
+    // ─────────────────────────────────────────────────
+    function changeResistorCount(type, delta) {
+      const state = circuitState[type];
+      const newCount = state.count + delta;
+      if (newCount < MIN_R || newCount > MAX_R) return;
+
+      state.count = newCount;
+
+      // Preserve existing input values from DOM
+      for (let i = 0; i < MAX_R; i++) {
+        const el = document.getElementById(`r-input-${type}-${i}`);
+        if (el) state.values[i] = parseLearningInput(el.value) || state.values[i] || 0;
+      }
+
+      initCircuitPanel(type);
+      updateCountDisplay(type);
+
+      if (type === 'series') drawSeriesSVG();
+      else if (type === 'parallel') drawParallelSVG();
+    }
+
+    function updateCountDisplay(type) {
+      const state = circuitState[type];
+      document.getElementById(`${type}-count-display`).textContent = state.count;
+      document.getElementById(`${type}-dec`).disabled = state.count <= MIN_R;
+      document.getElementById(`${type}-inc`).disabled = state.count >= MAX_R;
+    }
+
+    // ─────────────────────────────────────────────────
+    // PARSE INPUT  (supports: 220, 4.7k, 1M, 10R5, 4k7)
+    // ─────────────────────────────────────────────────
+    function parseLearningInput(str) {
+      if (!str || !str.trim()) return null;
+      str = str.trim().toLowerCase().replace(/\s+/g, '');
+      // infix: 4k7 → 4.7k
+      str = str.replace(/([0-9]+)([krmg])([0-9]+)/, '$1.$3$2');
+      let mult = 1;
+      if (str.endsWith('k')) { mult = 1e3; str = str.slice(0, -1); }
+      else if (str.endsWith('m')) { mult = 1e6; str = str.slice(0, -1); }
+      else if (str.endsWith('g')) { mult = 1e9; str = str.slice(0, -1); }
+      else if (str.endsWith('r')) { mult = 1; str = str.slice(0, -1); }
+      const val = parseFloat(str);
+      if (isNaN(val) || val <= 0) return null;
+      return val * mult;
+    }
+
+    function collectInputValues(type, count) {
+      const vals = [];
+      let hasError = false;
+      for (let i = 0; i < count; i++) {
+        const el = document.getElementById(`r-input-${type}-${i}`);
+        const parsed = parseLearningInput(el ? el.value : '');
+        if (parsed === null) {
+          if (el) el.classList.add('input-error');
+          hasError = true;
+        } else {
+          if (el) el.classList.remove('input-error');
+          vals.push(parsed);
+        }
+      }
+      return hasError ? null : vals;
+    }
+
+    // ─────────────────────────────────────────────────
+    // FORMAT OHM (reuse from main app)
+    // ─────────────────────────────────────────────────
+    function fmtOhm(val) {
+      if (val >= 1e9)  return `${parseFloat((val/1e9).toFixed(3))} GΩ`;
+      if (val >= 1e6)  return `${parseFloat((val/1e6).toFixed(3))} MΩ`;
+      if (val >= 1e3)  return `${parseFloat((val/1e3).toFixed(3))} kΩ`;
+      return `${parseFloat(val.toFixed(3))} Ω`;
+    }
+
+    function animateResult(elId) {
+      const el = document.getElementById(elId);
+      if (!el) return;
+      el.classList.remove('result-animate');
+      void el.offsetWidth; // reflow
+      el.classList.add('result-animate');
+    }
+
+    // ─────────────────────────────────────────────────
+    // CALCULATE: SERIES
+    // ─────────────────────────────────────────────────
+    function calculateSeries() {
+      const state = circuitState.series;
+      const vals = collectInputValues('series', state.count);
+      if (!vals) { showToast('กรุณาตรวจสอบค่าที่กรอก (ค่าต้องเป็นบวก)', 'warning'); return; }
+
+      const total = vals.reduce((a, b) => a + b, 0);
+      state.result = total;
+      state.values = vals;
+
+      // Formula string
+      const parts = vals.map((v, i) => `R${i+1}(${fmtOhm(v)})`);
+      document.getElementById('series-formula-eq').innerHTML =
+        `R<sub>total</sub> = ${parts.join(' + ')} = <strong>${fmtOhm(total)}</strong>`;
+
+      document.getElementById('series-result-val').textContent = fmtOhm(total);
+      animateResult('series-result-val');
+      drawSeriesSVG(vals);
+      showToast('คำนวณวงจรอนุกรมสำเร็จ!', 'success');
+    }
+
+    // ─────────────────────────────────────────────────
+    // CALCULATE: PARALLEL
+    // ─────────────────────────────────────────────────
+    function calculateParallel() {
+      const state = circuitState.parallel;
+      const vals = collectInputValues('parallel', state.count);
+      if (!vals) { showToast('กรุณาตรวจสอบค่าที่กรอก (ค่าต้องเป็นบวก)', 'warning'); return; }
+
+      const invSum = vals.reduce((acc, v) => acc + 1/v, 0);
+      const total = 1 / invSum;
+      state.result = total;
+      state.values = vals;
+
+      const parts = vals.map((v, i) => `1/R${i+1}(${fmtOhm(v)})`);
+      const recips = vals.map((v, i) => `1/${fmtOhm(v)}`);
+      document.getElementById('parallel-formula-eq').innerHTML =
+        `1/R<sub>total</sub> = ${recips.join(' + ')}<br>
+         R<sub>total</sub> = <strong>${fmtOhm(total)}</strong>`;
+
+      document.getElementById('parallel-result-val').textContent = fmtOhm(total);
+      animateResult('parallel-result-val');
+      drawParallelSVG(vals);
+      showToast('คำนวณวงจรขนานสำเร็จ!', 'success');
+    }
+
+    // ─────────────────────────────────────────────────
+    // CALCULATE: MIXED  (R1 + (R2 ∥ R3) + R4)
+    // ─────────────────────────────────────────────────
+    function calculateMixed() {
+      const sVals = collectInputValues('mixed-series', 2);
+      const pVals = collectInputValues('mixed-parallel', 2);
+      if (!sVals || !pVals) { showToast('กรุณาตรวจสอบค่าที่กรอก (ค่าต้องเป็นบวก)', 'warning'); return; }
+
+      const [r1, r4] = sVals;
+      const [r2, r3] = pVals;
+
+      const rParallel = (r2 * r3) / (r2 + r3);
+      const total = r1 + rParallel + r4;
+
+      circuitState.mixed.result = total;
+      circuitState.mixed.seriesValues = sVals;
+      circuitState.mixed.parallelValues = pVals;
+
+      // Show step-by-step
+      const stepsEl = document.getElementById('mixed-steps');
+      const stepsContent = document.getElementById('mixed-steps-content');
+      stepsEl.style.display = 'block';
+      stepsContent.innerHTML =
+        `ขั้นที่ 1: คำนวณส่วนขนาน R₂ ∥ R₃<br>
+         &nbsp;&nbsp; R₂₃ = (R₂ × R₃) / (R₂ + R₃) = (${fmtOhm(r2)} × ${fmtOhm(r3)}) / (${fmtOhm(r2)} + ${fmtOhm(r3)}) = <strong>${fmtOhm(rParallel)}</strong><br><br>
+         ขั้นที่ 2: รวมกับส่วนอนุกรม<br>
+         &nbsp;&nbsp; R<sub>total</sub> = R₁ + R₂₃ + R₄ = ${fmtOhm(r1)} + ${fmtOhm(rParallel)} + ${fmtOhm(r4)} = <strong>${fmtOhm(total)}</strong>`;
+
+      document.getElementById('mixed-result-val').textContent = fmtOhm(total);
+      animateResult('mixed-result-val');
+      drawMixedSVG(r1, r2, r3, r4, rParallel, total);
+      showToast('คำนวณวงจรผสมสำเร็จ!', 'success');
+    }
+
+    // ─────────────────────────────────────────────────
+    // RESET PANELS
+    // ─────────────────────────────────────────────────
+    function resetPanel(type) {
+      if (type === 'series') {
+        circuitState.series = { count: 3, values: [220, 470, 1000], result: null };
+        initCircuitPanel('series');
+        document.getElementById('series-formula-eq').innerHTML = 'R<sub>total</sub> = R₁ + R₂ + R₃';
+        document.getElementById('series-result-val').textContent = '— Ω';
+        drawSeriesSVG();
+      } else if (type === 'parallel') {
+        circuitState.parallel = { count: 3, values: [220, 470, 1000], result: null };
+        initCircuitPanel('parallel');
+        document.getElementById('parallel-formula-eq').innerHTML = '1/R<sub>total</sub> = 1/R₁ + 1/R₂ + 1/R₃';
+        document.getElementById('parallel-result-val').textContent = '— Ω';
+        drawParallelSVG();
+      } else if (type === 'mixed') {
+        circuitState.mixed = { seriesValues: [220, 1000], parallelValues: [470, 1000], result: null };
+        initMixedPanel();
+        document.getElementById('mixed-result-val').textContent = '— Ω';
+        document.getElementById('mixed-steps').style.display = 'none';
+        drawMixedSVG();
+      }
+    }
+
+    // ─────────────────────────────────────────────────
+    // SEND TO CALCULATOR (main resistor graphic)
+    // ─────────────────────────────────────────────────
+    function sendResultToCalculator(type) {
+      let result = null;
+      if (type === 'series')   result = circuitState.series.result;
+      if (type === 'parallel') result = circuitState.parallel.result;
+      if (type === 'mixed')    result = circuitState.mixed.result;
+
+      if (result === null) {
+        showToast('กรุณาคำนวณก่อน แล้วค่อยส่ง', 'warning');
+        return;
+      }
+
+      // Fill input box & trigger conversion
+      const inputEl = document.getElementById('resistance-input');
+      inputEl.value = formatInputValue(result);
+      convertValueToColors();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      showToast(`ส่งค่า ${fmtOhm(result)} ไปยังเครื่องอ่านรหัสสีแล้ว!`, 'success');
+    }
+
+    // ─────────────────────────────────────────────────
+    // SVG HELPERS
+    // ─────────────────────────────────────────────────
+    const SVG_NS = 'http://www.w3.org/2000/svg';
+
+    function svgEl(tag, attrs) {
+      const el = document.createElementNS(SVG_NS, tag);
+      Object.entries(attrs).forEach(([k, v]) => el.setAttribute(k, v));
+      return el;
+    }
+
+    function drawWire(parent, x1, y1, x2, y2) {
+      parent.appendChild(svgEl('line', {
+        x1, y1, x2, y2,
+        stroke: '#94a3b8', 'stroke-width': 2, 'stroke-linecap': 'round'
+      }));
+    }
+
+    /**
+     * Draw a resistor symbol (IEC zigzag rectangle) at center (cx, cy)
+     * oriented horizontally, width=W, height=H
+     */
+    function drawResistor(parent, cx, cy, W, H, color, label, valueStr) {
+      const x = cx - W/2;
+      const y = cy - H/2;
+
+      // Body rectangle
+      parent.appendChild(svgEl('rect', {
+        x, y, width: W, height: H,
+        rx: 4, ry: 4,
+        fill: color,
+        'fill-opacity': '0.85',
+        stroke: '#ffffff',
+        'stroke-opacity': '0.25',
+        'stroke-width': 1.5
+      }));
+
+      // Zigzag inside (simplified — 5 peaks)
+      const zigY = cy;
+      const segW = W / 7;
+      const amp = H * 0.28;
+      let d = `M ${x + segW*0.5} ${zigY}`;
+      for (let i = 0; i < 5; i++) {
+        const xm = x + segW + i * segW * 1.2;
+        const ym = (i % 2 === 0) ? zigY - amp : zigY + amp;
+        d += ` L ${xm} ${ym}`;
+      }
+      d += ` L ${x + W - segW*0.5} ${zigY}`;
+      parent.appendChild(svgEl('path', {
+        d, fill: 'none',
+        stroke: 'rgba(255,255,255,0.55)',
+        'stroke-width': 1.5,
+        'stroke-linecap': 'round',
+        'stroke-linejoin': 'round'
+      }));
+
+      // Label (R1, R2, …)
+      const lblEl = svgEl('text', {
+        x: cx, y: y - 7,
+        'text-anchor': 'middle',
+        fill: '#e2e8f0',
+        'font-size': '11',
+        'font-weight': '600',
+        'font-family': 'Sarabun, Outfit, sans-serif'
+      });
+      lblEl.textContent = label;
+      parent.appendChild(lblEl);
+
+      // Value below
+      if (valueStr) {
+        const valEl = svgEl('text', {
+          x: cx, y: y + H + 14,
+          'text-anchor': 'middle',
+          fill: '#64748b',
+          'font-size': '10',
+          'font-family': 'JetBrains Mono, monospace'
+        });
+        valEl.textContent = valueStr;
+        parent.appendChild(valEl);
+      }
+    }
+
+    // Draw + and - terminal labels
+    function drawTerminals(parent, x1, y, x2) {
+      const plus = svgEl('text', { x: x1 + 8, y: y - 6, fill: '#34d399', 'font-size': '13', 'font-weight': '700' });
+      plus.textContent = '+';
+      parent.appendChild(plus);
+      const minus = svgEl('text', { x: x2 - 14, y: y - 6, fill: '#f87171', 'font-size': '13', 'font-weight': '700' });
+      minus.textContent = '–';
+      parent.appendChild(minus);
+    }
+
+    // ─────────────────────────────────────────────────
+    // DRAW SERIES SVG
+    // ─────────────────────────────────────────────────
+    function drawSeriesSVG(vals) {
+      const state = circuitState.series;
+      const n = state.count;
+      if (!vals) vals = state.values.slice(0, n).map(v => v || 0);
+
+      const RW = 72, RH = 32;
+      const wireLen = 24;
+      const gap = RW + wireLen;
+      const totalWidth = gap * n + wireLen + 40;
+      const svgW = Math.max(totalWidth, 200);
+      const svgH = 120;
+      const cy = svgH / 2;
+
+      const svg = document.getElementById('svg-series');
+      svg.innerHTML = '';
+      svg.setAttribute('viewBox', `0 0 ${svgW} ${svgH}`);
+      svg.setAttribute('width', svgW);
+      svg.setAttribute('height', svgH);
+
+      // Battery / source symbol on left
+      const startX = 20;
+      const endX = svgW - 20;
+
+      // Top wire (full)
+      drawWire(svg, startX, cy, endX, cy);
+
+      // Bottom return wire
+      drawWire(svg, startX, cy + 45, endX, cy + 45);
+      drawWire(svg, startX, cy, startX, cy + 45);
+      drawWire(svg, endX, cy, endX, cy + 45);
+
+      // Terminals
+      drawTerminals(svg, startX, cy + 45, endX);
+
+      // Draw each resistor
+      for (let i = 0; i < n; i++) {
+        const cx = startX + wireLen + RW/2 + i * gap;
+        const color = R_COLORS[i % R_COLORS.length];
+        const vStr = vals[i] > 0 ? fmtOhm(vals[i]) : '';
+        drawResistor(svg, cx, cy, RW, RH, color, `R${i+1}`, vStr);
+      }
+    }
+
+    // ─────────────────────────────────────────────────
+    // DRAW PARALLEL SVG
+    // ─────────────────────────────────────────────────
+    function drawParallelSVG(vals) {
+      const state = circuitState.parallel;
+      const n = state.count;
+      if (!vals) vals = state.values.slice(0, n).map(v => v || 0);
+
+      const RW = 68, RH = 28;
+      const rowGap = 50;
+      const svgW = 360;
+      const svgH = 50 + n * rowGap + 30;
+      const midY = svgH / 2;
+
+      const leftX = 28;
+      const rightX = svgW - 28;
+      const railLeft = leftX + 22;
+      const railRight = rightX - 22;
+
+      const svg = document.getElementById('svg-parallel');
+      svg.innerHTML = '';
+      svg.setAttribute('viewBox', `0 0 ${svgW} ${svgH}`);
+      svg.setAttribute('width', svgW);
+      svg.setAttribute('height', svgH);
+
+      const topY  = 30;
+      const botY  = svgH - 30;
+      const yCenters = [];
+      for (let i = 0; i < n; i++) {
+        yCenters.push(topY + i * rowGap + (rowGap / 2));
+      }
+
+      // Left and right vertical rails
+      drawWire(svg, railLeft, topY, railLeft, botY);
+      drawWire(svg, railRight, topY, railRight, botY);
+
+      // Left terminal wire
+      drawWire(svg, leftX, midY, railLeft, midY);
+      // Right terminal wire
+      drawWire(svg, railRight, midY, rightX, midY);
+
+      // Terminals
+      const plusEl = svgEl('text', { x: leftX + 2, y: midY + 5, fill: '#34d399', 'font-size': '13', 'font-weight': '700' });
+      plusEl.textContent = '+';
+      svg.appendChild(plusEl);
+      const minEl = svgEl('text', { x: rightX - 12, y: midY + 5, fill: '#f87171', 'font-size': '13', 'font-weight': '700' });
+      minEl.textContent = '–';
+      svg.appendChild(minEl);
+
+      // Draw each resistor row
+      for (let i = 0; i < n; i++) {
+        const cy = yCenters[i];
+        const color = R_COLORS[i % R_COLORS.length];
+        const vStr = vals[i] > 0 ? fmtOhm(vals[i]) : '';
+
+        // Horizontal wires to rail
+        drawWire(svg, railLeft, cy, railLeft + 20, cy);
+        drawWire(svg, railRight - 20, cy, railRight, cy);
+
+        const cx = (railLeft + railRight) / 2;
+        drawResistor(svg, cx, cy, RW, RH, color, `R${i+1}`, vStr);
+      }
+    }
+
+    // ─────────────────────────────────────────────────
+    // DRAW MIXED SVG  — R1 — [R2 ∥ R3] — R4 —
+    // ─────────────────────────────────────────────────
+    function drawMixedSVG(r1Val, r2Val, r3Val, r4Val, rpVal, totalVal) {
+      const svgW = 540;
+      const svgH = 170;
+      const cy = 70; // main rail Y
+
+      const svg = document.getElementById('svg-mixed');
+      svg.innerHTML = '';
+      svg.setAttribute('viewBox', `0 0 ${svgW} ${svgH}`);
+      svg.setAttribute('width', svgW);
+      svg.setAttribute('height', svgH);
+
+      const RW = 64, RH = 28;
+      const startX = 18, endX = svgW - 18;
+
+      // Bottom return wire
+      const botY = cy + 70;
+      drawWire(svg, startX, botY, endX, botY);
+      drawWire(svg, startX, cy, startX, botY);
+      drawWire(svg, endX, cy, endX, botY);
+
+      // Terminals
+      const plusEl = svgEl('text', { x: startX + 2, y: botY + 14, fill: '#34d399', 'font-size': '13', 'font-weight': '700' });
+      plusEl.textContent = '+';
+      svg.appendChild(plusEl);
+      const minEl = svgEl('text', { x: endX - 12, y: botY + 14, fill: '#f87171', 'font-size': '13', 'font-weight': '700' });
+      minEl.textContent = '–';
+      svg.appendChild(minEl);
+
+      // Layout: startX → wire → R1 → wire → juncA → (R2 top / R3 bot) → juncB → wire → R4 → wire → endX
+      const wireLen = 20;
+      const r1cx = startX + wireLen + RW/2;           // R1 center
+      const juncA = r1cx + RW/2 + wireLen;            // junction A (split into R2/R3)
+      const juncB = juncA + 100;                       // junction B
+      const r4cx = juncB + wireLen + RW/2;            // R4 center
+
+      // Main top wire segments
+      drawWire(svg, startX, cy, r1cx - RW/2, cy);     // before R1
+      drawWire(svg, r1cx + RW/2, cy, juncA, cy);      // after R1 to split
+      drawWire(svg, juncB, cy, r4cx - RW/2, cy);      // after split to R4
+      drawWire(svg, r4cx + RW/2, cy, endX, cy);       // after R4
+
+      // R1
+      const v1str = r1Val != null ? fmtOhm(r1Val) : '';
+      drawResistor(svg, r1cx, cy, RW, RH, R_COLORS[0], 'R₁', v1str);
+
+      // R4
+      const v4str = r4Val != null ? fmtOhm(r4Val) : '';
+      drawResistor(svg, r4cx, cy, RW, RH, R_COLORS[3], 'R₄', v4str);
+
+      // Parallel section: R2 (top branch) and R3 (bottom branch)
+      const r2cy = cy - 28;
+      const r3cy = cy + 28;
+      const rpCx = (juncA + juncB) / 2;
+
+      // Vertical junction wires
+      drawWire(svg, juncA, r2cy, juncA, r3cy);
+      drawWire(svg, juncB, r2cy, juncB, r3cy);
+
+      // Horizontal branch wires
+      drawWire(svg, juncA, r2cy, rpCx - RW/2, r2cy);
+      drawWire(svg, rpCx + RW/2, r2cy, juncB, r2cy);
+      drawWire(svg, juncA, r3cy, rpCx - RW/2, r3cy);
+      drawWire(svg, rpCx + RW/2, r3cy, juncB, r3cy);
+
+      const v2str = r2Val != null ? fmtOhm(r2Val) : '';
+      const v3str = r3Val != null ? fmtOhm(r3Val) : '';
+      drawResistor(svg, rpCx, r2cy, RW, RH - 4, R_COLORS[1], 'R₂', v2str);
+      drawResistor(svg, rpCx, r3cy, RW, RH - 4, R_COLORS[2], 'R₃', v3str);
+
+      // Optional: show R_parallel result label
+      if (rpVal != null) {
+        const rpLabel = svgEl('text', {
+          x: rpCx,
+          y: r3cy + RH/2 + 18,
+          'text-anchor': 'middle',
+          fill: '#94a3b8',
+          'font-size': '9.5',
+          'font-family': 'JetBrains Mono, monospace'
+        });
+        rpLabel.textContent = `R₂∥R₃ = ${fmtOhm(rpVal)}`;
+        svg.appendChild(rpLabel);
+      }
+    }
+
+    // ─────────────────────────────────────────────────
+    // INIT DRAW on tab switch (lazy redraw)
+    // ─────────────────────────────────────────────────
+    const _origSwitch = window.switchCircuitTab;
+    window.switchCircuitTab = function(type) {
+      _origSwitch(type);
+      if (type === 'series')   drawSeriesSVG();
+      if (type === 'parallel') drawParallelSVG();
+      if (type === 'mixed')    drawMixedSVG();
+    };
+  </script>
+</body>
+</html>
+

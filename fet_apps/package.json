@@ -1,0 +1,22 @@
+﻿{
+  "name": "fet-mosfet-learning-app",
+  "version": "1.0.0",
+  "description": "FET & MOSFET Types, Structures, Characteristics, and Biasing Interactive Simulator with Google Sheets Integration",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [
+    "fet",
+    "jfet",
+    "mosfet",
+    "d-mosfet",
+    "e-mosfet",
+    "transistor",
+    "electronics",
+    "simulator",
+    "education"
+  ],
+  "author": "Antigravity",
+  "license": "MIT"
+}

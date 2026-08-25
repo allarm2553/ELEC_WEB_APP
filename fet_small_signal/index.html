@@ -1,0 +1,2054 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FET Small-Signal Analysis Lab | การวิเคราะห์สัญญาณขนาดเล็กของ FET</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    :root {
+      --bg-primary:   #090d16;
+      --bg-secondary: #131d2e;
+      --bg-tertiary:  #1e293b;
+      --glass:        rgba(19, 29, 46, 0.88);
+      --glass-border: rgba(148, 163, 184, 0.16);
+      --accent-primary:   #06b6d4;
+      --accent-secondary: #10b981;
+      --accent-purple:    #a855f7;
+      --accent-amber:     #f59e0b;
+      --accent-rose:      #f43f5e;
+      --text-primary:  #f8fafc;
+      --text-secondary:#94a3b8;
+      --text-muted:    #64748b;
+      --font-thai: 'Sarabun', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      --radius-sm: 6px; --radius-md: 12px; --radius-lg: 20px;
+      --shadow-glow: 0 0 20px rgba(6,182,212,0.25);
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      font-family: var(--font-thai);
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      background-image:
+        radial-gradient(ellipse at 10% 15%, rgba(6,182,212,0.09) 0%, transparent 50%),
+        radial-gradient(ellipse at 90% 80%, rgba(168,85,247,0.09) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 50%, rgba(16,185,129,0.05) 0%, transparent 70%);
+    }
+    .app-header {
+      background: rgba(9,13,22,0.96);
+      border-bottom: 1px solid var(--glass-border);
+      padding: 0.85rem 1.75rem;
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 100; backdrop-filter: blur(20px);
+    }
+    .app-header-logo { display: flex; align-items: center; gap: 0.85rem; }
+    .app-header-logo i { color: var(--accent-primary); font-size: 1.65rem; filter: drop-shadow(0 0 10px rgba(6,182,212,0.6)); }
+    .app-header-logo h1 { font-size: 1.1rem; font-weight: 700; }
+    .app-header-logo span { font-size: 0.8rem; color: var(--text-secondary); font-family: var(--font-mono); display: block; }
+    .header-controls { display: flex; gap: 0.5rem; align-items: center; }
+    .main-nav { background: rgba(9,13,22,0.75); border-bottom: 1px solid var(--glass-border); padding: 0 1.5rem; display: flex; gap: 0.25rem; overflow-x: auto; }
+    .nav-tab {
+      padding: 0.85rem 1.35rem; border: none; background: transparent; color: var(--text-secondary);
+      font-family: var(--font-thai); font-size: 0.88rem; font-weight: 500; cursor: pointer; white-space: nowrap;
+      border-bottom: 3px solid transparent; transition: all 0.2s; display: flex; align-items: center; gap: 0.55rem;
+    }
+    .nav-tab:hover { color: var(--text-primary); background: rgba(255,255,255,0.04); }
+    .nav-tab.active { color: var(--accent-primary); border-bottom-color: var(--accent-primary); background: rgba(6,182,212,0.08); font-weight: 600; }
+    .main-content { max-width: 1440px; margin: 0 auto; padding: 1.5rem; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; animation: fadeIn 0.25s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    .grid-2col { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 1.35rem; }
+    @media(max-width: 1024px) { .grid-2col { grid-template-columns: 1fr; } }
+    .glass-card { background: var(--glass); border: 1px solid var(--glass-border); border-radius: var(--radius-lg); padding: 1.5rem; backdrop-filter: blur(14px); box-shadow: 0 8px 32px rgba(0,0,0,0.28); }
+    .glass-card:hover { border-color: rgba(148, 163, 184, 0.25); }
+    .card-title { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; }
+    .card-title-text { display: flex; align-items: center; gap: 0.65rem; font-size: 1rem; font-weight: 700; color: var(--accent-primary); }
+    canvas { display: block; border-radius: var(--radius-md); background: #050b14; width: 100%; height: auto; }
+    .canvas-card-wrapper { border: 1px solid var(--glass-border); border-radius: var(--radius-md); overflow: hidden; margin-bottom: 1rem; background: #050b14; }
+    .canvas-header-bar { background: rgba(15,23,42,0.85); padding: 0.6rem 0.9rem; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--glass-border); }
+    .canvas-header-title { font-size: 0.82rem; font-weight: 600; color: var(--text-secondary); display: flex; align-items: center; gap: 0.45rem; }
+    .control-group { margin-bottom: 1.1rem; }
+    .control-label-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.45rem; }
+    .control-label-title { font-size: 0.85rem; color: var(--text-secondary); font-weight: 500; }
+    .control-value-badge { font-family: var(--font-mono); font-size: 0.82rem; font-weight: 700; color: var(--accent-primary); background: rgba(6,182,212,0.12); padding: 0.2rem 0.55rem; border-radius: 4px; border: 1px solid rgba(6,182,212,0.25); }
+    input[type="range"] { width: 100%; height: 6px; background: var(--bg-tertiary); border-radius: 3px; accent-color: var(--accent-primary); cursor: pointer; outline: none; }
+    select, input[type="text"], input[type="url"] { width: 100%; background: var(--bg-secondary); border: 1px solid var(--glass-border); border-radius: var(--radius-sm); padding: 0.55rem 0.85rem; color: var(--text-primary); font-family: var(--font-thai); font-size: 0.88rem; outline: none; }
+    select:focus, input[type="text"]:focus, input[type="url"]:focus { border-color: var(--accent-primary); box-shadow: 0 0 0 2px rgba(6,182,212,0.2); }
+    .pill-group { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+    .pill-btn { padding: 0.5rem 1.1rem; border: 1px solid var(--glass-border); border-radius: 50px; background: rgba(30,41,59,0.5); color: var(--text-secondary); font-family: var(--font-thai); font-size: 0.82rem; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 0.45rem; }
+    .pill-btn:hover { border-color: var(--accent-primary); color: var(--accent-primary); background: rgba(6,182,212,0.08); }
+    .pill-btn.active { background: rgba(6,182,212,0.18); border-color: var(--accent-primary); color: var(--accent-primary); font-weight: 600; box-shadow: 0 0 12px rgba(6,182,212,0.2); }
+    .btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.6rem 1.25rem; border: none; border-radius: var(--radius-sm); font-family: var(--font-thai); font-size: 0.88rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+    .btn-primary { background: linear-gradient(135deg, var(--accent-primary), #0284c7); color: #ffffff; box-shadow: 0 4px 12px rgba(6,182,212,0.3); }
+    .btn-primary:hover { opacity: 0.95; transform: translateY(-1px); box-shadow: var(--shadow-glow); }
+    .btn-secondary { background: rgba(148,163,184,0.12); border: 1px solid var(--glass-border); color: var(--text-secondary); }
+    .btn-secondary:hover { background: rgba(148,163,184,0.2); color: var(--text-primary); }
+    .btn-sm { padding: 0.38rem 0.85rem; font-size: 0.8rem; }
+    .btn-success { background: linear-gradient(135deg, #10b981, #059669); color: white; }
+    .readout-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; margin-bottom: 1.1rem; }
+    .readout-card { background: rgba(6,182,212,0.08); border: 1px solid rgba(6,182,212,0.22); border-radius: var(--radius-sm); padding: 0.75rem 0.9rem; }
+    .readout-card.secondary { background: rgba(168,85,247,0.08); border-color: rgba(168,85,247,0.22); }
+    .readout-card.green { background: rgba(16,185,129,0.08); border-color: rgba(16,185,129,0.22); }
+    .readout-card.amber { background: rgba(245,158,11,0.08); border-color: rgba(245,158,11,0.22); }
+    .readout-title { font-size: 0.72rem; color: var(--text-muted); margin-bottom: 0.25rem; }
+    .readout-val { font-family: var(--font-mono); font-size: 1.15rem; font-weight: 700; color: var(--accent-primary); }
+    .readout-card.secondary .readout-val { color: #c084fc; }
+    .readout-card.green .readout-val { color: #34d399; }
+    .readout-card.amber .readout-val { color: #fbbf24; }
+    .readout-unit { font-size: 0.75rem; font-weight: 400; opacity: 0.75; }
+    .status-badge { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.25rem 0.75rem; border-radius: 50px; font-size: 0.78rem; font-weight: 600; background: rgba(100,116,139,0.15); border: 1px solid rgba(100,116,139,0.3); color: var(--text-muted); }
+    .status-badge.connected { background: rgba(16,185,129,0.15); border-color: rgba(16,185,129,0.4); color: #34d399; }
+    .status-badge.active-region { background: rgba(6,182,212,0.15); border-color: rgba(6,182,212,0.4); color: var(--accent-primary); }
+    .status-badge.saturation { background: rgba(245,158,11,0.15); border-color: rgba(245,158,11,0.4); color: #fbbf24; }
+    .status-badge.cutoff { background: rgba(244,63,94,0.15); border-color: rgba(244,63,94,0.4); color: #fb7185; }
+    .theory-box { background: rgba(6,182,212,0.06); border: 1px solid rgba(6,182,212,0.22); border-radius: var(--radius-sm); padding: 0.9rem 1.1rem; font-size: 0.85rem; color: var(--text-secondary); line-height: 1.75; margin-top: 0.85rem; }
+    .quiz-question { background: var(--bg-secondary); border: 1px solid var(--glass-border); border-radius: var(--radius-md); padding: 1.35rem; margin-bottom: 1.1rem; }
+    .quiz-question h4 { font-size: 0.95rem; margin-bottom: 1rem; color: var(--text-primary); line-height: 1.6; }
+    .quiz-options { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+    @media(max-width:768px) { .quiz-options { grid-template-columns: 1fr; } }
+    .quiz-option { display: flex; align-items: flex-start; gap: 0.6rem; padding: 0.7rem 0.95rem; border: 1px solid var(--glass-border); border-radius: var(--radius-sm); cursor: pointer; transition: all 0.2s; font-size: 0.85rem; background: rgba(30,41,59,0.6); color: var(--text-primary); }
+    .quiz-option:hover { border-color: var(--accent-primary); background: rgba(6,182,212,0.1); }
+    .quiz-option.correct { border-color: #10b981 !important; background: rgba(16,185,129,0.2) !important; color: #34d399 !important; font-weight: 600; }
+    .quiz-option.wrong { border-color: #f43f5e !important; background: rgba(244,63,94,0.2) !important; color: #fb7185 !important; }
+    .quiz-explanation { margin-top: 0.85rem; padding: 0.75rem 1rem; background: rgba(6,182,212,0.08); border-left: 3px solid var(--accent-primary); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; font-size: 0.82rem; color: var(--text-secondary); display: none; line-height: 1.65; }
+    .datasheet-table, .history-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+    .datasheet-table th, .history-table th { background: rgba(6,182,212,0.12); color: var(--accent-primary); padding: 0.6rem 0.85rem; text-align: left; font-weight: 600; border-bottom: 1px solid rgba(6,182,212,0.2); }
+    .history-table th { background: rgba(168,85,247,0.12); color: #c084fc; border-bottom-color: rgba(168,85,247,0.2); }
+    .datasheet-table td, .history-table td { padding: 0.55rem 0.85rem; border-bottom: 1px solid rgba(148,163,184,0.08); color: var(--text-secondary); }
+    .datasheet-table tr:hover td, .history-table tr:hover td { background: rgba(255,255,255,0.03); }
+    .osc-control-bar { display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center; justify-content: space-between; padding: 0.35rem 0.6rem; background: rgba(15,23,42,0.6); border-radius: var(--radius-sm); margin-bottom: 0.4rem; }
+    .osc-ctrl-item { display: flex; align-items: center; gap: 0.35rem; font-size: 0.78rem; color: var(--text-secondary); }
+    .osc-select { background: var(--bg-primary); border: 1px solid var(--glass-border); border-radius: 4px; color: var(--text-primary); font-family: var(--font-mono); font-size: 0.75rem; padding: 0.2rem 0.4rem; cursor: pointer; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg-primary); }
+    ::-webkit-scrollbar-thumb { background: var(--bg-tertiary); border-radius: 3px; }
+  </style>
+</head>
+<body>
+
+<!-- APP HEADER -->
+<header class="app-header">
+  <div class="app-header-logo">
+    <i class="fa-solid fa-wave-square"></i>
+    <div>
+      <h1>FET Small-Signal Analysis Lab</h1>
+      <span>การวิเคราะห์สัญญาณขนาดเล็กของ FET — JFET / MOSFET Interactive AC Analysis Simulator</span>
+    </div>
+  </div>
+  <div class="header-controls">
+    <button class="btn btn-secondary btn-sm" onclick="toggleAudio()" title="เปิด/ปิดเสียง">
+      <i class="fa-solid fa-volume-high" id="audio-icon"></i>
+    </button>
+  </div>
+</header>
+
+<!-- NAVIGATION -->
+<nav class="main-nav">
+  <button class="nav-tab active" id="nav-tab-model" onclick="switchMainTab('tab-model')">
+    <i class="fa-solid fa-diagram-project"></i> 1. โมเดลสมมูล AC &amp; g<sub>m</sub>
+  </button>
+  <button class="nav-tab" id="nav-tab-configs" onclick="switchMainTab('tab-configs')">
+    <i class="fa-solid fa-layer-group"></i> 2. โครงแบบวงจรขยาย 3 แบบ
+  </button>
+  <button class="nav-tab" id="nav-tab-lab" onclick="switchMainTab('tab-lab')">
+    <i class="fa-solid fa-plug-circle-bolt"></i> 3. ห้องทดลอง &amp; ออสซิลโลสโคป
+  </button>
+  <button class="nav-tab" id="nav-tab-compare" onclick="switchMainTab('tab-compare')">
+    <i class="fa-solid fa-scale-balanced"></i> 4. เปรียบเทียบ BJT vs FET
+  </button>
+  <button class="nav-tab" id="nav-tab-quiz" onclick="switchMainTab('tab-quiz')">
+    <i class="fa-solid fa-circle-question"></i> 5. แบบทดสอบ &amp; Sheets
+  </button>
+</nav>
+
+<main class="main-content">
+
+<!-- TAB 1: FET SMALL-SIGNAL MODEL & TRANSCONDUCTANCE -->
+<section id="tab-model" class="tab-content active">
+  <div class="grid-2col">
+    <div class="glass-card">
+      <div class="card-title">
+        <div class="card-title-text"><i class="fa-solid fa-chart-line"></i><span>กราฟลักษณะสมบัติถ่ายโอน (Transfer Curve) &amp; ความชัน g<sub>m</sub></span></div>
+        <span class="status-badge active-region" id="model-status-badge"><i class="fa-solid fa-crosshairs"></i> Q-Point Active</span>
+      </div>
+      <div class="canvas-card-wrapper">
+        <div class="canvas-header-bar">
+          <div class="canvas-header-title" style="color:var(--accent-primary);">
+            <i class="fa-solid fa-chart-area"></i>
+            <span id="fet-model-title">JFET (N-Channel) Transfer Characteristic Curve</span>
+          </div>
+        </div>
+        <canvas id="canvas-transfer" width="640" height="320"></canvas>
+      </div>
+      <div style="display:flex;gap:1.2rem;flex-wrap:wrap;font-size:0.78rem;margin-bottom:0.75rem;">
+        <span style="color:#06b6d4;">— กราฟ I<sub>D</sub> vs V<sub>GS</sub> (สมการช็อกลีย์)</span>
+        <span style="color:#f59e0b;">— เส้นสัมผัสความชัน (Tangent Line = g<sub>m</sub>)</span>
+        <span style="color:#10b981;">⬤ จุดทำงาน Q-Point</span>
+      </div>
+      <div class="theory-box" id="model-theory-box">
+        <strong>Transconductance (g<sub>m</sub>):</strong> คืออัตราส่วนการเปลี่ยนแปลงของกระแสเดรนต่อการเปลี่ยนแปลงของแรงดันเกต-ซอร์ส 
+        <strong>g<sub>m</sub> = ΔI<sub>D</sub> / ΔV<sub>GS</sub> = (2 · I<sub>DSS</sub> / |V<sub>P</sub>|) · (1 − V<sub>GS</sub> / V<sub>P</sub>)</strong><br>
+        • ที่ V<sub>GS</sub> = 0V จะได้ค่าความนำถ่ายโอนสูงสุด <strong>g<sub>m0</sub> = 2 · I<sub>DSS</sub> / |V<sub>P</sub>|</strong><br>
+        • ที่ V<sub>GS</sub> = V<sub>P</sub> ค่า g<sub>m</sub> จะลดลงเป็น 0 mS (Cutoff)
+      </div>
+    </div>
+
+    <div class="glass-card">
+      <div class="card-title">
+        <div class="card-title-text"><i class="fa-solid fa-sliders"></i> พารามิเตอร์ FET &amp; จุดทำงาน</div>
+      </div>
+      <div class="control-group">
+        <div class="control-label-row"><span class="control-label-title">เลือกรุ่น FET (Device Model)</span></div>
+        <select id="select-fet-device" onchange="onModelChange()">
+          <optgroup label="N-Channel JFET">
+            <option value="2N5458">2N5458 (I_DSS = 9 mA, V_P = -4.0 V, r_d = 50 kΩ)</option>
+            <option value="2N3819">2N3819 (I_DSS = 12 mA, V_P = -3.5 V, r_d = 40 kΩ)</option>
+            <option value="BF245B">BF245B (I_DSS = 10 mA, V_P = -2.7 V, r_d = 60 kΩ)</option>
+            <option value="MPF102">MPF102 (I_DSS = 15 mA, V_P = -5.0 V, r_d = 35 kΩ)</option>
+          </optgroup>
+          <optgroup label="N-Channel E-MOSFET">
+            <option value="2N7000">2N7000 (V_TH = 2.0 V, k = 0.12 mA/V², r_d = 40 kΩ)</option>
+            <option value="BS170">BS170 (V_TH = 2.1 V, k = 0.15 mA/V², r_d = 30 kΩ)</option>
+          </optgroup>
+        </select>
+      </div>
+      <div class="control-group">
+        <div class="control-label-row">
+          <span class="control-label-title">แรงดันไบแอส Gate-Source (V<sub>GS(Q)</sub>)</span>
+          <span class="control-value-badge" id="vgs-q-badge">-1.50 V</span>
+        </div>
+        <input type="range" id="slider-vgs-q" min="-5.0" max="0.0" step="0.05" value="-1.50" oninput="onModelChange()">
+      </div>
+      <div class="control-group">
+        <div class="control-label-row">
+          <span class="control-label-title">กระแสอิ่มตัว I<sub>DSS</sub> (mA)</span>
+          <span class="control-value-badge" id="idss-badge">9.0 mA</span>
+        </div>
+        <input type="range" id="slider-idss" min="2" max="25" step="0.5" value="9.0" oninput="onModelChange()">
+      </div>
+      <div class="control-group">
+        <div class="control-label-row">
+          <span class="control-label-title">แรงดันคัตออฟ Pinch-off V<sub>P</sub> (V)</span>
+          <span class="control-value-badge" id="vp-badge">-4.0 V</span>
+        </div>
+        <input type="range" id="slider-vp" min="-8.0" max="-1.0" step="0.2" value="-4.0" oninput="onModelChange()">
+      </div>
+      <div class="readout-grid">
+        <div class="readout-card green"><div class="readout-title">Transconductance g<sub>m</sub></div><div class="readout-val" id="mod-gm-val">2.81 <span class="readout-unit">mS (mA/V)</span></div></div>
+        <div class="readout-card"><div class="readout-title">Drain Current I<sub>D(Q)</sub></div><div class="readout-val" id="mod-id-val">3.52 <span class="readout-unit">mA</span></div></div>
+        <div class="readout-card secondary"><div class="readout-title">Max g<sub>m0</sub> (ที่ V<sub>GS</sub>=0)</div><div class="readout-val" id="mod-gm0-val">4.50 <span class="readout-unit">mS</span></div></div>
+        <div class="readout-card amber"><div class="readout-title">Output Resistance r<sub>d</sub></div><div class="readout-val" id="mod-rd-val">50.0 <span class="readout-unit">kΩ</span></div></div>
+      </div>
+      <div class="canvas-card-wrapper" style="margin-top:0.75rem;">
+        <div class="canvas-header-bar">
+          <div class="canvas-header-title"><i class="fa-solid fa-microchip"></i> วงจรสมมูลสัญญาณขนาดเล็ก (FET AC Equivalent Circuit)</div>
+        </div>
+        <canvas id="canvas-ac-model" width="460" height="150"></canvas>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TAB 2: 3 FUNDAMENTAL FET CONFIGURATIONS -->
+<section id="tab-configs" class="tab-content">
+  <div class="grid-2col">
+    <div class="glass-card">
+      <div class="card-title">
+        <div class="card-title-text"><i class="fa-solid fa-layer-group"></i><span>โครงสร้างและการทำงานของวงจรขยาย FET 3 โครงแบบ</span></div>
+      </div>
+      <div class="pill-group" style="margin-bottom:0.6rem;">
+        <button class="pill-btn active" id="btn-cfg-cs" onclick="selectConfig('cs',this)"><i class="fa-solid fa-arrow-down-up-across-line"></i> 1. Common Source (CS)</button>
+        <button class="pill-btn" id="btn-cfg-cd" onclick="selectConfig('cd',this)"><i class="fa-solid fa-shield-halved"></i> 2. Source Follower (CD)</button>
+        <button class="pill-btn" id="btn-cfg-cg" onclick="selectConfig('cg',this)"><i class="fa-solid fa-tower-broadcast"></i> 3. Common Gate (CG)</button>
+      </div>
+
+      <!-- View Mode Buttons -->
+      <div class="pill-group" style="margin-bottom:0.85rem;background:rgba(15,23,42,0.6);padding:0.3rem;border-radius:12px;border:1px solid var(--border-glass);">
+        <button class="pill-btn active" id="btn-cfg-view-schem" onclick="setConfigViewMode('schematic')"><i class="fa-solid fa-diagram-project"></i> 1. ผังวงจรจริง (Complete Circuit)</button>
+        <button class="pill-btn" id="btn-cfg-view-ac" onclick="setConfigViewMode('ac_model')"><i class="fa-solid fa-microchip"></i> 2. แบบจำลอง AC สมมูล (AC Equivalent Model)</button>
+        <button class="pill-btn" id="btn-cfg-view-compare" onclick="setConfigViewMode('compare')"><i class="fa-solid fa-table-columns"></i> 3. เปรียบเทียบการแปลง AC (Conversion)</button>
+      </div>
+
+      <div class="canvas-card-wrapper">
+        <div class="canvas-header-bar">
+          <div class="canvas-header-title" style="color:var(--accent-primary);" id="config-canvas-title">
+            <i class="fa-solid fa-diagram-project"></i> วงจรขยาย Common Source (CS Amplifier)
+          </div>
+          <span style="font-family:var(--font-mono);font-size:0.75rem;color:var(--text-muted);" id="config-canvas-mode-tag">โหมด: ผังวงจรจริง</span>
+        </div>
+        <canvas id="canvas-config" width="640" height="270"></canvas>
+      </div>
+      <div class="theory-box" id="config-theory-box">
+        <!-- Dynamic theory description -->
+      </div>
+    </div>
+
+    <div class="glass-card">
+      <div class="card-title"><div class="card-title-text"><i class="fa-solid fa-calculator"></i> คำนวณพารามิเตอร์วงจร AC</div></div>
+      <div class="control-group">
+        <div class="control-label-row">
+          <span class="control-label-title">ความนำถ่ายโอน g<sub>m</sub> (Transconductance)</span>
+          <span class="control-value-badge" id="cfg-gm-badge">3.0 mS</span>
+        </div>
+        <input type="range" id="slider-cfg-gm" min="0.5" max="10.0" step="0.1" value="3.0" oninput="onConfigChange()">
+      </div>
+      <div class="control-group">
+        <div class="control-label-row">
+          <span class="control-label-title">ตัวต้านทานเดรน R<sub>D</sub></span>
+          <span class="control-value-badge" id="cfg-rd-badge">3.3 kΩ</span>
+        </div>
+        <input type="range" id="slider-cfg-rd" min="0.5" max="15.0" step="0.1" value="3.3" oninput="onConfigChange()">
+      </div>
+      <div class="control-group">
+        <div class="control-label-row">
+          <span class="control-label-title">ตัวต้านทานซอร์ส R<sub>S</sub></span>
+          <span class="control-value-badge" id="cfg-rs-badge">1.0 kΩ</span>
+        </div>
+        <input type="range" id="slider-cfg-rs" min="0.1" max="5.0" step="0.1" value="1.0" oninput="onConfigChange()">
+      </div>
+      <div class="control-group">
+        <div class="control-label-row">
+          <span class="control-label-title">ความต้านทานโหลด R<sub>L</sub></span>
+          <span class="control-value-badge" id="cfg-rl-badge">10.0 kΩ</span>
+        </div>
+        <input type="range" id="slider-cfg-rl" min="1.0" max="50.0" step="1.0" value="10.0" oninput="onConfigChange()">
+      </div>
+      <div class="readout-grid">
+        <div class="readout-card green"><div class="readout-title">Voltage Gain A<sub>v</sub></div><div class="readout-val" id="cfg-av-val">-7.44 <span class="readout-unit">(180°↺)</span></div></div>
+        <div class="readout-card"><div class="readout-title">Input Impedance Z<sub>in</sub></div><div class="readout-val" id="cfg-zin-val">1.0 <span class="readout-unit">MΩ</span></div></div>
+        <div class="readout-card secondary"><div class="readout-title">Output Impedance Z<sub>out</sub></div><div class="readout-val" id="cfg-zout-val">3.1 <span class="readout-unit">kΩ</span></div></div>
+        <div class="readout-card amber"><div class="readout-title">Phase Shift (มุมเฟส)</div><div class="readout-val" id="cfg-phase-val">180° <span class="readout-unit">(กลับเฟส)</span></div></div>
+      </div>
+
+      <div class="theory-box" id="config-calc-box" style="margin-top:1rem;">
+        <div style="font-size:0.85rem;font-weight:700;color:var(--accent-primary);margin-bottom:0.4rem;display:flex;align-items:center;gap:0.4rem;">
+          <i class="fa-solid fa-square-root-variable"></i> สมการหลัก & ขั้นตอนการคำนวณพารามิเตอร์ AC (Step-by-Step Calculations):
+        </div>
+        <div id="config-calc-details" style="font-size:0.8rem;line-height:1.6;color:var(--text-secondary);">
+          <!-- Dynamic calculations inserted by JavaScript -->
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TAB 3: VIRTUAL FET CIRCUIT LAB & DUAL OSCILLOSCOPE -->
+<section id="tab-lab" class="tab-content">
+  <div class="pill-group" style="margin-bottom:1.25rem;">
+    <button class="pill-btn active" id="lab-btn-cs" onclick="switchLabCircuit('cs',this)"><i class="fa-solid fa-wave-square"></i> 1. CS Amplifier (ขยายแรงดัน)</button>
+    <button class="pill-btn" id="lab-btn-cd" onclick="switchLabCircuit('cd',this)"><i class="fa-solid fa-shield-halved"></i> 2. Source Follower (Buffer)</button>
+    <button class="pill-btn" id="lab-btn-cg" onclick="switchLabCircuit('cg',this)"><i class="fa-solid fa-tower-broadcast"></i> 3. Common Gate (RF Amp)</button>
+  </div>
+  <div class="grid-2col">
+    <div class="glass-card">
+      <div class="card-title">
+        <div class="card-title-text"><i class="fa-solid fa-display"></i><span id="lab-circuit-title">วงจรขยาย Common Source JFET Amplifier</span></div>
+        <button class="btn btn-secondary btn-sm" id="btn-pause-sim" onclick="toggleSimPause()">
+          <i class="fa-solid fa-pause"></i> <span id="pause-btn-text">หยุดชั่วคราว</span>
+        </button>
+      </div>
+      <div class="canvas-card-wrapper">
+        <div class="canvas-header-bar">
+          <div class="canvas-header-title" style="color:var(--accent-primary);">
+            <i class="fa-solid fa-diagram-project"></i> ผังวงจรเสมือนจริง (Interactive FET Circuit Schematic)
+          </div>
+          <span class="status-badge connected" id="lab-schematic-badge"><i class="fa-solid fa-bolt"></i> กำลังทำงาน</span>
+        </div>
+        <canvas id="canvas-lab-schem" width="660" height="260"></canvas>
+      </div>
+      <div class="canvas-card-wrapper">
+        <div class="canvas-header-bar">
+          <div class="canvas-header-title"><i class="fa-solid fa-wave-square"></i> สัญญาณออสซิลโลสโคป (CH1 Input สีเหลือง / CH2 Output สีฟ้า)</div>
+          <div class="osc-control-bar" style="margin:0;padding:0.2rem 0.5rem;">
+            <div class="osc-ctrl-item">
+              <span>CH1:</span>
+              <select class="osc-select" id="osc-ch1-scale" onchange="onOscScaleChange()">
+                <option value="0.1">0.1V/div</option>
+                <option value="0.2">0.2V/div</option>
+                <option value="0.5" selected>0.5V/div</option>
+                <option value="1">1V/div</option>
+                <option value="2">2V/div</option>
+              </select>
+            </div>
+            <div class="osc-ctrl-item">
+              <span>CH2:</span>
+              <select class="osc-select" id="osc-ch2-scale" onchange="onOscScaleChange()">
+                <option value="0.5">0.5V/div</option>
+                <option value="1">1V/div</option>
+                <option value="2" selected>2V/div</option>
+                <option value="5">5V/div</option>
+                <option value="10">10V/div</option>
+              </select>
+            </div>
+            <div class="osc-ctrl-item">
+              <label style="cursor:pointer;display:flex;align-items:center;gap:3px;">
+                <input type="checkbox" id="osc-autoscale" checked onchange="onOscScaleChange()">
+                <span style="font-size:0.72rem;color:var(--accent-primary);">Auto</span>
+              </label>
+            </div>
+          </div>
+        </div>
+        <canvas id="canvas-osc" width="660" height="185"></canvas>
+      </div>
+    </div>
+
+    <div class="glass-card">
+      <div class="card-title"><div class="card-title-text"><i class="fa-solid fa-sliders"></i> ตัวควบคุมสัญญาณและไบแอส</div></div>
+      <div class="control-group">
+        <div class="control-label-row">
+          <span class="control-label-title">แรงดันอินพุต V<sub>in</sub> Peak</span>
+          <span class="control-value-badge" id="lab-vin-badge">0.20 Vp</span>
+        </div>
+        <input type="range" id="slider-lab-vin" min="0.02" max="1.5" step="0.02" value="0.2" oninput="onLabChange()">
+      </div>
+      <div class="control-group">
+        <div class="control-label-row">
+          <span class="control-label-title">ความถี่สัญญาณ (Frequency)</span>
+          <span class="control-value-badge" id="lab-freq-badge">1000 Hz</span>
+        </div>
+        <input type="range" id="slider-lab-freq" min="100" max="5000" step="100" value="1000" oninput="onLabChange()">
+      </div>
+      <div class="control-group">
+        <div class="control-label-row">
+          <span class="control-label-title">แรงดันแหล่งจ่าย V<sub>DD</sub></span>
+          <span class="control-value-badge" id="lab-vdd-badge">15 V</span>
+        </div>
+        <input type="range" id="slider-lab-vdd" min="6" max="30" step="1" value="15" oninput="onLabChange()">
+      </div>
+      <div class="control-group">
+        <div class="control-label-row">
+          <span class="control-label-title">ตัวต้านทานเดรน R<sub>D</sub></span>
+          <span class="control-value-badge" id="lab-rd-badge">3.3 kΩ</span>
+        </div>
+        <input type="range" id="slider-lab-rd" min="0.5" max="15.0" step="0.1" value="3.3" oninput="onLabChange()">
+      </div>
+      <div class="control-group">
+        <div class="control-label-row">
+          <span class="control-label-title">ตัวต้านทานซอร์ส R<sub>S</sub></span>
+          <span class="control-value-badge" id="lab-rs-badge">1.0 kΩ</span>
+        </div>
+        <input type="range" id="slider-lab-rs" min="0.1" max="5.0" step="0.1" value="1.0" oninput="onLabChange()">
+      </div>
+      <div style="margin-bottom:0.75rem;background:rgba(6,182,212,0.08);padding:0.5rem 0.75rem;border-radius:6px;border:1px solid rgba(6,182,212,0.2);" id="cs-bypass-wrapper">
+        <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;font-size:0.85rem;color:var(--text-primary);">
+          <input type="checkbox" id="lab-bypass-cs" checked onchange="onLabChange()">
+          <span>ใส่ตัวเก็บประจุบายพาส C<sub>S</sub> (Source Bypass Cap ให้ Gain สูงขึ้น)</span>
+        </label>
+      </div>
+      <div class="readout-grid" style="margin-top:1rem;">
+        <div class="readout-card"><div class="readout-title">V<sub>out</sub> Peak</div><div class="readout-val" id="lab-vout-val">—</div></div>
+        <div class="readout-card green"><div class="readout-title">Voltage Gain A<sub>v</sub></div><div class="readout-val" id="lab-av-val">—</div></div>
+        <div class="readout-card amber"><div class="readout-title">Drain Current I<sub>D(Q)</sub></div><div class="readout-val" id="lab-id-val">—</div></div>
+        <div class="readout-card secondary"><div class="readout-title">Transconductance g<sub>m</sub></div><div class="readout-val" id="lab-gm-val">—</div></div>
+      </div>
+      <div class="theory-box" id="lab-theory-box">
+        <strong>การวิเคราะห์สัญญาณขนาดเล็ก:</strong><br>
+        • สัญญาณเอาต์พุตมีขนาดเท่ากับ A<sub>v</sub> · V<sub>in</sub><br>
+        • หากไม่มี C<sub>S</sub> บายพาส อัตราขยายจะลดลงเหลือ A<sub>v</sub> = −(g<sub>m</sub> · R<sub>D</sub>) / (1 + g<sub>m</sub> · R<sub>S</sub>) เนื่องจากเกิด Negative Feedback ที่ขา Source ทำให้วงจรมีเสถียรภาพสูงขึ้น
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TAB 4: BJT VS FET SMALL-SIGNAL COMPARISON -->
+<section id="tab-compare" class="tab-content">
+  <div class="grid-2col">
+    <div class="glass-card">
+      <div class="card-title">
+        <div class="card-title-text"><i class="fa-solid fa-scale-balanced"></i><span>ตารางเปรียบเทียบ BJT vs FET ในงานสัญญาณขนาดเล็ก</span></div>
+      </div>
+      <div style="overflow-x:auto;margin-bottom:1rem;">
+        <table class="datasheet-table">
+          <thead><tr><th>พารามิเตอร์ (Parameter)</th><th>BJT (Bipolar)</th><th>FET (JFET / MOSFET)</th><th>ความหมายและการใช้งาน</th></tr></thead>
+          <tbody>
+            <tr><td><strong>กลไกการควบคุม</strong></td><td style="color:#f59e0b;">Current-Controlled (I<sub>B</sub>)</td><td style="color:#06b6d4;">Voltage-Controlled (V<sub>GS</sub>)</td><td>FET ไม่ดึงกระแสจากอินพุต (I<sub>G</sub> ≈ 0)</td></tr>
+            <tr><td><strong>Input Impedance (Z<sub>in</sub>)</strong></td><td>ปานกลาง (1 kΩ – 50 kΩ)</td><td style="color:#10b981;font-weight:600;">สูงมาก (1 MΩ – 10¹² Ω)</td><td>FET เหมาะต่อตรงกับเซนเซอร์ความต้านทานสูง</td></tr>
+            <tr><td><strong>Transconductance (g<sub>m</sub>)</strong></td><td style="color:#10b981;font-weight:600;">สูงมาก (~40 · I<sub>C</sub> ≈ 40 mS)</td><td>ปานกลาง (1 mS – 15 mS)</td><td>BJT ให้ Gain สูงกว่าในกระแสเท่ากัน</td></tr>
+            <tr><td><strong>สัญญาณรบกวน (Noise)</strong></td><td>มี Shot Noise จากรอยต่อ P-N</td><td style="color:#10b981;font-weight:600;">ต่ำมาก (Low Thermal Noise)</td><td>FET นิยมในเครื่องเสียง Hi-Fi และ RF Front-End</td></tr>
+            <tr><td><strong>เสถียรภาพอุณหภูมิ</strong></td><td>เสี่ยงต่อ Thermal Runaway</td><td style="color:#10b981;font-weight:600;">มี Negative Temp Coefficient</td><td>FET ปลอดภัยกว่าเมื่ออุณหภูมิสูงขึ้น</td></tr>
+            <tr><td><strong>โครงแบบเทียบเคียง</strong></td><td>CE / CC / CB</td><td>CS / CD / CG</td><td>การคำนวณวงจร AC มีรูปแบบคล้ายคลึงกัน</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="theory-box">
+        <strong>หลักเกณฑ์การเลือกใช้งานในทางปฏิบัติ:</strong><br>
+        1. <strong>เลือก FET:</strong> เมื่อต้องการขยายสัญญาณจากแหล่งที่มีอิมพีแดนซ์สูงมาก เช่น หัวไมโครโฟนคอนเดนเซอร์, Piezo sensor, กีตาร์ไฟฟ้า, หรือต้องการสัญญาณรบกวนต่ำมาก<br>
+        2. <strong>เลือก BJT:</strong> เมื่อต้องการอัตราขยายแรงดันสูงมากในภาคขยายสัญญาณระดับกลาง หรือต้องการขับกระแสโหลดที่สูง
+      </div>
+    </div>
+
+    <div class="glass-card">
+      <div class="card-title"><div class="card-title-text"><i class="fa-solid fa-table-list"></i> Datasheet FET เบอร์ยอดนิยม</div></div>
+      <div style="overflow-x:auto;margin-bottom:1rem;">
+        <table class="datasheet-table">
+          <thead><tr><th>Part No.</th><th>Type</th><th>I<sub>DSS(typ)</sub></th><th>V<sub>P</sub> / V<sub>TH</sub></th><th>g<sub>m(typ)</sub></th><th>Package</th></tr></thead>
+          <tbody>
+            <tr><td>2N5458</td><td style="color:#06b6d4;font-weight:600;">N-JFET</td><td>9.0 mA</td><td>-4.0 V</td><td>3.0 mS</td><td>TO-92</td></tr>
+            <tr><td>2N3819</td><td style="color:#06b6d4;font-weight:600;">N-JFET</td><td>12.0 mA</td><td>-3.5 V</td><td>4.5 mS</td><td>TO-92</td></tr>
+            <tr><td>BF245B</td><td style="color:#06b6d4;font-weight:600;">N-JFET</td><td>10.0 mA</td><td>-2.7 V</td><td>4.0 mS</td><td>TO-92</td></tr>
+            <tr><td>MPF102</td><td style="color:#06b6d4;font-weight:600;">N-JFET</td><td>15.0 mA</td><td>-5.0 V</td><td>5.0 mS</td><td>TO-92</td></tr>
+            <tr><td>2N7000</td><td style="color:#a855f7;font-weight:600;">N-EMOS</td><td>200 mA (max)</td><td>2.0 V</td><td>3.2 mS</td><td>TO-92</td></tr>
+            <tr><td>BS170</td><td style="color:#a855f7;font-weight:600;">N-EMOS</td><td>500 mA (max)</td><td>2.1 V</td><td>4.0 mS</td><td>TO-92</td></tr>
+            <tr><td>IRF540N</td><td style="color:#a855f7;font-weight:600;">Power MOS</td><td>33 A (max)</td><td>3.0 V</td><td>13 S</td><td>TO-220</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="theory-box">
+        <strong>สัญลักษณ์และขาใช้งานของ FET (Pinout TO-92):</strong><br>
+        • <strong>D (Drain):</strong> ขั้วรับกระแสเข้า (เทียบเท่า Collector ของ BJT)<br>
+        • <strong>S (Source):</strong> ขั้วจ่ายกระแสออก (เทียบเท่า Emitter ของ BJT)<br>
+        • <strong>G (Gate):</strong> ขั้วควบคุมด้วยสนามไฟฟ้า (เทียบเท่า Base ของ BJT)
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TAB 5: QUIZ & GOOGLE SHEETS -->
+<section id="tab-quiz" class="tab-content">
+  <div class="grid-2col">
+    <div class="glass-card">
+      <div class="card-title">
+        <div class="card-title-text"><i class="fa-solid fa-circle-question"></i><span>แบบทดสอบความรู้การวิเคราะห์สัญญาณขนาดเล็ก FET (12 ข้อ)</span></div>
+        <div style="display:flex;gap:0.5rem;align-items:center;">
+          <span class="status-badge" id="quiz-score-badge">คะแนน: 0 / 12</span>
+          <button class="btn btn-secondary btn-sm" onclick="resetQuiz()"><i class="fa-solid fa-rotate"></i> เริ่มใหม่</button>
+        </div>
+      </div>
+      <div id="quiz-container"></div>
+      <div style="display:flex;gap:0.75rem;flex-wrap:wrap;margin-top:1.25rem;">
+        <button class="btn btn-primary" onclick="submitQuiz()"><i class="fa-solid fa-paper-plane"></i> ตรวจคำตอบ</button>
+        <button class="btn btn-secondary" onclick="exportQuizCSV()"><i class="fa-solid fa-file-csv"></i> Export CSV</button>
+        <button class="btn btn-secondary" onclick="saveToSheets()"><i class="fa-brands fa-google"></i> บันทึก Google Sheets</button>
+      </div>
+    </div>
+
+    <div class="glass-card">
+      <div class="card-title"><div class="card-title-text"><i class="fa-solid fa-clock-rotate-left"></i><span>ข้อมูลผู้เรียนและประวัติการทำแบบทดสอบ</span></div></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-bottom:1.1rem;">
+        <div>
+          <label style="font-size:0.82rem;color:var(--text-secondary);display:block;margin-bottom:0.35rem;">ชื่อ-นามสกุล ผู้เรียน:</label>
+          <input type="text" id="student-name" placeholder="เช่น นายสมชาย สายฟ้า">
+        </div>
+        <div>
+          <label style="font-size:0.82rem;color:var(--text-secondary);display:block;margin-bottom:0.35rem;">ระดับชั้น / แผนก:</label>
+          <input type="text" id="student-class" placeholder="เช่น ปวช.2 ช่างอิเล็กทรอนิกส์">
+        </div>
+      </div>
+      <div style="margin-bottom:1.1rem;">
+        <label style="font-size:0.82rem;color:var(--text-secondary);display:block;margin-bottom:0.35rem;">Google Apps Script Web App URL:</label>
+        <input type="url" id="gas-url" placeholder="https://script.google.com/macros/s/.../exec" style="font-family:var(--font-mono);font-size:0.78rem;">
+      </div>
+      <div style="font-size:0.85rem;font-weight:600;color:var(--text-secondary);margin-bottom:0.55rem;">
+        <i class="fa-solid fa-list-check"></i> รายการประวัติที่บันทึกไว้ในเซสชัน:
+      </div>
+      <div style="overflow-y:auto;max-height:340px;border-radius:var(--radius-sm);border:1px solid var(--glass-border);">
+        <table class="history-table">
+          <thead><tr><th>วัน-เวลา</th><th>ชื่อผู้เรียน</th><th>กิจกรรม</th><th>คะแนน</th></tr></thead>
+          <tbody id="history-table-body">
+            <tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:1.5rem;">ยังไม่มีประวัติการส่งคะแนน</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+<script>
+
+/* ================================================================= */
+/* 1. GLOBAL STATE & FET MODELS                                      */
+/* ================================================================= */
+const state = {
+  activeTab: 'tab-model',
+  audioEnabled: true,
+  model: {
+    device: '2N5458', type: 'JFET', vgs_q: -1.50, idss: 9.0, vp: -4.0, rd: 50.0, k: 0.12, vth: 2.0
+  },
+  config: {
+    type: 'cs', gm: 3.0, rd_kohm: 3.3, rs_kohm: 1.0, rl_kohm: 10.0, rd_int: 50.0
+  },
+  lab: {
+    circuit: 'cs', isPaused: false, vin_peak: 0.20, freq: 1000, vdd: 15,
+    rd_kohm: 3.3, rs_kohm: 1.0, hasBypassCs: true, time: 0,
+    ch1Scale: 0.5, ch2Scale: 2.0, autoScale: true
+  },
+  quiz: { submitted: false, score: 0, answers: {} },
+  history: []
+};
+
+const FET_DEVICES = {
+  '2N5458': { type: 'JFET', idss: 9.0, vp: -4.0, rd: 50.0, label: '2N5458 N-JFET' },
+  '2N3819': { type: 'JFET', idss: 12.0, vp: -3.5, rd: 40.0, label: '2N3819 N-JFET' },
+  'BF245B': { type: 'JFET', idss: 10.0, vp: -2.7, rd: 60.0, label: 'BF245B N-JFET' },
+  'MPF102': { type: 'JFET', idss: 15.0, vp: -5.0, rd: 35.0, label: 'MPF102 N-JFET' },
+  '2N7000': { type: 'EMOS', vth: 2.0, k: 0.12, rd: 40.0, label: '2N7000 N-EMOS' },
+  'BS170':  { type: 'EMOS', vth: 2.1, k: 0.15, rd: 30.0, label: 'BS170 N-EMOS' }
+};
+
+/* ================================================================= */
+/* 2. AUDIO SYNTHESIZER                                              */
+/* ================================================================= */
+let audioCtx = null;
+function getAudioCtx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  return audioCtx;
+}
+function playSound(type) {
+  if (!state.audioEnabled) return;
+  try {
+    const ctx = getAudioCtx(), now = ctx.currentTime;
+    const osc = ctx.createOscillator(), gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    if (type === 'click') {
+      osc.type='sine'; osc.frequency.setValueAtTime(600,now); osc.frequency.exponentialRampToValueAtTime(200,now+0.04);
+      gain.gain.setValueAtTime(0.12,now); gain.gain.exponentialRampToValueAtTime(0.001,now+0.05);
+      osc.start(now); osc.stop(now+0.05);
+    } else if (type === 'buzzer') {
+      osc.type='square'; osc.frequency.setValueAtTime(220,now);
+      gain.gain.setValueAtTime(0.08,now); gain.gain.exponentialRampToValueAtTime(0.001,now+0.4);
+      osc.start(now); osc.stop(now+0.4);
+    } else if (type === 'success') {
+      osc.type='sine'; osc.frequency.setValueAtTime(440,now); osc.frequency.setValueAtTime(660,now+0.1); osc.frequency.setValueAtTime(880,now+0.2);
+      gain.gain.setValueAtTime(0.1,now); gain.gain.exponentialRampToValueAtTime(0.001,now+0.35);
+      osc.start(now); osc.stop(now+0.35);
+    }
+  } catch(e) {}
+}
+function toggleAudio() {
+  state.audioEnabled = !state.audioEnabled;
+  document.getElementById('audio-icon').className = state.audioEnabled ? 'fa-solid fa-volume-high' : 'fa-solid fa-volume-xmark';
+}
+
+/* ================================================================= */
+/* 3. NAVIGATION TABS                                                */
+/* ================================================================= */
+function switchMainTab(tabId) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById(tabId).classList.add('active');
+  document.getElementById('nav-' + tabId).classList.add('active');
+  state.activeTab = tabId;
+  playSound('click');
+  if (tabId === 'tab-model') onModelChange();
+  if (tabId === 'tab-configs') onConfigChange();
+  if (tabId === 'tab-lab') onLabChange();
+  if (tabId === 'tab-quiz') renderQuiz();
+}
+
+/* ================================================================= */
+/* 4. MODULE 1 — TRANSFER CURVES & AC EQUIVALENT CANVAS               */
+/* ================================================================= */
+const transCanvas = document.getElementById('canvas-transfer');
+const transCtx = transCanvas.getContext('2d');
+const acModCanvas = document.getElementById('canvas-ac-model');
+const acModCtx = acModCanvas.getContext('2d');
+
+function onModelChange() {
+  const devKey = document.getElementById('select-fet-device').value;
+  const dev = FET_DEVICES[devKey] || FET_DEVICES['2N5458'];
+  state.model.device = devKey;
+  state.model.type = dev.type;
+  state.model.rd = dev.rd;
+
+  const isJfet = dev.type === 'JFET';
+  const vgsSlider = document.getElementById('slider-vgs-q');
+
+  if (isJfet) {
+    state.model.idss = parseFloat(document.getElementById('slider-idss').value);
+    state.model.vp = parseFloat(document.getElementById('slider-vp').value);
+    vgsSlider.min = state.model.vp.toFixed(1);
+    vgsSlider.max = '0.0';
+    if (parseFloat(vgsSlider.value) < state.model.vp) vgsSlider.value = (state.model.vp / 2).toFixed(2);
+    state.model.vgs_q = parseFloat(vgsSlider.value);
+
+    document.getElementById('idss-badge').textContent = state.model.idss.toFixed(1) + ' mA';
+    document.getElementById('vp-badge').textContent = state.model.vp.toFixed(1) + ' V';
+    document.getElementById('vgs-q-badge').textContent = state.model.vgs_q.toFixed(2) + ' V';
+    document.getElementById('fet-model-title').textContent = `${dev.label} Transfer Curve (Shockley's Equation)`;
+
+    // Calculations for JFET:
+    const gm0 = (2 * state.model.idss) / Math.abs(state.model.vp);
+    const gm = gm0 * (1 - (state.model.vgs_q / state.model.vp));
+    const id_q = state.model.idss * Math.pow(1 - (state.model.vgs_q / state.model.vp), 2);
+
+    document.getElementById('mod-gm-val').innerHTML = `${gm.toFixed(2)} <span class="readout-unit">mS</span>`;
+    document.getElementById('mod-id-val').innerHTML = `${id_q.toFixed(2)} <span class="readout-unit">mA</span>`;
+    document.getElementById('mod-gm0-val').innerHTML = `${gm0.toFixed(2)} <span class="readout-unit">mS</span>`;
+    document.getElementById('mod-rd-val').innerHTML = `${state.model.rd.toFixed(1)} <span class="readout-unit">kΩ</span>`;
+
+    document.getElementById('model-theory-box').innerHTML = 
+      `<strong>JFET Small-Signal Parameters (Shockley's Law):</strong><br>` +
+      `• <strong>g<sub>m0</sub></strong> = 2 · I<sub>DSS</sub> / |V<sub>P</sub>| = (2 × ${state.model.idss} mA) / ${Math.abs(state.model.vp)} V = <strong>${gm0.toFixed(2)} mS</strong><br>` +
+      `• <strong>g<sub>m</sub></strong> = g<sub>m0</sub> · (1 − V<sub>GS</sub> / V<sub>P</sub>) = ${gm0.toFixed(2)} · (1 − (${state.model.vgs_q.toFixed(2)} / ${state.model.vp})) = <strong>${gm.toFixed(2)} mS</strong><br>` +
+      `• <strong>I<sub>D(Q)</sub></strong> = I<sub>DSS</sub> · (1 − V<sub>GS</sub> / V<sub>P</sub>)² = <strong>${id_q.toFixed(2)} mA</strong>`;
+
+  } else {
+    // E-MOSFET:
+    state.model.vth = dev.vth;
+    state.model.k = dev.k;
+    vgsSlider.min = '0.0';
+    vgsSlider.max = '8.0';
+    if (parseFloat(vgsSlider.value) < state.model.vth) vgsSlider.value = (state.model.vth + 1.5).toFixed(2);
+    state.model.vgs_q = parseFloat(vgsSlider.value);
+
+    document.getElementById('vgs-q-badge').textContent = state.model.vgs_q.toFixed(2) + ' V';
+    document.getElementById('fet-model-title').textContent = `${dev.label} Transfer Curve (Enhancement Mode)`;
+
+    const gm = 2 * state.model.k * Math.max(0, state.model.vgs_q - state.model.vth);
+    const id_q = state.model.k * Math.pow(Math.max(0, state.model.vgs_q - state.model.vth), 2);
+
+    document.getElementById('mod-gm-val').innerHTML = `${(gm*10).toFixed(2)} <span class="readout-unit">mS</span>`;
+    document.getElementById('mod-id-val').innerHTML = `${(id_q*10).toFixed(2)} <span class="readout-unit">mA</span>`;
+    document.getElementById('mod-gm0-val').innerHTML = `— <span class="readout-unit">(E-MOS)</span>`;
+    document.getElementById('mod-rd-val').innerHTML = `${state.model.rd.toFixed(1)} <span class="readout-unit">kΩ</span>`;
+  }
+
+  drawTransferCurve();
+  drawAcModelCanvas();
+}
+
+function drawTransferCurve() {
+  const W = transCanvas.width, H = transCanvas.height;
+  transCtx.clearRect(0, 0, W, H);
+  transCtx.fillStyle = '#050b14'; transCtx.fillRect(0, 0, W, H);
+
+  const isJfet = state.model.type === 'JFET';
+  const mx = 60, my = 25, pw = W - mx - 40, ph = H - my - 45;
+
+  // Grid
+  transCtx.strokeStyle = 'rgba(6,182,212,0.1)'; transCtx.lineWidth = 1;
+  for (let i = 0; i <= 10; i++) {
+    const x = mx + (i/10)*pw; transCtx.beginPath(); transCtx.moveTo(x, my); transCtx.lineTo(x, my+ph); transCtx.stroke();
+  }
+  for (let i = 0; i <= 6; i++) {
+    const y = my + (i/6)*ph; transCtx.beginPath(); transCtx.moveTo(mx, y); transCtx.lineTo(mx+pw, y); transCtx.stroke();
+  }
+
+  // Axes
+  transCtx.strokeStyle = '#475569'; transCtx.lineWidth = 2;
+  transCtx.beginPath(); transCtx.moveTo(mx, my); transCtx.lineTo(mx, my+ph); transCtx.lineTo(mx+pw, my+ph); transCtx.stroke();
+
+  // Axis Labels
+  transCtx.fillStyle = '#94a3b8'; transCtx.font = 'bold 11px JetBrains Mono'; transCtx.textAlign = 'center';
+  transCtx.fillText('V_GS (V)', mx + pw/2, H - 8);
+  transCtx.save(); transCtx.translate(16, my + ph/2); transCtx.rotate(-Math.PI/2);
+  transCtx.fillText('I_D (mA)', 0, 0); transCtx.restore();
+
+  if (isJfet) {
+    const idss = state.model.idss, vp = state.model.vp, vgs_q = state.model.vgs_q;
+    const minV = vp * 1.15, maxV = 0.5, maxI = idss * 1.25;
+
+    // Zero V_GS vertical axis line
+    const zeroX = mx + ((0 - minV) / (maxV - minV)) * pw;
+    transCtx.strokeStyle = 'rgba(148,163,184,0.4)'; transCtx.lineWidth = 1.5; transCtx.setLineDash([4, 4]);
+    transCtx.beginPath(); transCtx.moveTo(zeroX, my); transCtx.lineTo(zeroX, my+ph); transCtx.stroke();
+    transCtx.setLineDash([]);
+    transCtx.fillStyle = '#94a3b8'; transCtx.font = '9px JetBrains Mono'; transCtx.textAlign = 'center';
+    transCtx.fillText('0V', zeroX, my + ph + 14);
+
+    // Ticks
+    transCtx.fillText(`${vp}V (V_P)`, mx + ((vp - minV) / (maxV - minV)) * pw, my + ph + 14);
+    transCtx.textAlign = 'right';
+    transCtx.fillText(`${idss.toFixed(1)} (I_DSS)`, mx - 6, my + ph - (idss / maxI) * ph + 3);
+
+    // Transfer Curve: I_D = I_DSS * (1 - V_GS/V_P)^2
+    transCtx.strokeStyle = '#06b6d4'; transCtx.lineWidth = 3;
+    transCtx.beginPath();
+    let started = false;
+    for (let v = vp; v <= 0; v += 0.05) {
+      const id = idss * Math.pow(1 - (v / vp), 2);
+      const x = mx + ((v - minV) / (maxV - minV)) * pw;
+      const y = my + ph - (id / maxI) * ph;
+      if (!started) { transCtx.moveTo(x, y); started = true; } else transCtx.lineTo(x, y);
+    }
+    transCtx.stroke();
+
+    // Q-Point
+    const id_q = idss * Math.pow(1 - (vgs_q / vp), 2);
+    const qx = mx + ((vgs_q - minV) / (maxV - minV)) * pw;
+    const qy = my + ph - (id_q / maxI) * ph;
+
+    // Tangent Line (Slope = g_m)
+    const gm = ((2 * idss) / Math.abs(vp)) * (1 - (vgs_q / vp));
+    const dV = 0.8;
+    const x1 = mx + ((vgs_q - dV - minV) / (maxV - minV)) * pw;
+    const y1 = my + ph - (Math.max(0, id_q - gm * dV) / maxI) * ph;
+    const x2 = mx + ((vgs_q + dV - minV) / (maxV - minV)) * pw;
+    const y2 = my + ph - ((id_q + gm * dV) / maxI) * ph;
+
+    transCtx.strokeStyle = '#f59e0b'; transCtx.lineWidth = 2; transCtx.setLineDash([6, 3]);
+    transCtx.beginPath(); transCtx.moveTo(x1, y1); transCtx.lineTo(x2, y2); transCtx.stroke();
+    transCtx.setLineDash([]);
+
+    // Q-Point Dot
+    transCtx.shadowColor = '#10b981'; transCtx.shadowBlur = 14;
+    transCtx.beginPath(); transCtx.arc(qx, qy, 7, 0, Math.PI*2);
+    transCtx.fillStyle = '#10b981'; transCtx.fill();
+    transCtx.shadowBlur = 0;
+    transCtx.strokeStyle = '#ffffff'; transCtx.lineWidth = 2; transCtx.stroke();
+
+    // Q-Point Text
+    transCtx.fillStyle = '#10b981'; transCtx.font = 'bold 11px JetBrains Mono'; transCtx.textAlign = 'left';
+    transCtx.fillText(`Q (${vgs_q.toFixed(2)}V, ${id_q.toFixed(2)}mA) → g_m=${gm.toFixed(2)}mS`, qx + 12, qy - 6);
+  }
+}
+
+function drawAcModelCanvas() {
+  const W = acModCanvas.width, H = acModCanvas.height;
+  acModCtx.clearRect(0, 0, W, H);
+  acModCtx.fillStyle = '#050b14'; acModCtx.fillRect(0, 0, W, H);
+
+  // Gate - Source Input (Open circuit)
+  acModCtx.strokeStyle = '#06b6d4'; acModCtx.lineWidth = 2;
+  acModCtx.beginPath();
+  acModCtx.moveTo(25, 40); acModCtx.lineTo(95, 40);
+  acModCtx.moveTo(25, 115); acModCtx.lineTo(95, 115);
+  acModCtx.stroke();
+
+  // Terminals G, S, D
+  acModCtx.font = 'bold 11px JetBrains Mono';
+  acModCtx.fillStyle = '#eab308'; acModCtx.fillText('G', 10, 44);
+  acModCtx.fillStyle = '#10b981'; acModCtx.fillText('S', 10, 119); acModCtx.fillText('S', 438, 119);
+  acModCtx.fillStyle = '#06b6d4'; acModCtx.fillText('D', 438, 44);
+
+  // v_gs label between open input
+  acModCtx.fillStyle = '#94a3b8'; acModCtx.font = 'bold 10px JetBrains Mono'; acModCtx.textAlign = 'center';
+  acModCtx.fillText('+ v_gs −', 95, 80);
+  acModCtx.font = '9px Sarabun'; acModCtx.fillText('(Z_in = ∞)', 95, 96);
+
+  // Dependent Current Source (g_m * v_gs)
+  const cs_x = 235;
+  acModCtx.strokeStyle = '#a855f7'; acModCtx.lineWidth = 2;
+  acModCtx.beginPath(); acModCtx.arc(cs_x, 77, 22, 0, Math.PI*2); acModCtx.stroke();
+  // Downward arrow inside circle
+  acModCtx.fillStyle = '#a855f7';
+  acModCtx.beginPath();
+  acModCtx.moveTo(cs_x, 62); acModCtx.lineTo(cs_x, 90);
+  acModCtx.lineTo(cs_x - 5, 83); acModCtx.moveTo(cs_x, 90); acModCtx.lineTo(cs_x + 5, 83);
+  acModCtx.stroke();
+  acModCtx.font = 'bold 10px JetBrains Mono';
+  acModCtx.fillText('g_m · v_gs', cs_x, 118);
+
+  // Output Resistance r_d in parallel
+  const rd_x = 355;
+  acModCtx.strokeStyle = '#f59e0b'; acModCtx.lineWidth = 2;
+  acModCtx.beginPath();
+  acModCtx.moveTo(rd_x, 40); acModCtx.lineTo(rd_x, 62);
+  acModCtx.lineTo(rd_x - 5, 66); acModCtx.lineTo(rd_x + 5, 72);
+  acModCtx.lineTo(rd_x - 5, 78); acModCtx.lineTo(rd_x + 5, 84);
+  acModCtx.lineTo(rd_x, 88);    acModCtx.lineTo(rd_x, 115);
+  acModCtx.stroke();
+  acModCtx.fillStyle = '#f59e0b'; acModCtx.font = 'bold 10px JetBrains Mono';
+  acModCtx.fillText('r_d', rd_x + 16, 80);
+
+  // Connecting wires for output branch
+  acModCtx.strokeStyle = '#475569'; acModCtx.lineWidth = 2;
+  acModCtx.beginPath();
+  acModCtx.moveTo(cs_x, 40); acModCtx.lineTo(430, 40);
+  acModCtx.moveTo(cs_x, 55); acModCtx.lineTo(cs_x, 40);
+  acModCtx.moveTo(cs_x, 99); acModCtx.lineTo(cs_x, 115);
+  acModCtx.moveTo(cs_x, 115); acModCtx.lineTo(430, 115);
+  acModCtx.stroke();
+}
+
+/* ================================================================= */
+/* SCHEMATIC & AC DRAWING HELPERS                                    */
+/* ================================================================= */
+function wire(ctx, x1, y1, x2, y2, col='#475569', lw=2) {
+  ctx.strokeStyle = col; ctx.lineWidth = lw;
+  ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+}
+
+function dotNode(ctx, x, y, label='', side='top') {
+  ctx.beginPath(); ctx.arc(x, y, 4, 0, Math.PI*2); ctx.fillStyle = '#ffffff'; ctx.fill();
+  if (label) {
+    ctx.font = 'bold 10px JetBrains Mono'; ctx.fillStyle = '#38bdf8';
+    if (side === 'top') { ctx.textAlign = 'center'; ctx.fillText(label, x, y - 8); }
+    else if (side === 'right') { ctx.textAlign = 'left'; ctx.fillText(label, x + 8, y + 3); }
+    else if (side === 'bottom') { ctx.textAlign = 'center'; ctx.fillText(label, x, y + 14); }
+    else { ctx.textAlign = 'right'; ctx.fillText(label, x - 8, y + 3); }
+    ctx.textAlign = 'left';
+  }
+}
+
+function gndSymbol(ctx, x, y) {
+  ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 2;
+  wire(ctx, x, y - 8, x, y);
+  for (let i = 0; i < 3; i++) {
+    const hw = 10 - i * 3.5, yy = y + i * 4;
+    ctx.beginPath(); ctx.moveTo(x - hw, yy); ctx.lineTo(x + hw, yy); ctx.stroke();
+  }
+}
+
+function vddRail(ctx, x, y, v) {
+  ctx.fillStyle = '#f97316'; ctx.font = 'bold 11px JetBrains Mono'; ctx.textAlign = 'center';
+  ctx.fillText(`+${v}V (V_DD)`, x, y - 6);
+  ctx.beginPath(); ctx.moveTo(x - 14, y); ctx.lineTo(x + 14, y);
+  ctx.strokeStyle = '#f97316'; ctx.lineWidth = 2.5; ctx.stroke();
+  ctx.textAlign = 'left';
+}
+
+function drawResistorV(ctx, x, y1, y2, lbl, val, labelSide='left') {
+  const my = (y1 + y2) / 2, segH = 14;
+  wire(ctx, x, y1, x, my - segH, '#475569');
+  wire(ctx, x, my + segH, x, y2, '#475569');
+  ctx.strokeStyle = '#f59e0b'; ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(x, my - segH);
+  ctx.lineTo(x - 6, my - 10); ctx.lineTo(x + 6, my - 5);
+  ctx.lineTo(x - 6, my);      ctx.lineTo(x + 6, my + 5);
+  ctx.lineTo(x - 6, my + 10); ctx.lineTo(x, my + segH);
+  ctx.stroke();
+  ctx.font = 'bold 10px Sarabun';
+  if (labelSide === 'left') {
+    ctx.textAlign = 'right'; ctx.fillStyle = '#94a3b8'; ctx.fillText(lbl, x - 10, my - 2);
+    ctx.fillStyle = '#f59e0b'; ctx.fillText(val, x - 10, my + 11);
+  } else {
+    ctx.textAlign = 'left'; ctx.fillStyle = '#94a3b8'; ctx.fillText(lbl, x + 10, my - 2);
+    ctx.fillStyle = '#f59e0b'; ctx.fillText(val, x + 10, my + 11);
+  }
+  ctx.textAlign = 'left';
+}
+
+function drawResistorH(ctx, x1, x2, y, lbl, val, labelSide='top') {
+  const mx = (x1 + x2) / 2, segW = 14;
+  wire(ctx, x1, y, mx - segW, y, '#475569');
+  wire(ctx, mx + segW, y, x2, y, '#475569');
+  ctx.strokeStyle = '#f59e0b'; ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(mx - segW, y);
+  ctx.lineTo(mx - 10, y - 6); ctx.lineTo(mx - 5, y + 6);
+  ctx.lineTo(mx, y - 6);      ctx.lineTo(mx + 5, y + 6);
+  ctx.lineTo(mx + 10, y - 6); ctx.lineTo(mx + segW, y);
+  ctx.stroke();
+  ctx.font = 'bold 10px Sarabun'; ctx.textAlign = 'center';
+  if (labelSide === 'top') {
+    ctx.fillStyle = '#94a3b8'; ctx.fillText(lbl, mx, y - 10);
+    ctx.fillStyle = '#f59e0b'; ctx.fillText(val, mx, y + 18);
+  }
+  ctx.textAlign = 'left';
+}
+
+function drawCapH(ctx, x1, x2, y, lbl) {
+  const mx = (x1 + x2) / 2;
+  wire(ctx, x1, y, mx - 4, y, '#475569');
+  wire(ctx, mx + 4, y, x2, y, '#475569');
+  ctx.strokeStyle = '#06b6d4'; ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.moveTo(mx - 4, y - 12); ctx.lineTo(mx - 4, y + 12); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(mx + 4, y - 12); ctx.lineTo(mx + 4, y + 12); ctx.stroke();
+  ctx.fillStyle = '#06b6d4'; ctx.font = 'bold 10px Sarabun'; ctx.textAlign = 'center';
+  ctx.fillText(lbl, mx, y - 16); ctx.textAlign = 'left';
+}
+
+function drawCapV(ctx, x, y1, y2, lbl) {
+  const my = (y1 + y2) / 2;
+  wire(ctx, x, y1, x, my - 4, '#475569');
+  wire(ctx, x, my + 4, x, y2, '#475569');
+  ctx.strokeStyle = '#06b6d4'; ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.moveTo(x - 12, my - 4); ctx.lineTo(x + 12, my - 4); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x - 12, my + 4); ctx.lineTo(x + 12, my + 4); ctx.stroke();
+  ctx.fillStyle = '#06b6d4'; ctx.font = 'bold 10px Sarabun'; ctx.textAlign = 'left';
+  ctx.fillText(lbl, x + 14, my + 3);
+}
+
+function drawAcSrc(ctx, x, y, r, lbl, v) {
+  ctx.strokeStyle = Math.abs(v) > 0 ? '#fbbf24' : '#475569'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI*2); ctx.stroke();
+  ctx.strokeStyle = '#fbbf24'; ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  for (let a = 0; a <= Math.PI*2; a += 0.1) {
+    const sx = x - r*0.6 + a/(Math.PI*2)*r*1.2, sy = y - Math.sin(a)*r*0.35;
+    if (a === 0) ctx.moveTo(sx, sy); else ctx.lineTo(sx, sy);
+  }
+  ctx.stroke();
+  ctx.font = 'bold 10px JetBrains Mono'; ctx.textAlign = 'center';
+  ctx.fillStyle = '#fbbf24'; ctx.fillText(lbl, x, y - r - 6);
+  ctx.fillStyle = '#94a3b8'; ctx.fillText(`${v>=0?'+':''}${v.toFixed(2)}V`, x, y + r + 13);
+  ctx.textAlign = 'left';
+}
+
+function drawJFETSchem(ctx, cx, cy, isActive=true) {
+  const col = isActive ? '#06b6d4' : '#475569';
+  if (isActive) { ctx.shadowColor = col; ctx.shadowBlur = 8; }
+  ctx.beginPath(); ctx.arc(cx, cy, 20, 0, Math.PI*2);
+  ctx.strokeStyle = col; ctx.lineWidth = 2; ctx.stroke();
+  ctx.shadowBlur = 0;
+  // Channel bar (vertical)
+  ctx.strokeStyle = '#06b6d4'; ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.moveTo(cx - 5, cy - 14); ctx.lineTo(cx - 5, cy + 14); ctx.stroke();
+  // Gate lead & arrow
+  ctx.strokeStyle = '#eab308'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(cx - 20, cy); ctx.lineTo(cx - 5, cy); ctx.stroke();
+  // Arrow pointing inward on Gate (N-JFET)
+  ctx.fillStyle = '#eab308';
+  ctx.beginPath();
+  ctx.moveTo(cx - 5, cy); ctx.lineTo(cx - 12, cy - 4); ctx.lineTo(cx - 12, cy + 4); ctx.closePath(); ctx.fill();
+  // Drain lead (top)
+  ctx.strokeStyle = col; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(cx - 5, cy - 9); ctx.lineTo(cx + 14, cy - 9); ctx.lineTo(cx + 14, cy - 18); ctx.stroke();
+  // Source lead (bottom)
+  ctx.beginPath(); ctx.moveTo(cx - 5, cy + 9); ctx.lineTo(cx + 14, cy + 9); ctx.lineTo(cx + 14, cy + 18); ctx.stroke();
+  // Pin labels
+  ctx.font = 'bold 9px JetBrains Mono';
+  ctx.fillStyle = '#eab308'; ctx.fillText('G', cx - 26, cy - 3);
+  ctx.fillStyle = col; ctx.fillText('D', cx + 18, cy - 14); ctx.fillText('S', cx + 18, cy + 22);
+}
+
+/* ================================================================= */
+/* 5. MODULE 2 — 3 FET CONFIGURATIONS                                */
+/* ================================================================= */
+const cfgCanvas = document.getElementById('canvas-config');
+const cfgCtx = cfgCanvas.getContext('2d');
+
+function setConfigViewMode(mode) {
+  state.config.viewMode = mode;
+  ['btn-cfg-view-schem', 'btn-cfg-view-ac', 'btn-cfg-view-compare'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('active');
+  });
+  const m = { schematic: 'btn-cfg-view-schem', ac_model: 'btn-cfg-view-ac', compare: 'btn-cfg-view-compare' };
+  if (document.getElementById(m[mode])) document.getElementById(m[mode]).classList.add('active');
+
+  const tag = document.getElementById('config-canvas-mode-tag');
+  if (tag) {
+    tag.textContent = mode === 'schematic' ? 'โหมด: ผังวงจรจริง (Complete Circuit)' :
+                      mode === 'ac_model' ? 'โหมด: แบบจำลองสมมูล AC (AC Model)' :
+                      'โหมด: เปรียบเทียบการแปลง AC (Conversion)';
+  }
+  drawConfigSchematic();
+  playSound('click');
+}
+
+function selectConfig(type, btn) {
+  state.config.type = type;
+  ['btn-cfg-cs', 'btn-cfg-cd', 'btn-cfg-cg'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('active');
+  });
+  if (btn) btn.classList.add('active');
+
+  const titleEl = document.getElementById('config-canvas-title');
+  const theoryEl = document.getElementById('config-theory-box');
+
+  if (type === 'cs') {
+    titleEl.innerHTML = '<i class="fa-solid fa-arrow-down-up-across-line"></i> วงจรขยาย Common Source (CS Amplifier)';
+    theoryEl.innerHTML = 
+      `<strong>Common Source (CS) Amplifier:</strong><br>` +
+      `• <strong>อัตราขยายแรงดัน:</strong> A<sub>v</sub> = −g<sub>m</sub> · (R<sub>D</sub> ∥ r<sub>d</sub> ∥ R<sub>L</sub>) (สัญญาณกลับเฟส 180°)<br>` +
+      `• <strong>อิมพีแดนซ์อินพุต:</strong> Z<sub>in</sub> = R<sub>G</sub> (สูงมาก ~1 MΩ ถึง 10 MΩ ไม่ดึงโหลดจากแหล่งจ่ายสัญญาณ)<br>` +
+      `• <strong>อิมพีแดนซ์เอาต์พุต:</strong> Z<sub>out</sub> = R<sub>D</sub> ∥ r<sub>d</sub> ≈ R<sub>D</sub><br>` +
+      `• โครงแบบยอดนิยมที่สุดสำหรับการขยายสัญญาณแรงดันหลายภาค`;
+  } else if (type === 'cd') {
+    titleEl.innerHTML = '<i class="fa-solid fa-shield-halved"></i> วงจรขยาย Source Follower / Common Drain (CD)';
+    theoryEl.innerHTML = 
+      `<strong>Source Follower / Common Drain (CD):</strong><br>` +
+      `• <strong>อัตราขยายแรงดัน:</strong> A<sub>v</sub> = [g<sub>m</sub> · (R<sub>S</sub> ∥ R<sub>L</sub> ∥ r<sub>d</sub>)] / [1 + g<sub>m</sub> · (R<sub>S</sub> ∥ R<sub>L</sub> ∥ r<sub>d</sub>)] ≈ <strong>1.0 (ไม่กลับเฟส 0°)</strong><br>` +
+      `• <strong>Input Impedance:</strong> Z<sub>in</sub> = R<sub>G</sub> (สูงมาก ~1 MΩ ถึง 10 MΩ)<br>` +
+      `• <strong>Output Impedance:</strong> Z<sub>out</sub> = R<sub>S</sub> ∥ (1 / g<sub>m</sub>) ∥ r<sub>d</sub> (ต่ำมาก ~100–300 Ω เหมาะเป็นตัวกันชน Buffer)`;
+  } else if (type === 'cg') {
+    titleEl.innerHTML = '<i class="fa-solid fa-tower-broadcast"></i> วงจรขยาย Common Gate (CG RF Amplifier)';
+    theoryEl.innerHTML = 
+      `<strong>Common Gate (CG) Amplifier:</strong><br>` +
+      `• <strong>อัตราขยายแรงดัน:</strong> A<sub>v</sub> = +g<sub>m</sub> · (R<sub>D</sub> ∥ R<sub>L</sub> ∥ r<sub>d</sub>) (สัญญาณไม่กลับเฟส 0° มี Gain สูง)<br>` +
+      `• <strong>Input Impedance:</strong> Z<sub>in</sub> = R<sub>S</sub> ∥ (1 / g<sub>m</sub>) ≈ <strong>ต่ำมาก (~100–300 Ω)</strong> เหมาะกับสายเคเบิล RF 50Ω<br>` +
+      `• <strong>Output Impedance:</strong> Z<sub>out</sub> = R<sub>D</sub> ∥ r<sub>d</sub> ≈ R<sub>D</sub><br>` +
+      `• นิยมใช้ในงานขยายสัญญาณความถี่สูง (RF Stage) เพื่อกำจัดผลกระทบของ Miller Effect`;
+  }
+
+  onConfigChange();
+  playSound('click');
+}
+
+function onConfigChange() {
+  state.config.gm = parseFloat(document.getElementById('slider-cfg-gm').value);
+  state.config.rd_kohm = parseFloat(document.getElementById('slider-cfg-rd').value);
+  state.config.rs_kohm = parseFloat(document.getElementById('slider-cfg-rs').value);
+  state.config.rl_kohm = parseFloat(document.getElementById('slider-cfg-rl').value);
+
+  const gm_mS = state.config.gm;
+  const gm = gm_mS / 1000; // Siemens
+  const rd_k = state.config.rd_kohm;
+  const rs_k = state.config.rs_kohm;
+  const rl_k = state.config.rl_kohm;
+  const rd_int_k = state.config.rd_int; // 50 kΩ
+
+  document.getElementById('cfg-gm-badge').textContent = gm_mS.toFixed(1) + ' mS';
+  document.getElementById('cfg-rd-badge').textContent = rd_k.toFixed(1) + ' kΩ';
+  document.getElementById('cfg-rs-badge').textContent = rs_k.toFixed(1) + ' kΩ';
+  document.getElementById('cfg-rl-badge').textContent = rl_k.toFixed(1) + ' kΩ';
+
+  let av = 0, zin_str = '1.0 MΩ', zout_k = 0, phase_str = '180° (กลับเฟส)';
+  let calcHtml = '';
+
+  if (state.config.type === 'cs') {
+    // CS Amplifier
+    const r_ac = 1 / ((1 / rd_k) + (1 / rl_k) + (1 / rd_int_k));
+    av = -gm * (r_ac * 1000);
+    zout_k = 1 / ((1 / rd_k) + (1 / rd_int_k));
+    zin_str = '1.0 MΩ (R_G)';
+    phase_str = '180° (กลับเฟส)';
+
+    calcHtml = 
+      `<div style="margin-bottom:0.45rem;padding:0.45rem;background:rgba(6,182,212,0.06);border-left:3px solid var(--accent-primary);border-radius:4px;">` +
+      `  <strong style="color:var(--accent-primary);"><i class="fa-solid fa-calculator"></i> 1. ขั้นตอนการแปลงแบบจำลอง AC (AC Equivalent Transformation):</strong><br>` +
+      `  • แหล่งจ่ายไฟ DC (+V<sub>DD</sub> = +15V) กลายเป็น <strong>AC Ground (0V)</strong><br>` +
+      `  • ตัวเก็บประจุ C<sub>1</sub>, C<sub>2</sub>, C<sub>S</sub> ลัดวงจรในย่านความถี่ทำงาน (AC Short-Circuit: X<sub>C</sub> ≈ 0)<br>` +
+      `  • ขา Source ถูกดึงลงกราวด์ผ่าน C<sub>S</sub> (Bypassed) ทำให้ FET ถูกแทนด้วยแหล่งจ่ายกระแส <strong>g<sub>m</sub>·v<sub>gs</sub></strong> ขนานกับ r<sub>d</sub> (50 kΩ)` +
+      `</div>` +
+      `<div style="margin-bottom:0.45rem;"><strong>2. คำนวณความต้านทานโหลด AC รวม (r<sub>ac</sub> = R<sub>D</sub> ∥ R<sub>L</sub> ∥ r<sub>d</sub>):</strong><br>` +
+      `&nbsp;&nbsp;1/r<sub>ac</sub> = (1/${rd_k.toFixed(1)}) + (1/${rl_k.toFixed(1)}) + (1/${rd_int_k.toFixed(1)}) = ${(1/r_ac).toFixed(4)} kΩ<sup>−1</sup><br>` +
+      `&nbsp;&nbsp;→ <strong>r<sub>ac</sub> = <span style="color:#38bdf8;font-weight:700;">${r_ac.toFixed(2)} kΩ</span></strong></div>` +
+      `<div style="margin-bottom:0.45rem;"><strong>3. คำนวณอัตราขยายแรงดัน (Voltage Gain A<sub>v</sub>):</strong><br>` +
+      `&nbsp;&nbsp;A<sub>v</sub> = −g<sub>m</sub> · r<sub>ac</sub> = −(${gm_mS.toFixed(1)} mS × ${r_ac.toFixed(2)} kΩ) = <span style="color:#10b981;font-weight:700;font-size:0.95rem;">${av.toFixed(2)}</span> (เครื่องหมายลบแสดงการกลับเฟส 180°)</div>` +
+      `<div style="margin-bottom:0.45rem;"><strong>4. อิมพีแดนซ์อินพุตและเอาต์พุต (Z<sub>in</sub>, Z<sub>out</sub>):</strong><br>` +
+      `&nbsp;&nbsp;• <strong>Z<sub>in</sub></strong> = R<sub>G</sub> = <span style="color:var(--accent-primary);font-weight:700;">1.0 MΩ</span> (เกตเป็นฉนวน อิมพีแดนซ์สูงมาก)<br>` +
+      `&nbsp;&nbsp;• <strong>Z<sub>out</sub></strong> = R<sub>D</sub> ∥ r<sub>d</sub> = (${rd_k.toFixed(1)} × 50) / (${rd_k.toFixed(1)} + 50) = <span style="color:#38bdf8;font-weight:700;">${zout_k.toFixed(2)} kΩ</span></div>`;
+
+  } else if (state.config.type === 'cd') {
+    // CD Source Follower
+    const r_ac = 1 / ((1 / rs_k) + (1 / rl_k) + (1 / rd_int_k));
+    const gm_rac = gm * (r_ac * 1000);
+    av = gm_rac / (1 + gm_rac);
+    const r_gm_k = 1 / gm_mS;
+    zout_k = 1 / ((1 / rs_k) + (1 / r_gm_k) + (1 / rd_int_k));
+    zin_str = '1.0 MΩ (R_G)';
+    phase_str = '0° (ตรงเฟส)';
+
+    calcHtml = 
+      `<div style="margin-bottom:0.45rem;padding:0.45rem;background:rgba(6,182,212,0.06);border-left:3px solid var(--accent-primary);border-radius:4px;">` +
+      `  <strong style="color:var(--accent-primary);"><i class="fa-solid fa-calculator"></i> 1. ขั้นตอนการแปลงแบบจำลอง AC (Source Follower Transformation):</strong><br>` +
+      `  • ขา Drain ต่อตรงกับ +V<sub>DD</sub> จึงกลายเป็น <strong>AC Ground</strong> โดยตรง<br>` +
+      `  • สัญญาณเอาต์พุตถูกดึงออกจากขา Source (ตกคร่อม R<sub>S</sub> ∥ R<sub>L</sub> ∥ r<sub>d</sub>)<br>` +
+      `  • ความสัมพันธ์แรงดันเกต-ซอร์ส: v<sub>gs</sub> = v<sub>in</sub> − v<sub>out</sub> (100% Negative Feedback)` +
+      `</div>` +
+      `<div style="margin-bottom:0.45rem;"><strong>2. คำนวณความต้านทานโหลด AC ที่ขา Source (r<sub>ac</sub> = R<sub>S</sub> ∥ R<sub>L</sub> ∥ r<sub>d</sub>):</strong><br>` +
+      `&nbsp;&nbsp;1/r<sub>ac</sub> = (1/${rs_k.toFixed(1)}) + (1/${rl_k.toFixed(1)}) + (1/${rd_int_k.toFixed(1)}) → <strong>r<sub>ac</sub> = <span style="color:#38bdf8;font-weight:700;">${r_ac.toFixed(2)} kΩ</span></strong></div>` +
+      `<div style="margin-bottom:0.45rem;"><strong>3. คำนวณอัตราขยายแรงดัน (Voltage Gain A<sub>v</sub>):</strong><br>` +
+      `&nbsp;&nbsp;A<sub>v</sub> = [g<sub>m</sub> · r<sub>ac</sub>] / [1 + g<sub>m</sub> · r<sub>ac</sub>] = (${gm_mS.toFixed(1)} × ${r_ac.toFixed(2)}) / [1 + (${gm_mS.toFixed(1)} × ${r_ac.toFixed(2)})] = <span style="color:#10b981;font-weight:700;font-size:0.95rem;">+${av.toFixed(3)}</span> (ตรงเฟส 0°, มีค่าใกล้เคียง 1.0 เสมอ)</div>` +
+      `<div style="margin-bottom:0.45rem;"><strong>4. อิมพีแดนซ์อินพุตและเอาต์พุต (Z<sub>in</sub>, Z<sub>out</sub>):</strong><br>` +
+      `&nbsp;&nbsp;• <strong>Z<sub>in</sub></strong> = R<sub>G</sub> = <span style="color:var(--accent-primary);font-weight:700;">1.0 MΩ</span> (อิมพีแดนซ์อินพุตสูงมาก)<br>` +
+      `&nbsp;&nbsp;• <strong>Z<sub>out</sub></strong> = R<sub>S</sub> ∥ (1/g<sub>m</sub>) ∥ r<sub>d</sub> = ${rs_k.toFixed(1)}k ∥ ${(r_gm_k*1000).toFixed(0)}Ω = <span style="color:#38bdf8;font-weight:700;">${(zout_k*1000).toFixed(1)} Ω (${zout_k.toFixed(3)} kΩ)</span> (ต่ำมาก เหมาะทำ Buffer ขับสายสัญญาณ)</div>`;
+
+  } else if (state.config.type === 'cg') {
+    // CG Common Gate
+    const r_ac = 1 / ((1 / rd_k) + (1 / rl_k) + (1 / rd_int_k));
+    av = gm * (r_ac * 1000);
+    const r_gm_k = 1 / gm_mS;
+    const zin_ohm = 1 / ((1 / (rs_k * 1000)) + (gm));
+    zout_k = 1 / ((1 / rd_k) + (1 / rd_int_k));
+    zin_str = `${zin_ohm.toFixed(1)} Ω (ต่ำ)`;
+    phase_str = '0° (ตรงเฟส)';
+
+    calcHtml = 
+      `<div style="margin-bottom:0.45rem;padding:0.45rem;background:rgba(6,182,212,0.06);border-left:3px solid var(--accent-primary);border-radius:4px;">` +
+      `  <strong style="color:var(--accent-primary);"><i class="fa-solid fa-calculator"></i> 1. ขั้นตอนการแปลงแบบจำลอง AC (Common Gate Transformation):</strong><br>` +
+      `  • ขา Gate ต่อผ่านตัวเก็บประจุ C<sub>G</sub> ลงกราวด์ กลายเป็น <strong>AC Ground</strong><br>` +
+      `  • ป้อนสัญญาณอินพุต v<sub>in</sub> เข้าที่ขา Source ทำให้ v<sub>gs</sub> = −v<sub>in</sub><br>` +
+      `  • แหล่งจ่ายกระแส g<sub>m</sub>·v<sub>gs</sub> = −g<sub>m</sub>·v<sub>in</sub> ดึงกระแสไหลเข้าขา Drain ได้ขั้วแรงดันเอาต์พุตเป็นบวก (ไม่กลับเฟส)` +
+      `</div>` +
+      `<div style="margin-bottom:0.45rem;"><strong>2. คำนวณความต้านทานโหลด AC ที่ขา Drain (r<sub>ac</sub> = R<sub>D</sub> ∥ R<sub>L</sub> ∥ r<sub>d</sub>):</strong><br>` +
+      `&nbsp;&nbsp;r<sub>ac</sub> = <span style="color:#38bdf8;font-weight:700;">${r_ac.toFixed(2)} kΩ</span></div>` +
+      `<div style="margin-bottom:0.45rem;"><strong>3. คำนวณอัตราขยายแรงดัน (Voltage Gain A<sub>v</sub>):</strong><br>` +
+      `&nbsp;&nbsp;A<sub>v</sub> = +g<sub>m</sub> · r<sub>ac</sub> = +(${gm_mS.toFixed(1)} mS × ${r_ac.toFixed(2)} kΩ) = <span style="color:#10b981;font-weight:700;font-size:0.95rem;">+${av.toFixed(2)}</span> (ไม่กลับเฟส 0° และมี Gain สูง)</div>` +
+      `<div style="margin-bottom:0.45rem;"><strong>4. อิมพีแดนซ์อินพุตและเอาต์พุต (Z<sub>in</sub>, Z<sub>out</sub>):</strong><br>` +
+      `&nbsp;&nbsp;• <strong>Z<sub>in</sub></strong> = R<sub>S</sub> ∥ (1/g<sub>m</sub>) = ${rs_k.toFixed(1)}k ∥ ${(r_gm_k*1000).toFixed(0)}Ω = <span style="color:#f59e0b;font-weight:700;">${zin_ohm.toFixed(1)} Ω</span> (อิมพีแดนซ์ต่ำมาก เหมาะกับเสาอากาศ RF 50Ω)<br>` +
+      `&nbsp;&nbsp;• <strong>Z<sub>out</sub></strong> = R<sub>D</sub> ∥ r<sub>d</sub> = <span style="color:#38bdf8;font-weight:700;">${zout_k.toFixed(2)} kΩ</span></div>`;
+  }
+
+  document.getElementById('cfg-av-val').innerHTML = `${av.toFixed(2)} <span class="readout-unit">${phase_str.includes('180')?'(180°↺)':'(0°)'}</span>`;
+  document.getElementById('cfg-zin-val').innerHTML = zin_str;
+  document.getElementById('cfg-zout-val').innerHTML = `${zout_k.toFixed(2)} <span class="readout-unit">kΩ</span>`;
+  document.getElementById('cfg-phase-val').innerHTML = phase_str;
+  document.getElementById('config-calc-details').innerHTML = calcHtml;
+
+  drawConfigSchematic();
+}
+
+function drawConfigSchematic() {
+  const W = cfgCanvas.width, H = cfgCanvas.height;
+  cfgCtx.clearRect(0, 0, W, H);
+  cfgCtx.fillStyle = '#050b14'; cfgCtx.fillRect(0, 0, W, H);
+
+  const type = state.config.type;
+  const viewMode = state.config.viewMode || 'schematic';
+
+  if (viewMode === 'schematic') {
+    drawPureSchematic(cfgCtx, type, W, H);
+  } else if (viewMode === 'ac_model') {
+    drawPureACModel(cfgCtx, type, W, H);
+  } else if (viewMode === 'compare') {
+    drawSideBySideCompare(cfgCtx, type, W, H);
+  }
+}
+
+function drawPureSchematic(ctx, type, W, H) {
+  const bjt_cx = 320, bjt_cy = 135;
+
+  if (type === 'cs') {
+    drawAcSrc(ctx, 60, 135, 18, 'v_in', 0.2);
+    drawCapH(ctx, 90, 175, 135, 'C_1');
+    wire(ctx, 78, 135, 90, 135); wire(ctx, 175, 135, 215, 135);
+    wire(ctx, 60, 153, 60, 235); gndSymbol(ctx, 60, 235);
+
+    drawResistorV(ctx, 215, 135, 235, 'R_G', '1MΩ', 'left');
+    gndSymbol(ctx, 215, 235); dotNode(ctx, 215, 135);
+
+    wire(ctx, 215, 135, bjt_cx - 20, 135);
+    drawJFETSchem(ctx, bjt_cx, bjt_cy, true);
+
+    const drain_x = bjt_cx + 14, drain_y = bjt_cy - 18;
+    vddRail(ctx, drain_x, 25, 15);
+    drawResistorV(ctx, drain_x, 25, drain_y, 'R_D', `${state.config.rd_kohm.toFixed(1)}kΩ`, 'right');
+    dotNode(ctx, drain_x, drain_y);
+
+    const src_x = bjt_cx + 14, src_y = bjt_cy + 18;
+    wire(ctx, src_x, src_y, src_x, 175);
+    drawResistorV(ctx, src_x, 175, 235, 'R_S', `${state.config.rs_kohm.toFixed(1)}kΩ`, 'left');
+    drawCapV(ctx, src_x + 45, 175, 235, 'C_S');
+    wire(ctx, src_x, 175, src_x + 45, 175); wire(ctx, src_x, 235, src_x + 45, 235);
+    gndSymbol(ctx, src_x + 22, 235); dotNode(ctx, src_x, 175);
+
+    wire(ctx, drain_x, drain_y, 440, drain_y);
+    drawCapH(ctx, 440, 520, drain_y, 'C_2');
+    wire(ctx, 520, drain_y, 580, drain_y);
+    drawResistorV(ctx, 580, drain_y, 235, 'R_L', `${state.config.rl_kohm.toFixed(1)}kΩ`, 'right');
+    gndSymbol(ctx, 580, 235); dotNode(ctx, 580, drain_y, 'v_out (180°↺)', 'top');
+
+  } else if (type === 'cd') {
+    drawAcSrc(ctx, 60, 135, 18, 'v_in', 0.2);
+    drawCapH(ctx, 90, 175, 135, 'C_1');
+    wire(ctx, 78, 135, 90, 135); wire(ctx, 175, 135, 215, 135);
+    wire(ctx, 60, 153, 60, 235); gndSymbol(ctx, 60, 235);
+
+    drawResistorV(ctx, 215, 135, 235, 'R_G', '1MΩ', 'left');
+    gndSymbol(ctx, 215, 235); dotNode(ctx, 215, 135);
+
+    wire(ctx, 215, 135, bjt_cx - 20, 135);
+    drawJFETSchem(ctx, bjt_cx, bjt_cy, true);
+
+    const drain_x = bjt_cx + 14, drain_y = bjt_cy - 18;
+    vddRail(ctx, drain_x, 25, 15);
+    wire(ctx, drain_x, 25, drain_x, drain_y);
+
+    const src_x = bjt_cx + 14, src_y = bjt_cy + 18;
+    wire(ctx, src_x, src_y, src_x, 170);
+    drawResistorV(ctx, src_x, 170, 235, 'R_S', `${state.config.rs_kohm.toFixed(1)}kΩ`, 'left');
+    gndSymbol(ctx, src_x, 235); dotNode(ctx, src_x, 170);
+
+    wire(ctx, src_x, 170, 440, 170);
+    drawCapH(ctx, 440, 520, 170, 'C_2');
+    wire(ctx, 520, 170, 580, 170);
+    drawResistorV(ctx, 580, 170, 235, 'R_L', `${state.config.rl_kohm.toFixed(1)}kΩ`, 'right');
+    gndSymbol(ctx, 580, 235); dotNode(ctx, 580, 170, 'v_out (Av≈1)', 'top');
+
+  } else if (type === 'cg') {
+    drawAcSrc(ctx, 60, 185, 18, 'v_in', 0.2);
+    drawCapH(ctx, 90, 175, 185, 'C_1');
+    wire(ctx, 78, 185, 90, 185); wire(ctx, 175, 185, 230, 185);
+    wire(ctx, 60, 203, 60, 235); gndSymbol(ctx, 60, 235);
+
+    drawResistorV(ctx, 230, 185, 235, 'R_S', `${state.config.rs_kohm.toFixed(1)}kΩ`, 'left');
+    gndSymbol(ctx, 230, 235); dotNode(ctx, 230, 185);
+
+    const src_x = bjt_cx + 14, src_y = bjt_cy + 18;
+    wire(ctx, 230, 185, src_x, 185); wire(ctx, src_x, 185, src_x, src_y);
+    drawJFETSchem(ctx, bjt_cx, bjt_cy, true);
+
+    wire(ctx, bjt_cx - 20, 135, bjt_cx - 45, 135);
+    drawCapV(ctx, bjt_cx - 45, 135, 235, 'C_G');
+    gndSymbol(ctx, bjt_cx - 45, 235);
+
+    const drain_x = bjt_cx + 14, drain_y = bjt_cy - 18;
+    vddRail(ctx, drain_x, 25, 15);
+    drawResistorV(ctx, drain_x, 25, drain_y, 'R_D', `${state.config.rd_kohm.toFixed(1)}kΩ`, 'right');
+    dotNode(ctx, drain_x, drain_y);
+
+    wire(ctx, drain_x, drain_y, 440, drain_y);
+    drawCapH(ctx, 440, 520, drain_y, 'C_2');
+    wire(ctx, 520, drain_y, 580, drain_y);
+    drawResistorV(ctx, 580, drain_y, 235, 'R_L', `${state.config.rl_kohm.toFixed(1)}kΩ`, 'right');
+    gndSymbol(ctx, 580, 235); dotNode(ctx, 580, drain_y, 'v_out (0° In-Phase)', 'top');
+  }
+}
+
+function drawPureACModel(ctx, type, W, H) {
+  // AC Small Signal Equivalent Circuit Model
+  ctx.save();
+
+  if (type === 'cs') {
+    // Common Source AC Model
+    // Input Port
+    drawAcSrc(ctx, 60, 120, 18, 'v_in', 0.2);
+    wire(ctx, 60, 138, 60, 220); gndSymbol(ctx, 60, 220);
+    wire(ctx, 78, 120, 140, 120);
+
+    drawResistorV(ctx, 140, 120, 220, 'R_G', '1MΩ', 'left');
+    gndSymbol(ctx, 140, 220); dotNode(ctx, 140, 120);
+
+    // Gate node (Open Circuit)
+    wire(ctx, 140, 120, 210, 120);
+    dotNode(ctx, 210, 120, 'G (Gate)', 'top');
+    wire(ctx, 210, 220, 270, 220); gndSymbol(ctx, 210, 220);
+    dotNode(ctx, 210, 220, 'S (AC GND)', 'bottom');
+
+    // Voltage label + v_gs -
+    ctx.font = 'bold 11px JetBrains Mono'; ctx.fillStyle = '#eab308'; ctx.textAlign = 'center';
+    ctx.fillText('+  v_gs  −', 210, 170);
+
+    // Dependent current source gm*vgs pointing down
+    const csrc_x = 310, csrc_y = 170;
+    wire(ctx, csrc_x, 120, csrc_x, csrc_y - 18);
+    wire(ctx, csrc_x, csrc_y + 18, csrc_x, 220);
+    gndSymbol(ctx, csrc_x, 220);
+
+    ctx.beginPath(); ctx.arc(csrc_x, csrc_y, 18, 0, Math.PI*2);
+    ctx.fillStyle = '#0f172a'; ctx.fill();
+    ctx.strokeStyle = '#06b6d4'; ctx.lineWidth = 2; ctx.stroke();
+    // Arrow pointing down
+    ctx.fillStyle = '#06b6d4';
+    ctx.beginPath();
+    ctx.moveTo(csrc_x, csrc_y + 10); ctx.lineTo(csrc_x - 5, csrc_y - 4); ctx.lineTo(csrc_x + 5, csrc_y - 4);
+    ctx.closePath(); ctx.fill();
+    wire(ctx, csrc_x, csrc_y - 10, csrc_x, csrc_y - 4, '#06b6d4', 2);
+
+    ctx.font = 'bold 10px JetBrains Mono'; ctx.fillStyle = '#38bdf8';
+    ctx.fillText('g_m·v_gs', csrc_x, csrc_y - 24);
+
+    // Drain node top rail
+    wire(ctx, csrc_x, 120, 560, 120);
+    dotNode(ctx, csrc_x, 120, 'D (Drain)', 'top');
+
+    // r_d internal
+    drawResistorV(ctx, 390, 120, 220, 'r_d', '50kΩ', 'right');
+    gndSymbol(ctx, 390, 220);
+
+    // R_D
+    drawResistorV(ctx, 470, 120, 220, 'R_D', `${state.config.rd_kohm.toFixed(1)}kΩ`, 'right');
+    gndSymbol(ctx, 470, 220);
+
+    // R_L
+    drawResistorV(ctx, 560, 120, 220, 'R_L', `${state.config.rl_kohm.toFixed(1)}kΩ`, 'right');
+    gndSymbol(ctx, 560, 220);
+    dotNode(ctx, 560, 120, 'v_out = −g_m·v_gs·(r_d ∥ R_D ∥ R_L)', 'top');
+
+  } else if (type === 'cd') {
+    // Source Follower AC Model (Drain grounded to AC)
+    drawAcSrc(ctx, 60, 120, 18, 'v_in', 0.2);
+    wire(ctx, 60, 138, 60, 220); gndSymbol(ctx, 60, 220);
+    wire(ctx, 78, 120, 140, 120);
+
+    drawResistorV(ctx, 140, 120, 220, 'R_G', '1MΩ', 'left');
+    gndSymbol(ctx, 140, 220); dotNode(ctx, 140, 120);
+
+    wire(ctx, 140, 120, 210, 120);
+    dotNode(ctx, 210, 120, 'G (Gate)', 'top');
+
+    // Dependent current source from AC GND (Drain) into Source node
+    const csrc_x = 310, csrc_y = 120;
+    wire(ctx, csrc_x, 50, csrc_x, csrc_y - 18);
+    gndSymbol(ctx, csrc_x, 40); // Drain AC GND
+    ctx.font = 'bold 9px JetBrains Mono'; ctx.fillStyle = '#94a3b8'; ctx.fillText('D (Drain AC GND)', csrc_x, 25);
+
+    ctx.beginPath(); ctx.arc(csrc_x, csrc_y, 18, 0, Math.PI*2);
+    ctx.fillStyle = '#0f172a'; ctx.fill();
+    ctx.strokeStyle = '#06b6d4'; ctx.lineWidth = 2; ctx.stroke();
+    // Arrow pointing down into Source
+    ctx.fillStyle = '#06b6d4';
+    ctx.beginPath();
+    ctx.moveTo(csrc_x, csrc_y + 10); ctx.lineTo(csrc_x - 5, csrc_y - 4); ctx.lineTo(csrc_x + 5, csrc_y - 4);
+    ctx.closePath(); ctx.fill();
+    wire(ctx, csrc_x, csrc_y - 10, csrc_x, csrc_y - 4, '#06b6d4', 2);
+    ctx.fillText('g_m·v_gs', csrc_x + 32, csrc_y + 4);
+
+    // Source node rail at Y=175
+    wire(ctx, csrc_x, csrc_y + 18, csrc_x, 175);
+    wire(ctx, 210, 175, 560, 175);
+    dotNode(ctx, csrc_x, 175, 'S (Source)', 'bottom');
+
+    // Voltage vgs between G(120) and S(175)
+    ctx.font = 'bold 11px JetBrains Mono'; ctx.fillStyle = '#eab308';
+    ctx.fillText('+ v_gs − (v_in − v_out)', 140, 155);
+
+    // Output load resistors from Source node to GND
+    drawResistorV(ctx, 400, 175, 235, 'r_d', '50kΩ', 'right');
+    gndSymbol(ctx, 400, 235);
+
+    drawResistorV(ctx, 480, 175, 235, 'R_S', `${state.config.rs_kohm.toFixed(1)}kΩ`, 'right');
+    gndSymbol(ctx, 480, 235);
+
+    drawResistorV(ctx, 560, 175, 235, 'R_L', `${state.config.rl_kohm.toFixed(1)}kΩ`, 'right');
+    gndSymbol(ctx, 560, 235);
+    dotNode(ctx, 560, 175, 'v_out (across Source)', 'top');
+
+  } else if (type === 'cg') {
+    // Common Gate AC Model (Gate grounded to AC)
+    // Source input port
+    drawAcSrc(ctx, 60, 120, 18, 'v_in', 0.2);
+    wire(ctx, 60, 138, 60, 220); gndSymbol(ctx, 60, 220);
+    wire(ctx, 78, 120, 140, 120);
+
+    drawResistorV(ctx, 140, 120, 220, 'R_S', `${state.config.rs_kohm.toFixed(1)}kΩ`, 'left');
+    gndSymbol(ctx, 140, 220); dotNode(ctx, 140, 120);
+
+    wire(ctx, 140, 120, 230, 120);
+    dotNode(ctx, 230, 120, 'S (Source In)', 'top');
+
+    // Gate AC GND at bottom
+    wire(ctx, 230, 220, 310, 220);
+    gndSymbol(ctx, 230, 220); dotNode(ctx, 230, 220, 'G (Gate AC GND)', 'bottom');
+
+    ctx.font = 'bold 11px JetBrains Mono'; ctx.fillStyle = '#eab308';
+    ctx.fillText('− v_gs +  (= −v_in)', 210, 170);
+
+    // Current source pointing upwards from Source to Drain
+    const csrc_x = 310, csrc_y = 170;
+    wire(ctx, 230, 120, csrc_x, 120);
+    wire(ctx, csrc_x, 120, csrc_x, csrc_y - 18);
+    wire(ctx, csrc_x, csrc_y + 18, csrc_x, 220);
+
+    ctx.beginPath(); ctx.arc(csrc_x, csrc_y, 18, 0, Math.PI*2);
+    ctx.fillStyle = '#0f172a'; ctx.fill();
+    ctx.strokeStyle = '#06b6d4'; ctx.lineWidth = 2; ctx.stroke();
+    // Arrow pointing up
+    ctx.fillStyle = '#06b6d4';
+    ctx.beginPath();
+    ctx.moveTo(csrc_x, csrc_y - 10); ctx.lineTo(csrc_x - 5, csrc_y + 4); ctx.lineTo(csrc_x + 5, csrc_y + 4);
+    ctx.closePath(); ctx.fill();
+    wire(ctx, csrc_x, csrc_y + 10, csrc_x, csrc_y + 4, '#06b6d4', 2);
+    ctx.fillText('g_m·v_gs', csrc_x + 32, csrc_y + 4);
+
+    // Drain output rail
+    wire(ctx, csrc_x, 120, 560, 120);
+    dotNode(ctx, csrc_x, 120, 'D (Drain Out)', 'top');
+
+    drawResistorV(ctx, 400, 120, 220, 'r_d', '50kΩ', 'right');
+    gndSymbol(ctx, 400, 220);
+
+    drawResistorV(ctx, 480, 120, 220, 'R_D', `${state.config.rd_kohm.toFixed(1)}kΩ`, 'right');
+    gndSymbol(ctx, 480, 220);
+
+    drawResistorV(ctx, 560, 120, 220, 'R_L', `${state.config.rl_kohm.toFixed(1)}kΩ`, 'right');
+    gndSymbol(ctx, 560, 220);
+    dotNode(ctx, 560, 120, 'v_out (0° In-Phase)', 'top');
+  }
+
+  ctx.restore();
+}
+
+function drawSideBySideCompare(ctx, type, W, H) {
+  // Split view: Left = Schematic, Right = AC Model
+  ctx.save();
+  ctx.strokeStyle = 'rgba(6,182,212,0.3)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(W/2, 10); ctx.lineTo(W/2, H - 10); ctx.stroke();
+
+  ctx.font = 'bold 10px Sarabun'; ctx.textAlign = 'center';
+  ctx.fillStyle = '#f59e0b'; ctx.fillText('← ผังวงจรจริง (Complete Circuit)', W/4, 20);
+  ctx.fillStyle = '#06b6d4'; ctx.fillText('แบบจำลองสมมูล AC (AC Model) →', (3*W)/4, 20);
+
+  // Scale down left
+  ctx.save();
+  ctx.translate(10, 25);
+  ctx.scale(0.48, 0.85);
+  drawPureSchematic(ctx, type, W, H);
+  ctx.restore();
+
+  // Scale down right
+  ctx.save();
+  ctx.translate(W/2 + 10, 25);
+  ctx.scale(0.48, 0.85);
+  drawPureACModel(ctx, type, W, H);
+  ctx.restore();
+
+  ctx.restore();
+}
+
+/* ================================================================= */
+/* 6. MODULE 3 — VIRTUAL LAB & DUAL-TRACE OSCILLOSCOPE               */
+/* ================================================================= */
+const labSchemCanvas = document.getElementById('canvas-lab-schem');
+const labSchemCtx = labSchemCanvas.getContext('2d');
+const oscCanvas = document.getElementById('canvas-osc');
+const oscCtx = oscCanvas.getContext('2d');
+
+function switchLabCircuit(circ, btn) {
+  state.lab.circuit = circ;
+  document.querySelectorAll('#tab-lab .pill-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+
+  const title = document.getElementById('lab-circuit-title');
+  const bypassWrap = document.getElementById('cs-bypass-wrapper');
+  if (circ === 'cs') {
+    title.textContent = 'วงจรขยาย Common Source JFET Amplifier';
+    bypassWrap.style.display = 'block';
+  } else if (circ === 'cd') {
+    title.textContent = 'วงจร Source Follower (Common Drain Buffer)';
+    bypassWrap.style.display = 'none';
+  } else if (circ === 'cg') {
+    title.textContent = 'วงจรขยาย Common Gate (CG RF Amplifier)';
+    bypassWrap.style.display = 'none';
+  }
+  onLabChange();
+  playSound('click');
+}
+
+function toggleSimPause() {
+  state.lab.isPaused = !state.lab.isPaused;
+  document.getElementById('pause-btn-text').textContent = state.lab.isPaused ? 'เล่นต่อ' : 'หยุดชั่วคราว';
+  document.getElementById('btn-pause-sim').querySelector('i').className = state.lab.isPaused ? 'fa-solid fa-play' : 'fa-solid fa-pause';
+}
+
+function onOscScaleChange() {
+  state.lab.autoScale = document.getElementById('osc-autoscale').checked;
+  state.lab.ch1Scale = parseFloat(document.getElementById('osc-ch1-scale').value);
+  state.lab.ch2Scale = parseFloat(document.getElementById('osc-ch2-scale').value);
+}
+
+function onLabChange() {
+  state.lab.vin_peak = parseFloat(document.getElementById('slider-lab-vin').value);
+  state.lab.freq = parseFloat(document.getElementById('slider-lab-freq').value);
+  state.lab.vdd = parseFloat(document.getElementById('slider-lab-vdd').value);
+  state.lab.rd_kohm = parseFloat(document.getElementById('slider-lab-rd').value);
+  state.lab.rs_kohm = parseFloat(document.getElementById('slider-lab-rs').value);
+  state.lab.hasBypassCs = document.getElementById('lab-bypass-cs').checked;
+
+  document.getElementById('lab-vin-badge').textContent = state.lab.vin_peak.toFixed(2) + ' Vp';
+  document.getElementById('lab-freq-badge').textContent = state.lab.freq + ' Hz';
+  document.getElementById('lab-vdd-badge').textContent = state.lab.vdd + ' V';
+  document.getElementById('lab-rd-badge').textContent = state.lab.rd_kohm.toFixed(1) + ' kΩ';
+  document.getElementById('lab-rs-badge').textContent = state.lab.rs_kohm.toFixed(1) + ' kΩ';
+
+  const circ = state.lab.circuit;
+  const gm = 3.2; // mS
+  let av = 0, phaseStr = '180°';
+
+  if (circ === 'cs') {
+    if (state.lab.hasBypassCs) {
+      av = -gm * state.lab.rd_kohm; // With C_S bypass
+    } else {
+      av = -(gm * state.lab.rd_kohm) / (1 + (gm/1000) * (state.lab.rs_kohm * 1000)); // Without C_S
+    }
+    phaseStr = '180° (กลับเฟส)';
+  } else if (circ === 'cd') {
+    const rs_k = state.lab.rs_kohm;
+    av = (gm * rs_k) / (1 + gm * rs_k);
+    phaseStr = '0° (ตรงเฟส)';
+  } else if (circ === 'cg') {
+    av = gm * state.lab.rd_kohm;
+    phaseStr = '0° (ตรงเฟส)';
+  }
+
+  const vout_unclipped = Math.abs(av) * state.lab.vin_peak;
+  const max_swing = state.lab.vdd * 0.45;
+  const vout_actual = Math.min(max_swing, vout_unclipped);
+  const isClipped = vout_unclipped > max_swing;
+
+  document.getElementById('lab-vout-val').innerHTML = `${vout_actual.toFixed(2)} <span class="readout-unit">Vp${isClipped?' ⚠️Clip':''}</span>`;
+  document.getElementById('lab-av-val').innerHTML = `${av.toFixed(2)} <span class="readout-unit">${phaseStr.includes('180')?'(180°↺)':'(0°)'}</span>`;
+  document.getElementById('lab-id-val').innerHTML = `3.20 <span class="readout-unit">mA</span>`;
+  document.getElementById('lab-gm-val').innerHTML = `${gm.toFixed(1)} <span class="readout-unit">mS</span>`;
+
+  document.getElementById('lab-schematic-badge').className = isClipped ? 'status-badge saturation' : 'status-badge connected';
+  document.getElementById('lab-schematic-badge').innerHTML = isClipped ? '<i class="fa-solid fa-triangle-exclamation"></i> สัญญาณขริบยอด' : '<i class="fa-solid fa-bolt"></i> ทำงานปกติ';
+}
+
+function drawLabSchematic() {
+  const W = labSchemCanvas.width, H = labSchemCanvas.height;
+  labSchemCtx.clearRect(0, 0, W, H);
+  labSchemCtx.fillStyle = '#050b14'; labSchemCtx.fillRect(0, 0, W, H);
+
+  const circ = state.lab.circuit, t = state.lab.time;
+  const vin = state.lab.vin_peak * Math.sin(t);
+  const bjt_cx = 320, bjt_cy = 135;
+
+  if (circ === 'cs') {
+    drawAcSrc(labSchemCtx, 55, 135, 18, 'v_in', vin);
+    drawCapH(labSchemCtx, 85, 165, 135, 'C_1 10μF');
+    wire(labSchemCtx, 73, 135, 85, 135);
+    wire(labSchemCtx, 165, 135, 210, 135);
+    wire(labSchemCtx, 55, 153, 55, 235); gndSymbol(labSchemCtx, 55, 235);
+
+    drawResistorV(labSchemCtx, 210, 135, 235, 'R_G', '1MΩ', 'left');
+    gndSymbol(labSchemCtx, 210, 235); dotNode(labSchemCtx, 210, 135);
+
+    wire(labSchemCtx, 210, 135, bjt_cx - 20, 135);
+    drawJFETSchem(labSchemCtx, bjt_cx, bjt_cy, Math.abs(vin) > 0.005);
+
+    const drain_x = bjt_cx + 14, drain_y = bjt_cy - 18;
+    vddRail(labSchemCtx, drain_x, 25, state.lab.vdd);
+    drawResistorV(labSchemCtx, drain_x, 25, drain_y, 'R_D', `${state.lab.rd_kohm.toFixed(1)}kΩ`, 'right');
+    dotNode(labSchemCtx, drain_x, drain_y);
+
+    const src_x = bjt_cx + 14, src_y = bjt_cy + 18;
+    if (state.lab.hasBypassCs) {
+      wire(labSchemCtx, src_x, src_y, src_x, 175);
+      drawResistorV(labSchemCtx, src_x, 175, 235, 'R_S', `${state.lab.rs_kohm.toFixed(1)}kΩ`, 'left');
+      drawCapV(labSchemCtx, src_x + 50, 175, 235, 'C_S 100μF');
+      wire(labSchemCtx, src_x, 175, src_x + 50, 175);
+      wire(labSchemCtx, src_x, 235, src_x + 50, 235);
+      gndSymbol(labSchemCtx, src_x + 25, 235); dotNode(labSchemCtx, src_x, 175);
+    } else {
+      wire(labSchemCtx, src_x, src_y, src_x, 175);
+      drawResistorV(labSchemCtx, src_x, 175, 235, 'R_S', `${state.lab.rs_kohm.toFixed(1)}kΩ`, 'right');
+      gndSymbol(labSchemCtx, src_x, 235); dotNode(labSchemCtx, src_x, 175);
+    }
+
+    wire(labSchemCtx, drain_x, drain_y, 440, drain_y);
+    drawCapH(labSchemCtx, 440, 520, drain_y, 'C_2 10μF');
+    wire(labSchemCtx, 520, drain_y, 595, drain_y);
+    dotNode(labSchemCtx, 595, drain_y, 'v_out (CH2)', 'top');
+    wire(labSchemCtx, 595, drain_y, 595, 235); gndSymbol(labSchemCtx, 595, 235);
+
+  } else if (circ === 'cd') {
+    drawAcSrc(labSchemCtx, 55, 135, 18, 'v_in', vin);
+    drawCapH(labSchemCtx, 85, 165, 135, 'C_1');
+    wire(labSchemCtx, 73, 135, 85, 135); wire(labSchemCtx, 165, 135, 210, 135);
+    wire(labSchemCtx, 55, 153, 55, 235); gndSymbol(labSchemCtx, 55, 235);
+
+    drawResistorV(labSchemCtx, 210, 135, 235, 'R_G', '1MΩ', 'left');
+    gndSymbol(labSchemCtx, 210, 235); dotNode(labSchemCtx, 210, 135);
+
+    wire(labSchemCtx, 210, 135, bjt_cx - 20, 135);
+    drawJFETSchem(labSchemCtx, bjt_cx, bjt_cy, true);
+
+    const drain_x = bjt_cx + 14, drain_y = bjt_cy - 18;
+    vddRail(labSchemCtx, drain_x, 25, state.lab.vdd);
+    wire(labSchemCtx, drain_x, 25, drain_x, drain_y);
+
+    const src_x = bjt_cx + 14, src_y = bjt_cy + 18;
+    wire(labSchemCtx, src_x, src_y, src_x, 170);
+    drawResistorV(labSchemCtx, src_x, 170, 235, 'R_S', `${state.lab.rs_kohm.toFixed(1)}kΩ`, 'left');
+    gndSymbol(labSchemCtx, src_x, 235); dotNode(labSchemCtx, src_x, 170);
+
+    wire(labSchemCtx, src_x, 170, 440, 170);
+    drawCapH(labSchemCtx, 440, 520, 170, 'C_2');
+    wire(labSchemCtx, 520, 170, 595, 170);
+    dotNode(labSchemCtx, 595, 170, 'v_out (Buffer)', 'top');
+    wire(labSchemCtx, 595, 170, 595, 235); gndSymbol(labSchemCtx, 595, 235);
+
+  } else if (circ === 'cg') {
+    drawAcSrc(labSchemCtx, 55, 185, 18, 'v_in', vin);
+    drawCapH(labSchemCtx, 85, 165, 185, 'C_1');
+    wire(labSchemCtx, 73, 185, 85, 185); wire(labSchemCtx, 165, 185, 220, 185);
+    wire(labSchemCtx, 55, 203, 55, 235); gndSymbol(labSchemCtx, 55, 235);
+
+    drawResistorV(labSchemCtx, 220, 185, 235, 'R_S', `${state.lab.rs_kohm.toFixed(1)}kΩ`, 'left');
+    gndSymbol(labSchemCtx, 220, 235); dotNode(labSchemCtx, 220, 185);
+
+    const src_x = bjt_cx + 14, src_y = bjt_cy + 18;
+    wire(labSchemCtx, 220, 185, src_x, 185); wire(labSchemCtx, src_x, 185, src_x, src_y);
+    drawJFETSchem(labSchemCtx, bjt_cx, bjt_cy, true);
+
+    wire(labSchemCtx, bjt_cx - 20, 135, bjt_cx - 45, 135);
+    drawCapV(labSchemCtx, bjt_cx - 45, 135, 235, 'C_G');
+    gndSymbol(labSchemCtx, bjt_cx - 45, 235);
+
+    const drain_x = bjt_cx + 14, drain_y = bjt_cy - 18;
+    vddRail(labSchemCtx, drain_x, 25, state.lab.vdd);
+    drawResistorV(labSchemCtx, drain_x, 25, drain_y, 'R_D', `${state.lab.rd_kohm.toFixed(1)}kΩ`, 'right');
+    dotNode(labSchemCtx, drain_x, drain_y);
+
+    wire(labSchemCtx, drain_x, drain_y, 440, drain_y);
+    drawCapH(labSchemCtx, 440, 520, drain_y, 'C_2');
+    wire(labSchemCtx, 520, drain_y, 595, drain_y);
+    dotNode(labSchemCtx, 595, drain_y, 'v_out (0°)', 'top');
+    wire(labSchemCtx, 595, drain_y, 595, 235); gndSymbol(labSchemCtx, 595, 235);
+  }
+}
+
+function drawOscilloscope() {
+  const W = oscCanvas.width, H = oscCanvas.height;
+  oscCtx.clearRect(0, 0, W, H);
+  oscCtx.fillStyle = '#050b14'; oscCtx.fillRect(0, 0, W, H);
+
+  // CRT Grid lines (8 divisions vertical, 10 divisions horizontal)
+  oscCtx.strokeStyle = 'rgba(6,182,212,0.12)'; oscCtx.lineWidth = 1;
+  const numDivX = 10, numDivY = 8;
+  const divW = W / numDivX, divH = H / numDivY;
+
+  for (let x = 0; x <= W; x += divW) {
+    oscCtx.beginPath(); oscCtx.moveTo(x, 0); oscCtx.lineTo(x, H); oscCtx.stroke();
+  }
+  for (let y = 0; y <= H; y += divH) {
+    oscCtx.beginPath(); oscCtx.moveTo(0, y); oscCtx.lineTo(W, y); oscCtx.stroke();
+  }
+  const midY = H / 2;
+  oscCtx.strokeStyle = 'rgba(255,255,255,0.25)'; oscCtx.lineWidth = 1.2;
+  oscCtx.beginPath(); oscCtx.moveTo(0, midY); oscCtx.lineTo(W, midY); oscCtx.stroke();
+
+  if (!state.lab.isPaused) state.lab.time += 0.05;
+  const t = state.lab.time, circ = state.lab.circuit, pts = 300, stepX = W / pts;
+
+  let ch1Scale = state.lab.ch1Scale;
+  let ch2Scale = state.lab.ch2Scale;
+
+  let vInArr = new Float32Array(pts);
+  let vOutArr = new Float32Array(pts);
+  let maxVout = 0.1;
+  const gm = 3.2;
+
+  for (let i = 0; i < pts; i++) {
+    const st = t + (i / pts) * 4 * Math.PI;
+    let vin_val = state.lab.vin_peak * Math.sin(st);
+    let vout_val = 0;
+
+    if (circ === 'cs') {
+      let av = state.lab.hasBypassCs ? -gm * state.lab.rd_kohm : -(gm * state.lab.rd_kohm) / (1 + (gm/1000) * (state.lab.rs_kohm * 1000));
+      let raw_vout = av * vin_val;
+      const max_swing = state.lab.vdd * 0.45;
+      vout_val = Math.max(-max_swing, Math.min(max_swing, raw_vout));
+    } else if (circ === 'cd') {
+      const rs_k = state.lab.rs_kohm;
+      let av = (gm * rs_k) / (1 + gm * rs_k);
+      vout_val = av * vin_val;
+    } else if (circ === 'cg') {
+      let av = gm * state.lab.rd_kohm;
+      vout_val = av * vin_val;
+    }
+
+    vInArr[i] = vin_val;
+    vOutArr[i] = vout_val;
+    if (Math.abs(vout_val) > maxVout) maxVout = Math.abs(vout_val);
+  }
+
+  // Auto-scale
+  if (state.lab.autoScale) {
+    if (state.lab.vin_peak <= 0.2) ch1Scale = 0.1;
+    else if (state.lab.vin_peak <= 0.5) ch1Scale = 0.2;
+    else if (state.lab.vin_peak <= 1.0) ch1Scale = 0.5;
+    else ch1Scale = 1.0;
+
+    if (maxVout <= 1.0) ch2Scale = 0.5;
+    else if (maxVout <= 2.5) ch2Scale = 1.0;
+    else if (maxVout <= 6.0) ch2Scale = 2.0;
+    else if (maxVout <= 12.0) ch2Scale = 5.0;
+    else ch2Scale = 10.0;
+  }
+
+  const pxPerVolt_CH1 = divH / ch1Scale;
+  const pxPerVolt_CH2 = divH / ch2Scale;
+
+  // Draw CH1: Input (Yellow)
+  oscCtx.strokeStyle = '#fbbf24'; oscCtx.lineWidth = 2;
+  oscCtx.beginPath();
+  for (let i = 0; i < pts; i++) {
+    const px = i * stepX, py = midY - vInArr[i] * pxPerVolt_CH1;
+    if (i === 0) oscCtx.moveTo(px, py); else oscCtx.lineTo(px, py);
+  }
+  oscCtx.stroke();
+
+  // Draw CH2: Output (Cyan)
+  oscCtx.strokeStyle = '#06b6d4'; oscCtx.lineWidth = 2.5;
+  oscCtx.beginPath();
+  for (let i = 0; i < pts; i++) {
+    const px = i * stepX, py = midY - vOutArr[i] * pxPerVolt_CH2;
+    if (i === 0) oscCtx.moveTo(px, py); else oscCtx.lineTo(px, py);
+  }
+  oscCtx.stroke();
+
+  // Scope Header Info
+  oscCtx.font = 'bold 10px JetBrains Mono';
+  oscCtx.fillStyle = '#fbbf24'; oscCtx.fillText(`— CH1: v_in (${ch1Scale}V/div)`, 15, 18);
+  oscCtx.fillStyle = '#06b6d4'; oscCtx.fillText(`— CH2: v_out (${ch2Scale}V/div)`, 190, 18);
+
+  if (circ === 'cs') {
+    oscCtx.fillStyle = '#f43f5e'; oscCtx.fillText('↕ กลับเฟส 180° (180° Inverted)', 390, 18);
+  } else if (circ === 'cd') {
+    oscCtx.fillStyle = '#10b981'; oscCtx.fillText('≈ ตรงเฟส 0° (In-Phase Buffer A_v≈1)', 390, 18);
+  } else if (circ === 'cg') {
+    oscCtx.fillStyle = '#10b981'; oscCtx.fillText('≈ ตรงเฟส 0° (In-Phase Gain Amp)', 390, 18);
+  }
+}
+
+/* ================================================================= */
+/* 7. MODULE 5 — QUIZ & GOOGLE SHEETS                                */
+/* ================================================================= */
+const quizQuestions = [
+  {
+    q: 'FET ย่อมาจากคำเต็มว่าอะไร และมีหลักการทำงานพื้นฐานอย่างไร?',
+    opts: [
+      'Field-Effect Transistor — ควบคุมการนำกระแสด้วยสนามไฟฟ้าจากแรงดันเกต (Voltage-Controlled)',
+      'Fast-Electron Transistor — ควบคุมการไหลของอิเล็กตรอนด้วยกระแสเบส (Current-Controlled)',
+      'Forward-Emitter Transistor — ใช้รอยต่อไบแอสตรงสองข้าง',
+      'Frequency-Enhanced Transistor — ใช้ขยายความถี่วิทยุเท่านั้น'
+    ],
+    ans: 0,
+    exp: 'FET ย่อมาจาก Field-Effect Transistor เป็นอุปกรณ์ที่ควบคุมกระแสเดรน (I_D) ด้วยสนามไฟฟ้าจากแรงดัน Gate-to-Source (V_GS)'
+  },
+  {
+    q: 'พารามิเตอร์ Transconductance (g_m) ของ FET หมายถึงข้อใด?',
+    opts: [
+      'อัตราการเปลี่ยนแปลงของกระแสเดรนต่อการเปลี่ยนแปลงของแรงดันเกต (g_m = ΔI_D / ΔV_GS)',
+      'ความต้านทานระหว่างขา Drain และ Source ขณะนำกระแส',
+      'อัตราส่วนระหว่างแรงดันเอาต์พุตต่อแรงดันอินพุต',
+      'กำลังงานสูญเสียสูงสุดของตัวถังทรานซิสเตอร์'
+    ],
+    ans: 0,
+    exp: 'Transconductance (g_m) คือความนำถ่ายโอน มีหน่วยเป็น Siemens (S หรือ mS หรือ mA/V) คำนวณจากความชันของกราฟ Transfer Characteristic'
+  },
+  {
+    q: 'ใน JFET ค่าความนำถ่ายโอนสูงสุด (g_m0) จะเกิดขึ้นที่จุดใดบนกราฟ Transfer Curve?',
+    opts: [
+      'ที่แรงดัน V_GS = 0 V',
+      'ที่แรงดัน V_GS = V_P (Pinch-off Voltage)',
+      'ที่แรงดัน V_GS = -V_DD',
+      'ที่กระแส I_D = 0 mA'
+    ],
+    ans: 0,
+    exp: 'g_m0 = 2·I_DSS / |V_P| เกิดขึ้นที่ V_GS = 0V ซึ่งเป็นจุดที่กราฟมีความชันสูงสุด เมื่อ V_GS เป็นลบมากขึ้นความชัน g_m จะลดลงจนเป็น 0 ที่ V_P'
+  },
+  {
+    q: 'วงจรขยายแบบ Common Source (CS) มีลักษณะของสัญญาณเอาต์พุตเทียบกับอินพุตอย่างไร?',
+    opts: [
+      'สัญญาณเอาต์พุตขยายใหญ่ขึ้นและกลับเฟส 180° (Inverted)',
+      'สัญญาณเอาต์พุตมีขนาดเท่าเดิมและมีเฟสตรงกัน 0°',
+      'สัญญาณเอาต์พุตนำหน้าอินพุต 90°',
+      'สัญญาณเอาต์พุตถูกลดทอนลงครึ่งหนึ่ง'
+    ],
+    ans: 0,
+    exp: 'วงจร CS ให้ Voltage Gain A_v = −g_m · R_D เครื่องหมายลบแสดงว่าสัญญาณเอาต์พุตกลับเฟส 180° กับสัญญาณอินพุต'
+  },
+  {
+    q: 'ข้อใดคือคุณสมบัติเด่นที่สุดของวงจร Source Follower (Common Drain)?',
+    opts: [
+      'Input Impedance สูงมาก และ Output Impedance ต่ำมาก โดย Gain A_v ≈ 1 (Buffer)',
+      'Voltage Gain สูงที่สุดในบรรดาวงจรขยาย FET ทั้งหมด',
+      'สัญญาณเอาต์พุตกลับเฟส 180°',
+      'Input Impedance ต่ำมาก เหมาะต่อกับแหล่งจ่ายกระแส'
+    ],
+    ans: 0,
+    exp: 'Source Follower (CD) มีคุณสมบัติเด่นคือ Z_in สูงมาก (~MΩ) และ Z_out ต่ำมาก (~1/g_m) นิยมใช้เป็น Buffer Stage สำหรับ Impedance Matching'
+  },
+  {
+    q: 'หากปลดตัวเก็บประจุบายพาส C_S ออกจากวงจรขยาย Common Source (CS) จะเกิดผลอย่างไร?',
+    opts: [
+      'Gain A_v จะลดลง แต่เสถียรภาพและแถบความถี่ตอบสนองจะกว้างขึ้น (Negative Feedback)',
+      'Gain A_v จะเพิ่มขึ้นเป็น 2 เท่า',
+      'วงจรจะไม่สามารถนำกระแส DC ได้เลย',
+      'สัญญาณเอาต์พุตจะขาดหายกลายเป็นศูนย์'
+    ],
+    ans: 0,
+    exp: 'เมื่อไม่มี C_S ตัวต้านทาน R_S จะสร้าง Negative Feedback ทำให้ Gain ลดลงเหลือ A_v = −(g_m·R_D)/(1 + g_m·R_S) แต่ทำให้วงจรเสถียรขึ้น'
+  },
+  {
+    q: 'วงจรขยายแบบ Common Gate (CG) นิยมนำไปใช้งานในด้านใดเป็นหลัก?',
+    opts: [
+      'วงจรขยายความถี่สูงมาก (RF Amplifiers) เนื่องจากไม่มีผลของ Miller Effect',
+      'วงจรปรีแอมป์ไมโครโฟนความต้านทานสูง',
+      'วงจรขับมอเตอร์กระแสตรงกำลังสูง',
+      'วงจรเรียงกระแส AC เป็น DC'
+    ],
+    ans: 0,
+    exp: 'วงจร CG มีขา Gate ต่อลงกราวด์ AC ช่วยกั้นระหว่าง Input (Source) และ Output (Drain) จึงลด Parasitic Capacitance (Miller Effect) เหมาะกับงาน RF'
+  },
+  {
+    q: 'เหตุใด FET จึงมีค่า Input Impedance (Z_in) สูงกว่า BJT อย่างมหาศาล?',
+    opts: [
+      'เพราะขา Gate มีชั้นฉนวนออกไซด์ (MOSFET) หรือรอยต่อ P-N Reverse-Biased (JFET) ทำให้ I_G ≈ 0',
+      'เพราะ FET ใช้สารกึ่งตัวนำขนาดใหญ่กว่า BJT',
+      'เพราะ FET ทำงานที่แรงดันไฟกระแสสลับเท่านั้น',
+      'เพราะขา Drain ต่อกับโหลดความต้านทานต่ำ'
+    ],
+    ans: 0,
+    exp: 'ใน JFET รอยต่อ Gate-Source ได้รับ Reverse Bias ส่วนใน MOSFET ขา Gate มีฉนวน SiO2 กั้น ทำให้กระแสเกต I_G มีค่าเกือบเป็นศูนย์ (Z_in สูงถึง 10^9 - 10^12 Ω)'
+  },
+  {
+    q: 'ในโมเดลสัญญาณขนาดเล็กของ FET ขา Drain-Source ทำหน้าที่เปรียบเสมือนสิ่งใด?',
+    opts: [
+      'แหล่งจ่ายกระแสควบคุมด้วยแรงดัน (Voltage-Controlled Current Source: g_m · v_gs)',
+      'แหล่งจ่ายแรงดันควบคุมด้วยกระแส (Current-Controlled Voltage Source)',
+      'ตัวต้านทานค่าคงที่ขนาด 50 Ω',
+      'ไดโอดในอุดมคติ'
+    ],
+    ans: 0,
+    exp: 'ในโมเดล AC สัญญาณขนาดเล็ก ขั้ว Drain-Source ทำหน้าที่เป็นแหล่งจ่ายกระแสควบคุมด้วยแรงดัน i_d = g_m · v_gs ขนานกับความต้านทาน r_d'
+  },
+  {
+    q: 'ถ้า JFET มีค่า I_DSS = 10 mA และ V_P = -4 V เมื่อไบแอสที่ V_GS = -2 V ค่า g_m จะมีค่าเท่าใด?',
+    opts: [
+      '2.5 mS (mA/V)',
+      '5.0 mS (mA/V)',
+      '1.25 mS (mA/V)',
+      '10.0 mS (mA/V)'
+    ],
+    ans: 0,
+    exp: 'g_m0 = 2·(10mA)/4V = 5 mS, ดังนั้นที่ V_GS = -2V จะได้ g_m = 5 mS · (1 − (-2/-4)) = 5 mS · (0.5) = 2.5 mS'
+  },
+  {
+    q: 'สมการ Shockley (I_D = I_DSS · (1 − V_GS / V_P)²) ใช้สำหรับคำนวณทรานซิสเตอร์ชนิดใด?',
+    opts: [
+      'JFET และ Depletion-type MOSFET (D-MOSFET)',
+      'Enhancement-type MOSFET (E-MOSFET) เท่านั้น',
+      'BJT ชนิด NPN และ PNP',
+      'Zener Diode และ Varactor Diode'
+    ],
+    ans: 0,
+    exp: 'สมการช็อกลีย์ (Shockley Equation) ใช้สำหรับ JFET และ D-MOSFET ซึ่งเป็นโหมด Depletion Mode'
+  },
+  {
+    q: 'ข้อใดเปรียบเทียบระหว่าง BJT และ FET ได้อย่างถูกต้องที่สุด?',
+    opts: [
+      'BJT มีค่า g_m สูงกว่าในกระแสเท่ากัน แต่ FET มี Z_in สูงกว่าและ Noise ต่ำกว่า',
+      'BJT มี Z_in สูงกว่า FET เสมอ',
+      'FET มีอัตราขยายแรงดันสูงกว่า BJT ในทุกกรณี',
+      'FET ไม่สามารถนำมาต่อเป็นวงจรขยายสัญญาณเสียงได้'
+    ],
+    ans: 0,
+    exp: 'BJT ให้ Transconductance g_m สูงกว่า (ประมาณ 40·I_C) แต่ FET โดดเด่นด้วย Z_in ที่สูงมาก สัญญาณรบกวนต่ำ และไม่มี Thermal Runaway'
+  }
+];
+
+function renderQuiz() {
+  const container = document.getElementById('quiz-container');
+  container.innerHTML = '';
+  quizQuestions.forEach((q, qi) => {
+    const div = document.createElement('div');
+    div.className = 'quiz-question';
+    div.id = `quiz-q${qi}`;
+    let optsHtml = '';
+    q.opts.forEach((opt, oi) => {
+      optsHtml += `<label class="quiz-option" id="quiz-opt-${qi}-${oi}" onclick="selectAnswer(${qi},${oi})">` +
+        `<span style="font-family:var(--font-mono);font-size:0.75rem;color:var(--text-muted);font-weight:700;">${String.fromCharCode(65+oi)}.</span>${opt}</label>`;
+    });
+    div.innerHTML = `<h4>ข้อที่ ${qi+1}. ${q.q}</h4><div class="quiz-options">${optsHtml}</div><div class="quiz-explanation" id="quiz-exp-${qi}"><i class="fa-solid fa-circle-info" style="color:var(--accent-primary)"></i> <strong>คำอธิบาย:</strong> ${q.exp}</div>`;
+    container.appendChild(div);
+  });
+  updateQuizScore();
+}
+
+function selectAnswer(qi, oi) {
+  if (state.quiz.submitted) return;
+  state.quiz.answers[qi] = oi;
+  quizQuestions[qi].opts.forEach((_, i) => {
+    const el = document.getElementById(`quiz-opt-${qi}-${i}`);
+    el.classList.remove('correct', 'wrong');
+    el.style.borderColor = '';
+    el.style.background = '';
+  });
+  const selEl = document.getElementById(`quiz-opt-${qi}-${oi}`);
+  selEl.style.borderColor = 'var(--accent-primary)';
+  selEl.style.background = 'rgba(6,182,212,0.15)';
+  playSound('click');
+}
+
+function submitQuiz() {
+  if (state.quiz.submitted) return;
+  state.quiz.submitted = true;
+  let score = 0;
+  quizQuestions.forEach((q, qi) => {
+    const sel = state.quiz.answers[qi];
+    q.opts.forEach((_, i) => {
+      const el = document.getElementById(`quiz-opt-${qi}-${i}`);
+      el.classList.remove('correct', 'wrong');
+      el.style.borderColor = '';
+      el.style.background = '';
+      if (i === q.ans) el.classList.add('correct');
+      else if (i === sel && i !== q.ans) el.classList.add('wrong');
+    });
+    document.getElementById(`quiz-exp-${qi}`).style.display = 'block';
+    if (sel === q.ans) score++;
+  });
+  state.quiz.score = score;
+  updateQuizScore();
+  playSound(score >= 8 ? 'success' : 'buzzer');
+
+  const entry = {
+    timestamp: new Date().toLocaleString('th-TH'),
+    student: document.getElementById('student-name').value.trim() || 'นักศึกษา',
+    activity: 'FET Small-Signal Analysis Quiz',
+    result: `${score}/12 (${(score/12*100).toFixed(0)}%)`
+  };
+  state.history.unshift(entry);
+  renderHistory();
+}
+
+function updateQuizScore() {
+  document.getElementById('quiz-score-badge').textContent = `คะแนน: ${state.quiz.score} / 12`;
+}
+
+function resetQuiz() {
+  state.quiz = { submitted: false, score: 0, answers: {} };
+  renderQuiz();
+  playSound('click');
+}
+
+function renderHistory() {
+  const tbody = document.getElementById('history-table-body');
+  if (state.history.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:1.5rem;">ยังไม่มีประวัติการส่งคะแนน</td></tr>';
+    return;
+  }
+  tbody.innerHTML = '';
+  state.history.slice(0, 20).forEach(r => {
+    tbody.innerHTML += `<tr><td>${r.timestamp}</td><td>${r.student}</td><td>${r.activity}</td><td style="color:var(--accent-primary);font-family:var(--font-mono);font-weight:700;">${r.result}</td></tr>`;
+  });
+}
+
+function exportQuizCSV() {
+  const rows = [['Timestamp', 'Student', 'Activity', 'Score']];
+  state.history.forEach(r => rows.push([r.timestamp, r.student, r.activity, r.result]));
+  const csvContent = rows.map(r => r.join(',')).join('\n');
+  const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'fet_quiz_history.csv';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+async function saveToSheets() {
+  const url = document.getElementById('gas-url').value.trim();
+  if (!url) { alert('กรุณากรอก Google Apps Script Web App URL ก่อนครับ'); return; }
+  try {
+    const payload = {
+      student: document.getElementById('student-name').value.trim() || 'นักศึกษา',
+      class: document.getElementById('student-class').value.trim() || '',
+      activity: 'FET Small-Signal Analysis Quiz',
+      result: `${state.quiz.score}/12`,
+      note: `คะแนน ${state.quiz.score} จาก 12 ข้อ (${(state.quiz.score/12*100).toFixed(0)}%)`
+    };
+    await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload)
+    });
+    alert('บันทึกข้อมูล FET ลง Google Sheets สำเร็จเรียบร้อยแล้ว!');
+  } catch(e) {
+    alert('ส่งข้อมูลไปยัง Google Apps Script แล้ว (หากตั้งค่า Web App ถูกต้องตรวจสอบในชีตได้เลย)');
+  }
+}
+
+/* ================================================================= */
+/* 8. MAIN ANIMATION LOOP & INIT                                     */
+/* ================================================================= */
+let animTime = 0;
+function mainLoop() {
+  animTime += 0.03;
+  if (state.activeTab === 'tab-lab') {
+    drawLabSchematic();
+    drawOscilloscope();
+  }
+  requestAnimationFrame(mainLoop);
+}
+
+function init() {
+  onModelChange();
+  onConfigChange();
+  onLabChange();
+  renderQuiz();
+  mainLoop();
+}
+
+init();
+</script>
+</body>
+</html>

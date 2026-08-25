@@ -1,0 +1,18 @@
+{
+  "name": "resistor-sheet-app",
+  "version": "1.0.0",
+  "description": "Google Sheets Resistor Color Code Calculator Web App",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "resistor",
+    "color-code",
+    "google-sheets",
+    "apps-script"
+  ],
+  "author": "Antigravity",
+  "license": "ISC"
+}

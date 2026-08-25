@@ -1,0 +1,1841 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>เครื่องจำลองออสซิลโลสโคป (Oscilloscope Simulator & Analyzer)</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <style>
+    /* Styling Design Tokens */
+    :root {
+      --bg-dark: #090d16;
+      --bg-card: rgba(21, 31, 50, 0.7);
+      --card-border: rgba(255, 255, 255, 0.06);
+      --glow-ch1: #fbbf24; /* Yellow-Orange for Channel 1 */
+      --glow-ch2: #06b6d4; /* Cyan for Channel 2 */
+      --glow-trigger: #a855f7; /* Purple for Trigger */
+      --bg-screen: #04080f; /* CRT Screen black-green */
+      --grid-color: rgba(16, 185, 129, 0.15); /* Green Grid lines */
+      --text-main: #f1f5f9;
+      --text-muted: #64748b;
+      --font-body: 'Sarabun', 'Outfit', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      transition: background-color 0.2s ease, border-color 0.2s ease;
+    }
+
+    body {
+      background: radial-gradient(circle at top, #111a2e 0%, var(--bg-dark) 100%);
+      color: var(--text-main);
+      font-family: var(--font-body);
+      min-height: 100vh;
+      padding: 1.5rem;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    /* Header */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .logo-group {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .logo-icon {
+      font-size: 2.2rem;
+      background: linear-gradient(135deg, var(--glow-ch2), #6366f1);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 0 8px rgba(6, 182, 212, 0.3));
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      font-family: 'Outfit', 'Sarabun', sans-serif;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.4rem 0.9rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      background: rgba(245, 158, 11, 0.1);
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.2);
+    }
+
+    .status-badge.connected {
+      background: rgba(16, 185, 129, 0.1);
+      color: #34d399;
+      border-color: rgba(16, 185, 129, 0.2);
+    }
+
+    /* Main Grid Layout */
+    .app-grid {
+      display: grid;
+      grid-template-columns: 1.6fr 1fr;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    @media (max-width: 1200px) {
+      .app-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .glass-card {
+      background: var(--bg-card);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    /* Scope Screen Styling */
+    .scope-screen-wrapper {
+      position: relative;
+      background: var(--bg-screen);
+      border: 6px solid #1e293b;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.9), 0 8px 24px rgba(0, 0, 0, 0.4);
+      margin-bottom: 1rem;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 420px;
+      cursor: crosshair;
+    }
+
+    /* Top/Bottom Screen Info overlays */
+    .screen-overlay {
+      position: absolute;
+      top: 10px;
+      left: 15px;
+      right: 15px;
+      display: flex;
+      justify-content: space-between;
+      pointer-events: none;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: rgba(255, 255, 255, 0.65);
+      z-index: 5;
+    }
+
+    .screen-overlay-bottom {
+      position: absolute;
+      bottom: 10px;
+      left: 15px;
+      right: 15px;
+      display: flex;
+      justify-content: space-between;
+      pointer-events: none;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: rgba(255, 255, 255, 0.65);
+      z-index: 5;
+    }
+
+    .overlay-item {
+      background: rgba(0, 0, 0, 0.65);
+      padding: 2px 6px;
+      border-radius: 4px;
+      border: 0.5px solid rgba(255,255,255,0.1);
+    }
+
+    .overlay-item.ch1-info { border-left: 3px solid var(--glow-ch1); }
+    .overlay-item.ch2-info { border-left: 3px solid var(--glow-ch2); }
+    .overlay-item.trigger-info { border-left: 3px solid var(--glow-trigger); }
+
+    /* Knobs & Controls System */
+    .controls-panel-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      padding-bottom: 0.5rem;
+    }
+
+    .control-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .control-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 0.35rem;
+      background: rgba(15, 23, 42, 0.3);
+      padding: 0.6rem;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.03);
+    }
+
+    .control-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+
+    /* Rotary slider styling mimicking physical scope knobs */
+    .knob-container {
+      position: relative;
+      width: 50px;
+      height: 50px;
+    }
+
+    .knob-input {
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      position: absolute;
+      top: 0;
+      left: 0;
+      cursor: pointer;
+      z-index: 5;
+    }
+
+    .knob-dial {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #334155, #1e293b);
+      border-radius: 50%;
+      border: 2px solid #475569;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.3), inset 0 2px 3px rgba(255,255,255,0.1);
+      position: relative;
+      pointer-events: none;
+      transform: rotate(0deg);
+    }
+
+    .knob-dial::after {
+      content: '';
+      position: absolute;
+      top: 4px;
+      left: 50%;
+      width: 3px;
+      height: 14px;
+      background: #e2e8f0;
+      border-radius: 1.5px;
+      transform: translateX(-50%);
+    }
+
+    .control-value-display {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--text-main);
+      min-height: 1.1rem;
+    }
+
+    /* Signal Generator Config */
+    .tabs-nav {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      background: rgba(15, 23, 42, 0.4);
+      padding: 0.25rem;
+      border-radius: 8px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 0.5rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .tab-btn.active.ch1 { background: rgba(251, 191, 36, 0.15); color: var(--glow-ch1); }
+    .tab-btn.active.ch2 { background: rgba(6, 182, 212, 0.15); color: var(--glow-ch2); }
+    .tab-btn.active.scope { background: rgba(99, 102, 241, 0.15); color: #818cf8; }
+
+    .tab-pane {
+      display: none;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .tab-pane.active {
+      display: flex;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    label {
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .label-value {
+      font-family: var(--font-mono);
+      color: var(--text-main);
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 6px;
+      background: #1e293b;
+      border-radius: 3px;
+      outline: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--glow-ch2);
+      cursor: pointer;
+      box-shadow: 0 0 6px rgba(0,0,0,0.5);
+    }
+
+    .ch1-thumb::-webkit-slider-thumb { background: var(--glow-ch1) !important; }
+    .ch2-thumb::-webkit-slider-thumb { background: var(--glow-ch2) !important; }
+
+    select {
+      background: #0f172a;
+      border: 1px solid var(--card-border);
+      border-radius: 6px;
+      color: var(--text-main);
+      padding: 0.5rem;
+      font-size: 0.85rem;
+      outline: none;
+    }
+
+    /* Auto measurements grid */
+    .measurements-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.75rem;
+      margin-top: 1rem;
+      background: rgba(15, 23, 42, 0.4);
+      padding: 0.85rem;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.02);
+    }
+
+    .measurement-box {
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+    }
+
+    .meas-label {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+
+    .meas-value {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .meas-ch1 { color: var(--glow-ch1); }
+    .meas-ch2 { color: var(--glow-ch2); }
+
+    /* Button and switches */
+    .switch-group {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(15, 23, 42, 0.2);
+      padding: 0.5rem 0.75rem;
+      border-radius: 8px;
+    }
+
+    .switch-label {
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+
+    /* Toggle switch CSS */
+    .toggle {
+      position: relative;
+      display: inline-block;
+      width: 44px;
+      height: 22px;
+    }
+
+    .toggle input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: #334155;
+      border-radius: 34px;
+      transition: .2s;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 16px;
+      width: 16px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      border-radius: 50%;
+      transition: .2s;
+    }
+
+    input:checked + .slider {
+      background-color: #6366f1;
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(22px);
+    }
+
+    .btn {
+      background: linear-gradient(135deg, #6366f1, #4f46e5);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 0.65rem 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 0.85rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      width: 100%;
+    }
+
+    .btn:hover {
+      box-shadow: 0 0 12px rgba(99, 102, 241, 0.4);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: var(--text-main);
+    }
+
+    /* Logs Table style */
+    .history-card {
+      margin-top: 1.5rem;
+    }
+
+    .table-wrapper {
+      overflow-x: auto;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      background: rgba(15, 23, 42, 0.2);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.85rem;
+    }
+
+    th {
+      background: rgba(15, 23, 42, 0.5);
+      padding: 0.75rem 1rem;
+      color: var(--text-muted);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    td {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+      font-family: var(--font-mono);
+    }
+
+    .note-cell {
+      font-family: var(--font-body);
+      color: var(--text-muted);
+    }
+
+    .empty-state {
+      padding: 2rem;
+      text-align: center;
+      color: var(--text-muted);
+    }
+
+    /* Cursors Panel details */
+    .cursor-readout {
+      display: flex;
+      justify-content: space-between;
+      background: rgba(15, 23, 42, 0.4);
+      padding: 0.75rem;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      border: 1px solid rgba(255,255,255,0.02);
+    }
+
+    .cursor-info-box {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .cursor-label {
+      color: var(--text-muted);
+    }
+
+    .cursor-val {
+      font-family: var(--font-mono);
+      font-weight: 600;
+      color: #a855f7;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    
+    <!-- Header -->
+    <header>
+      <div class="logo-group">
+        <i class="fa-solid fa-gauge-high logo-icon"></i>
+        <h1>เครื่องจำลองและวิเคราะห์ออสซิลโลสโคป</h1>
+      </div>
+      <div id="gas-status" class="status-badge">
+        <i class="fa-solid fa-circle-nodes"></i> <span>โหมดจำลองในเครื่อง (Local Mode)</span>
+      </div>
+    </header>
+
+    <!-- Main Grid -->
+    <div class="app-grid">
+      
+      <!-- Left Column: Screen, Cursors, Auto Measurements -->
+      <div class="glass-card" style="display: flex; flex-direction: column; gap: 1rem;">
+        
+        <!-- Screen container -->
+        <div class="scope-screen-wrapper">
+          
+          <!-- Overlays -->
+          <div class="screen-overlay">
+            <span id="screen-ch1-scale" class="overlay-item ch1-info">CH1: 2V / Div</span>
+            <span id="screen-ch2-scale" class="overlay-item ch2-info">CH2: 2V / Div</span>
+            <span id="screen-tb-scale" class="overlay-item">M: 1.00ms / Div</span>
+          </div>
+
+          <div class="screen-overlay-bottom">
+            <span id="screen-mode-info" class="overlay-item">MODE: YT (YT-ROLL)</span>
+            <span id="screen-trigger-info" class="overlay-item trigger-info">TRG: CH1 ↗ 0.0V</span>
+          </div>
+
+          <!-- Canvas -->
+          <canvas id="scope-canvas" width="800" height="420"></canvas>
+        </div>
+
+        <!-- System Readings (DSO Measurements) -->
+        <div>
+          <div style="font-size: 0.85rem; font-weight: 600; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+            <i class="fa-solid fa-chart-line" style="color: #34d399;"></i> ระบบคำนวณคลื่นอัตโนมัติ (DSO Auto Measurements)
+          </div>
+          
+          <div class="measurements-grid">
+            <!-- CH1 readings -->
+            <div class="measurement-box">
+              <span class="meas-label">CH1 Freq (ความถี่)</span>
+              <span id="m-ch1-freq" class="meas-value meas-ch1">0.00 Hz</span>
+            </div>
+            <div class="measurement-box">
+              <span class="meas-label">CH1 Vpp (ยอดถึงยอด)</span>
+              <span id="m-ch1-vpp" class="meas-value meas-ch1">0.00 V</span>
+            </div>
+            <div class="measurement-box">
+              <span class="meas-label">CH1 Vmax / Vmin</span>
+              <span id="m-ch1-vmax-vmin" class="meas-value meas-ch1">0.00 / 0.00 V</span>
+            </div>
+
+            <!-- CH2 readings -->
+            <div class="measurement-box">
+              <span class="meas-label">CH2 Freq (ความถี่)</span>
+              <span id="m-ch2-freq" class="meas-value meas-ch2">0.00 Hz</span>
+            </div>
+            <div class="measurement-box">
+              <span class="meas-label">CH2 Vpp (ยอดถึงยอด)</span>
+              <span id="m-ch2-vpp" class="meas-value meas-ch2">0.00 V</span>
+            </div>
+            <div class="measurement-box">
+              <span class="meas-label">CH2 Vmax / Vmin</span>
+              <span id="m-ch2-vmax-vmin" class="meas-value meas-ch2">0.00 / 0.00 V</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cursors & Measurements system -->
+        <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 1rem;">
+          
+          <!-- Cursors Settings -->
+          <div style="display: flex; flex-direction: column; gap: 0.5rem; background: rgba(15, 23, 42, 0.2); padding: 0.75rem; border-radius: 10px;">
+            <div style="font-size: 0.8rem; font-weight: 600; margin-bottom: 0.25rem;">
+              <i class="fa-solid fa-arrows-left-right"></i> ไม้บรรทัดวัด (Cursors)
+            </div>
+            <div class="switch-group" style="padding: 0.25rem 0;">
+              <span class="switch-label">เปิดไม้บรรทัด</span>
+              <label class="toggle">
+                <input type="checkbox" id="cursor-toggle" onchange="toggleCursors()">
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div class="switch-group" style="padding: 0.25rem 0;">
+              <span class="switch-label">ประเภทแกน</span>
+              <select id="cursor-type" onchange="changeCursorType()" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">
+                <option value="Y">แกน Y (Voltage)</option>
+                <option value="X">แกน X (Time)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Cursors Readout -->
+          <div id="cursor-readout-panel" class="cursor-readout" style="opacity: 0.4; pointer-events: none;">
+            <div class="cursor-info-box">
+              <span class="cursor-label" id="c1-label">Cursor 1</span>
+              <span class="cursor-val" id="c1-val">0.00 V</span>
+            </div>
+            <div class="cursor-info-box">
+              <span class="cursor-label" id="c2-label">Cursor 2</span>
+              <span class="cursor-val" id="c2-val">0.00 V</span>
+            </div>
+            <div class="cursor-info-box">
+              <span class="cursor-label" id="c-diff-label">Delta (ΔV)</span>
+              <span class="cursor-val" id="c-diff-val">0.00 V</span>
+              <span id="c-freq-val" style="font-family: var(--font-mono); font-size: 0.7rem; color: #a855f7; display: none;">(1/Δt = 0Hz)</span>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Right Column: Rotary Controls & Config tabs -->
+      <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+        
+        <!-- Oscilloscope Rotary Controls -->
+        <div class="glass-card">
+          <div class="controls-panel-title">
+            <i class="fa-solid fa-sliders"></i>
+            <span>แผงควบคุมออสซิลโลสโคป (Scope Controls)</span>
+          </div>
+
+          <!-- Vertical System CH1 & CH2 -->
+          <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.5rem;">ระบบแนวตั้ง (VERTICAL SYSTEM)</div>
+          
+          <div class="control-row">
+            <!-- CH1 Volts/Div -->
+            <div class="control-item">
+              <span class="control-label" style="color: var(--glow-ch1);">CH1 Scale</span>
+              <div class="knob-container">
+                <input type="range" class="knob-input" id="ch1-scale-knob" min="0" max="7" value="4" step="1" oninput="updateKnobs()">
+                <div class="knob-dial" id="ch1-scale-dial"></div>
+              </div>
+              <span class="control-value-display" id="ch1-scale-val">1 V/Div</span>
+            </div>
+            
+            <!-- CH1 Position -->
+            <div class="control-item">
+              <span class="control-label" style="color: var(--glow-ch1);">CH1 Position</span>
+              <div class="knob-container">
+                <input type="range" class="knob-input" id="ch1-pos-knob" min="-4" max="4" value="0" step="0.1" oninput="updateKnobs()">
+                <div class="knob-dial" id="ch1-pos-dial"></div>
+              </div>
+              <span class="control-value-display" id="ch1-pos-val">0.0 Div</span>
+            </div>
+
+            <!-- CH2 Volts/Div -->
+            <div class="control-item">
+              <span class="control-label" style="color: var(--glow-ch2);">CH2 Scale</span>
+              <div class="knob-container">
+                <input type="range" class="knob-input" id="ch2-scale-knob" min="0" max="7" value="4" step="1" oninput="updateKnobs()">
+                <div class="knob-dial" id="ch2-scale-dial"></div>
+              </div>
+              <span class="control-value-display" id="ch2-scale-val">1 V/Div</span>
+            </div>
+            
+            <!-- CH2 Position -->
+            <div class="control-item">
+              <span class="control-label" style="color: var(--glow-ch2);">CH2 Position</span>
+              <div class="knob-container">
+                <input type="range" class="knob-input" id="ch2-pos-knob" min="-4" max="4" value="0" step="0.1" oninput="updateKnobs()">
+                <div class="knob-dial" id="ch2-pos-dial"></div>
+              </div>
+              <span class="control-value-display" id="ch2-pos-val">0.0 Div</span>
+            </div>
+          </div>
+
+          <!-- Horizontal System & Trigger System -->
+          <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.5rem;">ระบบแนวนอนและทริกเกอร์ (HORIZONTAL & TRIGGER)</div>
+          
+          <div class="control-row">
+            <!-- Time/Div -->
+            <div class="control-item">
+              <span class="control-label">Time Base</span>
+              <div class="knob-container">
+                <input type="range" class="knob-input" id="tb-scale-knob" min="0" max="11" value="6" step="1" oninput="updateKnobs()">
+                <div class="knob-dial" id="tb-scale-dial"></div>
+              </div>
+              <span class="control-value-display" id="tb-scale-val">1 ms/Div</span>
+            </div>
+            
+            <!-- Horizontal Position -->
+            <div class="control-item">
+              <span class="control-label">H Position</span>
+              <div class="knob-container">
+                <input type="range" class="knob-input" id="tb-pos-knob" min="-5" max="5" value="0" step="0.1" oninput="updateKnobs()">
+                <div class="knob-dial" id="tb-pos-dial"></div>
+              </div>
+              <span class="control-value-display" id="tb-pos-val">0.0 Div</span>
+            </div>
+
+            <!-- Trigger Level -->
+            <div class="control-item">
+              <span class="control-label" style="color: var(--glow-trigger);">TRG Level</span>
+              <div class="knob-container">
+                <input type="range" class="knob-input" id="trg-level-knob" min="-5" max="5" value="0" step="0.1" oninput="updateKnobs()">
+                <div class="knob-dial" id="trg-level-dial"></div>
+              </div>
+              <span class="control-value-display" id="trg-level-val">0.0 V</span>
+            </div>
+
+            <!-- Trigger Source -->
+            <div class="control-item" style="justify-content: center; gap: 0.4rem; padding: 0.4rem 0.25rem;">
+              <span class="control-label" style="color: var(--glow-trigger);">TRG Source</span>
+              <select id="trg-source-select" onchange="updateTriggerConfig()" style="font-size: 0.75rem; width: 90%; text-align: center;">
+                <option value="1">CH 1</option>
+                <option value="2">CH 2</option>
+              </select>
+              <select id="trg-slope-select" onchange="updateTriggerConfig()" style="font-size: 0.75rem; width: 90%; text-align: center;">
+                <option value="RISING">Slope: ↗</option>
+                <option value="FALLING">Slope: ↘</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Extra Settings -->
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-top: 0.5rem;">
+            <div class="switch-group">
+              <span class="switch-label" style="color: var(--glow-ch1); font-weight:600;">เปิด CH 1</span>
+              <label class="toggle">
+                <input type="checkbox" id="ch1-enable" checked onchange="updateTracesEnable()">
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div class="switch-group">
+              <span class="switch-label" style="color: var(--glow-ch2); font-weight:600;">เปิด CH 2</span>
+              <label class="toggle">
+                <input type="checkbox" id="ch2-enable" checked onchange="updateTracesEnable()">
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div class="switch-group" style="grid-column: span 2;">
+              <span class="switch-label" style="font-weight: 600;"><i class="fa-solid fa-circle-dot"></i> แสดงผล XY Mode (Lissajous)</span>
+              <label class="toggle">
+                <input type="checkbox" id="xy-mode-toggle" onchange="toggleXYMode()">
+                <span class="slider"></span>
+              </label>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Signal Generator Tabs config -->
+        <div class="glass-card">
+          <div class="controls-panel-title">
+            <i class="fa-solid fa-wave-square"></i>
+            <span>เครื่องกำเนิดสัญญาณ (Signal Generator)</span>
+          </div>
+
+          <!-- Channel config tabs navigation -->
+          <div class="tabs-nav">
+            <button class="tab-btn active ch1" onclick="switchGenTab(1)">แชนแนล 1 (CH1)</button>
+            <button class="tab-btn ch2" onclick="switchGenTab(2)">แชนแนล 2 (CH2)</button>
+          </div>
+
+          <!-- Channel 1 Generator Pane -->
+          <div id="gen-ch1-pane" class="tab-pane active">
+            <!-- Waveform select -->
+            <div class="form-group">
+              <label for="ch1-wave">รูปคลื่นสัญญาณ (Waveform)</label>
+              <select id="ch1-wave" onchange="generateTraces()">
+                <option value="sine">คลื่นไซน์ (Sine Wave)</option>
+                <option value="square">คลื่นสี่เหลี่ยม (Square Wave)</option>
+                <option value="triangle">คลื่นสามเหลี่ยม (Triangle Wave)</option>
+                <option value="sawtooth">คลื่นฟันเลื่อย (Sawtooth Wave)</option>
+                <option value="noise">สัญญาณรบกวน (Noise)</option>
+              </select>
+            </div>
+
+            <!-- Frequency slider -->
+            <div class="form-group">
+              <label for="ch1-freq">ความถี่ (Frequency): <span class="label-value" id="ch1-freq-lbl">1,000 Hz</span></label>
+              <input type="range" class="ch1-thumb" id="ch1-freq" min="10" max="10000" value="1000" step="10" oninput="updateGenParameters(1)">
+            </div>
+
+            <!-- Amplitude slider -->
+            <div class="form-group">
+              <label for="ch1-amp">แรงดันยอด (Amplitude): <span class="label-value" id="ch1-amp-lbl">2.0 V</span></label>
+              <input type="range" class="ch1-thumb" id="ch1-amp" min="0" max="10" value="2" step="0.1" oninput="updateGenParameters(1)">
+            </div>
+
+            <!-- DC Offset slider -->
+            <div class="form-group">
+              <label for="ch1-offset">ค่าชดเชยแรงดัน (DC Offset): <span class="label-value" id="ch1-offset-lbl">0.0 V</span></label>
+              <input type="range" class="ch1-thumb" id="ch1-offset" min="-5" max="5" value="0" step="0.1" oninput="updateGenParameters(1)">
+            </div>
+
+            <!-- Phase offset -->
+            <div class="form-group">
+              <label for="ch1-phase">มุมเฟส (Phase): <span class="label-value" id="ch1-phase-lbl">0°</span></label>
+              <input type="range" class="ch1-thumb" id="ch1-phase" min="0" max="360" value="0" step="5" oninput="updateGenParameters(1)">
+            </div>
+          </div>
+
+          <!-- Channel 2 Generator Pane -->
+          <div id="gen-ch2-pane" class="tab-pane">
+            <!-- Waveform select -->
+            <div class="form-group">
+              <label for="ch2-wave">รูปคลื่นสัญญาณ (Waveform)</label>
+              <select id="ch2-wave" onchange="generateTraces()">
+                <option value="sine">คลื่นไซน์ (Sine Wave)</option>
+                <option value="square" selected>คลื่นสี่เหลี่ยม (Square Wave)</option>
+                <option value="triangle">คลื่นสามเหลี่ยม (Triangle Wave)</option>
+                <option value="sawtooth">คลื่นฟันเลื่อย (Sawtooth Wave)</option>
+                <option value="noise">สัญญาณรบกวน (Noise)</option>
+              </select>
+            </div>
+
+            <!-- Frequency slider -->
+            <div class="form-group">
+              <label for="ch2-freq">ความถี่ (Frequency): <span class="label-value" id="ch2-freq-lbl">500 Hz</span></label>
+              <input type="range" class="ch2-thumb" id="ch2-freq" min="10" max="10000" value="500" step="10" oninput="updateGenParameters(2)">
+            </div>
+
+            <!-- Amplitude slider -->
+            <div class="form-group">
+              <label for="ch2-amp">แรงดันยอด (Amplitude): <span class="label-value" id="ch2-amp-lbl">1.5 V</span></label>
+              <input type="range" class="ch2-thumb" id="ch2-amp" min="0" max="10" value="1.5" step="0.1" oninput="updateGenParameters(2)">
+            </div>
+
+            <!-- DC Offset slider -->
+            <div class="form-group">
+              <label for="ch2-offset">ค่าชดเชยแรงดัน (DC Offset): <span class="label-value" id="ch2-offset-lbl">0.0 V</span></label>
+              <input type="range" class="ch2-thumb" id="ch2-offset" min="-5" max="5" value="0" step="0.1" oninput="updateGenParameters(2)">
+            </div>
+
+            <!-- Phase offset -->
+            <div class="form-group">
+              <label for="ch2-phase">มุมเฟส (Phase): <span class="label-value" id="ch2-phase-lbl">90°</span></label>
+              <input type="range" class="ch2-thumb" id="ch2-phase" min="0" max="360" value="90" step="5" oninput="updateGenParameters(2)">
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Google Sheets Logger Panel -->
+        <div class="glass-card">
+          <div class="controls-panel-title">
+            <i class="fa-solid fa-cloud-arrow-up"></i>
+            <span>ส่งออกและบันทึกข้อมูล (Google Sheet Logs)</span>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 0.85rem;">
+            <div class="form-group">
+              <label for="scope-note">บันทึกเพิ่มเติมประกอบการเก็บค่า</label>
+              <textarea id="scope-note" rows="2" placeholder="เช่น บันทึกตรวจสอบรูปคลื่นทริกเกอร์, การปรับแต่งเฟสในโหมด XY" style="background: #0f172a; border: 1px solid var(--card-border); border-radius: 6px; padding: 0.5rem; color: white; resize: none; font-size: 0.85rem; font-family: var(--font-body);"></textarea>
+            </div>
+            
+            <button class="btn" id="btn-save-log" onclick="saveOscilloscopeLog()">
+              <i class="fa-solid fa-cloud-arrow-up"></i> บันทึกค่าการวัดลง Google Sheet
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- History list section -->
+    <div class="glass-card history-card">
+      <div class="controls-panel-title" style="justify-content: space-between; align-items: center; margin-bottom: 0.85rem;">
+        <span style="display: flex; align-items: center; gap: 0.5rem;">
+          <i class="fa-solid fa-history"></i>
+          <span>ประวัติข้อมูลการวัดหน้าออสซิลโลสโคปล่าสุด</span>
+        </span>
+        <button class="btn btn-secondary" style="width: auto; padding: 0.35rem 0.85rem; font-size: 0.75rem;" onclick="loadOscilloscopeHistory()">
+          <i class="fa-solid fa-rotate-right" id="refresh-icon"></i> รีเฟรชประวัติ
+        </button>
+      </div>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>วัน-เวลา</th>
+              <th>Timebase</th>
+              <th>CH1 Scale</th>
+              <th>CH1 Vpp</th>
+              <th>CH1 Freq</th>
+              <th>CH2 Scale</th>
+              <th>CH2 Vpp</th>
+              <th>CH2 Freq</th>
+              <th>บันทึกเพิ่มเติม</th>
+            </tr>
+          </thead>
+          <tbody id="history-table-body">
+            <!-- Rows injected dynamically -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Script logics -->
+  <script>
+    // Constants mapping for Scope values
+    const VOLTS_DIV_SCALES = [0.05, 0.1, 0.2, 0.5, 1, 2, 5, 10]; // Volts
+    const VOLTS_DIV_TEXTS = ["50mV", "100mV", "200mV", "500mV", "1V", "2V", "5V", "10V"];
+
+    const TIME_DIV_SCALES = [0.00001, 0.00002, 0.00005, 0.0001, 0.0002, 0.0005, 0.001, 0.002, 0.005, 0.01, 0.02, 0.05]; // Seconds
+    const TIME_DIV_TEXTS = ["10µs", "20µs", "50µs", "100µs", "200µs", "500µs", "1ms", "2ms", "5ms", "10ms", "20ms", "50ms"];
+
+    // App state
+    let state = {
+      // Channels enable
+      ch1Enable: true,
+      ch2Enable: true,
+      xyMode: false,
+      
+      // Vertical
+      ch1ScaleIdx: 4, // 1V/Div
+      ch1Pos: 0.0, // divisions
+      ch2ScaleIdx: 4, // 1V/Div
+      ch2Pos: 0.0, // divisions
+
+      // Horizontal
+      timebaseIdx: 6, // 1ms/Div
+      horizPos: 0.0, // divisions
+
+      // Trigger
+      trgLevel: 0.0, // volts
+      trgSource: 1, // CH1
+      trgSlope: 'RISING', // RISING or FALLING
+
+      // Signal generators CH1
+      gen1: { wave: 'sine', freq: 1000, amp: 2.0, offset: 0.0, phase: 0 },
+      // Signal generators CH2
+      gen2: { wave: 'square', freq: 500, amp: 1.5, offset: 0.0, phase: 90 },
+
+      // Interactive Cursors
+      cursors: {
+        enabled: false,
+        type: 'Y', // Y = Voltage, X = Time
+        c1: 150, // Screen Pixel coordinates
+        c2: 270
+      }
+    };
+
+    let isGoogleAppsScript = false;
+    let canvas, ctx;
+    let animationFrameId;
+    let currentDraggingCursor = null;
+
+    // Run on startup
+    window.addEventListener('DOMContentLoaded', () => {
+      canvas = document.getElementById('scope-canvas');
+      ctx = canvas.getContext('2d');
+
+      detectEnvironment();
+      setupCursorDragEvents();
+      updateKnobs();
+      generateTraces();
+      loadOscilloscopeHistory();
+
+      // Start rendering loop
+      renderLoop();
+    });
+
+    function detectEnvironment() {
+      const badge = document.getElementById('gas-status');
+      if (typeof google !== 'undefined' && google.script && google.script.run) {
+        isGoogleAppsScript = true;
+        badge.className = 'status-badge connected';
+        badge.querySelector('span').innerText = 'เชื่อมต่อ Google Sheet แล้ว';
+        badge.querySelector('i').className = 'fa-solid fa-circle-nodes';
+      } else {
+        isGoogleAppsScript = false;
+        badge.className = 'status-badge';
+        badge.querySelector('span').innerText = 'โหมดจำลองในเครื่อง (Local Mode)';
+      }
+    }
+
+    // Tab switcher for signal generators
+    function switchGenTab(ch) {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
+
+      if (ch === 1) {
+        document.querySelector('.tab-btn.ch1').classList.add('active');
+        document.getElementById('gen-ch1-pane').classList.add('active');
+      } else {
+        document.querySelector('.tab-btn.ch2').classList.add('active');
+        document.getElementById('gen-ch2-pane').classList.add('active');
+      }
+    }
+
+    // Toggle cursors
+    function toggleCursors() {
+      state.cursors.enabled = document.getElementById('cursor-toggle').checked;
+      const readout = document.getElementById('cursor-readout-panel');
+      if (state.cursors.enabled) {
+        readout.style.opacity = '1';
+        readout.style.pointerEvents = 'all';
+      } else {
+        readout.style.opacity = '0.4';
+        readout.style.pointerEvents = 'none';
+      }
+      updateCursorLabels();
+    }
+
+    // Change cursor axis
+    function changeCursorType() {
+      state.cursors.type = document.getElementById('cursor-type').value;
+      if (state.cursors.type === 'X') {
+        state.cursors.c1 = canvas.width * 0.3;
+        state.cursors.c2 = canvas.width * 0.6;
+      } else {
+        state.cursors.c1 = canvas.height * 0.3;
+        state.cursors.c2 = canvas.height * 0.6;
+      }
+      updateCursorLabels();
+    }
+
+    // Enable/disable traces
+    function updateTracesEnable() {
+      state.ch1Enable = document.getElementById('ch1-enable').checked;
+      state.ch2Enable = document.getElementById('ch2-enable').checked;
+    }
+
+    // Enable XY Lissajous Mode
+    function toggleXYMode() {
+      state.xyMode = document.getElementById('xy-mode-toggle').checked;
+      const overlayMode = document.getElementById('screen-mode-info');
+      if (state.xyMode) {
+        overlayMode.innerText = 'MODE: XY (CH1-X vs CH2-Y)';
+      } else {
+        overlayMode.innerText = 'MODE: YT (YT-ROLL)';
+      }
+    }
+
+    // Read values from HTML inputs and update generator params
+    function updateGenParameters(ch) {
+      if (ch === 1) {
+        state.gen1.wave = document.getElementById('ch1-wave').value;
+        state.gen1.freq = parseFloat(document.getElementById('ch1-freq').value);
+        state.gen1.amp = parseFloat(document.getElementById('ch1-amp').value);
+        state.gen1.offset = parseFloat(document.getElementById('ch1-offset').value);
+        state.gen1.phase = parseInt(document.getElementById('ch1-phase').value);
+
+        document.getElementById('ch1-freq-lbl').innerText = state.gen1.freq.toLocaleString() + ' Hz';
+        document.getElementById('ch1-amp-lbl').innerText = state.gen1.amp.toFixed(1) + ' V';
+        document.getElementById('ch1-offset-lbl').innerText = state.gen1.offset.toFixed(1) + ' V';
+        document.getElementById('ch1-phase-lbl').innerText = state.gen1.phase + '°';
+      } else {
+        state.gen2.wave = document.getElementById('ch2-wave').value;
+        state.gen2.freq = parseFloat(document.getElementById('ch2-freq').value);
+        state.gen2.amp = parseFloat(document.getElementById('ch2-amp').value);
+        state.gen2.offset = parseFloat(document.getElementById('ch2-offset').value);
+        state.gen2.phase = parseInt(document.getElementById('ch2-phase').value);
+
+        document.getElementById('ch2-freq-lbl').innerText = state.gen2.freq.toLocaleString() + ' Hz';
+        document.getElementById('ch2-amp-lbl').innerText = state.gen2.amp.toFixed(1) + ' V';
+        document.getElementById('ch2-offset-lbl').innerText = state.gen2.offset.toFixed(1) + ' V';
+        document.getElementById('ch2-phase-lbl').innerText = state.gen2.phase + '°';
+      }
+      generateTraces();
+    }
+
+    // Update from trigger dropdown selects
+    function updateTriggerConfig() {
+      state.trgSource = parseInt(document.getElementById('trg-source-select').value);
+      state.trgSlope = document.getElementById('trg-slope-select').value;
+    }
+
+    // Translate sliders into dial angles and update value displays
+    function updateKnobs() {
+      // 1. CH1 Scale knob
+      state.ch1ScaleIdx = parseInt(document.getElementById('ch1-scale-knob').value);
+      setKnobAngle('ch1-scale-dial', state.ch1ScaleIdx, 0, 7);
+      const ch1ScaleVal = VOLTS_DIV_SCALES[state.ch1ScaleIdx];
+      document.getElementById('ch1-scale-val').innerText = VOLTS_DIV_TEXTS[state.ch1ScaleIdx] + '/Div';
+      document.getElementById('screen-ch1-scale').innerText = `CH1: ${VOLTS_DIV_TEXTS[state.ch1ScaleIdx]}/Div`;
+
+      // 2. CH1 Position knob
+      state.ch1Pos = parseFloat(document.getElementById('ch1-pos-knob').value);
+      setKnobAngle('ch1-pos-dial', state.ch1Pos, -4, 4);
+      document.getElementById('ch1-pos-val').innerText = (state.ch1Pos >= 0 ? '+' : '') + state.ch1Pos.toFixed(1) + ' Div';
+
+      // 3. CH2 Scale knob
+      state.ch2ScaleIdx = parseInt(document.getElementById('ch2-scale-knob').value);
+      setKnobAngle('ch2-scale-dial', state.ch2ScaleIdx, 0, 7);
+      const ch2ScaleVal = VOLTS_DIV_SCALES[state.ch2ScaleIdx];
+      document.getElementById('ch2-scale-val').innerText = VOLTS_DIV_TEXTS[state.ch2ScaleIdx] + '/Div';
+      document.getElementById('screen-ch2-scale').innerText = `CH2: ${VOLTS_DIV_TEXTS[state.ch2ScaleIdx]}/Div`;
+
+      // 4. CH2 Position knob
+      state.ch2Pos = parseFloat(document.getElementById('ch2-pos-knob').value);
+      setKnobAngle('ch2-pos-dial', state.ch2Pos, -4, 4);
+      document.getElementById('ch2-pos-val').innerText = (state.ch2Pos >= 0 ? '+' : '') + state.ch2Pos.toFixed(1) + ' Div';
+
+      // 5. Timebase Scale knob
+      state.timebaseIdx = parseInt(document.getElementById('tb-scale-knob').value);
+      setKnobAngle('tb-scale-dial', state.timebaseIdx, 0, 11);
+      const tbScaleVal = TIME_DIV_SCALES[state.timebaseIdx];
+      document.getElementById('tb-scale-val').innerText = TIME_DIV_TEXTS[state.timebaseIdx] + '/Div';
+      document.getElementById('screen-tb-scale').innerText = `M: ${TIME_DIV_TEXTS[state.timebaseIdx]}/Div`;
+
+      // 6. Horizontal Position knob
+      state.horizPos = parseFloat(document.getElementById('tb-pos-knob').value);
+      setKnobAngle('tb-pos-dial', state.horizPos, -5, 5);
+      document.getElementById('tb-pos-val').innerText = (state.horizPos >= 0 ? '+' : '') + state.horizPos.toFixed(1) + ' Div';
+
+      // 7. Trigger Level knob
+      state.trgLevel = parseFloat(document.getElementById('trg-level-knob').value);
+      setKnobAngle('trg-level-dial', state.trgLevel, -5, 5);
+      document.getElementById('trg-level-val').innerText = (state.trgLevel >= 0 ? '+' : '') + state.trgLevel.toFixed(1) + ' V';
+      
+      const slopeSymbol = state.trgSlope === 'RISING' ? '↗' : '↘';
+      document.getElementById('screen-trigger-info').innerText = `TRG: CH${state.trgSource} ${slopeSymbol} ${state.trgLevel.toFixed(1)}V`;
+    }
+
+    // Helper to rotate dial UI
+    function setKnobAngle(elementId, value, min, max) {
+      // Map min-max value to -150 to +150 degrees
+      const pct = (value - min) / (max - min);
+      const angle = -150 + (pct * 300);
+      document.getElementById(elementId).style.transform = `rotate(${angle}deg)`;
+    }
+
+    // Generate signal traces arrays and calculate measurements
+    let traceCH1Data = [];
+    let traceCH2Data = [];
+
+    // Trigger recalculating of signals data array
+    function generateTraces() {
+      // Generate a buffer representing the continuous signal in time
+      // 10 divisions, each width represents 1 Timebase div
+      const timeDiv = TIME_DIV_SCALES[state.timebaseIdx];
+      const totalTime = timeDiv * 10;
+      
+      // Let's generate a dense buffer of 2000 points covering a slightly wider time window
+      // so trigger matching has room. Time extends from -totalTime to +2*totalTime.
+      const sampleCount = 2400;
+      const step = (totalTime * 3) / sampleCount;
+      const startTime = -totalTime;
+
+      traceCH1Data = [];
+      traceCH2Data = [];
+
+      for (let i = 0; i < sampleCount; i++) {
+        const t = startTime + (i * step);
+        
+        // Channel 1 signal formula
+        const v1 = computeSignalValue(t, state.gen1);
+        traceCH1Data.push({ t: t, v: v1 });
+
+        // Channel 2 signal formula
+        const v2 = computeSignalValue(t, state.gen2);
+        traceCH2Data.push({ t: t, v: v2 });
+      }
+
+      calculateAutoMeasurements();
+      updateCursorLabels();
+    }
+
+    // Compute waveform voltage at time t
+    function computeSignalValue(t, gen) {
+      if (gen.wave === 'noise') {
+        return gen.offset + gen.amp * (Math.random() * 2 - 1);
+      }
+
+      const phaseRad = (gen.phase * Math.PI) / 180;
+      const angle = 2 * Math.PI * gen.freq * t + phaseRad;
+
+      if (gen.wave === 'sine') {
+        return gen.offset + gen.amp * Math.sin(angle);
+      }
+      if (gen.wave === 'square') {
+        return gen.offset + gen.amp * (Math.sin(angle) >= 0 ? 1.0 : -1.0);
+      }
+      if (gen.wave === 'triangle') {
+        return gen.offset + gen.amp * (2 / Math.PI * Math.asin(Math.sin(angle)));
+      }
+      if (gen.wave === 'sawtooth') {
+        // Periodic linear ramp between -1 and 1
+        const term = (t * gen.freq + gen.phase/360);
+        const fraction = term - Math.floor(term);
+        return gen.offset + gen.amp * (2 * fraction - 1);
+      }
+      return 0;
+    }
+
+    // Calculate RMS, Vpp, Freq, Vmax/Vmin
+    function calculateAutoMeasurements() {
+      // 1. Channel 1 parameters
+      if (state.ch1Enable && state.gen1.wave !== 'noise') {
+        const vpp = state.gen1.amp * 2;
+        const vmax = state.gen1.offset + state.gen1.amp;
+        const vmin = state.gen1.offset - state.gen1.amp;
+        document.getElementById('m-ch1-freq').innerText = state.gen1.freq >= 1000 ? (state.gen1.freq / 1000).toFixed(2) + ' kHz' : state.gen1.freq.toFixed(1) + ' Hz';
+        document.getElementById('m-ch1-vpp').innerText = vpp.toFixed(2) + ' V';
+        document.getElementById('m-ch1-vmax-vmin').innerText = `${vmax.toFixed(2)} / ${vmin.toFixed(2)} V`;
+      } else if (state.ch1Enable && state.gen1.wave === 'noise') {
+        document.getElementById('m-ch1-freq').innerText = '-- Hz';
+        document.getElementById('m-ch1-vpp').innerText = (state.gen1.amp * 2).toFixed(2) + ' V';
+        document.getElementById('m-ch1-vmax-vmin').innerText = `${state.gen1.amp.toFixed(2)} / ${(-state.gen1.amp).toFixed(2)} V`;
+      } else {
+        document.getElementById('m-ch1-freq').innerText = 'OFF';
+        document.getElementById('m-ch1-vpp').innerText = 'OFF';
+        document.getElementById('m-ch1-vmax-vmin').innerText = 'OFF';
+      }
+
+      // 2. Channel 2 parameters
+      if (state.ch2Enable && state.gen2.wave !== 'noise') {
+        const vpp = state.gen2.amp * 2;
+        const vmax = state.gen2.offset + state.gen2.amp;
+        const vmin = state.gen2.offset - state.gen2.amp;
+        document.getElementById('m-ch2-freq').innerText = state.gen2.freq >= 1000 ? (state.gen2.freq / 1000).toFixed(2) + ' kHz' : state.gen2.freq.toFixed(1) + ' Hz';
+        document.getElementById('m-ch2-vpp').innerText = vpp.toFixed(2) + ' V';
+        document.getElementById('m-ch2-vmax-vmin').innerText = `${vmax.toFixed(2)} / ${vmin.toFixed(2)} V`;
+      } else if (state.ch2Enable && state.gen2.wave === 'noise') {
+        document.getElementById('m-ch2-freq').innerText = '-- Hz';
+        document.getElementById('m-ch2-vpp').innerText = (state.gen2.amp * 2).toFixed(2) + ' V';
+        document.getElementById('m-ch2-vmax-vmin').innerText = `${state.gen2.amp.toFixed(2)} / ${(-state.gen2.amp).toFixed(2)} V`;
+      } else {
+        document.getElementById('m-ch2-freq').innerText = 'OFF';
+        document.getElementById('m-ch2-vpp').innerText = 'OFF';
+        document.getElementById('m-ch2-vmax-vmin').innerText = 'OFF';
+      }
+    }
+
+    // Setup interactive mouse dragging of cursors on canvas
+    function setupCursorDragEvents() {
+      canvas.addEventListener('mousedown', (e) => {
+        if (!state.cursors.enabled) return;
+        const rect = canvas.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
+
+        // Check if mouse is close to cursor 1 or 2
+        const clickTolerance = 15;
+        if (state.cursors.type === 'X') {
+          if (Math.abs(mouseX - state.cursors.c1) < clickTolerance) {
+            currentDraggingCursor = 1;
+          } else if (Math.abs(mouseX - state.cursors.c2) < clickTolerance) {
+            currentDraggingCursor = 2;
+          }
+        } else {
+          if (Math.abs(mouseY - state.cursors.c1) < clickTolerance) {
+            currentDraggingCursor = 1;
+          } else if (Math.abs(mouseY - state.cursors.c2) < clickTolerance) {
+            currentDraggingCursor = 2;
+          }
+        }
+      });
+
+      window.addEventListener('mouseup', () => {
+        currentDraggingCursor = null;
+      });
+
+      canvas.addEventListener('mousemove', (e) => {
+        if (!state.cursors.enabled || currentDraggingCursor === null) return;
+        const rect = canvas.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
+
+        if (state.cursors.type === 'X') {
+          // Bound X cursors within canvas width
+          const newX = Math.max(0, Math.min(canvas.width, mouseX));
+          if (currentDraggingCursor === 1) state.cursors.c1 = newX;
+          else state.cursors.c2 = newX;
+        } else {
+          // Bound Y cursors within canvas height
+          const newY = Math.max(0, Math.min(canvas.height, mouseY));
+          if (currentDraggingCursor === 1) state.cursors.c1 = newY;
+          else state.cursors.c2 = newY;
+        }
+
+        updateCursorLabels();
+      });
+    }
+
+    // Convert pixel coordinates of cursors into Voltage or Time values
+    function updateCursorLabels() {
+      if (!state.cursors.enabled) return;
+
+      const scaleCH1 = VOLTS_DIV_SCALES[state.ch1ScaleIdx];
+      const timebase = TIME_DIV_SCALES[state.timebaseIdx];
+      
+      const W = canvas.width;
+      const H = canvas.height;
+      const dy = H / 8;
+      const dx = W / 10;
+
+      if (state.cursors.type === 'Y') {
+        document.getElementById('c1-label').innerText = 'Cursor 1 (V)';
+        document.getElementById('c2-label').innerText = 'Cursor 2 (V)';
+        document.getElementById('c-diff-label').innerText = 'Delta (ΔV)';
+        document.getElementById('c-freq-val').style.display = 'none';
+
+        // Convert Y coordinate to voltage:
+        // center line H/2 is 0V, each dy pixels is scaleCH1 volts
+        // V = - (y - H/2) / dy * scaleCH1
+        const v1 = - ((state.cursors.c1 - H/2) / dy) * scaleCH1;
+        const v2 = - ((state.cursors.c2 - H/2) / dy) * scaleCH1;
+        const dv = Math.abs(v1 - v2);
+
+        document.getElementById('c1-val').innerText = v1.toFixed(2) + ' V';
+        document.getElementById('c2-val').innerText = v2.toFixed(2) + ' V';
+        document.getElementById('c-diff-val').innerText = dv.toFixed(2) + ' V';
+      } else {
+        document.getElementById('c1-label').innerText = 'Cursor 1 (t)';
+        document.getElementById('c2-label').innerText = 'Cursor 2 (t)';
+        document.getElementById('c-diff-label').innerText = 'Delta (Δt)';
+
+        // Convert X coordinate to time:
+        // center line W/2 is 0s, each dx pixels is timebase seconds
+        // t = (x - W/2) / dx * timebase
+        const t1 = ((state.cursors.c1 - W/2) / dx) * timebase;
+        const t2 = ((state.cursors.c2 - W/2) / dx) * timebase;
+        const dt = Math.abs(t1 - t2);
+
+        document.getElementById('c1-val').innerText = formatTimeShort(t1);
+        document.getElementById('c2-val').innerText = formatTimeShort(t2);
+        document.getElementById('c-diff-val').innerText = formatTimeShort(dt);
+        
+        // Show frequency equivalent 1/dt
+        const fEq = dt > 0 ? 1 / dt : 0;
+        const fEqText = fEq >= 1000 ? (fEq / 1000).toFixed(2) + ' kHz' : fEq.toFixed(1) + ' Hz';
+        const fEqEl = document.getElementById('c-freq-val');
+        fEqEl.innerText = `(1/Δt = ${fEqText})`;
+        fEqEl.style.display = 'block';
+      }
+    }
+
+    function formatTimeShort(t) {
+      const absT = Math.abs(t);
+      const sign = t < 0 ? '-' : '';
+      if (absT === 0) return '0.0 s';
+      if (absT < 0.000001) return sign + (absT * 1e9).toFixed(1) + ' ns';
+      if (absT < 0.001) return sign + (absT * 1e6).toFixed(1) + ' µs';
+      if (absT < 1.0) return sign + (absT * 1000).toFixed(1) + ' ms';
+      return sign + absT.toFixed(2) + ' s';
+    }
+
+    // MAIN RENDER LOOP (60FPS Canvas Drawing)
+    function renderLoop() {
+      drawOscilloscope();
+      animationFrameId = requestAnimationFrame(renderLoop);
+    }
+
+    function drawOscilloscope() {
+      // Clear Screen
+      ctx.fillStyle = varColor('--bg-screen');
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      const W = canvas.width;
+      const H = canvas.height;
+
+      // 1. Draw grid line coordinates
+      const cols = 10;
+      const rows = 8;
+      const dx = W / cols;
+      const dy = H / rows;
+
+      ctx.strokeStyle = varColor('--grid-color');
+      ctx.lineWidth = 1;
+
+      // Vertical lines
+      for (let i = 1; i < cols; i++) {
+        ctx.beginPath();
+        if (i === cols / 2) {
+          ctx.setLineDash([]); // solid center division
+          ctx.lineWidth = 1.5;
+        } else {
+          ctx.setLineDash([2, 4]); // dashed lines
+          ctx.lineWidth = 0.5;
+        }
+        ctx.moveTo(i * dx, 0);
+        ctx.lineTo(i * dx, H);
+        ctx.stroke();
+      }
+
+      // Horizontal lines
+      for (let j = 1; j < rows; j++) {
+        ctx.beginPath();
+        if (j === rows / 2) {
+          ctx.setLineDash([]);
+          ctx.lineWidth = 1.5;
+        } else {
+          ctx.setLineDash([2, 4]);
+          ctx.lineWidth = 0.5;
+        }
+        ctx.moveTo(0, j * dy);
+        ctx.lineTo(W, j * dy);
+        ctx.stroke();
+      }
+      ctx.setLineDash([]); // Reset default
+
+      // 2. Draw center axis tick marks (subdivisions)
+      ctx.strokeStyle = varColor('--grid-color');
+      ctx.lineWidth = 1;
+      
+      // X axis tick marks
+      const centerX = W / 2;
+      const centerY = H / 2;
+      for (let x = 0; x < W; x += dx / 5) {
+        ctx.beginPath();
+        ctx.moveTo(x, centerY - 4);
+        ctx.lineTo(x, centerY + 4);
+        ctx.stroke();
+      }
+      // Y axis tick marks
+      for (let y = 0; y < H; y += dy / 5) {
+        ctx.beginPath();
+        ctx.moveTo(centerX - 4, y);
+        ctx.lineTo(centerX + 4, y);
+        ctx.stroke();
+      }
+
+      // 3. Render Waveforms
+      if (state.xyMode) {
+        drawXYWaveforms(dx, dy, W, H);
+      } else {
+        drawYTWaveforms(dx, dy, W, H);
+      }
+
+      // 4. Draw Trigger level dotted marker line
+      if (!state.xyMode) {
+        drawTriggerLevelLine(dy, H, W);
+      }
+
+      // 5. Draw Cursors
+      if (state.cursors.enabled) {
+        drawCursors(W, H);
+      }
+    }
+
+    // YT Mode Drawing (Voltage vs Time)
+    function drawYTWaveforms(dx, dy, W, H) {
+      const scaleCH1 = VOLTS_DIV_SCALES[state.ch1ScaleIdx];
+      const scaleCH2 = VOLTS_DIV_SCALES[state.ch2ScaleIdx];
+      const timebase = TIME_DIV_SCALES[state.timebaseIdx];
+      const totalTime = timebase * 10;
+
+      // Software triggering search
+      let triggerIndex = -1;
+      const trgSourceData = state.trgSource === 1 ? traceCH1Data : traceCH2Data;
+      
+      // Look for slope crossing at trigger level
+      for (let i = 1; i < trgSourceData.length - 800; i++) {
+        const vCurr = trgSourceData[i].v;
+        const vNext = trgSourceData[i+1].v;
+        
+        if (state.trgSlope === 'RISING') {
+          if (vCurr <= state.trgLevel && vNext > state.trgLevel) {
+            triggerIndex = i;
+            break;
+          }
+        } else { // FALLING
+          if (vCurr >= state.trgLevel && vNext < state.trgLevel) {
+            triggerIndex = i;
+            break;
+          }
+        }
+      }
+
+      // If trigger is not found, default to middle of buffer (AUTO-run simulation)
+      if (triggerIndex === -1) {
+        triggerIndex = Math.floor(trgSourceData.length / 3);
+      }
+
+      // Draw CH1
+      if (state.ch1Enable && traceCH1Data.length > 0) {
+        ctx.strokeStyle = varColor('--glow-ch1');
+        ctx.shadowColor = varColor('--glow-ch1');
+        ctx.shadowBlur = 4;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+
+        for (let x = 0; x < W; x++) {
+          // Align triggered index to screen horizontal center (W/2)
+          // Scale X pixels to buffer indexes relative to triggerIndex
+          // dx pixels represents timebase seconds.
+          // time per pixel = timebase / dx
+          // sample step index = time per pixel / buffer step size
+          
+          const timeStepSize = traceCH1Data[1].t - traceCH1Data[0].t;
+          const timePerPixel = timebase / dx;
+          const indexOffset = Math.round(((x - W/2) * timePerPixel + (state.horizPos * timebase)) / timeStepSize);
+          const bufferIndex = triggerIndex + indexOffset;
+
+          if (bufferIndex >= 0 && bufferIndex < traceCH1Data.length) {
+            const vVal = traceCH1Data[bufferIndex].v;
+            // Map voltage value to Y pixel:
+            // Y = center - (Volts / Scale + Position) * dy
+            const y = H/2 - (vVal / scaleCH1 + state.ch1Pos) * dy;
+            
+            if (x === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+          }
+        }
+        ctx.stroke();
+        ctx.shadowBlur = 0; // reset
+      }
+
+      // Draw CH2
+      if (state.ch2Enable && traceCH2Data.length > 0) {
+        ctx.strokeStyle = varColor('--glow-ch2');
+        ctx.shadowColor = varColor('--glow-ch2');
+        ctx.shadowBlur = 4;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+
+        for (let x = 0; x < W; x++) {
+          const timeStepSize = traceCH2Data[1].t - traceCH2Data[0].t;
+          const timePerPixel = timebase / dx;
+          const indexOffset = Math.round(((x - W/2) * timePerPixel + (state.horizPos * timebase)) / timeStepSize);
+          const bufferIndex = triggerIndex + indexOffset;
+
+          if (bufferIndex >= 0 && bufferIndex < traceCH2Data.length) {
+            const vVal = traceCH2Data[bufferIndex].v;
+            const y = H/2 - (vVal / scaleCH2 + state.ch2Pos) * dy;
+            
+            if (x === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+          }
+        }
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+      }
+    }
+
+    // XY Lissajous Mode Drawing (CH1 on X, CH2 on Y)
+    function drawXYWaveforms(dx, dy, W, H) {
+      if (!state.ch1Enable || !state.ch2Enable) {
+        // XY requires both channels
+        ctx.fillStyle = 'rgba(255,255,255,0.7)';
+        ctx.font = '14px var(--font-body)';
+        ctx.fillText("XY MODE REQUIRES BOTH CH1 & CH2 ENABLES", W/2 - 150, H/2);
+        return;
+      }
+
+      const scaleCH1 = VOLTS_DIV_SCALES[state.ch1ScaleIdx];
+      const scaleCH2 = VOLTS_DIV_SCALES[state.ch2ScaleIdx];
+
+      ctx.strokeStyle = '#34d399'; // Greenish Lissajous trace
+      ctx.shadowColor = 'rgba(52, 211, 153, 0.5)';
+      ctx.shadowBlur = 6;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+
+      // We draw all the data points currently loaded in our buffer to draw complete figures
+      // Bound the buffer to the center window (e.g., middle 1000 points) to avoid jumps
+      const startIdx = Math.floor(traceCH1Data.length / 3);
+      const endIdx = startIdx + 800;
+
+      for (let i = startIdx; i < endIdx; i++) {
+        if (i >= traceCH1Data.length) break;
+
+        const v1 = traceCH1Data[i].v;
+        const v2 = traceCH2Data[i].v;
+
+        // X = center + (CH1_Voltage / scaleCH1 + Position_CH1) * dx
+        // Y = center - (CH2_Voltage / scaleCH2 + Position_CH2) * dy
+        const xPixel = W/2 + (v1 / scaleCH1 + state.ch1Pos) * dx;
+        const yPixel = H/2 - (v2 / scaleCH2 + state.ch2Pos) * dy;
+
+        if (i === startIdx) ctx.moveTo(xPixel, yPixel);
+        else ctx.lineTo(xPixel, yPixel);
+      }
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+    }
+
+    // Draw Trigger Level Horizontal indicator line
+    function drawTriggerLevelLine(dy, H, W) {
+      const triggerChScale = state.trgSource === 1 ? VOLTS_DIV_SCALES[state.ch1ScaleIdx] : VOLTS_DIV_SCALES[state.ch2ScaleIdx];
+      const triggerChPos = state.trgSource === 1 ? state.ch1Pos : state.ch2Pos;
+      
+      // y = H/2 - (TrgLevel / scale + Pos) * dy
+      const yTrgPixel = H/2 - (state.trgLevel / triggerChScale + triggerChPos) * dy;
+      
+      if (yTrgPixel >= 0 && yTrgPixel <= H) {
+        ctx.strokeStyle = varColor('--glow-trigger');
+        ctx.lineWidth = 1;
+        ctx.setLineDash([4, 6]);
+        ctx.beginPath();
+        ctx.moveTo(0, yTrgPixel);
+        ctx.lineTo(W, yTrgPixel);
+        ctx.stroke();
+
+        // Draw small T marker arrow on right side
+        ctx.fillStyle = varColor('--glow-trigger');
+        ctx.beginPath();
+        ctx.moveTo(W - 10, yTrgPixel - 5);
+        ctx.lineTo(W, yTrgPixel);
+        ctx.lineTo(W - 10, yTrgPixel + 5);
+        ctx.fill();
+        
+        ctx.setLineDash([]); // Reset
+      }
+    }
+
+    // Draw Cursors lines on canvas
+    function drawCursors(W, H) {
+      ctx.strokeStyle = '#a855f7'; // Purple cursors
+      ctx.lineWidth = 1.2;
+      ctx.setLineDash([6, 3]);
+
+      if (state.cursors.type === 'Y') {
+        // Draw Y Cursors (Horizontal lines)
+        // Cursor 1
+        ctx.beginPath();
+        ctx.moveTo(0, state.cursors.c1);
+        ctx.lineTo(W, state.cursors.c1);
+        ctx.stroke();
+        ctx.fillStyle = '#a855f7';
+        ctx.font = '10px var(--font-mono)';
+        ctx.fillText("Y1", 10, state.cursors.c1 - 4);
+
+        // Cursor 2
+        ctx.beginPath();
+        ctx.moveTo(0, state.cursors.c2);
+        ctx.lineTo(W, state.cursors.c2);
+        ctx.stroke();
+        ctx.fillText("Y2", 10, state.cursors.c2 - 4);
+      } else {
+        // Draw X Cursors (Vertical lines)
+        // Cursor 1
+        ctx.beginPath();
+        ctx.moveTo(state.cursors.c1, 0);
+        ctx.lineTo(state.cursors.c1, H);
+        ctx.stroke();
+        ctx.fillStyle = '#a855f7';
+        ctx.font = '10px var(--font-mono)';
+        ctx.fillText("X1", state.cursors.c1 + 4, 15);
+
+        // Cursor 2
+        ctx.beginPath();
+        ctx.moveTo(state.cursors.c2, 0);
+        ctx.lineTo(state.cursors.c2, H);
+        ctx.stroke();
+        ctx.fillText("X2", state.cursors.c2 + 4, 15);
+      }
+      ctx.setLineDash([]); // Reset
+    }
+
+    // Helper to extract CSS variable color values
+    function varColor(name) {
+      return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    }
+
+
+    // GOOGLE SHEETS COMMUNICATIONS (Log saving and reading)
+    function saveOscilloscopeLog() {
+      const btn = document.getElementById('btn-save-log');
+      const origHtml = btn.innerHTML;
+      
+      const timebaseText = TIME_DIV_TEXTS[state.timebaseIdx];
+      const ch1ScaleText = VOLTS_DIV_TEXTS[state.ch1ScaleIdx];
+      const ch2ScaleText = VOLTS_DIV_TEXTS[state.ch2ScaleIdx];
+
+      const ch1Vpp = document.getElementById('m-ch1-vpp').innerText;
+      const ch1Freq = document.getElementById('m-ch1-freq').innerText;
+      const ch2Vpp = document.getElementById('m-ch2-vpp').innerText;
+      const ch2Freq = document.getElementById('m-ch2-freq').innerText;
+      
+      const note = document.getElementById('scope-note').value.trim();
+
+      const logData = {
+        timebase: timebaseText,
+        ch1Scale: ch1ScaleText,
+        ch1Vpp: ch1Vpp,
+        ch1Freq: ch1Freq,
+        ch2Scale: ch2ScaleText,
+        ch2Vpp: ch2Vpp,
+        ch2Freq: ch2Freq,
+        note: note
+      };
+
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังบันทึกข้อมูล...';
+
+      if (isGoogleAppsScript) {
+        google.script.run
+          .withSuccessHandler((res) => {
+            btn.disabled = false;
+            btn.innerHTML = origHtml;
+            alert(res.message);
+            document.getElementById('scope-note').value = '';
+            loadOscilloscopeHistory();
+          })
+          .withFailureHandler((err) => {
+            btn.disabled = false;
+            btn.innerHTML = origHtml;
+            alert('เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์ Apps Script');
+            console.error(err);
+          })
+          .saveOscilloscopeToSheet(logData);
+      } else {
+        // Local simulation fallback
+        setTimeout(() => {
+          btn.disabled = false;
+          btn.innerHTML = origHtml;
+
+          try {
+            const localHist = JSON.parse(localStorage.getItem('scope_history') || '[]');
+            const now = new Date();
+            const formattedDate = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth()+1).padStart(2, '0')}/${now.getFullYear()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+            
+            logData.timestamp = formattedDate;
+            localHist.unshift(logData);
+
+            if (localHist.length > 20) localHist.pop();
+            localStorage.setItem('scope_history', JSON.stringify(localHist));
+
+            alert('จำลองการบันทึกข้อมูลสำเร็จ (โหมดจำลองในเครื่อง)!');
+            document.getElementById('scope-note').value = '';
+            loadOscilloscopeHistory();
+          } catch(e) {
+            alert('จำลองการบันทึกผิดพลาด');
+            console.error(e);
+          }
+        }, 800);
+      }
+    }
+
+    function loadOscilloscopeHistory() {
+      const tbody = document.getElementById('history-table-body');
+      const refreshIcon = document.getElementById('refresh-icon');
+
+      if (refreshIcon) refreshIcon.classList.add('fa-spin');
+
+      if (isGoogleAppsScript) {
+        google.script.run
+          .withSuccessHandler((historyList) => {
+            if (refreshIcon) refreshIcon.classList.remove('fa-spin');
+            populateHistoryTable(historyList);
+          })
+          .withFailureHandler((err) => {
+            if (refreshIcon) refreshIcon.classList.remove('fa-spin');
+            console.error(err);
+          })
+          .getOscilloscopeHistory();
+      } else {
+        // Local simulation fallback
+        setTimeout(() => {
+          if (refreshIcon) refreshIcon.classList.remove('fa-spin');
+          const historyList = JSON.parse(localStorage.getItem('scope_history') || '[]');
+          populateHistoryTable(historyList);
+        }, 500);
+      }
+    }
+
+    function populateHistoryTable(historyList) {
+      const tbody = document.getElementById('history-table-body');
+      tbody.innerHTML = '';
+
+      if (!historyList || historyList.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="9">
+              <div class="empty-state">
+                <i class="fa-solid fa-box-open" style="font-size: 1.8rem; opacity: 0.4; margin-bottom: 0.5rem; display:block;"></i>
+                ไม่มีประวัติข้อมูลออสซิลโลสโคป
+              </div>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      historyList.forEach(item => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td style="color: var(--text-muted); font-size: 0.75rem; white-space: nowrap;">${item.timestamp}</td>
+          <td>${item.timebase}</td>
+          <td style="color: var(--glow-ch1);">${item.ch1Scale}</td>
+          <td style="color: var(--glow-ch1); font-weight: 600;">${item.ch1Vpp}</td>
+          <td style="color: var(--glow-ch1);">${item.ch1Freq}</td>
+          <td style="color: var(--glow-ch2);">${item.ch2Scale}</td>
+          <td style="color: var(--glow-ch2); font-weight: 600;">${item.ch2Vpp}</td>
+          <td style="color: var(--glow-ch2);">${item.ch2Freq}</td>
+          <td class="note-cell" style="max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${item.note || ''}">${item.note || '-'}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,4085 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>แอปการเรียนรู้ไดโอดและห้องทดลองเสมือนจริง (Diode Learning Lab & Simulator)</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Sarabun:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <style>
+    :root {
+      --bg-dark: #070b14;
+      --bg-card: rgba(18, 27, 44, 0.75);
+      --bg-card-solid: #121b2c;
+      --card-border: rgba(255, 255, 255, 0.07);
+      --card-hover: rgba(30, 41, 67, 0.85);
+      
+      --accent-primary: #06b6d4;   /* Cyan neon */
+      --accent-glow: rgba(6, 182, 212, 0.35);
+      --accent-secondary: #f43f5e; /* Rose / Diode Red */
+      --accent-secondary-glow: rgba(244, 63, 94, 0.35);
+      --accent-amber: #f59e0b;
+      --accent-green: #10b981;
+      --accent-purple: #a855f7;
+      
+      --p-type-color: #f43f5e;
+      --n-type-color: #3b82f6;
+      --depletion-color: #eab308;
+      
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --font-body: 'Sarabun', 'Outfit', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    body {
+      background: radial-gradient(circle at top center, #111e38 0%, var(--bg-dark) 100%);
+      color: var(--text-main);
+      font-family: var(--font-body);
+      min-height: 100vh;
+      padding: 1.25rem;
+      line-height: 1.5;
+    }
+
+    .container {
+      max-width: 1440px;
+      margin: 0 auto;
+    }
+
+    /* Header */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+      background: var(--bg-card);
+      padding: 1rem 1.5rem;
+      border-radius: 16px;
+      border: 1px solid var(--card-border);
+      backdrop-filter: blur(12px);
+    }
+
+    .logo-group {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .logo-icon-wrap {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--accent-secondary), var(--accent-primary));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 15px var(--accent-glow);
+    }
+
+    .logo-icon-wrap i {
+      font-size: 1.6rem;
+      color: #fff;
+    }
+
+    .logo-text h1 {
+      font-size: 1.45rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      background: linear-gradient(to right, #ffffff, #cbd5e1);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .logo-text p {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.4rem 0.9rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      background: rgba(245, 158, 11, 0.12);
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.25);
+    }
+
+    .status-badge.connected {
+      background: rgba(16, 185, 129, 0.12);
+      color: #34d399;
+      border-color: rgba(16, 185, 129, 0.25);
+    }
+
+    .audio-toggle-btn {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .audio-toggle-btn.active {
+      color: var(--accent-primary);
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 10px var(--accent-glow);
+    }
+
+    /* Top Navigation Tabs */
+    .nav-tabs-wrapper {
+      display: flex;
+      gap: 0.5rem;
+      background: var(--bg-card);
+      padding: 0.4rem;
+      border-radius: 14px;
+      border: 1px solid var(--card-border);
+      margin-bottom: 1.5rem;
+      overflow-x: auto;
+      backdrop-filter: blur(12px);
+      scrollbar-width: thin;
+    }
+
+    .nav-tab-btn {
+      flex: 1;
+      min-width: 170px;
+      padding: 0.75rem 1rem;
+      background: transparent;
+      border: none;
+      border-radius: 10px;
+      color: var(--text-muted);
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      white-space: nowrap;
+    }
+
+    .nav-tab-btn i {
+      font-size: 1.1rem;
+    }
+
+    .nav-tab-btn:hover {
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .nav-tab-btn.active {
+      background: linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(244, 63, 94, 0.2));
+      color: #ffffff;
+      border: 1px solid rgba(6, 182, 212, 0.4);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .nav-tab-btn.active i {
+      color: var(--accent-primary);
+    }
+
+    /* Tab Content Modules */
+    .tab-content {
+      display: none;
+      animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Glass Cards */
+    .glass-card {
+      background: var(--bg-card);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(12px);
+      position: relative;
+    }
+
+    .card-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    .card-title-text {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .card-title-text i {
+      color: var(--accent-primary);
+    }
+
+    /* Two Columns Grid */
+    .grid-2col {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 1.5rem;
+    }
+
+    @media (max-width: 1080px) {
+      .grid-2col {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Interactive Canvas Wrappers */
+    .canvas-card-wrapper {
+      background: #030712;
+      border: 2px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+      margin-bottom: 0.85rem;
+    }
+
+    .canvas-header-bar {
+      background: rgba(15, 23, 42, 0.95);
+      padding: 0.45rem 0.85rem;
+      border-bottom: 1px solid var(--card-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .canvas-header-title {
+      font-size: 0.82rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    /* Interactive Sliders & Form Controls */
+    .control-group {
+      margin-bottom: 1.1rem;
+    }
+
+    .control-label-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.4rem;
+      font-size: 0.85rem;
+    }
+
+    .control-label-title {
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .control-value-badge {
+      font-family: var(--font-mono);
+      font-weight: 700;
+      color: var(--accent-primary);
+      background: rgba(6, 182, 212, 0.12);
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+      border: 1px solid rgba(6, 182, 212, 0.25);
+    }
+
+    input[type=range] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--accent-primary);
+      cursor: pointer;
+      box-shadow: 0 0 10px var(--accent-glow);
+      border: 2px solid #ffffff;
+    }
+
+    select, input[type=text], input[type=number] {
+      width: 100%;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 0.65rem 0.85rem;
+      color: var(--text-main);
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      outline: none;
+    }
+
+    select:focus, input[type=text]:focus, input[type=number]:focus {
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 10px var(--accent-glow);
+    }
+
+    /* Buttons */
+    .btn {
+      background: linear-gradient(135deg, var(--accent-primary), #0284c7);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 0.65rem 1.25rem;
+      font-family: var(--font-body);
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 0.88rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
+    }
+
+    .btn:hover {
+      box-shadow: 0 0 16px var(--accent-glow);
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+      box-shadow: none;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.12);
+      box-shadow: none;
+    }
+
+    .btn-danger {
+      background: linear-gradient(135deg, var(--accent-secondary), #e11d48);
+      box-shadow: 0 4px 12px var(--accent-secondary-glow);
+    }
+
+    .btn-success {
+      background: linear-gradient(135deg, #10b981, #059669);
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    }
+
+    .btn-sm {
+      padding: 0.4rem 0.75rem;
+      font-size: 0.8rem;
+      border-radius: 6px;
+    }
+
+    /* Chip / Pills selection */
+    .pill-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .pill-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+      border-radius: 8px;
+      padding: 0.45rem 0.85rem;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .pill-btn.active {
+      background: rgba(6, 182, 212, 0.18);
+      border-color: var(--accent-primary);
+      color: #ffffff;
+      box-shadow: 0 0 10px rgba(6, 182, 212, 0.25);
+    }
+
+    /* Telemetry readout widgets */
+    .readout-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    .readout-card {
+      background: rgba(10, 16, 26, 0.7);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 0.75rem 0.9rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .readout-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: var(--accent-primary);
+    }
+
+    .readout-card.secondary::before { background: var(--accent-secondary); }
+    .readout-card.amber::before { background: var(--accent-amber); }
+    .readout-card.green::before { background: var(--accent-green); }
+
+    .readout-title {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.25rem;
+    }
+
+    .readout-val {
+      font-family: var(--font-mono);
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    .readout-unit {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-left: 2px;
+    }
+
+    /* Explanation & Theory Box */
+    .theory-box {
+      background: rgba(15, 23, 42, 0.6);
+      border-left: 4px solid var(--accent-primary);
+      border-radius: 0 8px 8px 0;
+      padding: 0.85rem 1rem;
+      font-size: 0.85rem;
+      color: #cbd5e1;
+      margin-bottom: 1rem;
+      line-height: 1.6;
+    }
+
+    .theory-box strong {
+      color: #ffffff;
+    }
+
+    /* Multimeter Probe interactive board */
+    .tester-board {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.5rem;
+      background: #0d131f;
+      border: 2px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      padding: 1.5rem;
+      box-shadow: inset 0 0 25px rgba(0,0,0,0.6);
+    }
+
+    .dmm-display-box {
+      background: #8fa38f;
+      color: #0f1c10;
+      font-family: var(--font-mono);
+      font-size: 2.2rem;
+      font-weight: 800;
+      padding: 0.5rem 1.5rem;
+      border-radius: 8px;
+      border: 4px solid #222e20;
+      letter-spacing: 0.1em;
+      box-shadow: inset 0 2px 6px rgba(0,0,0,0.4);
+      min-width: 200px;
+      text-align: center;
+    }
+
+    .diode-package-view {
+      width: 280px;
+      height: 90px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .diode-terminal-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: 3px dashed #64748b;
+      background: rgba(255,255,255,0.05);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      font-size: 0.85rem;
+      position: absolute;
+      z-index: 10;
+    }
+
+    .diode-terminal-btn.probe-red {
+      background: #ef4444;
+      border-color: #fca5a5;
+      color: #fff;
+      border-style: solid;
+      box-shadow: 0 0 15px rgba(239, 68, 68, 0.6);
+    }
+
+    .diode-terminal-btn.probe-black {
+      background: #1e293b;
+      border-color: #3b82f6;
+      color: #38bdf8;
+      border-style: solid;
+      box-shadow: 0 0 15px rgba(59, 130, 246, 0.6);
+    }
+
+    /* History & Log Table */
+    .table-container {
+      overflow-x: auto;
+      border-radius: 10px;
+      border: 1px solid var(--card-border);
+      background: rgba(10, 16, 26, 0.5);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+      text-align: left;
+    }
+
+    th {
+      background: rgba(15, 23, 42, 0.8);
+      color: var(--text-muted);
+      padding: 0.75rem 1rem;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    td {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+      font-family: var(--font-mono);
+    }
+
+    /* Quiz Card */
+    .quiz-question-card {
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 1.25rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .quiz-q-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.75rem;
+    }
+
+    .quiz-opt-btn {
+      width: 100%;
+      text-align: left;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--card-border);
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      color: var(--text-main);
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      margin-bottom: 0.5rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .quiz-opt-btn:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: var(--accent-primary);
+    }
+
+    .quiz-opt-btn.selected {
+      background: rgba(6, 182, 212, 0.2);
+      border-color: var(--accent-primary);
+      color: #fff;
+    }
+
+    .quiz-opt-btn.correct {
+      background: rgba(16, 185, 129, 0.25) !important;
+      border-color: #10b981 !important;
+      color: #34d399 !important;
+    }
+
+    .quiz-opt-btn.wrong {
+      background: rgba(244, 63, 94, 0.25) !important;
+      border-color: #f43f5e !important;
+      color: #fb7185 !important;
+    }
+
+    /* Spec Sheet Table */
+    .spec-table td {
+      font-family: var(--font-body);
+    }
+    .spec-table td.code-col {
+      font-family: var(--font-mono);
+      font-weight: 600;
+      color: var(--accent-primary);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    
+    <!-- Top Header Bar -->
+    <header>
+      <div class="logo-group">
+        <div class="logo-icon-wrap">
+          <i class="fa-solid fa-bolt-lightning"></i>
+        </div>
+        <div class="logo-text">
+          <h1>แอปการเรียนรู้ไดโอด (Diode Learning Lab)</h1>
+          <p>เครื่องมือจำลองสารกึ่งตัวนำ รอยต่อ PN กราฟ I-V วงจรเรกติไฟเออร์ และการทดสอบไดโอด</p>
+        </div>
+      </div>
+      
+      <div class="header-actions">
+        <div id="gas-status" class="status-badge">
+          <i class="fa-solid fa-circle-nodes"></i> <span id="status-text">โหมดจำลองในเครื่อง (Local Mode)</span>
+        </div>
+        <button class="audio-toggle-btn active" id="btn-audio-toggle" title="เปิด/ปิดเสียงเอฟเฟกต์ (Audio Effects)">
+          <i class="fa-solid fa-volume-high"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Navigation Bar -->
+    <nav class="nav-tabs-wrapper">
+      <button class="nav-tab-btn active" onclick="switchTab('tab-physics')">
+        <i class="fa-solid fa-atom"></i> <span>1. โครงสร้างรอยต่อ PN</span>
+      </button>
+      <button class="nav-tab-btn" onclick="switchTab('tab-ivcurve')">
+        <i class="fa-solid fa-chart-line"></i> <span>2. กราฟคุณลักษณะ I-V</span>
+      </button>
+      <button class="nav-tab-btn" onclick="switchTab('tab-circuits')">
+        <i class="fa-solid fa-microchip"></i> <span>3. ห้องทดลองวงจรเสมือน</span>
+      </button>
+      <button class="nav-tab-btn" onclick="switchTab('tab-tester')">
+        <i class="fa-solid fa-wrench"></i> <span>4. การวัดและทดสอบขั้ว</span>
+      </button>
+      <button class="nav-tab-btn" onclick="switchTab('tab-quiz')">
+        <i class="fa-solid fa-graduation-cap"></i> <span>5. แบบทดสอบ & บันทึกผล</span>
+      </button>
+    </nav>
+
+    <!-- ================================================================= -->
+    <!-- TAB 1: PN JUNCTION, DIODE ANATOMY & BIASING LAB                   -->
+    <!-- ================================================================= -->
+    <section id="tab-physics" class="tab-content active">
+      <!-- Sub-Tab Navigation for Tab 1 -->
+      <div class="pill-group" style="margin-bottom: 1.25rem;">
+        <button class="pill-btn active" id="btn-sub-bias" onclick="switchPnSubMode('bias', this)">
+          <i class="fa-solid fa-bolt"></i> 1. วงจรไบอัสไดโอด &amp; การคำนวณพารามิเตอร์ (Diode Biasing Lab)
+        </button>
+        <button class="pill-btn" id="btn-sub-package" onclick="switchPnSubMode('package', this)">
+          <i class="fa-solid fa-microchip"></i> 2. ตัวถังไดโอดจริง &amp; การดูแถบคาด (Diode Packages &amp; Cathode Band)
+        </button>
+        <button class="pill-btn" id="btn-sub-physics" onclick="switchPnSubMode('physics', this)">
+          <i class="fa-solid fa-atom"></i> 3. ฟิสิกส์รอยต่อ PN &amp; การเคลื่อนที่ของพาหะ (PN Junction Physics)
+        </button>
+      </div>
+
+      <!-- SUB-MODULE 1: DIODE BIASING LAB (FORWARD & REVERSE BIAS WITH STEP-BY-STEP CALCULATIONS) -->
+      <div id="sub-view-bias" class="sub-view-panel">
+        <div class="grid-2col">
+          <!-- Left: Schematic Canvas & Readouts -->
+          <div class="glass-card">
+            <div class="card-title">
+              <div class="card-title-text">
+                <i class="fa-solid fa-diagram-project"></i>
+                <span id="bias-schem-title">ผังวงจรไบอัสไดโอดกระแสตรง (DC Diode Biasing Circuit)</span>
+              </div>
+              <span class="status-badge connected" id="bias-status-badge">
+                <i class="fa-solid fa-bolt"></i> ไบอัสตรง (Forward Conduction)
+              </span>
+            </div>
+
+            <div class="canvas-card-wrapper">
+              <div class="canvas-header-bar">
+                <div class="canvas-header-title" style="color:var(--accent-primary);">
+                  <i class="fa-solid fa-microchip"></i> วงจรเสมือนจริงแสดงทิศทางการไหลของกระแสและอิเล็กตรอน
+                </div>
+                <span style="font-family:var(--font-mono);font-size:0.75rem;color:var(--text-muted);" id="bias-kvl-badge">KVL: V_in = V_R + V_D</span>
+              </div>
+              <canvas id="canvas-bias-schem" width="700" height="260"></canvas>
+            </div>
+
+            <div class="readout-grid">
+              <div class="readout-card">
+                <div class="readout-title">แรงดันตกคร่อมไดโอด (V<sub>D</sub>)</div>
+                <div class="readout-val" id="bias-vd-val">0.72 <span class="readout-unit">V</span></div>
+              </div>
+              <div class="readout-card green">
+                <div class="readout-title">กระแสในวงจร (I<sub>D</sub>)</div>
+                <div class="readout-val" id="bias-id-val">19.45 <span class="readout-unit">mA</span></div>
+              </div>
+              <div class="readout-card secondary">
+                <div class="readout-title">แรงดันตกคร่อมตัวต้านทาน (V<sub>R</sub>)</div>
+                <div class="readout-val" id="bias-vr-val">4.28 <span class="readout-unit">V</span></div>
+              </div>
+              <div class="readout-card amber">
+                <div class="readout-title">กำลังสูญเสียที่ไดโอด (P<sub>D</sub>)</div>
+                <div class="readout-val" id="bias-pd-val">14.0 <span class="readout-unit">mW</span></div>
+              </div>
+            </div>
+
+            <div class="readout-grid" style="margin-bottom:0;">
+              <div class="readout-card" style="background:rgba(15,23,42,0.6);border-color:var(--card-border);">
+                <div class="readout-title">กำลังงานที่ตัวต้านทาน (P<sub>R</sub> = I<sub>D</sub><sup>2</sup>·R)</div>
+                <div class="readout-val" id="bias-pr-val" style="font-size:1.0rem;color:#f8fafc;">83.3 <span class="readout-unit">mW</span></div>
+              </div>
+              <div class="readout-card" style="background:rgba(15,23,42,0.6);border-color:var(--card-border);">
+                <div class="readout-title">ความต้านทานพลวัต AC (r<sub>d</sub> = 26mV/I<sub>D</sub>)</div>
+                <div class="readout-val" id="bias-rd-val" style="font-size:1.0rem;color:var(--accent-primary);">1.34 <span class="readout-unit">Ω</span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Controls & Step-by-Step Calculations -->
+          <div class="glass-card">
+            <div class="card-title">
+              <div class="card-title-text">
+                <i class="fa-solid fa-sliders"></i>
+                <span>ปรับแต่งการไบอัสและพารามิเตอร์วงจร</span>
+              </div>
+            </div>
+
+            <!-- Quick Bias Mode Buttons -->
+            <div style="display:flex;gap:0.5rem;margin-bottom:1.1rem;">
+              <button class="btn btn-success btn-sm" style="flex:1;" onclick="setBiasQuickMode('forward')">
+                <i class="fa-solid fa-arrow-right"></i> ไบอัสตรง (+5V)
+              </button>
+              <button class="btn btn-secondary btn-sm" style="flex:1;" onclick="setBiasQuickMode('zero')">
+                <i class="fa-solid fa-minus"></i> ไบอัสศูนย์ (0V)
+              </button>
+              <button class="btn btn-danger btn-sm" style="flex:1;" onclick="setBiasQuickMode('reverse')">
+                <i class="fa-solid fa-arrow-left"></i> ไบอัสกลับ (−5V)
+              </button>
+            </div>
+
+            <div class="control-group">
+              <div class="control-label-row">
+                <span class="control-label-title">แรงดันแหล่งจ่ายไฟ DC (V<sub>in</sub>)</span>
+                <span class="control-value-badge" id="bias-vin-badge">5.0 V</span>
+              </div>
+              <input type="range" id="slider-bias-vin" min="-15.0" max="15.0" step="0.2" value="5.0" oninput="onBiasParamChange()">
+              <div style="display:flex;justify-content:space-between;font-size:0.72rem;color:var(--text-muted);margin-top:2px;">
+                <span>−15V (ไบอัสกลับย้อนทิศ)</span>
+                <span>0V (ไบอัสศูนย์)</span>
+                <span>+15V (ไบอัสตรงนำกระแส)</span>
+              </div>
+            </div>
+
+            <div class="control-group">
+              <div class="control-label-row">
+                <span class="control-label-title">ตัวต้านทานจำกัดกระแส (Resistor: R)</span>
+                <span class="control-value-badge" id="bias-rload-badge">220 Ω</span>
+              </div>
+              <input type="range" id="slider-bias-rload" min="10" max="2000" step="10" value="220" oninput="onBiasParamChange()">
+            </div>
+
+            <div class="control-group">
+              <div class="control-label-row">
+                <span class="control-label-title">ชนิดไดโอด (Semiconductor Diode Type)</span>
+              </div>
+              <select id="select-bias-diode" onchange="onBiasParamChange()">
+                <option value="si" selected>1N4007 Silicon Diode (แรงดันนำกระแส V_γ ≈ 0.7V)</option>
+                <option value="ge">1N34A Germanium Diode (แรงดันนำกระแส V_γ ≈ 0.3V)</option>
+                <option value="schottky">1N5819 Schottky Diode (แรงดันนำกระแส V_γ ≈ 0.35V)</option>
+                <option value="led_red">Red LED ไดโอดเปล่งแสงสีแดง (V_γ ≈ 1.8V)</option>
+                <option value="led_blue">Blue LED ไดโอดเปล่งแสงสีน้ำเงิน (V_γ ≈ 3.0V)</option>
+              </select>
+            </div>
+
+            <!-- Detailed Step-by-Step Calculation Box -->
+            <div class="theory-box" style="margin-top:0.75rem;padding:0.85rem;">
+              <div style="font-size:0.85rem;font-weight:700;color:var(--accent-primary);margin-bottom:0.4rem;display:flex;align-items:center;gap:0.4rem;">
+                <i class="fa-solid fa-square-root-variable"></i> สมการ &amp; ขั้นตอนการคำนวณพารามิเตอร์วงจรไบอัส (Step-by-Step Calculations):
+              </div>
+              <div id="bias-calc-details" style="font-size:0.8rem;line-height:1.65;color:var(--text-secondary);">
+                <!-- Injected via JavaScript -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUB-MODULE 2: REAL DIODE PACKAGES & CATHODE BAND IDENTIFICATION -->
+      <div id="sub-view-package" class="sub-view-panel" style="display:none;">
+        <div class="grid-2col">
+          <!-- Left: Real Diode 3D Illustration Canvas -->
+          <div class="glass-card">
+            <div class="card-title">
+              <div class="card-title-text">
+                <i class="fa-solid fa-eye"></i>
+                <span id="pkg-display-title">รูปตัวถังไดโอดจริงและการระบุแถบคาด (Cathode Stripe &amp; Pinout)</span>
+              </div>
+              <span class="status-badge active-region" id="pkg-type-badge">DO-41 Package</span>
+            </div>
+
+            <div class="canvas-card-wrapper">
+              <div class="canvas-header-bar">
+                <div class="canvas-header-title" style="color:var(--accent-primary);">
+                  <i class="fa-solid fa-microchip"></i> แผนภาพกายภาพตัวถังจริงเทียบเคียงสัญลักษณ์วงจร
+                </div>
+              </div>
+              <canvas id="canvas-diode-package" width="700" height="280"></canvas>
+            </div>
+
+            <div style="background:rgba(15,23,42,0.7);border:1px solid var(--card-border);border-radius:12px;padding:1rem;margin-top:0.5rem;">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+                <div style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:8px;padding:0.6rem 0.8rem;">
+                  <div style="font-size:0.72rem;color:#fca5a5;font-weight:600;">ขั้วแอโนด (Anode / ขั้ว A):</div>
+                  <div style="font-size:0.95rem;font-weight:700;color:#ef4444;margin-top:2px;">ขั้วบวก (+) / ด้านตรงข้ามแถบคาด</div>
+                  <div style="font-size:0.75rem;color:var(--text-muted);margin-top:2px;">เป็นสาร P-type รับศักย์ไฟฟ้าบวก</div>
+                </div>
+                <div style="background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.3);border-radius:8px;padding:0.6rem 0.8rem;">
+                  <div style="font-size:0.72rem;color:#93c5fd;font-weight:600;">ขั้วแคโทด (Cathode / ขั้ว K หรือ C):</div>
+                  <div style="font-size:0.95rem;font-weight:700;color:#38bdf8;margin-top:2px;">ขั้วลบ (−) / ฝั่งที่มีแถบคาด (Stripe)</div>
+                  <div style="font-size:0.75rem;color:var(--text-muted);margin-top:2px;">เป็นสาร N-type มีแถบสีเงิน/ดำระบุชัดเจน</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Package Selector & Practical Identification Guide -->
+          <div class="glass-card">
+            <div class="card-title">
+              <div class="card-title-text">
+                <i class="fa-solid fa-layer-group"></i>
+                <span>เลือกรูปแบบตัวถังไดโอด (Select Diode Package)</span>
+              </div>
+            </div>
+
+            <!-- Diode Package Selector Buttons -->
+            <div class="pill-group" style="margin-bottom:1.1rem;">
+              <button class="pill-btn active" id="btn-pkg-do41" onclick="selectDiodePkg('DO-41', this)">
+                <i class="fa-solid fa-circle-dot"></i> 1. DO-41 (1N4007 Silicon)
+              </button>
+              <button class="pill-btn" id="btn-pkg-do35" onclick="selectDiodePkg('DO-35', this)">
+                <i class="fa-solid fa-gem"></i> 2. DO-35 (1N4148 Glass)
+              </button>
+              <button class="pill-btn" id="btn-pkg-zener" onclick="selectDiodePkg('ZENER', this)">
+                <i class="fa-solid fa-shield-halved"></i> 3. DO-35 (Zener Diode)
+              </button>
+              <button class="pill-btn" id="btn-pkg-schottky" onclick="selectDiodePkg('SCHOTTKY', this)">
+                <i class="fa-solid fa-bolt"></i> 4. DO-41 (1N5819 Schottky)
+              </button>
+              <button class="pill-btn" id="btn-pkg-smd" onclick="selectDiodePkg('SMD', this)">
+                <i class="fa-solid fa-microchip"></i> 5. SOD-123 / SMA (SMD)
+              </button>
+              <button class="pill-btn" id="btn-pkg-led" onclick="selectDiodePkg('LED', this)">
+                <i class="fa-solid fa-lightbulb"></i> 6. 5mm LED (หลอดเปล่งแสง)
+              </button>
+            </div>
+
+            <!-- Package Anatomy & Practical Identification Guide -->
+            <div class="theory-box" id="pkg-guide-box" style="margin-top:0;">
+              <!-- Dynamic description injected by JavaScript -->
+            </div>
+
+            <div class="table-container" style="margin-top:0.75rem;">
+              <table class="spec-table">
+                <thead>
+                  <tr>
+                    <th>ชนิดตัวถัง</th>
+                    <th>ลักษณะภายนอก</th>
+                    <th>จุดสังเกตขั้ว Cathode (K)</th>
+                    <th>เบอร์ตัวอย่าง</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="code-col">DO-41</td>
+                    <td>ทรงกระบอกพลาสติกสีดำ ขาโลหะสองข้าง</td>
+                    <td style="color:#38bdf8;font-weight:600;">แถบคาดสีเงิน / สีขาว (Silver Band)</td>
+                    <td>1N4001 - 1N4007</td>
+                  </tr>
+                  <tr>
+                    <td class="code-col">DO-35</td>
+                    <td>หลอดแก้วใสสีส้ม/แดง มีสารกึ่งตัวนำภายใน</td>
+                    <td style="color:#38bdf8;font-weight:600;">แถบคาดสีดำ (Black Band)</td>
+                    <td>1N4148, BZX55C</td>
+                  </tr>
+                  <tr>
+                    <td class="code-col">SOD-123 / SMA</td>
+                    <td>ชิปสี่เหลี่ยมติดผิวบอร์ด (SMD) สีดำ</td>
+                    <td style="color:#38bdf8;font-weight:600;">เส้นบาร์สีขาวพิมพ์บนตัวถัง</td>
+                    <td>SS14, M7, S1M</td>
+                  </tr>
+                  <tr>
+                    <td class="code-col">5mm LED</td>
+                    <td>โดมเรซินโปร่งใส มีขาโลหะยาว-สั้น</td>
+                    <td style="color:#38bdf8;font-weight:600;">ขาสั้นกว่า + ขอบบากเรียบ (Flat Edge)</td>
+                    <td>Red/Green/Blue LED</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUB-MODULE 3: PN JUNCTION PHYSICS & CARRIER MOVEMENT -->
+      <div id="sub-view-physics" class="sub-view-panel" style="display:none;">
+        <div class="grid-2col">
+          <!-- Left: Canvas Animation -->
+          <div class="glass-card">
+            <div class="card-title">
+              <div class="card-title-text">
+                <i class="fa-solid fa-atom"></i>
+                <span>การเคลื่อนที่ของพาหะประจุในรอยต่อ PN (Carrier Movement)</span>
+              </div>
+              <span class="status-badge" id="bias-state-badge">ไบแอสศูนย์ (Zero Bias)</span>
+            </div>
+
+            <div class="canvas-card-wrapper">
+              <canvas id="canvas-pn" width="700" height="360"></canvas>
+            </div>
+
+            <div class="readout-grid">
+              <div class="readout-card">
+                <div class="readout-title">แรงดันไบแอส (V_bias)</div>
+                <div class="readout-val" id="pn-vbias-display">0.00 <span class="readout-unit">V</span></div>
+              </div>
+              <div class="readout-card secondary">
+                <div class="readout-title">ความกว้างรอยพร่องประจุ (W_d)</div>
+                <div class="readout-val" id="pn-depletion-display">1.00 <span class="readout-unit">μm</span></div>
+              </div>
+              <div class="readout-card green">
+                <div class="readout-title">กระแสที่ไหล (I_D)</div>
+                <div class="readout-val" id="pn-current-display">0.00 <span class="readout-unit">mA</span></div>
+              </div>
+              <div class="readout-card amber">
+                <div class="readout-title">แรงดันกั้น (Barrier Potential)</div>
+                <div class="readout-val" id="pn-barrier-display">0.70 <span class="readout-unit">V</span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Controls & Theory -->
+          <div class="glass-card">
+            <div class="card-title">
+              <div class="card-title-text">
+                <i class="fa-solid fa-sliders"></i>
+                <span>ปรับแต่งแรงดันและสารกึ่งตัวนำ</span>
+              </div>
+            </div>
+
+            <div class="control-group">
+              <div class="control-label-row">
+                <span class="control-label-title">ชนิดของสารกึ่งตัวนำ (Semiconductor Material)</span>
+              </div>
+              <select id="pn-material-select" onchange="onMaterialChange()">
+                <option value="silicon">Silicon (Si) - แรงดันกั้น ~0.7V</option>
+                <option value="germanium">Germanium (Ge) - แรงดันกั้น ~0.3V</option>
+                <option value="schottky">Schottky Barrier - แรงดันกั้น ~0.25V</option>
+                <option value="led_red">GaAsP (LED สีแดง) - แรงดันกั้น ~1.8V</option>
+                <option value="led_blue">InGaN (LED สีน้ำเงิน) - แรงดันกั้น ~3.0V</option>
+              </select>
+            </div>
+
+            <div class="control-group">
+              <div class="control-label-row">
+                <span class="control-label-title">แรงดันป้อนภายนอก (Applied Voltage)</span>
+                <span class="control-value-badge" id="slider-voltage-badge">0.00 V</span>
+              </div>
+              <input type="range" id="slider-pn-voltage" min="-3.0" max="1.5" step="0.05" value="0" oninput="onPnVoltageChange(this.value)">
+              <div style="display: flex; justify-content: space-between; font-size: 0.72rem; color: var(--text-muted); margin-top: 4px;">
+                <span>-3.0V (Reverse Bias)</span>
+                <span>0V</span>
+                <span>+1.5V (Forward Bias)</span>
+              </div>
+            </div>
+
+            <div style="display: flex; gap: 0.5rem; margin-bottom: 1.25rem;">
+              <button class="btn btn-secondary btn-sm" style="flex:1;" onclick="setPnVoltage(-2.0)">
+                <i class="fa-solid fa-arrow-left"></i> ไบแอสกลับ (-2V)
+              </button>
+              <button class="btn btn-secondary btn-sm" style="flex:1;" onclick="setPnVoltage(0)">
+                <i class="fa-solid fa-minus"></i> ไบแอสศูนย์ (0V)
+              </button>
+              <button class="btn btn-secondary btn-sm" style="flex:1;" onclick="setPnVoltage(0.75)">
+                <i class="fa-solid fa-arrow-right"></i> ไบแอสตรง (+0.75V)
+              </button>
+            </div>
+
+            <div class="theory-box" id="pn-theory-desc">
+              <strong>หลักการทำงาน:</strong> เมื่อนำสารกึ่งตัวนำชนิด <strong>P-type (โฮล)</strong> และ <strong>N-type (อิเล็กตรอนอิสระ)</strong> มาต่อกัน อิเล็กตรอนบางส่วนจะแพร่ข้ามไปรวมกับโฮล เกิดเป็น <strong>บริเวณรอยพร่องประจุ (Depletion Region)</strong> ที่สร้างสนามไฟฟ้าต้านการแพร่ (Barrier Potential ~0.7V สำหรับซิลิคอน)
+            </div>
+
+            <div style="background: rgba(0,0,0,0.3); padding: 0.75rem; border-radius: 8px; font-size: 0.8rem;">
+              <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem;">
+                <span style="display:inline-block; width:12px; height:12px; border-radius:50%; background:var(--p-type-color);"></span>
+                <span><strong>สาร P (Anode):</strong> มีประจุพาหะส่วนใหญ่คือ <strong>โฮล (Holes +)</strong></span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem;">
+                <span style="display:inline-block; width:12px; height:12px; border-radius:50%; background:var(--n-type-color);"></span>
+                <span><strong>สาร N (Cathode):</strong> มีประจุพาหะส่วนใหญ่คือ <strong>อิเล็กตรอนอิสระ (Electrons -)</strong></span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <span style="display:inline-block; width:12px; height:12px; border-radius:3px; background:var(--depletion-color);"></span>
+                <span><strong>Depletion Layer:</strong> ไม่มีพาหะอิสระ เกิดกำแพงศักย์ไฟฟ้าต้านกระแส</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+        <!-- ================================================================= -->
+    <!-- TAB 2: I-V CHARACTERISTIC CURVE LAB                               -->
+    <!-- ================================================================= -->
+    <section id="tab-ivcurve" class="tab-content">
+      <div class="grid-2col">
+        <!-- Left: I-V Curve Graph -->
+        <div class="glass-card">
+          <div class="card-title">
+            <div class="card-title-text">
+              <i class="fa-solid fa-chart-line"></i>
+              <span>กราฟคุณลักษณะกระแส-แรงดัน (I-V Characteristic Curve)</span>
+            </div>
+            <span class="control-value-badge" id="iv-qpoint-badge">Q-Point: (0.70V, 15.2mA)</span>
+          </div>
+
+          <div class="canvas-card-wrapper">
+            <canvas id="canvas-iv" width="700" height="400"></canvas>
+          </div>
+
+          <div class="readout-grid">
+            <div class="readout-card">
+              <div class="readout-title">แรงดันตกคร่อม (V_D)</div>
+              <div class="readout-val" id="iv-vd-display">0.70 <span class="readout-unit">V</span></div>
+            </div>
+            <div class="readout-card green">
+              <div class="readout-title">กระแสไดโอด (I_D)</div>
+              <div class="readout-val" id="iv-id-display">15.2 <span class="readout-unit">mA</span></div>
+            </div>
+            <div class="readout-card secondary">
+              <div class="readout-title">กำลังสูญเสีย (P_D = V_D × I_D)</div>
+              <div class="readout-val" id="iv-pd-display">10.6 <span class="readout-unit">mW</span></div>
+            </div>
+            <div class="readout-card amber">
+              <div class="readout-title">ความต้านทานพลวัต (r_d)</div>
+              <div class="readout-val" id="iv-rd-display">1.71 <span class="readout-unit">Ω</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Diode Model selection & Shockley parameter -->
+        <div class="glass-card">
+          <div class="card-title">
+            <div class="card-title-text">
+              <i class="fa-solid fa-sliders"></i>
+              <span>เลือกชนิดไดโอดและวิเคราะห์โหลดไลน์ (Load Line)</span>
+            </div>
+          </div>
+
+          <div class="control-group">
+            <div class="control-label-row">
+              <span class="control-label-title">โมเดลไดโอด (Diode Model)</span>
+            </div>
+            <select id="iv-diode-model" onchange="onIvModelChange()">
+              <optgroup label="General Purpose & Switching">
+                <option value="1N4007" selected>1N4007 (Standard Silicon 1A, V_th ~0.7V, V_BR ~1000V)</option>
+                <option value="1N4148">1N4148 (Fast Switching 150mA, V_th ~0.65V, 4ns)</option>
+                <option value="1N34A">1N34A (Germanium Signal Diode, V_th ~0.28V)</option>
+                <option value="1N5819">1N5819 (Schottky Barrier 1A, V_th ~0.35V)</option>
+              </optgroup>
+              <optgroup label="Zener Diodes (Regulator)">
+                <option value="BZX55C3V3">Zener Diode 3.3V (V_Z = 3.3V)</option>
+                <option value="BZX55C5V1">Zener Diode 5.1V (V_Z = 5.1V)</option>
+                <option value="BZX55C9V1">Zener Diode 9.1V (V_Z = 9.1V)</option>
+                <option value="BZX55C12">Zener Diode 12.0V (V_Z = 12.0V)</option>
+              </optgroup>
+              <optgroup label="Light Emitting Diodes (LED)">
+                <option value="LED_RED">LED สีแดง (Red LED, V_F ~1.8V)</option>
+                <option value="LED_GREEN">LED สีเขียว (Green LED, V_F ~2.2V)</option>
+                <option value="LED_BLUE">LED สีน้ำเงิน (Blue LED, V_F ~3.0V)</option>
+                <option value="LED_WHITE">LED สีขาว (White LED, V_F ~3.2V)</option>
+              </optgroup>
+            </select>
+          </div>
+
+          <div class="control-group">
+            <div class="control-label-row">
+              <span class="control-label-title">แรงดันแหล่งจ่ายวงจร (V_CC)</span>
+              <span class="control-value-badge" id="iv-vcc-badge">5.0 V</span>
+            </div>
+            <input type="range" id="slider-iv-vcc" min="0.1" max="15.0" step="0.1" value="5.0" oninput="onIvCircuitParamChange()">
+          </div>
+
+          <div class="control-group">
+            <div class="control-label-row">
+              <span class="control-label-title">ตัวต้านทานจำกัดกระแส (R_Load)</span>
+              <span class="control-value-badge" id="iv-rload-badge">270 Ω</span>
+            </div>
+            <input type="range" id="slider-iv-rload" min="10" max="2000" step="10" value="270" oninput="onIvCircuitParamChange()">
+          </div>
+
+          <div class="control-group">
+            <div class="control-label-row">
+              <span class="control-label-title">อุณหภูมิรอยต่อ (Junction Temperature: T)</span>
+              <span class="control-value-badge" id="iv-temp-badge">25 °C</span>
+            </div>
+            <input type="range" id="slider-iv-temp" min="-25" max="125" step="5" value="25" oninput="onIvCircuitParamChange()">
+            <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 2px;">
+              * เมื่ออุณหภูมิสูงขึ้น แรงดัน Knee Voltage จะลดลงประมาณ -2 mV/°C
+            </div>
+          </div>
+
+          <div class="theory-box">
+            <strong>สมการไดโอดช็อคลีย์ (Shockley Diode Equation):</strong>
+            <div style="font-family: var(--font-mono); color: var(--accent-primary); margin: 6px 0; font-size: 0.95rem; background: rgba(0,0,0,0.3); padding: 0.4rem 0.6rem; border-radius: 6px;">
+              I<sub>D</sub> = I<sub>S</sub> · (e<sup>(V<sub>D</sub> / (n · V<sub>T</sub>))</sup> - 1)
+            </div>
+            โดยที่ <strong>V<sub>T</sub> = (k · T) / q ≈ 26 mV</strong> ที่อุณหภูมิห้อง 25°C, <strong>I<sub>S</sub></strong> คือกระแสอิ่มตัวย้อนกลับ, <strong>n</strong> คือสัมประสิทธิ์อุดมคติ (1 - 2)
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================================================================= -->
+    <!-- TAB 3: VIRTUAL DIODE CIRCUIT LAB (RECTIFIER / ZENER / CLIPPER)    -->
+    <!-- ================================================================= -->
+    <section id="tab-circuits" class="tab-content">
+      <!-- Circuit Sub-Tabs -->
+      <div class="pill-group" style="margin-bottom: 1.25rem;">
+        <button class="pill-btn active" onclick="switchCircuitMode('halfwave')">
+          <i class="fa-solid fa-wave-square"></i> 1. วงจรเรียงกระแสครึ่งคลื่น (Half-Wave)
+        </button>
+        <button class="pill-btn" onclick="switchCircuitMode('fullbridge')">
+          <i class="fa-solid fa-arrows-split-up-and-left"></i> 2. บริดจ์เรกติไฟเออร์ (Full-Wave Bridge)
+        </button>
+        <button class="pill-btn" onclick="switchCircuitMode('zener_reg')">
+          <i class="fa-solid fa-shield-halved"></i> 3. ซีเนอร์ควบคุมแรงดัน (Zener Regulator)
+        </button>
+        <button class="pill-btn" onclick="switchCircuitMode('clipper')">
+          <i class="fa-solid fa-scissors"></i> 4. วงจรขลิบสัญญาณ (Diode Clipper)
+        </button>
+      </div>
+
+      <div class="grid-2col">
+        <!-- Left: Live Schematic Diagram + Oscilloscope -->
+        <div class="glass-card">
+          <div class="card-title">
+            <div class="card-title-text">
+              <i class="fa-solid fa-display"></i>
+              <span id="circuit-lab-title">วงจรเรียงกระแสครึ่งคลื่น (Half-Wave Rectifier Simulation)</span>
+            </div>
+            <div style="display: flex; gap: 0.5rem;">
+              <button class="btn btn-secondary btn-sm" id="btn-pause-sim" onclick="toggleSimPause()">
+                <i class="fa-solid fa-pause"></i> <span id="pause-btn-text">หยุดชั่วคราว</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 1. LIVE CIRCUIT SCHEMATIC WIRING DIAGRAM CANVAS -->
+          <div class="canvas-card-wrapper">
+            <div class="canvas-header-bar">
+              <div class="canvas-header-title" style="color: var(--accent-primary);">
+                <i class="fa-solid fa-diagram-project"></i> 
+                <span>แผนภาพผังการต่อวงจรไฟฟ้าเสมือนจริง (Interactive Circuit Schematic)</span>
+              </div>
+              <span class="status-badge connected" id="schematic-conduction-badge" style="padding: 0.2rem 0.6rem; font-size: 0.7rem;">
+                <i class="fa-solid fa-bolt"></i> กำลังนำกระแส (Conduction ON)
+              </span>
+            </div>
+            <canvas id="canvas-schematic" width="720" height="230"></canvas>
+          </div>
+
+          <!-- 2. LIVE OSCILLOSCOPE WAVEFORM CANVAS -->
+          <div class="canvas-card-wrapper">
+            <div class="canvas-header-bar">
+              <div class="canvas-header-title" style="color: #fbbf24;">
+                <i class="fa-solid fa-wave-square"></i> 
+                <span>สัญญาณออสซิลโลสโคป (Oscilloscope CH1 In / CH2 Out)</span>
+              </div>
+              <span style="font-size: 0.72rem; font-family: var(--font-mono); color: var(--text-muted);">
+                Scale: 10V/div | 5ms/div
+              </span>
+            </div>
+            <canvas id="canvas-circuit" width="720" height="200"></canvas>
+          </div>
+
+          <div class="readout-grid" id="circuit-telemetry-grid">
+            <!-- Dynamically injected telemetry items -->
+          </div>
+        </div>
+
+        <!-- Right: Circuit Controls & Formulas -->
+        <div class="glass-card">
+          <div class="card-title">
+            <div class="card-title-text">
+              <i class="fa-solid fa-sliders"></i>
+              <span>พารามิเตอร์วงจร (Circuit Parameters)</span>
+            </div>
+          </div>
+
+          <!-- Halfwave / Bridge controls -->
+          <div id="ctrl-rectifiers">
+            <div class="control-group">
+              <div class="control-label-row">
+                <span class="control-label-title">แรงดันไฟสลับขาเข้า (AC Input V_peak)</span>
+                <span class="control-value-badge" id="rect-vin-badge">12.0 Vp</span>
+              </div>
+              <input type="range" id="slider-rect-vin" min="3" max="30" step="1" value="12" oninput="updateCircuitSimParams()">
+            </div>
+
+            <div class="control-group">
+              <div class="control-label-row">
+                <span class="control-label-title">ความถี่ไฟกระแสสลับ (AC Frequency)</span>
+                <span class="control-value-badge" id="rect-freq-badge">50 Hz</span>
+              </div>
+              <input type="range" id="slider-rect-freq" min="10" max="100" step="5" value="50" oninput="updateCircuitSimParams()">
+            </div>
+
+            <div class="control-group">
+              <div class="control-label-row">
+                <span class="control-label-title">ตัวเก็บประจุกรองสัญญาณ (Filter Capacitor: C)</span>
+                <span class="control-value-badge" id="rect-cap-badge">100 μF</span>
+              </div>
+              <input type="range" id="slider-rect-cap" min="0" max="1000" step="50" value="100" oninput="updateCircuitSimParams()">
+              <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 2px;">
+                * ปรับเป็น 0 μF เพื่อดูรูปคลื่นดิบก่อนกรองเรียบ
+              </div>
+            </div>
+
+            <div class="control-group">
+              <div class="control-label-row">
+                <span class="control-label-title">ความต้านทานโหลด (Load Resistor: R_L)</span>
+                <span class="control-value-badge" id="rect-rl-badge">1000 Ω</span>
+              </div>
+              <input type="range" id="slider-rect-rl" min="100" max="5000" step="100" value="1000" oninput="updateCircuitSimParams()">
+            </div>
+          </div>
+
+          <!-- Zener Controls -->
+          <div id="ctrl-zener" style="display:none;">
+            <div class="control-group">
+              <div class="control-label-row">
+                <span class="control-label-title">แรงดัน DC ขาเข้าไม่คงที่ (Unregulated DC Vin)</span>
+                <span class="control-value-badge" id="zener-vin-badge">12.0 V</span>
+              </div>
+              <input type="range" id="slider-zener-vin" min="3" max="24" step="0.5" value="12" oninput="updateCircuitSimParams()">
+            </div>
+
+            <div class="control-group">
+              <div class="control-label-row">
+                <span class="control-label-title">เบอร์ซีเนอร์ไดโอด (Zener Breakdown Voltage: V_Z)</span>
+              </div>
+              <select id="select-zener-vz" onchange="updateCircuitSimParams()">
+                <option value="3.3">BZX55C 3.3V (V_Z = 3.3V)</option>
+                <option value="5.1" selected>BZX55C 5.1V (V_Z = 5.1V)</option>
+                <option value="9.1">BZX55C 9.1V (V_Z = 9.1V)</option>
+                <option value="12.0">BZX55C 12.0V (V_Z = 12.0V)</option>
+              </select>
+            </div>
+
+            <div class="control-group">
+              <div class="control-label-row">
+                <span class="control-label-title">ตัวต้านทานอนุกรมจำกัดกระแส (R_S)</span>
+                <span class="control-value-badge" id="zener-rs-badge">220 Ω</span>
+              </div>
+              <input type="range" id="slider-zener-rs" min="50" max="1000" step="10" value="220" oninput="updateCircuitSimParams()">
+            </div>
+
+            <div class="control-group">
+              <div class="control-label-row">
+                <span class="control-label-title">โหลดตัวต้านทาน (R_Load)</span>
+                <span class="control-value-badge" id="zener-rl-badge">1000 Ω</span>
+              </div>
+              <input type="range" id="slider-zener-rl" min="100" max="5000" step="100" value="1000" oninput="updateCircuitSimParams()">
+            </div>
+          </div>
+
+          <!-- Clipper Controls -->
+          <div id="ctrl-clipper" style="display:none;">
+            <div class="control-group">
+              <div class="control-label-row">
+                <span class="control-label-title">รูปแบบการขลิบสัญญาณ (Clipping Type)</span>
+              </div>
+              <select id="select-clipper-type" onchange="updateCircuitSimParams()">
+                <option value="pos_clip">Positive Clipper (ขลิบคลื่นครึ่งบวกทิ้ง)</option>
+                <option value="neg_clip">Negative Clipper (ขลิบคลื่นครึ่งลบทิ้ง)</option>
+                <option value="biased_pos">Biased Positive Clipper (ขลิบระดับบวกพร้อมแรงดันอ้างอิง V_ref)</option>
+                <option value="double_clip">Double Diode Clipper (ขลิบสัญญาณทั้งบวกและลบแบบจำกัดระดับ)</option>
+              </select>
+            </div>
+
+            <div class="control-group">
+              <div class="control-label-row">
+                <span class="control-label-title">แรงดันอ้างอิงไบแอสขลิบ (V_bias)</span>
+                <span class="control-value-badge" id="clipper-vbias-badge">2.0 V</span>
+              </div>
+              <input type="range" id="slider-clipper-vbias" min="0" max="8" step="0.5" value="2.0" oninput="updateCircuitSimParams()">
+            </div>
+          </div>
+
+          <div class="theory-box" id="circuit-theory-box">
+            <!-- Theory dynamically updated -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================================================================= -->
+    <!-- TAB 4: DIODE TESTING & POLARITY LAB                               -->
+    <!-- ================================================================= -->
+    <section id="tab-tester" class="tab-content">
+      <div class="grid-2col">
+        <!-- Left: Interactive Multimeter Diode Tester -->
+        <div class="glass-card">
+          <div class="card-title">
+            <div class="card-title-text">
+              <i class="fa-solid fa-stethoscope"></i>
+              <span>เครื่องมือทดสอบไดโอดด้วยมัลติมิเตอร์ (Diode Testing Simulator)</span>
+            </div>
+            <button class="btn btn-secondary btn-sm" onclick="resetProbes()">
+              <i class="fa-solid fa-rotate-left"></i> สลับ/รีเซ็ตสายวัด
+            </button>
+          </div>
+
+          <div class="tester-board">
+            <div style="font-size: 0.85rem; color: var(--text-muted); text-align: center;">
+              คลิกที่ขั้วเพื่อสลับสายวัดสีแดง (Probe +) และสายวัดสีดำ (Probe -)
+            </div>
+
+            <!-- Digital Multimeter Screen -->
+            <div class="dmm-display-box" id="dmm-screen">
+              0.684 V
+            </div>
+
+            <!-- Interactive Diode Visual -->
+            <div class="diode-package-view" id="diode-visual-box">
+              <!-- Left terminal Anode -->
+              <div class="diode-terminal-btn probe-red" id="term-left" style="left: 10px;" onclick="swapProbes('left')">
+                A
+              </div>
+              
+              <!-- Diode Body -->
+              <div style="width: 170px; height: 50px; background: #1e2430; border: 3px solid #334155; border-radius: 8px; position: relative; display: flex; align-items: center; justify-content: space-between; padding: 0 10px;">
+                <div style="position: absolute; left: -25px; width: 30px; height: 4px; background: #94a3b8;"></div>
+                <div style="position: absolute; right: -25px; width: 30px; height: 4px; background: #94a3b8;"></div>
+                
+                <span style="font-family: var(--font-mono); font-size: 0.85rem; color: #cbd5e1; font-weight: 700;" id="tester-part-label">1N4007</span>
+                <!-- Cathode silver band -->
+                <div style="width: 14px; height: 100%; background: #cbd5e1; border-radius: 0 4px 4px 0; box-shadow: inset 1px 0 2px rgba(0,0,0,0.5);"></div>
+              </div>
+
+              <!-- Right terminal Cathode -->
+              <div class="diode-terminal-btn probe-black" id="term-right" style="right: 10px;" onclick="swapProbes('right')">
+                K
+              </div>
+            </div>
+
+            <!-- Probe status and buzzer indicator -->
+            <div style="display: flex; gap: 1.5rem; align-items: center;">
+              <div style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.85rem;">
+                <span style="display:inline-block; width:12px; height:12px; border-radius:50%; background:#ef4444;"></span>
+                <span>สายสีแดง: <strong id="red-probe-loc">ขั้ว Anode (ขา A)</strong></span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.85rem;">
+                <span style="display:inline-block; width:12px; height:12px; border-radius:50%; background:#3b82f6;"></span>
+                <span>สายสีดำ: <strong id="black-probe-loc">ขั้ว Cathode (ขา K)</strong></span>
+              </div>
+            </div>
+
+            <!-- Health Status Banner -->
+            <div id="diode-health-banner" style="width: 100%; padding: 0.85rem; border-radius: 8px; text-align: center; font-weight: 700; font-size: 0.95rem; background: rgba(16, 185, 129, 0.2); border: 1px solid #10b981; color: #34d399;">
+              <i class="fa-solid fa-circle-check"></i> ผลการทดสอบ: ไบแอสตรง ไดโอดทำงานปกติ (Good Diode - Forward Conduction)
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Fault injection & Component Package Guide -->
+        <div class="glass-card">
+          <div class="card-title">
+            <div class="card-title-text">
+              <i class="fa-solid fa-bug"></i>
+              <span>จำลองสถานะไดโอดเสีย & การอ่านสัญลักษณ์ขั้ว</span>
+            </div>
+          </div>
+
+          <div class="control-group">
+            <div class="control-label-row">
+              <span class="control-label-title">จำลองสุขภาพไดโอด (Simulated Diode Condition)</span>
+            </div>
+            <select id="select-diode-health" onchange="onDiodeHealthChange()">
+              <option value="good_si">ไดโอดปกติ ซิลิคอน (Good Silicon ~0.65-0.7V)</option>
+              <option value="good_schottky">ไดโอดปกติ ช็อตต์กี้ (Good Schottky ~0.25-0.35V)</option>
+              <option value="good_led_red">ไดโอดเปล่งแสง LED แดง (Good Red LED ~1.8V)</option>
+              <option value="shorted">ไดโอดช็อตทะลุ (Shorted Diode - 0.00V / Beep)</option>
+              <option value="open">ไดโอดขาดภายใน (Open Circuit - O.L ทั้งสองทาง)</option>
+              <option value="leaky">ไดโอดรั่ว (Leaky Reverse Breakdown)</option>
+            </select>
+          </div>
+
+          <div class="theory-box">
+            <strong>เกณฑ์การตัดสินไดโอดดี-เสียด้วยมัลติมิเตอร์:</strong>
+            <ul style="margin-left: 1.25rem; margin-top: 0.35rem;">
+              <li><strong>ไดโอดดี (Good):</strong> ไบแอสตรงจะขึ้นค่า 0.2V - 0.7V และเมื่อสลับสายไบแอสกลับจะขึ้น <code>O.L</code> (ความต้านทานอนันต์)</li>
+              <li><strong>ไดโอดช็อต (Shorted):</strong> วัดได้ <code>0.00V</code> หรือมีเสียงปี๊บดังทั้งสองทิศทาง</li>
+              <li><strong>ไดโอดขาด (Open):</strong> วัดได้ <code>O.L</code> (ไม่นำกระแส) ทั้งสองทิศทาง</li>
+            </ul>
+          </div>
+
+          <!-- Quick Spec Table -->
+          <div class="card-title" style="margin-top: 1rem;">
+            <div class="card-title-text">
+              <i class="fa-solid fa-table-list"></i>
+              <span>ตารางอ้างอิงเบอร์ไดโอดที่พบบ่อย (Common Diode Specs)</span>
+            </div>
+          </div>
+
+          <div class="table-container">
+            <table class="spec-table">
+              <thead>
+                <tr>
+                  <th>Part No.</th>
+                  <th>Type</th>
+                  <th>I_F (Max)</th>
+                  <th>V_RRM</th>
+                  <th>V_F</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="code-col">1N4007</td>
+                  <td>Rectifier (Si)</td>
+                  <td>1.0 A</td>
+                  <td>1000 V</td>
+                  <td>0.7 V</td>
+                </tr>
+                <tr>
+                  <td class="code-col">1N4148</td>
+                  <td>Fast Signal</td>
+                  <td>150 mA</td>
+                  <td>100 V</td>
+                  <td>0.65 V</td>
+                </tr>
+                <tr>
+                  <td class="code-col">1N5819</td>
+                  <td>Schottky</td>
+                  <td>1.0 A</td>
+                  <td>40 V</td>
+                  <td>0.35 V</td>
+                </tr>
+                <tr>
+                  <td class="code-col">BZX55C5V1</td>
+                  <td>Zener</td>
+                  <td>500 mW</td>
+                  <td>5.1 V (Vz)</td>
+                  <td>0.7 V</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================================================================= -->
+    <!-- TAB 5: DIODE QUIZ & GOOGLE SHEETS LOGGING                         -->
+    <!-- ================================================================= -->
+    <section id="tab-quiz" class="tab-content">
+      <div class="grid-2col">
+        <!-- Left: Interactive Quiz Engine -->
+        <div class="glass-card">
+          <div class="card-title">
+            <div class="card-title-text">
+              <i class="fa-solid fa-list-check"></i>
+              <span>แบบทดสอบความรู้เรื่องไดโอด (Diode Examination)</span>
+            </div>
+            <span class="status-badge" id="quiz-score-badge">คะแนน: 0 / 0</span>
+          </div>
+
+          <div id="quiz-container">
+            <!-- Questions rendered via JS -->
+          </div>
+
+          <div style="display: flex; gap: 0.75rem; margin-top: 1rem;">
+            <button class="btn btn-primary" id="btn-submit-quiz" onclick="submitQuiz()">
+              <i class="fa-solid fa-paper-plane"></i> ตรวจคำตอบและส่งผลคะแนน
+            </button>
+            <button class="btn btn-secondary" onclick="resetQuiz()">
+              <i class="fa-solid fa-arrow-rotate-right"></i> ทำแบบทดสอบใหม่
+            </button>
+          </div>
+        </div>
+
+        <!-- Right: Student Profile & History Log -->
+        <div class="glass-card">
+          <div class="card-title">
+            <div class="card-title-text">
+              <i class="fa-solid fa-database"></i>
+              <span>บันทึกผลการประเมินและการทดลอง (Sync to Google Sheets)</span>
+            </div>
+          </div>
+
+          <div class="control-group">
+            <div class="control-label-row">
+              <span class="control-label-title">ชื่อ-นามสกุล / รหัสนักศึกษา (Student Info)</span>
+            </div>
+            <input type="text" id="student-name-input" placeholder="เช่น นายสมชาย ใจดี (ID: 67012345)" value="นักศึกษาทดลอง">
+          </div>
+
+          <div class="control-group">
+            <div class="control-label-row">
+              <span class="control-label-title">หมายเหตุการทดลอง (Lab Note)</span>
+            </div>
+            <input type="text" id="lab-note-input" placeholder="เช่น บันทึกการทดลองวงจรบริดจ์เรกติไฟเออร์">
+          </div>
+
+          <div style="display: flex; gap: 0.5rem; margin-bottom: 1.25rem;">
+            <button class="btn btn-success" style="flex:1;" onclick="saveCurrentExperiment()">
+              <i class="fa-solid fa-cloud-arrow-up"></i> บันทึกผลลงระบบ
+            </button>
+            <button class="btn btn-secondary" onclick="exportHistoryCSV()">
+              <i class="fa-solid fa-file-csv"></i> Export CSV
+            </button>
+          </div>
+
+          <div class="card-title" style="margin-top: 1.5rem;">
+            <div class="card-title-text">
+              <i class="fa-solid fa-clock-rotate-left"></i>
+              <span>ประวัติการบันทึกผลล่าสุด (Recent Activity Log)</span>
+            </div>
+          </div>
+
+          <div class="table-container" style="max-height: 260px; overflow-y: auto;">
+            <table>
+              <thead>
+                <tr>
+                  <th>วัน-เวลา</th>
+                  <th>กิจกรรม / โมดูล</th>
+                  <th>คะแนน/ผลลัพธ์</th>
+                  <th>ผู้บันทึก</th>
+                </tr>
+              </thead>
+              <tbody id="history-table-body">
+                <!-- Injected via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- ================================================================= -->
+  <!-- APPLICATION SCRIPT LOGIC (CANVAS, PHYSICS, CIRCUITS, AUDIO, QUIZ) -->
+  <!-- ================================================================= -->
+  <script>
+    /* ================================================================= */
+    /* 1. GLOBAL STATE & AUDIO ENGINE                                    */
+    /* ================================================================= */
+    const state = {
+      activeTab: 'tab-physics',
+      audioEnabled: true,
+      
+      // Diode Biasing State
+      bias: {
+        subMode: 'bias', // 'bias', 'package', 'physics'
+        vin: 5.0,
+        rload: 220,
+        model: 'si',
+        v_gamma: 0.70,
+        vd: 0.72,
+        id_mA: 19.45,
+        vr: 4.28,
+        pd_mW: 14.0,
+        pr_mW: 83.3,
+        rd_ohm: 1.34,
+        isConduction: true
+      },
+
+      // Diode Physical Package State
+      pkg: {
+        current: 'DO-41' // 'DO-41', 'DO-35', 'ZENER', 'SCHOTTKY', 'SMD', 'LED'
+      },
+
+      // PN Junction State
+      pn: {
+        voltage: 0.0,
+        material: 'silicon',
+        barrierV: 0.70,
+        depletionW: 1.0,
+        current_mA: 0.0,
+        particles: []
+      },
+
+      // IV Curve State
+      iv: {
+        model: '1N4007',
+        vcc: 5.0,
+        rload: 270,
+        temp: 25,
+        vd: 0.70,
+        id_mA: 15.2,
+        pd_mW: 10.6,
+        rd_ohm: 1.71
+      },
+
+      // Virtual Circuit Lab State
+      circuit: {
+        mode: 'halfwave', // halfwave, fullbridge, zener_reg, clipper
+        isPaused: false,
+        vin_peak: 12.0,
+        freq: 50,
+        cap_uF: 100,
+        rload: 1000,
+        zener_vz: 5.1,
+        zener_vin: 12.0,
+        zener_rs: 220,
+        zener_rl: 1000,
+        clipper_type: 'pos_clip',
+        clipper_vbias: 2.0,
+        time: 0,
+        instantVin: 0,
+        instantVout: 0,
+        isD1Conducting: false,
+        isD2Conducting: false,
+        isD3Conducting: false,
+        isD4Conducting: false
+      },
+
+      // Diode Tester State
+      tester: {
+        redProbe: 'left',   // left (A) or right (K)
+        blackProbe: 'right',
+        health: 'good_si',
+        reading: '0.684 V',
+        isBuzzer: false
+      },
+
+      // Quiz & History
+      quiz: {
+        submitted: false,
+        score: 0,
+        answers: {}
+      },
+      history: []
+    };
+
+    // Web Audio API Synthesizer
+    let audioCtx = null;
+    function getAudioCtx() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      return audioCtx;
+    }
+
+    function playSound(type) {
+      if (!state.audioEnabled) return;
+      try {
+        const ctx = getAudioCtx();
+        const now = ctx.currentTime;
+
+        if (type === 'click') {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(800, now);
+          osc.frequency.exponentialRampToValueAtTime(200, now + 0.04);
+          gain.gain.setValueAtTime(0.2, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.04);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.04);
+        } else if (type === 'beep') {
+          // Continuity beep
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'square';
+          osc.frequency.setValueAtTime(1400, now);
+          gain.gain.setValueAtTime(0.15, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.15);
+        } else if (type === 'success') {
+          const freqs = [523.25, 659.25, 783.99, 1046.50];
+          freqs.forEach((f, i) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(f, now + i * 0.08);
+            gain.gain.setValueAtTime(0.15, now + i * 0.08);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.08 + 0.25);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now + i * 0.08);
+            osc.stop(now + i * 0.08 + 0.25);
+          });
+        }
+      } catch (e) {
+        console.warn('Web Audio error', e);
+      }
+    }
+
+    // Audio Toggle UI
+    document.getElementById('btn-audio-toggle').addEventListener('click', function() {
+      state.audioEnabled = !state.audioEnabled;
+      this.classList.toggle('active', state.audioEnabled);
+      this.innerHTML = state.audioEnabled ? '<i class="fa-solid fa-volume-high"></i>' : '<i class="fa-solid fa-volume-xmark"></i>';
+      if (state.audioEnabled) playSound('click');
+    });
+
+    // Tab Switching
+    function switchTab(tabId) {
+      playSound('click');
+      state.activeTab = tabId;
+      document.querySelectorAll('.nav-tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      
+      const activeBtn = Array.from(document.querySelectorAll('.nav-tab-btn')).find(b => b.getAttribute('onclick').includes(tabId));
+      if (activeBtn) activeBtn.classList.add('active');
+      
+      const activeContent = document.getElementById(tabId);
+      if (activeContent) activeContent.classList.add('active');
+    }
+
+    /* ================================================================= */
+    /* 1.1 SUB-MODULE NAVIGATION & DIODE BIASING ENGINE                  */
+    /* ================================================================= */
+    const biasCanvas = document.getElementById('canvas-bias-schem');
+    const biasCtx = biasCanvas ? biasCanvas.getContext('2d') : null;
+    const pkgCanvas = document.getElementById('canvas-diode-package');
+    const pkgCtx = pkgCanvas ? pkgCanvas.getContext('2d') : null;
+
+    function switchPnSubMode(mode, btn) {
+      state.bias.subMode = mode;
+      ['btn-sub-bias', 'btn-sub-package', 'btn-sub-physics'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.remove('active');
+      });
+      if (btn) btn.classList.add('active');
+
+      ['sub-view-bias', 'sub-view-package', 'sub-view-physics'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = 'none';
+      });
+      const viewMap = { bias: 'sub-view-bias', package: 'sub-view-package', physics: 'sub-view-physics' };
+      if (document.getElementById(viewMap[mode])) {
+        document.getElementById(viewMap[mode]).style.display = 'block';
+      }
+
+      if (mode === 'bias') onBiasParamChange();
+      else if (mode === 'package') drawDiodePackageCanvas();
+      playSound('click');
+    }
+
+    function setBiasQuickMode(mode) {
+      const vinSlider = document.getElementById('slider-bias-vin');
+      if (mode === 'forward') {
+        vinSlider.value = 5.0;
+      } else if (mode === 'zero') {
+        vinSlider.value = 0.0;
+      } else if (mode === 'reverse') {
+        vinSlider.value = -5.0;
+      }
+      onBiasParamChange();
+      playSound('click');
+    }
+
+    function onBiasParamChange() {
+      const vin = parseFloat(document.getElementById('slider-bias-vin').value);
+      const rload = parseFloat(document.getElementById('slider-bias-rload').value);
+      const model = document.getElementById('select-bias-diode').value;
+
+      state.bias.vin = vin;
+      state.bias.rload = rload;
+      state.bias.model = model;
+
+      document.getElementById('bias-vin-badge').textContent = (vin >= 0 ? '+' : '') + vin.toFixed(1) + ' V';
+      document.getElementById('bias-rload-badge').textContent = rload.toFixed(0) + ' Ω';
+
+      // Material barrier potential
+      let v_gamma = 0.70;
+      let modelName = '1N4007 Silicon Diode';
+      if (model === 'si') { v_gamma = 0.70; modelName = '1N4007 Silicon'; }
+      else if (model === 'ge') { v_gamma = 0.30; modelName = '1N34A Germanium'; }
+      else if (model === 'schottky') { v_gamma = 0.35; modelName = '1N5819 Schottky'; }
+      else if (model === 'led_red') { v_gamma = 1.80; modelName = 'Red LED (GaAsP)'; }
+      else if (model === 'led_blue') { v_gamma = 3.00; modelName = 'Blue LED (InGaN)'; }
+
+      state.bias.v_gamma = v_gamma;
+
+      let vd = 0, id_mA = 0, vr = 0, pd_mW = 0, pr_mW = 0, rd_ohm = 0;
+      let isConduction = false;
+      let statusText = '', badgeClass = '', calcHtml = '';
+
+      if (vin > v_gamma) {
+        // Forward Bias Conduction
+        isConduction = true;
+        vd = v_gamma + 0.02 * Math.log10(1 + (vin - v_gamma) * 5); // Slight dynamic increase
+        id_mA = ((vin - vd) / rload) * 1000; // mA
+        vr = vin - vd;
+        pd_mW = vd * id_mA;
+        pr_mW = (id_mA * id_mA * rload) / 1000;
+        rd_ohm = id_mA > 0.01 ? (26.0 / id_mA) : 9999;
+
+        statusText = `<i class="fa-solid fa-bolt"></i> ไบอัสตรง นำกระแสปกติ (Forward Conduction ON)`;
+        badgeClass = 'status-badge connected';
+
+        const i_max_mA = (vin / rload) * 1000;
+
+        calcHtml = 
+          `<div style="margin-bottom:0.45rem;padding:0.45rem;background:rgba(16,185,129,0.08);border-left:3px solid #10b981;border-radius:4px;">` +
+          `  <strong style="color:#10b981;"><i class="fa-solid fa-circle-check"></i> 1. สภาวะไบอัสตรง (Forward Bias Condition):</strong><br>` +
+          `  • แหล่งจ่ายไฟป้อนศักย์บวกเข้าขา <strong>Anode (+)</strong> และศักย์ลบเข้าขา <strong>Cathode (−)</strong><br>` +
+          `  • แรงดันป้อน V<sub>in</sub> (${vin.toFixed(1)}V) &gt; แรงดันกั้น V<sub>γ</sub> (${v_gamma.toFixed(2)}V) ทำให้ <strong>กำแพงศักย์แคบลงและไดโอดนำกระแส</strong>` +
+          `</div>` +
+          `<div style="margin-bottom:0.45rem;"><strong>2. คำนวณกระแสในวงจร (Circuit Current I<sub>D</sub>):</strong><br>` +
+          `&nbsp;&nbsp;<strong>I<sub>D</sub> = (V<sub>in</sub> − V<sub>D</sub>) / R</strong> = (${vin.toFixed(1)} V − ${vd.toFixed(2)} V) / ${rload.toFixed(0)} Ω = <span style="color:#10b981;font-weight:700;font-size:0.95rem;">${id_mA.toFixed(2)} mA</span></div>` +
+          `<div style="margin-bottom:0.45rem;"><strong>3. แรงดันตกคร่อมตัวต้านทานและไดโอด (KVL Loop):</strong><br>` +
+          `&nbsp;&nbsp;• <strong>V<sub>D</sub></strong> ≈ V<sub>γ</sub> = <span style="color:#38bdf8;font-weight:700;">${vd.toFixed(2)} V</span><br>` +
+          `&nbsp;&nbsp;• <strong>V<sub>R</sub></strong> = I<sub>D</sub> · R = ${id_mA.toFixed(2)} mA × ${rload.toFixed(0)} Ω = <span style="color:#a855f7;font-weight:700;">${vr.toFixed(2)} V</span><br>` +
+          `&nbsp;&nbsp;• ตรวจสอบ KVL: V<sub>in</sub> = V<sub>R</sub> + V<sub>D</sub> = ${vr.toFixed(2)} + ${vd.toFixed(2)} = <strong>${(vr+vd).toFixed(2)} V</strong></div>` +
+          `<div style="margin-bottom:0.45rem;"><strong>4. กำลังสูญเสีย (Power Dissipation) &amp; ความต้านทานไดนามิก:</strong><br>` +
+          `&nbsp;&nbsp;• <strong>P<sub>D</sub></strong> = V<sub>D</sub> · I<sub>D</sub> = ${vd.toFixed(2)} V × ${id_mA.toFixed(2)} mA = <span style="color:#f59e0b;font-weight:700;">${pd_mW.toFixed(1)} mW</span><br>` +
+          `&nbsp;&nbsp;• <strong>P<sub>R</sub></strong> = I<sub>D</sub><sup>2</sup> · R = <span style="color:#f8fafc;font-weight:700;">${pr_mW.toFixed(1)} mW</span><br>` +
+          `&nbsp;&nbsp;• <strong>r<sub>d</sub></strong> = V<sub>T</sub> / I<sub>D</sub> = 26 mV / ${id_mA.toFixed(2)} mA = <span style="color:var(--accent-primary);font-weight:700;">${rd_ohm.toFixed(2)} Ω</span></div>` +
+          `<div style="padding:0.35rem 0.5rem;background:rgba(255,255,255,0.03);border-radius:4px;font-size:0.76rem;">` +
+          `<strong>จุดทำงาน Q-Point:</strong> (V<sub>D</sub> = ${vd.toFixed(2)}V, I<sub>D</sub> = ${id_mA.toFixed(2)}mA) บนเส้นโหลด DC โดยมี I<sub>D(max)</sub> = ${i_max_mA.toFixed(1)} mA</div>`;
+
+      } else if (vin >= 0) {
+        // Forward Sub-threshold (0 <= Vin <= V_gamma)
+        vd = vin;
+        id_mA = 0.0;
+        vr = 0.0;
+        pd_mW = 0.0;
+        pr_mW = 0.0;
+        rd_ohm = 99999;
+
+        statusText = `<i class="fa-solid fa-hourglass-half"></i> แรงดันยังไม่ถึงจุดนำกระแส (Sub-threshold V_in < V_γ)`;
+        badgeClass = 'status-badge saturation';
+
+        calcHtml = 
+          `<div style="margin-bottom:0.45rem;padding:0.45rem;background:rgba(245,158,11,0.08);border-left:3px solid #f59e0b;border-radius:4px;">` +
+          `  <strong style="color:#f59e0b;"><i class="fa-solid fa-triangle-exclamation"></i> สภาวะแรงดันต่ำกว่า Knee Voltage:</strong><br>` +
+          `  • V<sub>in</sub> (${vin.toFixed(1)}V) &lt; V<sub>γ</sub> (${v_gamma.toFixed(2)}V) ทำให้สนามไฟฟ้าภายในยังต้านทานการข้ามของพาหะ<br>` +
+          `  • ไดโอดอยู่ในสภาวะเตรียมนำกระแสแต่ยังไม่มีกระแสไหล: <strong>I<sub>D</sub> = 0.00 mA</strong>, <strong>V<sub>D</sub> = ${vin.toFixed(2)} V</strong>, <strong>V<sub>R</sub> = 0.00 V</strong>` +
+          `</div>`;
+
+      } else {
+        // Reverse Bias
+        vd = vin;
+        id_mA = -0.00001; // ~10 nA leakage
+        vr = 0.0;
+        pd_mW = 0.0;
+        pr_mW = 0.0;
+        rd_ohm = 999999;
+
+        statusText = `<i class="fa-solid fa-ban"></i> ไบอัสกลับ ปิดกั้นกระแส (Reverse Cutoff / Blocked)`;
+        badgeClass = 'status-badge cutoff';
+
+        calcHtml = 
+          `<div style="margin-bottom:0.45rem;padding:0.45rem;background:rgba(244,63,94,0.08);border-left:3px solid #f43f5e;border-radius:4px;">` +
+          `  <strong style="color:#f43f5e;"><i class="fa-solid fa-ban"></i> 1. สภาวะไบอัสกลับ (Reverse Bias Condition):</strong><br>` +
+          `  • แหล่งจ่ายไฟป้อนศักย์บวกเข้าขา <strong>Cathode (−)</strong> และศักย์ลบเข้าขา <strong>Anode (+)</strong><br>` +
+          `  • สนามไฟฟ้าภายนอกเสริมแรงกับสนามไฟฟ้าภายใน ทำให้ <strong>รอยพร่องประจุ (Depletion Region) กว้างขึ้น</strong> อย่างมาก` +
+          `</div>` +
+          `<div style="margin-bottom:0.45rem;"><strong>2. กระแสย้อนกลับอิ่มตัว (Reverse Saturation Current I<sub>S</sub>):</strong><br>` +
+          `&nbsp;&nbsp;I<sub>D</sub> = −I<sub>S</sub> ≈ <span style="color:#f43f5e;font-weight:700;font-size:0.95rem;">0.00 mA (~10 nA)</span> (ตัดกระแสสมบูรณ์ วงจรเปิด Open-Circuit)</div>` +
+          `<div style="margin-bottom:0.45rem;"><strong>3. การกระจายแรงดันตกคร่อม (Voltage Drop):</strong><br>` +
+          `&nbsp;&nbsp;• <strong>V<sub>D</sub></strong> = V<sub>in</sub> = <span style="color:#38bdf8;font-weight:700;">${vd.toFixed(2)} V</span> (ไดโอดรับแรงดันย้อนกลับทั้งหมด V<sub>RRM</sub>)<br>` +
+          `&nbsp;&nbsp;• <strong>V<sub>R</sub></strong> = I<sub>D</sub> · R = 0.00 V (ไม่มีแรงดันตกคร่อมตัวต้านทาน)</div>` +
+          `<div style="margin-bottom:0.45rem;"><strong>4. กำลังสูญเสีย:</strong> P<sub>D</sub> ≈ 0 mW, P<sub>R</sub> ≈ 0 mW</div>`;
+      }
+
+      state.bias.vd = vd;
+      state.bias.id_mA = Math.abs(id_mA);
+      state.bias.vr = vr;
+      state.bias.pd_mW = pd_mW;
+      state.bias.pr_mW = pr_mW;
+      state.bias.rd_ohm = rd_ohm;
+      state.bias.isConduction = isConduction;
+
+      document.getElementById('bias-vd-val').innerHTML = `${vd.toFixed(2)} <span class="readout-unit">V</span>`;
+      document.getElementById('bias-id-val').innerHTML = `${Math.abs(id_mA).toFixed(2)} <span class="readout-unit">mA</span>`;
+      document.getElementById('bias-vr-val').innerHTML = `${vr.toFixed(2)} <span class="readout-unit">V</span>`;
+      document.getElementById('bias-pd-val').innerHTML = `${pd_mW.toFixed(1)} <span class="readout-unit">mW</span>`;
+      document.getElementById('bias-pr-val').innerHTML = `${pr_mW.toFixed(1)} <span class="readout-unit">mW</span>`;
+      document.getElementById('bias-rd-val').innerHTML = rd_ohm > 1000 ? `&infin; <span class="readout-unit">Ω</span>` : `${rd_ohm.toFixed(2)} <span class="readout-unit">Ω</span>`;
+
+      const statusBadge = document.getElementById('bias-status-badge');
+      if (statusBadge) {
+        statusBadge.innerHTML = statusText;
+        statusBadge.className = badgeClass;
+      }
+      document.getElementById('bias-calc-details').innerHTML = calcHtml;
+
+      drawBiasCircuitSchematic();
+    }
+
+    let biasAnimOffset = 0;
+    function drawBiasCircuitSchematic() {
+      if (!biasCtx) return;
+      const W = biasCanvas.width, H = biasCanvas.height;
+      biasCtx.clearRect(0, 0, W, H);
+      biasCtx.fillStyle = '#050b14'; biasCtx.fillRect(0, 0, W, H);
+
+      const vin = state.bias.vin;
+      const isCond = state.bias.isConduction;
+      const isReverse = vin < 0;
+
+      // Circuit Box Coordinates
+      const x1 = 120, x2 = 580, y1 = 65, y2 = 205;
+
+      // Draw Main Circuit Loop
+      biasCtx.strokeStyle = isCond ? '#06b6d4' : '#475569';
+      biasCtx.lineWidth = 2.5;
+      biasCtx.beginPath();
+      biasCtx.moveTo(x1, y1); biasCtx.lineTo(x2, y1);
+      biasCtx.lineTo(x2, y2); biasCtx.lineTo(x1, y2);
+      biasCtx.lineTo(x1, y1);
+      biasCtx.stroke();
+
+      // 1. DC Voltage Source (Left Branch)
+      const src_cx = x1, src_cy = (y1 + y2) / 2;
+      biasCtx.fillStyle = '#050b14'; biasCtx.fillRect(src_cx - 20, src_cy - 25, 40, 50);
+      biasCtx.beginPath(); biasCtx.arc(src_cx, src_cy, 22, 0, Math.PI*2);
+      biasCtx.fillStyle = '#0f172a'; biasCtx.fill();
+      biasCtx.strokeStyle = isReverse ? '#f43f5e' : '#10b981'; biasCtx.lineWidth = 2.5; biasCtx.stroke();
+
+      biasCtx.font = 'bold 12px JetBrains Mono'; biasCtx.textAlign = 'center';
+      biasCtx.fillStyle = isReverse ? '#f43f5e' : '#10b981';
+      biasCtx.fillText(isReverse ? '−' : '+', src_cx, src_cy - 6);
+      biasCtx.fillText(isReverse ? '+' : '−', src_cx, src_cy + 14);
+
+      biasCtx.font = 'bold 11px JetBrains Mono'; biasCtx.fillStyle = '#38bdf8';
+      biasCtx.fillText(`V_in = ${vin.toFixed(1)}V`, src_cx - 45, src_cy + 4);
+
+      // 2. Resistor R (Top Branch)
+      const r_cx = 280, r_cy = y1;
+      biasCtx.fillStyle = '#050b14'; biasCtx.fillRect(r_cx - 30, r_cy - 12, 60, 24);
+      biasCtx.strokeStyle = '#f59e0b'; biasCtx.lineWidth = 2;
+      biasCtx.beginPath();
+      biasCtx.moveTo(r_cx - 25, r_cy);
+      biasCtx.lineTo(r_cx - 18, r_cy - 8); biasCtx.lineTo(r_cx - 9, r_cy + 8);
+      biasCtx.lineTo(r_cx, r_cy - 8);      biasCtx.lineTo(r_cx + 9, r_cy + 8);
+      biasCtx.lineTo(r_cx + 18, r_cy - 8); biasCtx.lineTo(r_cx + 25, r_cy);
+      biasCtx.stroke();
+
+      biasCtx.font = 'bold 11px Sarabun'; biasCtx.fillStyle = '#94a3b8';
+      biasCtx.fillText(`R = ${state.bias.rload} Ω`, r_cx, r_cy - 15);
+      biasCtx.fillStyle = '#f59e0b';
+      biasCtx.fillText(`(V_R = ${state.bias.vr.toFixed(2)}V)`, r_cx, r_cy + 22);
+
+      // 3. Diode (Right Branch)
+      const d_cx = x2, d_cy = (y1 + y2) / 2;
+      biasCtx.fillStyle = '#050b14'; biasCtx.fillRect(d_cx - 25, d_cy - 28, 50, 56);
+
+      // Diode Symbol pointing downward: Anode top, Cathode bottom
+      biasCtx.strokeStyle = isCond ? '#10b981' : (isReverse ? '#f43f5e' : '#64748b');
+      biasCtx.lineWidth = 2;
+      // Triangle
+      biasCtx.fillStyle = isCond ? 'rgba(16,185,129,0.3)' : 'rgba(100,116,139,0.2)';
+      biasCtx.beginPath();
+      biasCtx.moveTo(d_cx - 14, d_cy - 12);
+      biasCtx.lineTo(d_cx + 14, d_cy - 12);
+      biasCtx.lineTo(d_cx, d_cy + 10);
+      biasCtx.closePath();
+      biasCtx.fill(); biasCtx.stroke();
+
+      // Cathode Bar line
+      biasCtx.beginPath();
+      biasCtx.moveTo(d_cx - 14, d_cy + 10);
+      biasCtx.lineTo(d_cx + 14, d_cy + 10);
+      biasCtx.stroke();
+
+      // Anode & Cathode pin labels
+      biasCtx.font = 'bold 10px JetBrains Mono';
+      biasCtx.fillStyle = '#ef4444'; biasCtx.fillText('A (Anode +)', d_cx + 42, d_cy - 10);
+      biasCtx.fillStyle = '#38bdf8'; biasCtx.fillText('K (Cathode −)', d_cx + 45, d_cy + 14);
+
+      biasCtx.font = 'bold 11px Sarabun'; biasCtx.fillStyle = '#10b981';
+      biasCtx.fillText(`V_D = ${state.bias.vd.toFixed(2)} V`, d_cx - 45, d_cy + 4);
+
+      // 4. Current Flow Particles / Direction Arrows
+      if (isCond) {
+        biasAnimOffset = (biasAnimOffset + 1.2) % 24;
+        biasCtx.fillStyle = '#fbbf24';
+        // Top wire arrows (flowing right)
+        for (let x = x1 + 25; x < x2 - 25; x += 36) {
+          const px = (x + biasAnimOffset);
+          if (px > x1 + 10 && px < x2 - 10) {
+            biasCtx.beginPath();
+            biasCtx.moveTo(px, y1 - 4); biasCtx.lineTo(px + 6, y1); biasCtx.lineTo(px, y1 + 4);
+            biasCtx.fill();
+          }
+        }
+        // Right wire arrows (flowing down)
+        for (let y = y1 + 20; y < y2 - 20; y += 36) {
+          const py = (y + biasAnimOffset);
+          if (py > y1 + 10 && py < y2 - 10) {
+            biasCtx.beginPath();
+            biasCtx.moveTo(x2 - 4, py); biasCtx.lineTo(x2, py + 6); biasCtx.lineTo(x2 + 4, py);
+            biasCtx.fill();
+          }
+        }
+        // Bottom wire arrows (flowing left)
+        for (let x = x2 - 25; x > x1 + 25; x -= 36) {
+          const px = (x - biasAnimOffset);
+          if (px > x1 + 10 && px < x2 - 10) {
+            biasCtx.beginPath();
+            biasCtx.moveTo(px, y2 - 4); biasCtx.lineTo(px - 6, y2); biasCtx.lineTo(px, y2 + 4);
+            biasCtx.fill();
+          }
+        }
+        // Left wire arrows (flowing up)
+        for (let y = y2 - 20; y > y1 + 20; y -= 36) {
+          const py = (y - biasAnimOffset);
+          if (py > y1 + 10 && py < y2 - 10) {
+            biasCtx.beginPath();
+            biasCtx.moveTo(x1 - 4, py); biasCtx.lineTo(x1, py - 6); biasCtx.lineTo(x1 + 4, py);
+            biasCtx.fill();
+          }
+        }
+
+        biasCtx.font = 'bold 11px JetBrains Mono'; biasCtx.fillStyle = '#fbbf24'; biasCtx.textAlign = 'center';
+        biasCtx.fillText(`กระแส I_D = ${state.bias.id_mA.toFixed(2)} mA (ตามเข็มนาฬิกา)`, (x1 + x2) / 2, (y1 + y2) / 2);
+      } else {
+        biasCtx.font = 'bold 11px JetBrains Mono'; biasCtx.fillStyle = '#64748b'; biasCtx.textAlign = 'center';
+        biasCtx.fillText('ไม่มีกระแสไหล (I_D = 0.00 mA)', (x1 + x2) / 2, (y1 + y2) / 2);
+      }
+
+      // Ground connection at bottom
+      biasCtx.strokeStyle = '#94a3b8'; biasCtx.lineWidth = 2;
+      biasCtx.beginPath();
+      biasCtx.moveTo((x1+x2)/2, y2); biasCtx.lineTo((x1+x2)/2, y2 + 15);
+      biasCtx.moveTo((x1+x2)/2 - 12, y2 + 15); biasCtx.lineTo((x1+x2)/2 + 12, y2 + 15);
+      biasCtx.moveTo((x1+x2)/2 - 7, y2 + 19); biasCtx.lineTo((x1+x2)/2 + 7, y2 + 19);
+      biasCtx.moveTo((x1+x2)/2 - 3, y2 + 23); biasCtx.lineTo((x1+x2)/2 + 3, y2 + 23);
+      biasCtx.stroke();
+    }
+
+    /* ================================================================= */
+    /* 1.2 REAL DIODE PACKAGES & CATHODE BAND IDENTIFIER                 */
+    /* ================================================================= */
+    function selectDiodePkg(pkg, btn) {
+      state.pkg.current = pkg;
+      ['btn-pkg-do41', 'btn-pkg-do35', 'btn-pkg-zener', 'btn-pkg-schottky', 'btn-pkg-smd', 'btn-pkg-led'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.remove('active');
+      });
+      if (btn) btn.classList.add('active');
+
+      const title = document.getElementById('pkg-display-title');
+      const badge = document.getElementById('pkg-type-badge');
+      const guideBox = document.getElementById('pkg-guide-box');
+
+      if (pkg === 'DO-41') {
+        title.textContent = '1N4007 (DO-41 Silicon Rectifier Diode)';
+        badge.textContent = 'DO-41 Plastic Package';
+        guideBox.innerHTML = 
+          `<strong>1N4007 (ตัวถัง DO-41 พลาสติกสีดำ):</strong><br>` +
+          `• <strong>แถบคาดสีเงิน/ขาว (Silver Stripe):</strong> อยู่ชิดฝั่งขั้ว <strong>Cathode (ขั้ว K หรือไฟลบ)</strong><br>` +
+          `• <strong>ฝั่งตรงข้ามแถบคาด:</strong> คือขั้ว <strong>Anode (ขั้ว A หรือไฟบวก)</strong><br>` +
+          `• <strong>พิกัดสำคัญ:</strong> รองรับกระแส I<sub>F</sub> = 1.0 A, ทนแรงดันย้อนกลับ V<sub>RRM</sub> = 1000 V, แรงดันตกคร่อม V<sub>F</sub> ≈ 0.7 V`;
+      } else if (pkg === 'DO-35') {
+        title.textContent = '1N4148 (DO-35 Glass Fast Switching Diode)';
+        badge.textContent = 'DO-35 Glass Package';
+        guideBox.innerHTML = 
+          `<strong>1N4148 (ตัวถัง DO-35 หลอดแก้วใสสีส้ม/แดง):</strong><br>` +
+          `• <strong>แถบคาดสีดำ (Black Stripe):</strong> อยู่ชิดฝั่งขั้ว <strong>Cathode (ขั้ว K หรือไฟลบ)</strong><br>` +
+          `• <strong>สารกึ่งตัวนำซิลิคอน:</strong> มองเห็นผลึกด้านในหลอดแก้ว<br>` +
+          `• <strong>พิกัดสำคัญ:</strong> ความเร็วสูง Switching Time = 4 ns, รองรับ I<sub>F</sub> = 150 mA, V<sub>RRM</sub> = 100 V`;
+      } else if (pkg === 'ZENER') {
+        title.textContent = 'BZX55C (DO-35 Glass Zener Diode)';
+        badge.textContent = 'Zener Regulator Diode';
+        guideBox.innerHTML = 
+          `<strong>ซีเนอร์ไดโอด (Zener Diode - DO-35 Glass):</strong><br>` +
+          `• <strong>แถบคาดสีดำ (Black Band):</strong> ระบุขั้ว <strong>Cathode (ขั้ว K)</strong><br>` +
+          `• <strong>การใช้งาน:</strong> ในวงจรควบคุมแรงดัน (Voltage Regulator) จะ <strong>ต่อแบบไบอัสกลับ (Reverse Bias)</strong> โดยจ่ายไฟบวกเข้าขั้ว Cathode เพื่อใช้งานที่แรงดันพังทลายคงที่ V<sub>Z</sub>`;
+      } else if (pkg === 'SCHOTTKY') {
+        title.textContent = '1N5819 (DO-41 Schottky Barrier Diode)';
+        badge.textContent = 'Schottky Low-Vf Diode';
+        guideBox.innerHTML = 
+          `<strong>1N5819 ช็อตต์กี้ไดโอด (DO-41 Metal-Semiconductor):</strong><br>` +
+          `• <strong>แถบคาดสีเงิน (Silver Stripe):</strong> ระบุขั้ว <strong>Cathode (ขั้ว K)</strong><br>` +
+          `• <strong>คุณสมบัติเด่น:</strong> มีแรงดันตกคร่อมต่ำมาก V<sub>F</sub> ≈ 0.35 V และสวิตชิ่งเร็วพิเศษ เหมาะกับวงจรสวิตชิ่งเพาเวอร์ซัพพลาย (SMPS)`;
+      } else if (pkg === 'SMD') {
+        title.textContent = 'SOD-123 / SMA (SMD Surface Mount Diode)';
+        badge.textContent = 'SMD Surface Mount Package';
+        guideBox.innerHTML = 
+          `<strong>ไดโอดแบบชิปติดผิวบอร์ด (SMD Diode - SOD-123 / SMA / SMB):</strong><br>` +
+          `• <strong>เส้นขีดสีขาว/รอยบากเลเซอร์ (Notch/White Line):</strong> พิมพ์อยู่บนตัวถังชิดขั้ว <strong>Cathode (K)</strong><br>` +
+          `• <strong>การบัดกรี:</strong> ขั้ว Cathode จะตรงกับขีดสกรีนบนแผ่นปริ้นต์ PCB`;
+      } else if (pkg === 'LED') {
+        title.textContent = '5mm Through-Hole LED (Light Emitting Diode)';
+        badge.textContent = '5mm Radial LED Package';
+        guideBox.innerHTML = 
+          `<strong>หลอดไดโอดเปล่งแสง 5mm (Radial LED):</strong><br>` +
+          `• <strong>ขั้ว Cathode (ขั้ว K / ลบ):</strong> ขาจะ <strong>สั้นกว่า (Shorter Lead)</strong> และมี <strong>รอยบากขอบเรียบ (Flat Edge)</strong> ที่ขอบโดมพลาสติก<br>` +
+          `• <strong>ขั้ว Anode (ขั้ว A / บวก):</strong> ขาจะ <strong>ยาวกว่า (Longer Lead)</strong><br>` +
+          `• <strong>ด้านในหลอด:</strong> ขั้วแผ่นโลหะขนาดใหญ่ด้านในคือ Cathode, แผ่นเล็กคือ Anode`;
+      }
+
+      drawDiodePackageCanvas();
+      playSound('click');
+    }
+
+    function drawDiodePackageCanvas() {
+      if (!pkgCtx) return;
+      const W = pkgCanvas.width, H = pkgCanvas.height;
+      pkgCtx.clearRect(0, 0, W, H);
+      pkgCtx.fillStyle = '#050b14'; pkgCtx.fillRect(0, 0, W, H);
+
+      const pkg = state.pkg.current;
+      const cx = W / 2, cy = 110;
+
+      if (pkg === 'DO-41' || pkg === 'SCHOTTKY') {
+        // DO-41 Black Plastic Body
+        // Left Metal Lead (Anode)
+        pkgCtx.strokeStyle = '#94a3b8'; pkgCtx.lineWidth = 6;
+        pkgCtx.beginPath(); pkgCtx.moveTo(cx - 220, cy); pkgCtx.lineTo(cx - 100, cy); pkgCtx.stroke();
+        // Right Metal Lead (Cathode)
+        pkgCtx.beginPath(); pkgCtx.moveTo(cx + 100, cy); pkgCtx.lineTo(cx + 220, cy); pkgCtx.stroke();
+
+        // Main Diode Cylindrical Body
+        const bw = 200, bh = 54;
+        pkgCtx.fillStyle = '#1e2430';
+        pkgCtx.beginPath();
+        pkgCtx.roundRect(cx - bw/2, cy - bh/2, bw, bh, 8);
+        pkgCtx.fill();
+        pkgCtx.strokeStyle = '#334155'; pkgCtx.lineWidth = 2.5; pkgCtx.stroke();
+
+        // Cylindrical Specular Highlight
+        const grad = pkgCtx.createLinearGradient(cx - bw/2, cy - bh/2, cx - bw/2, cy + bh/2);
+        grad.addColorStop(0, 'rgba(255,255,255,0.15)');
+        grad.addColorStop(0.3, 'rgba(255,255,255,0.0)');
+        grad.addColorStop(0.8, 'rgba(0,0,0,0.5)');
+        pkgCtx.fillStyle = grad;
+        pkgCtx.beginPath();
+        pkgCtx.roundRect(cx - bw/2, cy - bh/2, bw, bh, 8);
+        pkgCtx.fill();
+
+        // Cathode Silver Band (Right Side)
+        const stripeW = 22;
+        const stripeX = cx + bw/2 - 38;
+        pkgCtx.fillStyle = '#e2e8f0';
+        pkgCtx.fillRect(stripeX, cy - bh/2, stripeW, bh);
+        pkgCtx.strokeStyle = '#cbd5e1'; pkgCtx.lineWidth = 1; pkgCtx.strokeRect(stripeX, cy - bh/2, stripeW, bh);
+
+        // Part Number Print
+        pkgCtx.font = 'bold 13px JetBrains Mono'; pkgCtx.fillStyle = '#94a3b8'; pkgCtx.textAlign = 'center';
+        pkgCtx.fillText(pkg === 'SCHOTTKY' ? '1N5819' : '1N4007', cx - 25, cy + 5);
+
+        // Annotations & Glowing Callouts
+        drawCallout(pkgCtx, stripeX + stripeW/2, cy - bh/2 - 8, 'แถบคาดสีเงิน = ขั้ว Cathode (K/ลบ)', '#38bdf8', 'top');
+        drawCallout(pkgCtx, cx - 160, cy + 10, 'ขา Anode (A/บวก)', '#ef4444', 'bottom');
+        drawCallout(pkgCtx, cx + 160, cy + 10, 'ขา Cathode (K/ลบ)', '#38bdf8', 'bottom');
+
+      } else if (pkg === 'DO-35' || pkg === 'ZENER') {
+        // DO-35 Glass Body
+        pkgCtx.strokeStyle = '#cbd5e1'; pkgCtx.lineWidth = 5;
+        pkgCtx.beginPath(); pkgCtx.moveTo(cx - 200, cy); pkgCtx.lineTo(cx - 75, cy); pkgCtx.stroke();
+        pkgCtx.beginPath(); pkgCtx.moveTo(cx + 75, cy); pkgCtx.lineTo(cx + 200, cy); pkgCtx.stroke();
+
+        // Inner Copper slug & Silicon Die
+        pkgCtx.fillStyle = '#ea580c';
+        pkgCtx.fillRect(cx - 45, cy - 10, 90, 20);
+
+        // Glass Outer Shell
+        const bw = 150, bh = 42;
+        pkgCtx.fillStyle = 'rgba(251, 146, 60, 0.35)';
+        pkgCtx.beginPath();
+        pkgCtx.roundRect(cx - bw/2, cy - bh/2, bw, bh, 12);
+        pkgCtx.fill();
+        pkgCtx.strokeStyle = 'rgba(253, 186, 116, 0.8)'; pkgCtx.lineWidth = 2.5; pkgCtx.stroke();
+
+        // Glass Shine
+        pkgCtx.fillStyle = 'rgba(255,255,255,0.4)';
+        pkgCtx.fillRect(cx - bw/2 + 10, cy - bh/2 + 4, bw - 20, 6);
+
+        // Black Cathode Band
+        const stripeW = 18;
+        const stripeX = cx + bw/2 - 32;
+        pkgCtx.fillStyle = '#0f172a';
+        pkgCtx.fillRect(stripeX, cy - bh/2, stripeW, bh);
+
+        pkgCtx.font = 'bold 12px JetBrains Mono'; pkgCtx.fillStyle = '#0f172a'; pkgCtx.textAlign = 'center';
+        pkgCtx.fillText(pkg === 'ZENER' ? 'BZX55' : '1N4148', cx - 15, cy + 4);
+
+        drawCallout(pkgCtx, stripeX + stripeW/2, cy - bh/2 - 8, 'แถบคาดสีดำ = ขั้ว Cathode (K/ลบ)', '#38bdf8', 'top');
+        drawCallout(pkgCtx, cx - 140, cy + 10, 'ขา Anode (A/บวก)', '#ef4444', 'bottom');
+        drawCallout(pkgCtx, cx + 140, cy + 10, 'ขา Cathode (K/ลบ)', '#38bdf8', 'bottom');
+
+      } else if (pkg === 'SMD') {
+        // SMD Surface Mount Package
+        const bw = 180, bh = 60;
+        // Metal Soldering End Caps
+        pkgCtx.fillStyle = '#cbd5e1';
+        pkgCtx.fillRect(cx - bw/2 - 20, cy - bh/2 + 6, 20, bh - 12);
+        pkgCtx.fillRect(cx + bw/2, cy - bh/2 + 6, 20, bh - 12);
+
+        // Black Molded Epoxy Body
+        pkgCtx.fillStyle = '#1e293b';
+        pkgCtx.fillRect(cx - bw/2, cy - bh/2, bw, bh);
+        pkgCtx.strokeStyle = '#475569'; pkgCtx.lineWidth = 2; pkgCtx.strokeRect(cx - bw/2, cy - bh/2, bw, bh);
+
+        // White Cathode Line Stripe
+        const stripeW = 14;
+        const stripeX = cx + bw/2 - 28;
+        pkgCtx.fillStyle = '#ffffff';
+        pkgCtx.fillRect(stripeX, cy - bh/2 + 4, stripeW, bh - 8);
+
+        pkgCtx.font = 'bold 14px JetBrains Mono'; pkgCtx.fillStyle = '#94a3b8'; pkgCtx.textAlign = 'center';
+        pkgCtx.fillText('SS14 / M7', cx - 20, cy + 5);
+
+        drawCallout(pkgCtx, stripeX + stripeW/2, cy - bh/2 - 8, 'เส้นขีดสีขาว = ขั้ว Cathode (K/ลบ)', '#38bdf8', 'top');
+        drawCallout(pkgCtx, cx - bw/2 - 10, cy + bh/2 + 12, 'Pad Anode (+)', '#ef4444', 'bottom');
+        drawCallout(pkgCtx, cx + bw/2 + 10, cy + bh/2 + 12, 'Pad Cathode (−)', '#38bdf8', 'bottom');
+
+      } else if (pkg === 'LED') {
+        // 5mm LED Package
+        const r = 36;
+        // Epoxy Dome Body (Red Translucent)
+        pkgCtx.fillStyle = 'rgba(239, 68, 68, 0.45)';
+        pkgCtx.beginPath();
+        pkgCtx.arc(cx, cy - 10, r, Math.PI, 0); // Top Dome
+        pkgCtx.lineTo(cx + r, cy + 24);
+        pkgCtx.lineTo(cx - r, cy + 24);
+        pkgCtx.closePath();
+        pkgCtx.fill();
+        pkgCtx.strokeStyle = '#ef4444'; pkgCtx.lineWidth = 2.5; pkgCtx.stroke();
+
+        // Flat Edge Notch on Right (Cathode)
+        pkgCtx.fillStyle = '#b91c1c';
+        pkgCtx.fillRect(cx + r - 5, cy + 12, 6, 14);
+
+        // Leads: Anode (Left - Long), Cathode (Right - Short)
+        pkgCtx.strokeStyle = '#cbd5e1'; pkgCtx.lineWidth = 4;
+        // Anode Long Lead
+        pkgCtx.beginPath(); pkgCtx.moveTo(cx - 16, cy + 24); pkgCtx.lineTo(cx - 16, cy + 100); pkgCtx.stroke();
+        // Cathode Short Lead
+        pkgCtx.beginPath(); pkgCtx.moveTo(cx + 16, cy + 24); pkgCtx.lineTo(cx + 16, cy + 70); pkgCtx.stroke();
+
+        drawCallout(pkgCtx, cx + r + 15, cy + 18, 'ขอบบากเรียบ (Flat Notch) = Cathode (K)', '#38bdf8', 'right');
+        drawCallout(pkgCtx, cx - 16, cy + 105, 'ขายาว = Anode (A/+)', '#ef4444', 'bottom');
+        drawCallout(pkgCtx, cx + 16, cy + 75, 'ขาสั้น = Cathode (K/−)', '#38bdf8', 'bottom');
+      }
+
+      // Schematic Symbol Overlay (Bottom Row)
+      const symY = 230;
+      pkgCtx.strokeStyle = '#475569'; pkgCtx.lineWidth = 2;
+      pkgCtx.beginPath();
+      pkgCtx.moveTo(cx - 140, symY); pkgCtx.lineTo(cx + 140, symY);
+      pkgCtx.stroke();
+
+      // Diode Triangle & Bar Symbol
+      pkgCtx.fillStyle = 'rgba(6, 182, 212, 0.25)';
+      pkgCtx.strokeStyle = '#06b6d4'; pkgCtx.lineWidth = 2;
+      pkgCtx.beginPath();
+      pkgCtx.moveTo(cx - 20, symY - 14);
+      pkgCtx.lineTo(cx + 14, symY);
+      pkgCtx.lineTo(cx - 20, symY + 14);
+      pkgCtx.closePath();
+      pkgCtx.fill(); pkgCtx.stroke();
+
+      pkgCtx.beginPath();
+      pkgCtx.moveTo(cx + 14, symY - 14);
+      pkgCtx.lineTo(cx + 14, symY + 14);
+      pkgCtx.stroke();
+
+      pkgCtx.font = 'bold 11px JetBrains Mono';
+      pkgCtx.fillStyle = '#ef4444'; pkgCtx.textAlign = 'right';
+      pkgCtx.fillText('Anode (A) [บวก] ────', cx - 25, symY + 4);
+      pkgCtx.fillStyle = '#38bdf8'; pkgCtx.textAlign = 'left';
+      pkgCtx.fillText('──── Cathode (K) [ลบ]', cx + 22, symY + 4);
+    }
+
+    function drawCallout(ctx, x, y, text, color='#38bdf8', align='top') {
+      ctx.font = 'bold 10px Sarabun';
+      ctx.fillStyle = color;
+      if (align === 'top') {
+        ctx.textAlign = 'center';
+        ctx.fillText(text, x, y);
+      } else if (align === 'bottom') {
+        ctx.textAlign = 'center';
+        ctx.fillText(text, x, y + 14);
+      } else if (align === 'right') {
+        ctx.textAlign = 'left';
+        ctx.fillText(text, x + 8, y + 4);
+      }
+      ctx.textAlign = 'left';
+    }
+
+    /* ================================================================= */
+    /* 2. TAB 1: PN JUNCTION SIMULATION ENGINE                           */
+    /* ================================================================= */
+    const pnCanvas = document.getElementById('canvas-pn');
+    const pnCtx = pnCanvas.getContext('2d');
+
+    // Init Particles
+    function initPnParticles() {
+      state.pn.particles = [];
+      const numP = 40;
+      // P-region (Holes - Red)
+      for (let i = 0; i < numP; i++) {
+        state.pn.particles.push({
+          type: 'hole',
+          x: Math.random() * (pnCanvas.width * 0.42),
+          y: 60 + Math.random() * (pnCanvas.height - 120),
+          vx: (Math.random() - 0.5) * 0.8,
+          vy: (Math.random() - 0.5) * 0.8
+        });
+      }
+      // N-region (Electrons - Blue)
+      for (let i = 0; i < numP; i++) {
+        state.pn.particles.push({
+          type: 'electron',
+          x: pnCanvas.width * 0.58 + Math.random() * (pnCanvas.width * 0.4),
+          y: 60 + Math.random() * (pnCanvas.height - 120),
+          vx: (Math.random() - 0.5) * 0.8,
+          vy: (Math.random() - 0.5) * 0.8
+        });
+      }
+    }
+
+    function onMaterialChange() {
+      const mat = document.getElementById('pn-material-select').value;
+      state.pn.material = mat;
+      let barrier = 0.70;
+      let name = 'Silicon (Si)';
+      if (mat === 'germanium') { barrier = 0.30; name = 'Germanium (Ge)'; }
+      else if (mat === 'schottky') { barrier = 0.25; name = 'Schottky Barrier'; }
+      else if (mat === 'led_red') { barrier = 1.80; name = 'GaAsP Red LED'; }
+      else if (mat === 'led_blue') { barrier = 3.00; name = 'InGaN Blue LED'; }
+      state.pn.barrierV = barrier;
+      document.getElementById('pn-barrier-display').innerHTML = barrier.toFixed(2) + ' <span class="readout-unit">V</span>';
+      calculatePnState();
+      playSound('click');
+    }
+
+    function onPnVoltageChange(val) {
+      state.pn.voltage = parseFloat(val);
+      document.getElementById('slider-voltage-badge').textContent = (state.pn.voltage >= 0 ? '+' : '') + state.pn.voltage.toFixed(2) + ' V';
+      calculatePnState();
+    }
+
+    function setPnVoltage(val) {
+      document.getElementById('slider-pn-voltage').value = val;
+      onPnVoltageChange(val);
+      playSound('click');
+    }
+
+    function calculatePnState() {
+      const V = state.pn.voltage;
+      const Vb = state.pn.barrierV;
+      
+      // Calculate depletion width factor
+      let w = 1.0;
+      if (V < 0) {
+        w = 1.0 + Math.sqrt(Math.abs(V)) * 0.6; // Widens in reverse bias
+      } else {
+        w = Math.max(0.05, 1.0 - (V / Vb) * 0.95); // Narrows in forward bias
+      }
+      state.pn.depletionW = w;
+
+      // Calculate forward current
+      let I = 0.0;
+      if (V > 0) {
+        if (V >= Vb) {
+          I = (V - Vb) * 45.0 + 0.5; // Steep linear conduction above barrier
+        } else {
+          I = 0.0001 * Math.exp((V / Vb) * 8.0);
+        }
+      } else {
+        I = -0.00001; // Tiny reverse leakage
+      }
+      state.pn.current_mA = Math.max(0, I);
+
+      // Update UI
+      document.getElementById('pn-vbias-display').innerHTML = (V >= 0 ? '+' : '') + V.toFixed(2) + ' <span class="readout-unit">V</span>';
+      document.getElementById('pn-depletion-display').innerHTML = w.toFixed(2) + ' <span class="readout-unit">μm</span>';
+      document.getElementById('pn-current-display').innerHTML = (I >= 1000 ? (I/1000).toFixed(2) + ' <span class="readout-unit">A</span>' : I.toFixed(2) + ' <span class="readout-unit">mA</span>');
+
+      const badge = document.getElementById('bias-state-badge');
+      const desc = document.getElementById('pn-theory-desc');
+      if (V > 0.1) {
+        badge.className = 'status-badge connected';
+        badge.innerHTML = '<i class="fa-solid fa-arrow-right-arrow-left"></i> ไบแอสตรง (Forward Bias)';
+        desc.innerHTML = `<strong>ไบแอสตรง (Forward Bias):</strong> แรงดันบวกผลักให้โฮล และแรงดันลบผลักให้อิเล็กตรอนเคลื่อนที่เข้าหากัน <strong>รอยพร่องประจุแคบลง (W_d = ${w.toFixed(2)} μm)</strong> เมื่อแรงดันเกินแรงดันกั้น ${Vb.toFixed(2)}V พาหะจะข้ามรอยต่อได้อย่างอิสระ เกิดกระแสไหล <strong>${I.toFixed(2)} mA</strong>`;
+      } else if (V < -0.1) {
+        badge.className = 'status-badge';
+        badge.style.borderColor = '#f43f5e';
+        badge.style.color = '#f43f5e';
+        badge.innerHTML = '<i class="fa-solid fa-hand"></i> ไบแอสกลับ (Reverse Bias)';
+        desc.innerHTML = `<strong>ไบแอสกลับ (Reverse Bias):</strong> ขั้วไฟฟ้าภายนอกดึงดูดพาหะประจุออกจากรอยต่อ ทำให้<strong>บริเวณรอยพร่องประจุกว้างขึ้น (W_d = ${w.toFixed(2)} μm)</strong> กำแพงศักย์สูงขึ้น กระแสไม่สามารถไหลผ่านได้ (มีเพียงกระแสรั่วไหลเล็กน้อยในระดับ nA)`;
+      } else {
+        badge.className = 'status-badge';
+        badge.style.borderColor = 'rgba(245, 158, 11, 0.25)';
+        badge.style.color = '#fbbf24';
+        badge.innerHTML = '<i class="fa-solid fa-minus"></i> ไบแอสศูนย์ (Zero Bias - Equilibrium)';
+        desc.innerHTML = `<strong>ไบแอสศูนย์ (Zero Bias):</strong> สารกึ่งตัวนำอยู่ในภาวะสมดุลทางความร้อน มีสนามไฟฟ้าภายในต้านทานการแพร่ของพาหะ เกิดรอยพร่องประจุกว้างปกติ (${w.toFixed(2)} μm) ไม่มีกระแสไหล`;
+      }
+    }
+
+    function renderPnCanvas() {
+      pnCtx.clearRect(0, 0, pnCanvas.width, pnCanvas.height);
+      const W = pnCanvas.width;
+      const H = pnCanvas.height;
+      const midX = W / 2;
+      const depHalfWidth = 60 * state.pn.depletionW;
+
+      // P-Region Background
+      pnCtx.fillStyle = 'rgba(244, 63, 94, 0.12)';
+      pnCtx.fillRect(30, 40, midX - 30, H - 80);
+
+      // N-Region Background
+      pnCtx.fillStyle = 'rgba(59, 130, 246, 0.12)';
+      pnCtx.fillRect(midX, 40, midX - 30, H - 80);
+
+      // Depletion Region
+      pnCtx.fillStyle = 'rgba(234, 179, 8, 0.22)';
+      pnCtx.fillRect(midX - depHalfWidth, 40, depHalfWidth * 2, H - 80);
+
+      // Borders and divider
+      pnCtx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+      pnCtx.lineWidth = 2;
+      pnCtx.strokeRect(30, 40, W - 60, H - 80);
+
+      pnCtx.setLineDash([4, 4]);
+      pnCtx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+      pnCtx.beginPath();
+      pnCtx.moveTo(midX, 40);
+      pnCtx.lineTo(midX, H - 40);
+      pnCtx.stroke();
+      pnCtx.setLineDash([]);
+
+      // Section Labels
+      pnCtx.font = 'bold 16px Sarabun, sans-serif';
+      pnCtx.fillStyle = '#f43f5e';
+      pnCtx.fillText('P-Type (Anode +)', 50, 70);
+      pnCtx.font = '12px Sarabun, sans-serif';
+      pnCtx.fillStyle = '#cbd5e1';
+      pnCtx.fillText('Majority: Holes (โฮล)', 50, 90);
+
+      pnCtx.font = 'bold 16px Sarabun, sans-serif';
+      pnCtx.fillStyle = '#38bdf8';
+      pnCtx.fillText('N-Type (Cathode -)', W - 180, 70);
+      pnCtx.font = '12px Sarabun, sans-serif';
+      pnCtx.fillStyle = '#cbd5e1';
+      pnCtx.fillText('Majority: Electrons (อิเล็กตรอน)', W - 180, 90);
+
+      // Depletion Label
+      pnCtx.font = 'bold 13px Sarabun, sans-serif';
+      pnCtx.fillStyle = '#eab308';
+      pnCtx.textAlign = 'center';
+      pnCtx.fillText('Depletion Region (บริเวณรอยพร่อง)', midX, 30);
+      pnCtx.fillText(`Barrier Potential: ~${state.pn.barrierV.toFixed(2)}V`, midX, H - 15);
+      pnCtx.textAlign = 'left';
+
+      // Anode & Cathode Metal Electrodes
+      pnCtx.fillStyle = '#64748b';
+      pnCtx.fillRect(15, 80, 15, H - 160);
+      pnCtx.fillRect(W - 30, 80, 15, H - 160);
+
+      // Particle Dynamics
+      const speedMult = state.pn.voltage > state.pn.barrierV ? (1 + (state.pn.voltage - state.pn.barrierV) * 3) : 1;
+      const driftX = state.pn.voltage > 0 ? (state.pn.voltage / state.pn.barrierV) * 1.5 : (state.pn.voltage * 0.8);
+
+      state.pn.particles.forEach(p => {
+        // Update physics
+        p.x += p.vx * speedMult + (p.type === 'hole' ? driftX : -driftX);
+        p.y += p.vy;
+
+        // Bounce within boundaries
+        if (p.type === 'hole') {
+          if (p.x < 40) p.x = 40;
+          if (state.pn.voltage < state.pn.barrierV && p.x > midX - depHalfWidth) {
+            p.x = midX - depHalfWidth;
+            p.vx = -Math.abs(p.vx);
+          }
+          if (p.x > W - 40) p.x = 40; // Recirculate when conducting
+        } else {
+          if (p.x > W - 40) p.x = W - 40;
+          if (state.pn.voltage < state.pn.barrierV && p.x < midX + depHalfWidth) {
+            p.x = midX + depHalfWidth;
+            p.vx = Math.abs(p.vx);
+          }
+          if (p.x < 40) p.x = W - 40; // Recirculate
+        }
+
+        if (p.y < 55) { p.y = 55; p.vy *= -1; }
+        if (p.y > H - 55) { p.y = H - 55; p.vy *= -1; }
+
+        // Draw particle
+        pnCtx.beginPath();
+        pnCtx.arc(p.x, p.y, p.type === 'hole' ? 6 : 4.5, 0, Math.PI * 2);
+        if (p.type === 'hole') {
+          pnCtx.fillStyle = '#f43f5e';
+          pnCtx.fill();
+          pnCtx.strokeStyle = '#ffffff';
+          pnCtx.lineWidth = 1;
+          pnCtx.stroke();
+          // '+' sign
+          pnCtx.fillStyle = '#ffffff';
+          pnCtx.font = 'bold 8px Outfit, sans-serif';
+          pnCtx.textAlign = 'center';
+          pnCtx.textBaseline = 'middle';
+          pnCtx.fillText('+', p.x, p.y);
+        } else {
+          pnCtx.fillStyle = '#38bdf8';
+          pnCtx.fill();
+          pnCtx.fillStyle = '#ffffff';
+          pnCtx.font = 'bold 8px Outfit, sans-serif';
+          pnCtx.textAlign = 'center';
+          pnCtx.textBaseline = 'middle';
+          pnCtx.fillText('-', p.x, p.y);
+        }
+      });
+      pnCtx.textAlign = 'left';
+      pnCtx.textBaseline = 'alphabetic';
+    }
+
+    /* ================================================================= */
+    /* 3. TAB 2: I-V CURVE GRAPH ENGINE                                  */
+    /* ================================================================= */
+    const ivCanvas = document.getElementById('canvas-iv');
+    const ivCtx = ivCanvas.getContext('2d');
+
+    const DIODE_MODELS = {
+      '1N4007':    { name: '1N4007', Is: 1e-9, n: 1.5, Vbr: 1000, Vth: 0.70, color: '#06b6d4', isZener: false },
+      '1N4148':    { name: '1N4148', Is: 5e-9, n: 1.3, Vbr: 100,  Vth: 0.65, color: '#38bdf8', isZener: false },
+      '1N34A':     { name: '1N34A',  Is: 1e-6, n: 1.1, Vbr: 60,   Vth: 0.28, color: '#f59e0b', isZener: false },
+      '1N5819':    { name: '1N5819', Is: 2e-7, n: 1.05, Vbr: 40,  Vth: 0.35, color: '#10b981', isZener: false },
+      'BZX55C3V3': { name: 'Zener 3.3V', Is: 1e-8, n: 1.4, Vbr: 3.3, Vth: 0.70, color: '#a855f7', isZener: true },
+      'BZX55C5V1': { name: 'Zener 5.1V', Is: 1e-8, n: 1.4, Vbr: 5.1, Vth: 0.70, color: '#a855f7', isZener: true },
+      'BZX55C9V1': { name: 'Zener 9.1V', Is: 1e-8, n: 1.4, Vbr: 9.1, Vth: 0.70, color: '#a855f7', isZener: true },
+      'BZX55C12':  { name: 'Zener 12V',  Is: 1e-8, n: 1.4, Vbr: 12.0, Vth: 0.70, color: '#a855f7', isZener: true },
+      'LED_RED':   { name: 'LED Red', Is: 1e-12, n: 1.8, Vbr: 5.0, Vth: 1.80, color: '#ef4444', isZener: false },
+      'LED_GREEN': { name: 'LED Green', Is: 1e-13, n: 2.0, Vbr: 5.0, Vth: 2.20, color: '#22c55e', isZener: false },
+      'LED_BLUE':  { name: 'LED Blue', Is: 1e-14, n: 2.2, Vbr: 5.0, Vth: 3.00, color: '#3b82f6', isZener: false },
+      'LED_WHITE': { name: 'LED White', Is: 1e-14, n: 2.2, Vbr: 5.0, Vth: 3.20, color: '#ffffff', isZener: false }
+    };
+
+    function onIvModelChange() {
+      state.iv.model = document.getElementById('iv-diode-model').value;
+      onIvCircuitParamChange();
+      playSound('click');
+    }
+
+    function onIvCircuitParamChange() {
+      state.iv.vcc = parseFloat(document.getElementById('slider-iv-vcc').value);
+      state.iv.rload = parseFloat(document.getElementById('slider-iv-rload').value);
+      state.iv.temp = parseFloat(document.getElementById('slider-iv-temp').value);
+
+      document.getElementById('iv-vcc-badge').textContent = state.iv.vcc.toFixed(1) + ' V';
+      document.getElementById('iv-rload-badge').textContent = state.iv.rload.toFixed(0) + ' Ω';
+      document.getElementById('iv-temp-badge').textContent = state.iv.temp.toFixed(0) + ' °C';
+
+      calculateIvQPoint();
+    }
+
+    function calculateIvQPoint() {
+      const model = DIODE_MODELS[state.iv.model] || DIODE_MODELS['1N4007'];
+      const Vcc = state.iv.vcc;
+      const R = state.iv.rload;
+      const T = state.iv.temp + 273.15;
+      const Vt = (1.38e-23 * T) / 1.6e-19; // ~0.026V at 25C
+      
+      // Temperature adjustment on Vth
+      const tempDelta = state.iv.temp - 25;
+      const effectiveVth = model.Vth - (tempDelta * 0.002); // -2mV / deg C
+
+      // Numerical solution for Q-Point intersection between Diode curve and Load line
+      // I_D = (Vcc - V_D) / R
+      let low = 0.0, high = Vcc, vd = effectiveVth;
+      for (let iter = 0; iter < 40; iter++) {
+        vd = (low + high) / 2;
+        const i_load = (Vcc - vd) / R; // Amperes
+        
+        // Diode equation
+        let i_diode = model.Is * (Math.exp(vd / (model.n * Vt)) - 1);
+        if (i_diode > 2.0) i_diode = 2.0;
+
+        if (i_diode < i_load) {
+          low = vd;
+        } else {
+          high = vd;
+        }
+      }
+
+      if (Vcc <= 0.05) vd = 0;
+      const id_mA = Math.max(0, ((Vcc - vd) / R) * 1000);
+      const pd_mW = vd * id_mA;
+      const rd = id_mA > 0.1 ? (26 / id_mA) : 9999;
+
+      state.iv.vd = vd;
+      state.iv.id_mA = id_mA;
+      state.iv.pd_mW = pd_mW;
+      state.iv.rd_ohm = rd;
+
+      // Update UI
+      document.getElementById('iv-qpoint-badge').textContent = `Q-Point: (${vd.toFixed(2)}V, ${id_mA.toFixed(1)}mA)`;
+      document.getElementById('iv-vd-display').innerHTML = vd.toFixed(2) + ' <span class="readout-unit">V</span>';
+      document.getElementById('iv-id-display').innerHTML = id_mA.toFixed(1) + ' <span class="readout-unit">mA</span>';
+      document.getElementById('iv-pd-display').innerHTML = pd_mW.toFixed(1) + ' <span class="readout-unit">mW</span>';
+      document.getElementById('iv-rd-display').innerHTML = (rd > 1000 ? '> 1k' : rd.toFixed(2)) + ' <span class="readout-unit">Ω</span>';
+    }
+
+    function renderIvCanvas() {
+      ivCtx.clearRect(0, 0, ivCanvas.width, ivCanvas.height);
+      const W = ivCanvas.width;
+      const H = ivCanvas.height;
+      const originX = W * 0.45;
+      const originY = H * 0.75;
+
+      const scaleV = 80;   // pixels per Volt
+      const scaleI = 4.5;  // pixels per mA
+
+      // Grid
+      ivCtx.strokeStyle = 'rgba(255, 255, 255, 0.06)';
+      ivCtx.lineWidth = 1;
+      for (let x = originX; x < W; x += scaleV * 0.5) {
+        ivCtx.beginPath(); ivCtx.moveTo(x, 20); ivCtx.lineTo(x, H - 20); ivCtx.stroke();
+      }
+      for (let x = originX; x > 20; x -= scaleV * 0.5) {
+        ivCtx.beginPath(); ivCtx.moveTo(x, 20); ivCtx.lineTo(x, H - 20); ivCtx.stroke();
+      }
+      for (let y = originY; y > 20; y -= 30) {
+        ivCtx.beginPath(); ivCtx.moveTo(20, y); ivCtx.lineTo(W - 20, y); ivCtx.stroke();
+      }
+      for (let y = originY; y < H - 20; y += 30) {
+        ivCtx.beginPath(); ivCtx.moveTo(20, y); ivCtx.lineTo(W - 20, y); ivCtx.stroke();
+      }
+
+      // X and Y Axes
+      ivCtx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+      ivCtx.lineWidth = 2;
+      // X Axis
+      ivCtx.beginPath();
+      ivCtx.moveTo(20, originY);
+      ivCtx.lineTo(W - 20, originY);
+      ivCtx.stroke();
+      // Y Axis
+      ivCtx.beginPath();
+      ivCtx.moveTo(originX, 20);
+      ivCtx.lineTo(originX, H - 20);
+      ivCtx.stroke();
+
+      // Axis Labels
+      ivCtx.font = 'bold 12px JetBrains Mono, monospace';
+      ivCtx.fillStyle = '#cbd5e1';
+      ivCtx.fillText('+V_D (V)', W - 75, originY - 8);
+      ivCtx.fillText('-V_R (V)', 25, originY - 8);
+      ivCtx.fillText('+I_F (mA)', originX + 10, 35);
+      ivCtx.fillText('-I_R (μA)', originX + 10, H - 25);
+
+      const model = DIODE_MODELS[state.iv.model] || DIODE_MODELS['1N4007'];
+
+      // Plot Diode I-V Curve
+      ivCtx.strokeStyle = model.color;
+      ivCtx.lineWidth = 3;
+      ivCtx.beginPath();
+
+      const T = state.iv.temp + 273.15;
+      const Vt = (1.38e-23 * T) / 1.6e-19;
+      const tempDelta = state.iv.temp - 25;
+      const effectiveVth = model.Vth - (tempDelta * 0.002);
+
+      let firstPoint = true;
+      // Reverse bias region
+      for (let v = -4.0; v <= 0; v += 0.05) {
+        let i_mA = -0.001;
+        if (model.isZener && v <= -model.Vbr) {
+          i_mA = -Math.pow(Math.abs(v) - model.Vbr, 2) * 50 - 0.5; // Steep zener breakdown
+        }
+        const px = originX + v * scaleV;
+        const py = originY - i_mA * scaleI;
+        if (firstPoint) { ivCtx.moveTo(px, py); firstPoint = false; }
+        else { ivCtx.lineTo(px, Math.min(H - 20, Math.max(20, py))); }
+      }
+
+      // Forward bias region
+      for (let v = 0; v <= 4.0; v += 0.02) {
+        let i_mA = 0;
+        if (v < effectiveVth) {
+          i_mA = model.Is * 1000 * (Math.exp(v / (model.n * Vt)) - 1);
+        } else {
+          i_mA = model.Is * 1000 * (Math.exp(effectiveVth / (model.n * Vt)) - 1) + ((v - effectiveVth) * 70);
+        }
+        const px = originX + v * scaleV;
+        const py = originY - i_mA * scaleI;
+        ivCtx.lineTo(px, Math.max(20, py));
+        if (py <= 20) break;
+      }
+      ivCtx.stroke();
+
+      // Plot DC Load Line: I = (Vcc - V) / R
+      const Vcc = state.iv.vcc;
+      const R = state.iv.rload;
+      const I_max_mA = (Vcc / R) * 1000;
+
+      const p1x = originX;
+      const p1y = originY - I_max_mA * scaleI;
+      const p2x = originX + Vcc * scaleV;
+      const p2y = originY;
+
+      ivCtx.strokeStyle = '#f43f5e';
+      ivCtx.lineWidth = 2;
+      ivCtx.setLineDash([6, 4]);
+      ivCtx.beginPath();
+      ivCtx.moveTo(p1x, Math.max(20, p1y));
+      ivCtx.lineTo(p2x, p2y);
+      ivCtx.stroke();
+      ivCtx.setLineDash([]);
+
+      // Draw Q-Point Dot
+      const qx = originX + state.iv.vd * scaleV;
+      const qy = originY - state.iv.id_mA * scaleI;
+
+      if (qx >= 20 && qx <= W - 20 && qy >= 20 && qy <= H - 20) {
+        ivCtx.fillStyle = '#ffffff';
+        ivCtx.beginPath();
+        ivCtx.arc(qx, qy, 6, 0, Math.PI * 2);
+        ivCtx.fill();
+        ivCtx.strokeStyle = '#f43f5e';
+        ivCtx.lineWidth = 3;
+        ivCtx.stroke();
+
+        // Q-Point text annotation
+        ivCtx.font = 'bold 12px JetBrains Mono, monospace';
+        ivCtx.fillStyle = '#ffffff';
+        ivCtx.fillText(`Q (${state.iv.vd.toFixed(2)}V, ${state.iv.id_mA.toFixed(1)}mA)`, qx + 10, qy - 10);
+      }
+    }
+
+    /* ================================================================= */
+    /* 4. TAB 3: VIRTUAL DIODE CIRCUIT LAB ENGINE (SCHEMATICS & SCOPE)   */
+    /* ================================================================= */
+    const schematicCanvas = document.getElementById('canvas-schematic');
+    const schematicCtx = schematicCanvas.getContext('2d');
+    const circuitCanvas = document.getElementById('canvas-circuit');
+    const circuitCtx = circuitCanvas.getContext('2d');
+
+    function switchCircuitMode(mode) {
+      state.circuit.mode = mode;
+      document.querySelectorAll('#tab-circuits .pill-btn').forEach(b => b.classList.remove('active'));
+      const activeBtn = Array.from(document.querySelectorAll('#tab-circuits .pill-btn')).find(b => b.getAttribute('onclick').includes(mode));
+      if (activeBtn) activeBtn.classList.add('active');
+
+      document.getElementById('ctrl-rectifiers').style.display = (mode === 'halfwave' || mode === 'fullbridge') ? 'block' : 'none';
+      document.getElementById('ctrl-zener').style.display = (mode === 'zener_reg') ? 'block' : 'none';
+      document.getElementById('ctrl-clipper').style.display = (mode === 'clipper') ? 'block' : 'none';
+
+      updateCircuitSimParams();
+      playSound('click');
+    }
+
+    function toggleSimPause() {
+      state.circuit.isPaused = !state.circuit.isPaused;
+      document.getElementById('pause-btn-text').textContent = state.circuit.isPaused ? 'เล่นต่อ' : 'หยุดชั่วคราว';
+      document.getElementById('btn-pause-sim').querySelector('i').className = state.circuit.isPaused ? 'fa-solid fa-play' : 'fa-solid fa-pause';
+      playSound('click');
+    }
+
+    function updateCircuitSimParams() {
+      const mode = state.circuit.mode;
+      const title = document.getElementById('circuit-lab-title');
+      const grid = document.getElementById('circuit-telemetry-grid');
+      const theory = document.getElementById('circuit-theory-box');
+
+      if (mode === 'halfwave') {
+        title.textContent = 'วงจรเรียงกระแสครึ่งคลื่น (Half-Wave Rectifier + Capacitor Filter)';
+        state.circuit.vin_peak = parseFloat(document.getElementById('slider-rect-vin').value);
+        state.circuit.freq = parseFloat(document.getElementById('slider-rect-freq').value);
+        state.circuit.cap_uF = parseFloat(document.getElementById('slider-rect-cap').value);
+        state.circuit.rload = parseFloat(document.getElementById('slider-rect-rl').value);
+
+        document.getElementById('rect-vin-badge').textContent = state.circuit.vin_peak.toFixed(1) + ' Vp';
+        document.getElementById('rect-freq-badge').textContent = state.circuit.freq.toFixed(0) + ' Hz';
+        document.getElementById('rect-cap-badge').textContent = state.circuit.cap_uF.toFixed(0) + ' μF';
+        document.getElementById('rect-rl-badge').textContent = state.circuit.rload.toFixed(0) + ' Ω';
+
+        const Vp_out = Math.max(0, state.circuit.vin_peak - 0.7);
+        const Vdc = state.circuit.cap_uF > 0 ? (Vp_out - (Vp_out / (2 * state.circuit.freq * (state.circuit.cap_uF * 1e-6) * state.circuit.rload + 1))) : (Vp_out / Math.PI);
+        const Vripple = state.circuit.cap_uF > 0 ? (Vp_out / (state.circuit.freq * (state.circuit.cap_uF * 1e-6) * state.circuit.rload)) : Vp_out;
+
+        grid.innerHTML = `
+          <div class="readout-card"><div class="readout-title">AC Input Peak (V_in)</div><div class="readout-val">${state.circuit.vin_peak.toFixed(1)} <span class="readout-unit">V</span></div></div>
+          <div class="readout-card secondary"><div class="readout-title">DC Output Avg (V_DC)</div><div class="readout-val">${Math.min(Vp_out, Vdc).toFixed(2)} <span class="readout-unit">V</span></div></div>
+          <div class="readout-card amber"><div class="readout-title">Ripple Voltage (V_r p-p)</div><div class="readout-val">${Math.min(Vp_out, Vripple).toFixed(2)} <span class="readout-unit">V</span></div></div>
+          <div class="readout-card green"><div class="readout-title">Diode PIV (Peak Inverse)</div><div class="readout-val">${state.circuit.vin_peak.toFixed(1)} <span class="readout-unit">V</span></div></div>
+        `;
+
+        theory.innerHTML = `<strong>สูตรคำนวณวงจรเรียงกระแสครึ่งคลื่น:</strong><br>
+        • แรงดันยอดตกคร่อมโหลด: <strong>V<sub>p(out)</sub> = V<sub>p(in)</sub> - 0.7V</strong><br>
+        • แรงดันระลอกคลื่น (Ripple): <strong>V<sub>r</sub> ≈ I<sub>DC</sub> / (f · C) = V<sub>p(out)</sub> / (f · R<sub>L</sub> · C)</strong><br>
+        • ความถี่ระลอกคลื่น: <strong>f<sub>ripple</sub> = f<sub>in</sub> = 50 Hz</strong>`;
+
+      } else if (mode === 'fullbridge') {
+        title.textContent = 'วงจรบริดจ์เรกติไฟเออร์เต็มคลื่น (Full-Wave Bridge Rectifier)';
+        state.circuit.vin_peak = parseFloat(document.getElementById('slider-rect-vin').value);
+        state.circuit.freq = parseFloat(document.getElementById('slider-rect-freq').value);
+        state.circuit.cap_uF = parseFloat(document.getElementById('slider-rect-cap').value);
+        state.circuit.rload = parseFloat(document.getElementById('slider-rect-rl').value);
+
+        document.getElementById('rect-vin-badge').textContent = state.circuit.vin_peak.toFixed(1) + ' Vp';
+        document.getElementById('rect-freq-badge').textContent = state.circuit.freq.toFixed(0) + ' Hz';
+        document.getElementById('rect-cap-badge').textContent = state.circuit.cap_uF.toFixed(0) + ' μF';
+        document.getElementById('rect-rl-badge').textContent = state.circuit.rload.toFixed(0) + ' Ω';
+
+        const Vp_out = Math.max(0, state.circuit.vin_peak - 1.4); // 2 Diode drops
+        const Vdc = state.circuit.cap_uF > 0 ? (Vp_out - (Vp_out / (4 * state.circuit.freq * (state.circuit.cap_uF * 1e-6) * state.circuit.rload + 1))) : ((2 * Vp_out) / Math.PI);
+        const Vripple = state.circuit.cap_uF > 0 ? (Vp_out / (2 * state.circuit.freq * (state.circuit.cap_uF * 1e-6) * state.circuit.rload)) : Vp_out;
+
+        grid.innerHTML = `
+          <div class="readout-card"><div class="readout-title">AC Input Peak (V_in)</div><div class="readout-val">${state.circuit.vin_peak.toFixed(1)} <span class="readout-unit">V</span></div></div>
+          <div class="readout-card secondary"><div class="readout-title">DC Output Avg (V_DC)</div><div class="readout-val">${Math.min(Vp_out, Vdc).toFixed(2)} <span class="readout-unit">V</span></div></div>
+          <div class="readout-card amber"><div class="readout-title">Ripple Voltage (V_r p-p)</div><div class="readout-val">${Math.min(Vp_out, Vripple).toFixed(2)} <span class="readout-unit">V</span></div></div>
+          <div class="readout-card green"><div class="readout-title">Ripple Frequency</div><div class="readout-val">${(state.circuit.freq * 2).toFixed(0)} <span class="readout-unit">Hz</span></div></div>
+        `;
+
+        theory.innerHTML = `<strong>สูตรคำนวณวงจรบริดจ์เรกติไฟเออร์:</strong><br>
+        • แรงดันยอด: <strong>V<sub>p(out)</sub> = V<sub>p(in)</sub> - 2(0.7V) = V<sub>p(in)</sub> - 1.4V</strong><br>
+        • ความถี่ระลอกคลื่นเพิ่มเป็น 2 เท่า: <strong>f<sub>ripple</sub> = 2 × f<sub>in</sub> = 100 Hz</strong> (ทำให้ฟิลเตอร์กรองเรียบง่ายขึ้นมาก)`;
+
+      } else if (mode === 'zener_reg') {
+        title.textContent = 'วงจรควบคุมแรงดันคงที่ด้วยซีเนอร์ไดโอด (Zener Voltage Regulator)';
+        state.circuit.zener_vin = parseFloat(document.getElementById('slider-zener-vin').value);
+        state.circuit.zener_vz = parseFloat(document.getElementById('select-zener-vz').value);
+        state.circuit.zener_rs = parseFloat(document.getElementById('slider-zener-rs').value);
+        state.circuit.zener_rl = parseFloat(document.getElementById('slider-zener-rl').value);
+
+        document.getElementById('zener-vin-badge').textContent = state.circuit.zener_vin.toFixed(1) + ' V';
+        document.getElementById('zener-rs-badge').textContent = state.circuit.zener_rs.toFixed(0) + ' Ω';
+        document.getElementById('zener-rl-badge').textContent = state.circuit.zener_rl.toFixed(0) + ' Ω';
+
+        const Vin = state.circuit.zener_vin;
+        const Vz = state.circuit.zener_vz;
+        const Rs = state.circuit.zener_rs;
+        const Rl = state.circuit.zener_rl;
+
+        // Thevenin voltage at load without zener
+        const V_open = (Vin * Rl) / (Rs + Rl);
+        let Vout = 0, Iz_mA = 0, Is_mA = 0, Il_mA = 0;
+
+        if (V_open >= Vz) {
+          Vout = Vz;
+          Is_mA = ((Vin - Vz) / Rs) * 1000;
+          Il_mA = (Vz / Rl) * 1000;
+          Iz_mA = Math.max(0, Is_mA - Il_mA);
+        } else {
+          // Zener off
+          Vout = V_open;
+          Is_mA = (Vin / (Rs + Rl)) * 1000;
+          Il_mA = Is_mA;
+          Iz_mA = 0;
+        }
+
+        const Pz_mW = Vout * Iz_mA;
+
+        grid.innerHTML = `
+          <div class="readout-card"><div class="readout-title">DC Output (V_Load)</div><div class="readout-val" style="color: #38bdf8;">${Vout.toFixed(2)} <span class="readout-unit">V</span></div></div>
+          <div class="readout-card secondary"><div class="readout-title">กระแสซีเนอร์ (I_Z)</div><div class="readout-val">${Iz_mA.toFixed(1)} <span class="readout-unit">mA</span></div></div>
+          <div class="readout-card green"><div class="readout-title">กระแสโหลด (I_L)</div><div class="readout-val">${Il_mA.toFixed(1)} <span class="readout-unit">mA</span></div></div>
+          <div class="readout-card amber"><div class="readout-title">กำลังสูญเสียซีเนอร์ (P_Z)</div><div class="readout-val">${Pz_mW.toFixed(1)} <span class="readout-unit">mW</span></div></div>
+        `;
+
+        theory.innerHTML = `<strong>หลักการรักษาระดับแรงดันคงที่:</strong><br>
+        เมื่อแรงดันขาเข้า <strong>V<sub>in</sub> > V<sub>Z</sub></strong> ซีเนอร์จะทำงานในช่วง Breakdown รักษาระดับแรงดันตกคร่อมโหลดให้คงที่ที่ <strong>V<sub>out</sub> = ${Vz}V</strong> โดยกระแสส่วนเกินจะไหลผ่านซีเนอร์ <strong>I<sub>Z</sub> = I<sub>S</sub> - I<sub>L</sub></strong>`;
+
+      } else if (mode === 'clipper') {
+        title.textContent = 'วงจรขลิบสัญญาณ (Diode Clipper Lab)';
+        state.circuit.clipper_type = document.getElementById('select-clipper-type').value;
+        state.circuit.clipper_vbias = parseFloat(document.getElementById('slider-clipper-vbias').value);
+        document.getElementById('clipper-vbias-badge').textContent = state.circuit.clipper_vbias.toFixed(1) + ' V';
+
+        grid.innerHTML = `
+          <div class="readout-card"><div class="readout-title">Input Peak (V_in)</div><div class="readout-val">10.0 <span class="readout-unit">Vp</span></div></div>
+          <div class="readout-card secondary"><div class="readout-title">Clipping Level</div><div class="readout-val">${state.circuit.clipper_vbias.toFixed(1)} <span class="readout-unit">V</span></div></div>
+          <div class="readout-card green"><div class="readout-title">Diode V_F</div><div class="readout-val">0.70 <span class="readout-unit">V</span></div></div>
+          <div class="readout-card amber"><div class="readout-title">Max Output V_p</div><div class="readout-val">${(state.circuit.clipper_vbias + 0.7).toFixed(1)} <span class="readout-unit">V</span></div></div>
+        `;
+
+        theory.innerHTML = `<strong>วงจรขลิบสัญญาณ (Clipper):</strong> เป็นวงจรที่ใช้ตัดยอดคลื่นสัญญาณบางส่วนที่ไม่ต้องการทิ้ง โดยเมื่อสัญญาณอินพุตถึงระดับ <strong>V<sub>bias</sub> + 0.7V</strong> ไดโอดจะนำกระแสและชอร์ตระดับสัญญาณส่วนเกินนั้น`;
+      }
+    }
+
+    /* ----------------------------------------------------------------- */
+    /* SCHEMATIC CANVAS DRAWING ENGINE                                   */
+    /* ----------------------------------------------------------------- */
+    function drawWire(ctx, x1, y1, x2, y2, color = '#64748b', lineWidth = 2.5) {
+      ctx.strokeStyle = color;
+      ctx.lineWidth = lineWidth;
+      ctx.beginPath();
+      ctx.moveTo(x1, y1);
+      ctx.lineTo(x2, y2);
+      ctx.stroke();
+    }
+
+    function drawNode(ctx, x, y, label = '') {
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.arc(x, y, 4, 0, Math.PI * 2);
+      ctx.fill();
+      if (label) {
+        ctx.font = 'bold 11px JetBrains Mono, monospace';
+        ctx.fillStyle = '#cbd5e1';
+        ctx.fillText(label, x + 6, y - 6);
+      }
+    }
+
+    function drawGround(ctx, x, y) {
+      ctx.strokeStyle = '#94a3b8';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.lineTo(x, y + 10);
+      ctx.moveTo(x - 12, y + 10);
+      ctx.lineTo(x + 12, y + 10);
+      ctx.moveTo(x - 8, y + 14);
+      ctx.lineTo(x + 8, y + 14);
+      ctx.moveTo(x - 4, y + 18);
+      ctx.lineTo(x + 4, y + 18);
+      ctx.stroke();
+    }
+
+    function drawAcSource(ctx, x, y, r, label, instantV) {
+      // Circle
+      ctx.strokeStyle = '#38bdf8';
+      ctx.lineWidth = 2.5;
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
+      ctx.beginPath();
+      ctx.arc(x, y, r, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+
+      // Sine wave symbol inside
+      ctx.strokeStyle = '#38bdf8';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(x - r * 0.5, y);
+      ctx.bezierCurveTo(x - r * 0.25, y - r * 0.5, x, y - r * 0.5, x, y);
+      ctx.bezierCurveTo(x, y + r * 0.5, x + r * 0.25, y + r * 0.5, x + r * 0.5, y);
+      ctx.stroke();
+
+      // Label & instant voltage readout
+      ctx.font = 'bold 11px Sarabun, sans-serif';
+      ctx.fillStyle = '#cbd5e1';
+      ctx.textAlign = 'center';
+      ctx.fillText(label, x, y - r - 8);
+      ctx.font = 'bold 11px JetBrains Mono, monospace';
+      ctx.fillStyle = instantV >= 0 ? '#34d399' : '#f87171';
+      ctx.fillText(`${instantV >= 0 ? '+' : ''}${instantV.toFixed(1)}V`, x, y + r + 15);
+      ctx.textAlign = 'left';
+    }
+
+    function drawDcSource(ctx, x, y, label, valStr) {
+      // Long line (+)
+      ctx.strokeStyle = '#ef4444';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(x - 16, y - 8);
+      ctx.lineTo(x + 16, y - 8);
+      ctx.stroke();
+      // Short line (-)
+      ctx.strokeStyle = '#3b82f6';
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(x - 9, y + 8);
+      ctx.lineTo(x + 9, y + 8);
+      ctx.stroke();
+
+      ctx.font = 'bold 11px Sarabun, sans-serif';
+      ctx.fillStyle = '#cbd5e1';
+      ctx.textAlign = 'center';
+      ctx.fillText(label, x, y - 20);
+      ctx.font = 'bold 11px JetBrains Mono, monospace';
+      ctx.fillStyle = '#38bdf8';
+      ctx.fillText(valStr, x, y + 24);
+      ctx.textAlign = 'left';
+    }
+
+    function drawDiode(ctx, x, y, angleRad, isZener, isConducting, label, labelOffsetX = 0, labelOffsetY = -22, statusOffsetY = 24) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(angleRad);
+
+      const color = isConducting ? (isZener ? '#c084fc' : '#34d399') : '#64748b';
+
+      if (isConducting) {
+        ctx.shadowColor = isZener ? '#a855f7' : '#10b981';
+        ctx.shadowBlur = 12;
+      }
+
+      // Triangle (Anode)
+      ctx.fillStyle = isConducting ? color : 'rgba(100, 116, 139, 0.25)';
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.moveTo(-16, -13);
+      ctx.lineTo(-16, 13);
+      ctx.lineTo(12, 0);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      // Cathode Bar
+      ctx.beginPath();
+      ctx.moveTo(12, -13);
+      ctx.lineTo(12, 13);
+      if (isZener) {
+        // Zener cathode wings
+        ctx.lineTo(18, -13);
+        ctx.moveTo(12, 13);
+        ctx.lineTo(6, 13);
+      }
+      ctx.stroke();
+
+      ctx.restore();
+
+      // Label (rendered horizontally for clear readability)
+      ctx.font = 'bold 11px JetBrains Mono, monospace';
+      ctx.fillStyle = isConducting ? '#ffffff' : '#94a3b8';
+      ctx.textAlign = 'center';
+      ctx.fillText(label, x + labelOffsetX, y + labelOffsetY);
+      if (isConducting) {
+        ctx.font = 'bold 9px Sarabun, sans-serif';
+        ctx.fillStyle = isZener ? '#c084fc' : '#34d399';
+        ctx.fillText(isZener ? '⚡ Breakdown' : '✔ ON', x + labelOffsetX, y + statusOffsetY);
+      }
+      ctx.textAlign = 'left';
+    }
+
+    function drawResistor(ctx, x1, y1, x2, y2, label, valStr) {
+      const midX = (x1 + x2) / 2;
+      const midY = (y1 + y2) / 2;
+      const isVertical = (Math.abs(x1 - x2) < Math.abs(y1 - y2));
+
+      ctx.strokeStyle = '#f59e0b';
+      ctx.lineWidth = 2.5;
+
+      if (!isVertical) {
+        // Horizontal resistor
+        drawWire(ctx, x1, y1, midX - 22, y1, '#cbd5e1');
+        drawWire(ctx, midX + 22, y2, x2, y2, '#cbd5e1');
+        // Zig-zag
+        ctx.beginPath();
+        ctx.moveTo(midX - 22, y1);
+        ctx.lineTo(midX - 15, y1 - 9);
+        ctx.lineTo(midX - 7, y1 + 9);
+        ctx.lineTo(midX, y1 - 9);
+        ctx.lineTo(midX + 7, y1 + 9);
+        ctx.lineTo(midX + 15, y1 - 9);
+        ctx.lineTo(midX + 22, y1);
+        ctx.stroke();
+
+        ctx.font = 'bold 11px Sarabun, sans-serif';
+        ctx.fillStyle = '#cbd5e1';
+        ctx.textAlign = 'center';
+        ctx.fillText(label, midX, y1 - 15);
+        ctx.font = 'bold 11px JetBrains Mono, monospace';
+        ctx.fillStyle = '#f59e0b';
+        ctx.fillText(valStr, midX, y1 + 24);
+        ctx.textAlign = 'left';
+      } else {
+        // Vertical resistor
+        drawWire(ctx, x1, y1, x1, midY - 22, '#cbd5e1');
+        drawWire(ctx, x2, midY + 22, x2, y2, '#cbd5e1');
+        ctx.beginPath();
+        ctx.moveTo(x1, midY - 22);
+        ctx.lineTo(x1 - 9, midY - 15);
+        ctx.lineTo(x1 + 9, midY - 7);
+        ctx.lineTo(x1 - 9, midY);
+        ctx.lineTo(x1 + 9, midY + 7);
+        ctx.lineTo(x1 - 9, midY + 15);
+        ctx.lineTo(x1, midY + 22);
+        ctx.stroke();
+
+        ctx.font = 'bold 11px Sarabun, sans-serif';
+        ctx.fillStyle = '#cbd5e1';
+        ctx.fillText(label, x1 + 16, midY - 4);
+        ctx.font = 'bold 11px JetBrains Mono, monospace';
+        ctx.fillStyle = '#f59e0b';
+        ctx.fillText(valStr, x1 + 16, midY + 12);
+      }
+    }
+
+    function drawCapacitor(ctx, x1, y1, x2, y2, label, valStr, cap_uF) {
+      const midX = (x1 + x2) / 2;
+      const midY = (y1 + y2) / 2;
+
+      drawWire(ctx, x1, y1, x1, midY - 8, '#cbd5e1');
+      drawWire(ctx, x2, midY + 8, x2, y2, '#cbd5e1');
+
+      if (cap_uF <= 0) {
+        // Disconnected capacitor
+        ctx.strokeStyle = '#64748b';
+        ctx.setLineDash([4, 4]);
+        ctx.beginPath();
+        ctx.moveTo(x1 - 16, midY - 8); ctx.lineTo(x1 + 16, midY - 8);
+        ctx.moveTo(x2 - 16, midY + 8); ctx.lineTo(x2 + 16, midY + 8);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.font = '10px Sarabun, sans-serif';
+        ctx.fillStyle = '#64748b';
+        ctx.fillText('(No C)', x1 + 18, midY + 4);
+        return;
+      }
+
+      // Top Plate (+)
+      ctx.strokeStyle = '#06b6d4';
+      ctx.lineWidth = 3.5;
+      ctx.beginPath();
+      ctx.moveTo(x1 - 16, midY - 8);
+      ctx.lineTo(x1 + 16, midY - 8);
+      ctx.stroke();
+
+      // Bottom Plate (-)
+      ctx.strokeStyle = '#06b6d4';
+      ctx.lineWidth = 3.5;
+      ctx.beginPath();
+      ctx.moveTo(x2 - 16, midY + 8);
+      ctx.lineTo(x2 + 16, midY + 8);
+      ctx.stroke();
+
+      ctx.font = 'bold 11px Sarabun, sans-serif';
+      ctx.fillStyle = '#cbd5e1';
+      ctx.fillText(label, x1 + 18, midY - 4);
+      ctx.font = 'bold 11px JetBrains Mono, monospace';
+      ctx.fillStyle = '#06b6d4';
+      ctx.fillText(valStr, x1 + 18, midY + 12);
+    }
+
+    function drawAnimatedCurrentDots(ctx, points, time, speed, color = '#34d399') {
+      if (points.length < 2) return;
+      ctx.fillStyle = color;
+      ctx.shadowColor = color;
+      ctx.shadowBlur = 8;
+
+      let totalDist = 0;
+      const segLengths = [];
+      for (let i = 0; i < points.length - 1; i++) {
+        const dx = points[i+1].x - points[i].x;
+        const dy = points[i+1].y - points[i].y;
+        const d = Math.hypot(dx, dy);
+        segLengths.push(d);
+        totalDist += d;
+      }
+
+      const numDots = Math.max(3, Math.floor(totalDist / 40));
+      for (let dotIdx = 0; dotIdx < numDots; dotIdx++) {
+        const phase = (time * speed + (dotIdx / numDots)) % 1;
+        let targetDist = phase * totalDist;
+
+        for (let i = 0; i < segLengths.length; i++) {
+          if (targetDist <= segLengths[i]) {
+            const frac = targetDist / segLengths[i];
+            const px = points[i].x + (points[i+1].x - points[i].x) * frac;
+            const py = points[i].y + (points[i+1].y - points[i].y) * frac;
+            ctx.beginPath();
+            ctx.arc(px, py, 3.5, 0, Math.PI * 2);
+            ctx.fill();
+            break;
+          }
+          targetDist -= segLengths[i];
+        }
+      }
+      ctx.shadowBlur = 0;
+    }
+
+    /* ----------------------------------------------------------------- */
+    /* RENDER CIRCUIT SCHEMATICS PER MODE                                */
+    /* ----------------------------------------------------------------- */
+    function renderCircuitSchematic() {
+      schematicCtx.clearRect(0, 0, schematicCanvas.width, schematicCanvas.height);
+      const W = schematicCanvas.width;
+      const H = schematicCanvas.height;
+      const t = state.circuit.time;
+      const mode = state.circuit.mode;
+
+      // Background schematic grid dots
+      schematicCtx.fillStyle = 'rgba(255, 255, 255, 0.04)';
+      for (let x = 20; x < W; x += 25) {
+        for (let y = 20; y < H; y += 25) {
+          schematicCtx.beginPath();
+          schematicCtx.arc(x, y, 1, 0, Math.PI * 2);
+          schematicCtx.fill();
+        }
+      }
+
+      const badge = document.getElementById('schematic-conduction-badge');
+
+      if (mode === 'halfwave') {
+        const instantVin = state.circuit.vin_peak * Math.sin(t);
+        const isConducting = (instantVin > 0.7);
+        state.circuit.instantVin = instantVin;
+        state.circuit.isD1Conducting = isConducting;
+
+        badge.className = isConducting ? 'status-badge connected' : 'status-badge';
+        badge.innerHTML = isConducting ? '<i class="fa-solid fa-bolt"></i> D1 ไบแอสตรง (Conducting ON)' : '<i class="fa-solid fa-ban"></i> D1 ไบแอสกลับ (Reverse Blocked)';
+
+        const srcX = 90, srcY = 115;
+        const topY = 50, botY = 180;
+        const d1X = 260;
+        const capX = 450;
+        const loadX = 610;
+
+        // Draw Main Wires
+        drawWire(schematicCtx, srcX, srcY - 25, srcX, topY);
+        drawWire(schematicCtx, srcX, topY, d1X - 25, topY);
+        drawWire(schematicCtx, d1X + 25, topY, loadX, topY);
+
+        drawWire(schematicCtx, srcX, srcY + 25, srcX, botY);
+        drawWire(schematicCtx, srcX, botY, loadX, botY);
+
+        // Ground at bottom
+        drawGround(schematicCtx, capX, botY);
+
+        // Components
+        drawAcSource(schematicCtx, srcX, srcY, 24, 'AC Vin', instantVin);
+        drawDiode(schematicCtx, d1X, topY, 0, false, isConducting, 'D1 (1N4007)');
+        drawCapacitor(schematicCtx, capX, topY, capX, botY, 'C (Filter)', `${state.circuit.cap_uF} μF`, state.circuit.cap_uF);
+        drawResistor(schematicCtx, loadX, topY, loadX, botY, 'R_Load', `${state.circuit.rload} Ω`);
+
+        drawNode(schematicCtx, capX, topY, 'V_out');
+        drawNode(schematicCtx, loadX, topY);
+        drawNode(schematicCtx, capX, botY);
+
+        // Animated current flow when D1 conducts
+        if (isConducting && !state.circuit.isPaused) {
+          const currentPath = [
+            { x: srcX, y: srcY - 25 },
+            { x: srcX, y: topY },
+            { x: loadX, y: topY },
+            { x: loadX, y: botY },
+            { x: srcX, y: botY },
+            { x: srcX, y: srcY + 25 }
+          ];
+          drawAnimatedCurrentDots(schematicCtx, currentPath, t, 1.2, '#34d399');
+        }
+
+      } else if (mode === 'fullbridge') {
+        const instantVin = state.circuit.vin_peak * Math.sin(t);
+        const isPosHalf = (instantVin > 0.7);
+        const isNegHalf = (instantVin < -0.7);
+
+        state.circuit.instantVin = instantVin;
+        state.circuit.isD1Conducting = isPosHalf;
+        state.circuit.isD2Conducting = isPosHalf;
+        state.circuit.isD3Conducting = isNegHalf;
+        state.circuit.isD4Conducting = isNegHalf;
+
+        badge.className = 'status-badge connected';
+        badge.innerHTML = isPosHalf 
+          ? '<i class="fa-solid fa-circle-check"></i> เฟสบวก: D1 & D2 นำกระแส' 
+          : (isNegHalf ? '<i class="fa-solid fa-circle-check"></i> เฟสลบ: D3 & D4 นำกระแส' : '<i class="fa-solid fa-minus"></i> จุดตัดศูนย์ (Zero Crossing)');
+
+        const srcX = 75, srcY = 115;
+        const bridgeCenterX = 270, bridgeCenterY = 115;
+        const bSize = 55;
+
+        const nodeTop = { x: bridgeCenterX, y: bridgeCenterY - bSize };      // Output (+)
+        const nodeBottom = { x: bridgeCenterX, y: bridgeCenterY + bSize };   // Output (-)
+        const nodeLeft = { x: bridgeCenterX - bSize, y: bridgeCenterY };     // AC In 1
+        const nodeRight = { x: bridgeCenterX + bSize, y: bridgeCenterY };    // AC In 2
+
+        const capX = 460;
+        const loadX = 610;
+        const topRailY = 40;
+        const botRailY = 190;
+
+        // AC Source Wires to Bridge AC Nodes
+        drawWire(schematicCtx, srcX, srcY - 24, srcX, bridgeCenterY - 20);
+        drawWire(schematicCtx, srcX, bridgeCenterY - 20, nodeLeft.x, bridgeCenterY - 20);
+        drawWire(schematicCtx, nodeLeft.x, bridgeCenterY - 20, nodeLeft.x, nodeLeft.y);
+
+        drawWire(schematicCtx, srcX, srcY + 24, srcX, bridgeCenterY + 20);
+        drawWire(schematicCtx, srcX, bridgeCenterY + 20, nodeRight.x, bridgeCenterY + 20);
+        drawWire(schematicCtx, nodeRight.x, bridgeCenterY + 20, nodeRight.x, nodeRight.y);
+
+        // Output Rails from Bridge to Filter & Load
+        drawWire(schematicCtx, nodeTop.x, nodeTop.y, nodeTop.x, topRailY);
+        drawWire(schematicCtx, nodeTop.x, topRailY, loadX, topRailY);
+
+        drawWire(schematicCtx, nodeBottom.x, nodeBottom.y, nodeBottom.x, botRailY);
+        drawWire(schematicCtx, nodeBottom.x, botRailY, loadX, botRailY);
+
+        // Ground
+        drawGround(schematicCtx, capX, botRailY);
+
+        // AC Source
+        drawAcSource(schematicCtx, srcX, srcY, 22, 'AC 50Hz', instantVin);
+
+        // 4 Diamond Bridge perimeter wires
+        drawWire(schematicCtx, nodeLeft.x, nodeLeft.y, nodeTop.x, nodeTop.y, '#64748b', 2);
+        drawWire(schematicCtx, nodeTop.x, nodeTop.y, nodeRight.x, nodeRight.y, '#64748b', 2);
+        drawWire(schematicCtx, nodeRight.x, nodeRight.y, nodeBottom.x, nodeBottom.y, '#64748b', 2);
+        drawWire(schematicCtx, nodeBottom.x, nodeBottom.y, nodeLeft.x, nodeLeft.y, '#64748b', 2);
+
+        // 4 Bridge Diodes
+        // D1: Left AC -> Top (+) [Anode at Left AC, Cathode at Top (+)]
+        drawDiode(schematicCtx, (nodeLeft.x + nodeTop.x)/2, (nodeLeft.y + nodeTop.y)/2, -Math.PI/4, false, isPosHalf, 'D1', -16, -15, 20);
+        // D3: Right AC -> Top (+) [Anode at Right AC, Cathode at Top (+)]
+        drawDiode(schematicCtx, (nodeRight.x + nodeTop.x)/2, (nodeRight.y + nodeTop.y)/2, -3*Math.PI/4, false, isNegHalf, 'D3', 16, -15, 20);
+        // D4: Bottom (-) -> Left AC [Anode at Bottom (-), Cathode at Left AC]
+        drawDiode(schematicCtx, (nodeBottom.x + nodeLeft.x)/2, (nodeBottom.y + nodeLeft.y)/2, -3*Math.PI/4, false, isNegHalf, 'D4', -16, 22, -14);
+        // D2: Bottom (-) -> Right AC [Anode at Bottom (-), Cathode at Right AC]
+        drawDiode(schematicCtx, (nodeBottom.x + nodeRight.x)/2, (nodeBottom.y + nodeRight.y)/2, -Math.PI/4, false, isPosHalf, 'D2', 16, 22, -14);
+
+        // Bridge Nodes
+        drawNode(schematicCtx, nodeTop.x, nodeTop.y, '+');
+        drawNode(schematicCtx, nodeBottom.x, nodeBottom.y, '-');
+        drawNode(schematicCtx, nodeLeft.x, nodeLeft.y, '~');
+        drawNode(schematicCtx, nodeRight.x, nodeRight.y, '~');
+
+        // Filter Capacitor & Load Resistor
+        drawCapacitor(schematicCtx, capX, topRailY, capX, botRailY, 'C (Filter)', `${state.circuit.cap_uF} μF`, state.circuit.cap_uF);
+        drawResistor(schematicCtx, loadX, topRailY, loadX, botRailY, 'R_Load', `${state.circuit.rload} Ω`);
+
+        drawNode(schematicCtx, capX, topRailY, 'V_DC');
+        drawNode(schematicCtx, loadX, topRailY);
+
+        // Animated current flow through active diode pair
+        if (!state.circuit.isPaused) {
+          if (isPosHalf) {
+            const posPath = [
+              { x: srcX, y: bridgeCenterY - 20 },
+              { x: nodeLeft.x, y: nodeLeft.y },
+              { x: nodeTop.x, y: nodeTop.y },
+              { x: loadX, y: topRailY },
+              { x: loadX, y: botRailY },
+              { x: nodeBottom.x, y: nodeBottom.y },
+              { x: nodeRight.x, y: nodeRight.y },
+              { x: srcX, y: bridgeCenterY + 20 }
+            ];
+            drawAnimatedCurrentDots(schematicCtx, posPath, t, 1.4, '#34d399');
+          } else if (isNegHalf) {
+            const negPath = [
+              { x: srcX, y: bridgeCenterY + 20 },
+              { x: nodeRight.x, y: nodeRight.y },
+              { x: nodeTop.x, y: nodeTop.y },
+              { x: loadX, y: topRailY },
+              { x: loadX, y: botRailY },
+              { x: nodeBottom.x, y: nodeBottom.y },
+              { x: nodeLeft.x, y: nodeLeft.y },
+              { x: srcX, y: bridgeCenterY - 20 }
+            ];
+            drawAnimatedCurrentDots(schematicCtx, negPath, t, 1.4, '#38bdf8');
+          }
+        }
+
+      } else if (mode === 'zener_reg') {
+        const Vin = state.circuit.zener_vin;
+        const Vz = state.circuit.zener_vz;
+        const Rs = state.circuit.zener_rs;
+        const Rl = state.circuit.zener_rl;
+        const isRegulating = (Vin * Rl / (Rs + Rl) >= Vz);
+
+        badge.className = isRegulating ? 'status-badge connected' : 'status-badge';
+        badge.innerHTML = isRegulating 
+          ? `<i class="fa-solid fa-shield-halved"></i> ซีเนอร์คุมแรงดันคงที่ (${Vz}V Regulator Active)`
+          : `<i class="fa-solid fa-triangle-exclamation"></i> แรงดันไม่ถึง V_Z (Zener OFF)`;
+
+        const srcX = 85, srcY = 115;
+        const topY = 50, botY = 180;
+        const rsX = 230;
+        const zenerX = 420;
+        const loadX = 590;
+
+        // Rails
+        drawWire(schematicCtx, srcX, srcY - 15, srcX, topY);
+        drawWire(schematicCtx, srcX, topY, rsX - 35, topY);
+        drawWire(schematicCtx, rsX + 35, topY, loadX, topY);
+
+        drawWire(schematicCtx, srcX, srcY + 15, srcX, botY);
+        drawWire(schematicCtx, srcX, botY, loadX, botY);
+
+        // Ground
+        drawGround(schematicCtx, zenerX, botY);
+
+        // DC Source
+        drawDcSource(schematicCtx, srcX, srcY, 'DC Vin', `${Vin.toFixed(1)}V`);
+        // Series Resistor
+        drawResistor(schematicCtx, rsX - 35, topY, rsX + 35, topY, 'R_Series', `${Rs} Ω`);
+        // Zener Diode (Cathode points Up towards positive rail for reverse bias regulation!)
+        drawDiode(schematicCtx, zenerX, 115, -Math.PI/2, true, isRegulating, `Z1 (${Vz}V)`);
+        drawWire(schematicCtx, zenerX, topY, zenerX, 90);
+        drawWire(schematicCtx, zenerX, 140, zenerX, botY);
+
+        // Load Resistor
+        drawResistor(schematicCtx, loadX, topY, loadX, botY, 'R_Load', `${Rl} Ω`);
+
+        drawNode(schematicCtx, zenerX, topY, 'V_Reg');
+        drawNode(schematicCtx, loadX, topY);
+
+        // Animated current splitting
+        if (!state.circuit.isPaused) {
+          const mainPath = [
+            { x: srcX, y: topY },
+            { x: zenerX, y: topY }
+          ];
+          drawAnimatedCurrentDots(schematicCtx, mainPath, t, 1.2, '#f59e0b');
+
+          if (isRegulating) {
+            const zenerPath = [
+              { x: zenerX, y: topY },
+              { x: zenerX, y: botY }
+            ];
+            drawAnimatedCurrentDots(schematicCtx, zenerPath, t, 1.2, '#c084fc');
+          }
+
+          const loadPath = [
+            { x: zenerX, y: topY },
+            { x: loadX, y: topY },
+            { x: loadX, y: botY },
+            { x: srcX, y: botY }
+          ];
+          drawAnimatedCurrentDots(schematicCtx, loadPath, t, 1.0, '#38bdf8');
+        }
+
+      } else if (mode === 'clipper') {
+        const instantVin = 10 * Math.sin(t);
+        const Vbias = state.circuit.clipper_vbias;
+        const isClipping = (state.circuit.clipper_type === 'pos_clip' && instantVin > 0.7) ||
+                           (state.circuit.clipper_type === 'biased_pos' && instantVin > Vbias + 0.7);
+
+        badge.className = isClipping ? 'status-badge connected' : 'status-badge';
+        badge.innerHTML = isClipping 
+          ? '<i class="fa-solid fa-scissors"></i> ไดโอดกำลังขลิบตัดยอดคลื่น (Clipping Active)'
+          : '<i class="fa-solid fa-wave-square"></i> สัญญาณปกติ (No Clipping)';
+
+        const srcX = 85, srcY = 115;
+        const topY = 50, botY = 180;
+        const rX = 240;
+        const diodeX = 430;
+        const outX = 600;
+
+        // Wires
+        drawWire(schematicCtx, srcX, srcY - 24, srcX, topY);
+        drawWire(schematicCtx, srcX, topY, rX - 35, topY);
+        drawWire(schematicCtx, rX + 35, topY, outX, topY);
+
+        drawWire(schematicCtx, srcX, srcY + 24, srcX, botY);
+        drawWire(schematicCtx, srcX, botY, outX, botY);
+
+        // Ground
+        drawGround(schematicCtx, diodeX, botY);
+
+        drawAcSource(schematicCtx, srcX, srcY, 22, 'Vin (10Vp)', instantVin);
+        drawResistor(schematicCtx, rX - 35, topY, rX + 35, topY, 'R1', '1 kΩ');
+
+        // Diode & Bias Branch
+        drawWire(schematicCtx, diodeX, topY, diodeX, 85);
+        drawDiode(schematicCtx, diodeX, 105, Math.PI/2, false, isClipping, 'D1');
+        drawWire(schematicCtx, diodeX, 125, diodeX, 140);
+        drawDcSource(schematicCtx, diodeX, 155, 'V_bias', `${Vbias.toFixed(1)}V`);
+        drawWire(schematicCtx, diodeX, 170, diodeX, botY);
+
+        // Output Terminals
+        drawNode(schematicCtx, outX, topY, 'V_out (+)');
+        drawNode(schematicCtx, outX, botY, 'V_out (-)');
+
+        if (isClipping && !state.circuit.isPaused) {
+          const clipPath = [
+            { x: srcX, y: topY },
+            { x: diodeX, y: topY },
+            { x: diodeX, y: botY },
+            { x: srcX, y: botY }
+          ];
+          drawAnimatedCurrentDots(schematicCtx, clipPath, t, 1.4, '#f43f5e');
+        }
+      }
+    }
+
+    /* ----------------------------------------------------------------- */
+    /* LIVE OSCILLOSCOPE CANVAS DRAWING ENGINE                           */
+    /* ----------------------------------------------------------------- */
+    function renderCircuitCanvas() {
+      circuitCtx.clearRect(0, 0, circuitCanvas.width, circuitCanvas.height);
+      const W = circuitCanvas.width;
+      const H = circuitCanvas.height;
+
+      // Draw Oscilloscope background grid
+      circuitCtx.fillStyle = '#050b14';
+      circuitCtx.fillRect(10, 10, W - 20, H - 20);
+
+      circuitCtx.strokeStyle = 'rgba(6, 182, 212, 0.15)';
+      circuitCtx.lineWidth = 1;
+      for (let x = 10; x < W - 20; x += 35) {
+        circuitCtx.beginPath(); circuitCtx.moveTo(x, 10); circuitCtx.lineTo(x, H - 10); circuitCtx.stroke();
+      }
+      for (let y = 10; y < H - 10; y += 30) {
+        circuitCtx.beginPath(); circuitCtx.moveTo(10, y); circuitCtx.lineTo(W - 10, y); circuitCtx.stroke();
+      }
+
+      // Center Reference Line
+      const midY = H / 2;
+      circuitCtx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+      circuitCtx.beginPath();
+      circuitCtx.moveTo(10, midY);
+      circuitCtx.lineTo(W - 10, midY);
+      circuitCtx.stroke();
+
+      // Time progression
+      if (!state.circuit.isPaused) {
+        state.circuit.time += 0.04;
+      }
+      const t = state.circuit.time;
+      const mode = state.circuit.mode;
+
+      // Draw Waveforms
+      const pts = 300;
+      const stepX = (W - 40) / pts;
+      const scaleV = 6.5; // pixels per volt
+
+      // 1. Input Waveform (Yellow/Orange)
+      circuitCtx.strokeStyle = '#fbbf24';
+      circuitCtx.lineWidth = 2;
+      circuitCtx.beginPath();
+
+      for (let i = 0; i < pts; i++) {
+        const simT = t + (i / pts) * 4 * Math.PI;
+        let v_in = 0;
+        if (mode === 'zener_reg') {
+          v_in = state.circuit.zener_vin + Math.sin(simT * 1.5) * 1.2;
+        } else {
+          v_in = (mode === 'clipper' ? 10 : state.circuit.vin_peak) * Math.sin(simT);
+        }
+        const px = 20 + i * stepX;
+        const py = midY - v_in * scaleV;
+        if (i === 0) circuitCtx.moveTo(px, py);
+        else circuitCtx.lineTo(px, py);
+      }
+      circuitCtx.stroke();
+
+      // 2. Output Waveform (Cyan / Neon Green)
+      circuitCtx.strokeStyle = '#06b6d4';
+      circuitCtx.lineWidth = 2.5;
+      circuitCtx.beginPath();
+
+      let lastVout = 0;
+      for (let i = 0; i < pts; i++) {
+        const simT = t + (i / pts) * 4 * Math.PI;
+        let v_in = 0;
+        let v_out = 0;
+
+        if (mode === 'halfwave') {
+          v_in = state.circuit.vin_peak * Math.sin(simT);
+          const raw_out = Math.max(0, v_in - 0.7);
+          if (state.circuit.cap_uF === 0) {
+            v_out = raw_out;
+          } else {
+            const dischargeRate = 0.05 / (state.circuit.cap_uF * 0.01 * (state.circuit.rload / 500));
+            if (raw_out >= lastVout) {
+              v_out = raw_out;
+            } else {
+              v_out = Math.max(0, lastVout - dischargeRate);
+            }
+            lastVout = v_out;
+          }
+        } else if (mode === 'fullbridge') {
+          v_in = state.circuit.vin_peak * Math.sin(simT);
+          const raw_out = Math.max(0, Math.abs(v_in) - 1.4);
+          if (state.circuit.cap_uF === 0) {
+            v_out = raw_out;
+          } else {
+            const dischargeRate = 0.025 / (state.circuit.cap_uF * 0.01 * (state.circuit.rload / 500));
+            if (raw_out >= lastVout) {
+              v_out = raw_out;
+            } else {
+              v_out = Math.max(0, lastVout - dischargeRate);
+            }
+            lastVout = v_out;
+          }
+        } else if (mode === 'zener_reg') {
+          v_in = state.circuit.zener_vin + Math.sin(simT * 1.5) * 1.2;
+          const Vz = state.circuit.zener_vz;
+          v_out = Math.min(v_in, Vz);
+        } else if (mode === 'clipper') {
+          v_in = 10 * Math.sin(simT);
+          const Vbias = state.circuit.clipper_vbias;
+          if (state.circuit.clipper_type === 'pos_clip') {
+            v_out = Math.min(v_in, 0.7);
+          } else if (state.circuit.clipper_type === 'neg_clip') {
+            v_out = Math.max(v_in, -0.7);
+          } else if (state.circuit.clipper_type === 'biased_pos') {
+            v_out = Math.min(v_in, Vbias + 0.7);
+          } else if (state.circuit.clipper_type === 'double_clip') {
+            v_out = Math.max(-Vbias - 0.7, Math.min(Vbias + 0.7, v_in));
+          }
+        }
+
+        const px = 20 + i * stepX;
+        const py = midY - v_out * scaleV;
+        if (i === 0) circuitCtx.moveTo(px, py);
+        else circuitCtx.lineTo(px, py);
+      }
+      circuitCtx.stroke();
+
+      // Legend overlay
+      circuitCtx.font = 'bold 11px JetBrains Mono, monospace';
+      circuitCtx.fillStyle = '#fbbf24';
+      circuitCtx.fillText('— CH1: Input (V_in)', 25, 28);
+      circuitCtx.fillStyle = '#06b6d4';
+      circuitCtx.fillText('— CH2: Output (V_out)', 190, 28);
+    }
+
+    /* ================================================================= */
+    /* 5. TAB 4: MULTIMETER DIODE TESTER LAB                             */
+    /* ================================================================= */
+    function swapProbes(target) {
+      if (state.tester.redProbe === 'left') {
+        state.tester.redProbe = 'right';
+        state.tester.blackProbe = 'left';
+      } else {
+        state.tester.redProbe = 'left';
+        state.tester.blackProbe = 'right';
+      }
+      updateTesterUI();
+      playSound('click');
+    }
+
+    function resetProbes() {
+      state.tester.redProbe = 'left';
+      state.tester.blackProbe = 'right';
+      updateTesterUI();
+      playSound('click');
+    }
+
+    function onDiodeHealthChange() {
+      state.tester.health = document.getElementById('select-diode-health').value;
+      const partLabel = document.getElementById('tester-part-label');
+      if (state.tester.health === 'good_led_red') partLabel.textContent = 'LED RED';
+      else if (state.tester.health === 'good_schottky') partLabel.textContent = '1N5819';
+      else partLabel.textContent = '1N4007';
+
+      updateTesterUI();
+      playSound('click');
+    }
+
+    function updateTesterUI() {
+      const isRedOnAnode = (state.tester.redProbe === 'left'); // Left is Anode, Right is Cathode
+      const health = state.tester.health;
+      
+      const termLeft = document.getElementById('term-left');
+      const termRight = document.getElementById('term-right');
+      const redLoc = document.getElementById('red-probe-loc');
+      const blackLoc = document.getElementById('black-probe-loc');
+      const dmmScreen = document.getElementById('dmm-screen');
+      const banner = document.getElementById('diode-health-banner');
+
+      termLeft.className = isRedOnAnode ? 'diode-terminal-btn probe-red' : 'diode-terminal-btn probe-black';
+      termLeft.innerHTML = isRedOnAnode ? 'A (+)' : 'A (-)';
+
+      termRight.className = isRedOnAnode ? 'diode-terminal-btn probe-black' : 'diode-terminal-btn probe-red';
+      termRight.innerHTML = isRedOnAnode ? 'K (-)' : 'K (+)';
+
+      redLoc.textContent = isRedOnAnode ? 'ขั้ว Anode (ขา A)' : 'ขั้ว Cathode (ขา K)';
+      blackLoc.textContent = isRedOnAnode ? 'ขั้ว Cathode (ขา K)' : 'ขั้ว Anode (ขา A)';
+
+      let reading = 'O.L';
+      let isBeep = false;
+
+      if (health === 'shorted') {
+        reading = '0.002 V';
+        banner.style.background = 'rgba(239, 68, 68, 0.2)';
+        banner.style.borderColor = '#ef4444';
+        banner.style.color = '#fca5a5';
+        banner.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> ผลการทดสอบ: ไดโอดลัดวงจร/ช็อตทะลุ (Shorted Diode - 0Ω Beep Sound!)';
+        isBeep = true;
+      } else if (health === 'open') {
+        reading = 'O.L';
+        banner.style.background = 'rgba(245, 158, 11, 0.2)';
+        banner.style.borderColor = '#f59e0b';
+        banner.style.color = '#fcd34d';
+        banner.innerHTML = '<i class="fa-solid fa-circle-xmark"></i> ผลการทดสอบ: ไดโอดขาดภายใน (Open Circuit - ไม่นำกระแสทั้งสองทาง)';
+      } else if (health === 'leaky') {
+        reading = isRedOnAnode ? '0.620 V' : '1.450 V';
+        banner.style.background = 'rgba(245, 158, 11, 0.2)';
+        banner.style.borderColor = '#f59e0b';
+        banner.style.color = '#fcd34d';
+        banner.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> ผลการทดสอบ: ไดโอดรั่ว (Leaking - มีกระแสย้อนกลับในไบแอสกลับ)';
+      } else {
+        // Good diode
+        if (isRedOnAnode) {
+          // Forward bias
+          if (health === 'good_schottky') reading = '0.312 V';
+          else if (health === 'good_led_red') reading = '1.845 V';
+          else reading = '0.684 V';
+
+          banner.style.background = 'rgba(16, 185, 129, 0.2)';
+          banner.style.borderColor = '#10b981';
+          banner.style.color = '#34d399';
+          banner.innerHTML = '<i class="fa-solid fa-circle-check"></i> ผลการทดสอบ: ไบแอสตรง ไดโอดนำกระแสปกติ (Forward Bias Conduction - Good)';
+        } else {
+          // Reverse bias
+          reading = 'O.L';
+          banner.style.background = 'rgba(16, 185, 129, 0.2)';
+          banner.style.borderColor = '#10b981';
+          banner.style.color = '#34d399';
+          banner.innerHTML = '<i class="fa-solid fa-circle-check"></i> ผลการทดสอบ: ไบแอสกลับ ตัดกระแสสมบูรณ์ (Reverse Bias O.L - Good)';
+        }
+      }
+
+      dmmScreen.textContent = reading;
+      state.tester.reading = reading;
+      if (isBeep) playSound('beep');
+    }
+
+    /* ================================================================= */
+    /* 6. TAB 5: QUIZ & KNOWLEDGE ASSESSMENT ENGINE                     */
+    /* ================================================================= */
+    const QUIZ_QUESTIONS = [
+      {
+        id: 1,
+        question: "1. สารกึ่งตัวนำชนิดซิลิคอน (Silicon Diode) มีค่าแรงดันกั้นบริเวณรอยต่อ (Barrier Potential) ประมาณเท่าใด?",
+        options: ["ก. 0.2V - 0.3V", "ข. 0.6V - 0.7V", "ค. 1.8V - 2.2V", "ง. 3.0V - 3.3V"],
+        correct: 1,
+        explain: "ไดโอดซิลิคอน (Silicon) มีกำแพงศักย์กั้นบริเวณรอยต่อ PN อยู่ที่ประมาณ 0.6V ถึง 0.7V ที่อุณหภูมิห้อง"
+      },
+      {
+        id: 2,
+        question: "2. เมื่อทำการไบแอสตรง (Forward Bias) ให้กับไดโอด ขั้วไฟฟ้าและบริเวณรอยพร่องประจุจะเป็นอย่างไร?",
+        options: [
+          "ก. ป้อนบวกเข้าแคโทด ลบเข้าแอโนด และรอยพร่องประจุกว้างขึ้น",
+          "ข. ป้อนบวกเข้าแอโนด ลบเข้าแคโทด และรอยพร่องประจุแคบลงจนนำกระแส",
+          "ค. ป้อนลบเข้าแอโนด ลบเข้าแคโทด และรอยพร่องประจุไม่เปลี่ยนแปลง",
+          "ง. ป้อนบวกเข้าทั้งสองขั้วและเกิดการระเบิด"
+        ],
+        correct: 1,
+        explain: "ไบแอสตรง คือการต่อขั้วบวกเข้าขาแอโนด (A) และขั้วลบเข้าขาแคโทด (K) ทำให้รอยพร่องประจุแคบลงและนำกระแสได้"
+      },
+      {
+        id: 3,
+        question: "3. แถบสีเงินหรือแถบขีดบนตัวถังไดโอดแบบ Through-hole (เช่น 1N4007) บ่งบอกถึงขั้วใด?",
+        options: ["ก. ขั้วแอโนด (Anode: A)", "ข. ขั้วแคโทด (Cathode: K)", "ค. ขั้วกราวด์ (GND)", "ง. ขั้วไฟบวก (+) เสมอ"],
+        correct: 1,
+        explain: "แถบขีดสีเงินหรือสีดำบนตัวถังไดโอดแสดงถึงขั้วแคโทด (Cathode / K)"
+      },
+      {
+        id: 4,
+        question: "4. ไดโอดชนิดใดนิยมนำมาใช้งานในวงจรรักษาระดับแรงดันไฟฟ้าให้คงที่ (Voltage Regulator)?",
+        options: ["ก. ไดโอดเปล่งแสง (LED)", "ข. ซีเนอร์ไดโอด (Zener Diode)", "ค. ช็อตต์กี้ไดโอด (Schottky Diode)", "ง. โฟโต้ไดโอด (Photodiode)"],
+        correct: 1,
+        explain: "ซีเนอร์ไดโอด (Zener Diode) มีคุณสมบัติทำงานในช่วง Reverse Breakdown โดยรักษาระดับแรงดันตกคร่อมให้คงที่"
+      },
+      {
+        id: 5,
+        question: "5. ถ้าใช้ดิจิตอลมัลติมิเตอร์ย่าน Diode Test วัดไดโอดตัวหนึ่ง ปรากฏว่าวัดสลับขั้วทั้งสองทิศทางได้ 0.00V และมีเสียงปี๊บดัง แสดงว่าไดโอดอยู่ในสภาพใด?",
+        options: ["ก. ไดโอดทำงานปกติ (Good)", "ข. ไดโอดขาดภายใน (Open Circuit)", "ค. ไดโอดช็อตทะลุ (Shorted)", "ง. ไดโอดกลับขั้ว"],
+        correct: 2,
+        explain: "หากวัดได้ 0.00V หรือนำกระแสทั้งสองทางแสดงว่ารอยต่อ PN ช็อตทะลุเสียหาย (Shorted Diode)"
+      }
+    ];
+
+    function renderQuiz() {
+      const container = document.getElementById('quiz-container');
+      container.innerHTML = '';
+
+      QUIZ_QUESTIONS.forEach((q, qIndex) => {
+        const card = document.createElement('div');
+        card.className = 'quiz-question-card';
+        card.id = `q-card-${qIndex}`;
+
+        let optsHtml = '';
+        q.options.forEach((opt, oIndex) => {
+          optsHtml += `
+            <button class="quiz-opt-btn" id="opt-${qIndex}-${oIndex}" onclick="selectQuizOption(${qIndex}, ${oIndex})">
+              <i class="fa-regular fa-circle"></i> <span>${opt}</span>
+            </button>
+          `;
+        });
+
+        card.innerHTML = `
+          <div class="quiz-q-header">
+            <strong style="font-size: 0.95rem;">${q.question}</strong>
+          </div>
+          <div class="quiz-options-list">
+            ${optsHtml}
+          </div>
+          <div id="quiz-explain-${qIndex}" style="display:none; font-size:0.85rem; padding:0.6rem; border-radius:6px; margin-top:0.5rem; background:rgba(0,0,0,0.3); border-left:3px solid #10b981;">
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function selectQuizOption(qIndex, oIndex) {
+      if (state.quiz.submitted) return;
+      state.quiz.answers[qIndex] = oIndex;
+      
+      const q = QUIZ_QUESTIONS[qIndex];
+      q.options.forEach((_, idx) => {
+        const btn = document.getElementById(`opt-${qIndex}-${idx}`);
+        if (btn) {
+          btn.classList.toggle('selected', idx === oIndex);
+          const icon = btn.querySelector('i');
+          if (icon) icon.className = (idx === oIndex) ? 'fa-solid fa-circle-dot' : 'fa-regular fa-circle';
+        }
+      });
+      playSound('click');
+    }
+
+    function submitQuiz() {
+      state.quiz.submitted = true;
+      let score = 0;
+
+      QUIZ_QUESTIONS.forEach((q, qIndex) => {
+        const userChoice = state.quiz.answers[qIndex];
+        const explainBox = document.getElementById(`quiz-explain-${qIndex}`);
+        
+        q.options.forEach((_, idx) => {
+          const btn = document.getElementById(`opt-${qIndex}-${idx}`);
+          if (idx === q.correct) {
+            btn.classList.add('correct');
+          } else if (idx === userChoice && userChoice !== q.correct) {
+            btn.classList.add('wrong');
+          }
+        });
+
+        if (userChoice === q.correct) {
+          score++;
+        }
+
+        explainBox.style.display = 'block';
+        explainBox.innerHTML = `<strong>เฉลย:</strong> ${q.explain}`;
+      });
+
+      state.quiz.score = score;
+      document.getElementById('quiz-score-badge').className = 'status-badge connected';
+      document.getElementById('quiz-score-badge').textContent = `คะแนนที่ได้: ${score} / ${QUIZ_QUESTIONS.length}`;
+
+      playSound('success');
+
+      // Auto save quiz history
+      logHistory('แบบทดสอบวัดระดับความรู้เรื่องไดโอด', `${score} / ${QUIZ_QUESTIONS.length} คะแนน`);
+    }
+
+    function resetQuiz() {
+      state.quiz.submitted = false;
+      state.quiz.score = 0;
+      state.quiz.answers = {};
+      document.getElementById('quiz-score-badge').className = 'status-badge';
+      document.getElementById('quiz-score-badge').textContent = `คะแนน: 0 / ${QUIZ_QUESTIONS.length}`;
+      renderQuiz();
+      playSound('click');
+    }
+
+    /* ================================================================= */
+    /* 7. HISTORY & GOOGLE APPS SCRIPT (GAS) INTEGRATION                 */
+    /* ================================================================= */
+    function logHistory(activity, result) {
+      const studentName = document.getElementById('student-name-input').value || 'นักศึกษาทดลอง';
+      const now = new Date();
+      const timeStr = now.toLocaleDateString('th-TH') + ' ' + now.toLocaleTimeString('th-TH');
+
+      const entry = {
+        timestamp: timeStr,
+        activity: activity,
+        result: result,
+        student: studentName
+      };
+
+      state.history.unshift(entry);
+      renderHistoryTable();
+
+      // If running inside Google Apps Script iframe:
+      if (typeof google !== 'undefined' && google.script && google.script.run) {
+        google.script.run
+          .withSuccessHandler(function(resp) {
+            console.log('Saved to Google Sheets:', resp);
+          })
+          .saveDiodeToSheet({
+            timestamp: timeStr,
+            activity: activity,
+            result: result,
+            student: studentName,
+            note: document.getElementById('lab-note-input').value || ''
+          });
+      }
+    }
+
+    function saveCurrentExperiment() {
+      const activeTab = state.activeTab;
+      let activity = 'การทดลองไดโอด';
+      let result = '';
+
+      if (activeTab === 'tab-physics') {
+        activity = `การทดลองรอยต่อ PN (${state.pn.material})`;
+        result = `V_bias: ${state.pn.voltage}V, I_D: ${state.pn.current_mA.toFixed(2)}mA`;
+      } else if (activeTab === 'tab-ivcurve') {
+        activity = `วิเคราะห์กราฟ I-V (${state.iv.model})`;
+        result = `Q-Point: (${state.iv.vd.toFixed(2)}V, ${state.iv.id_mA.toFixed(1)}mA)`;
+      } else if (activeTab === 'tab-circuits') {
+        activity = `วงจร ${state.circuit.mode}`;
+        result = `Vin: ${state.circuit.vin_peak}Vp, RL: ${state.circuit.rload}Ω`;
+      } else if (activeTab === 'tab-tester') {
+        activity = `การทดสอบไดโอดด้วยมัลติมิเตอร์ (${state.tester.health})`;
+        result = `อ่านค่าได้: ${state.tester.reading}`;
+      } else {
+        activity = `แบบทดสอบไดโอด`;
+        result = `${state.quiz.score} / ${QUIZ_QUESTIONS.length} คะแนน`;
+      }
+
+      logHistory(activity, result);
+      playSound('success');
+      alert(`บันทึกผลสำเร็จ!\nกิจกรรม: ${activity}\nผลลัพธ์: ${result}`);
+    }
+
+    function renderHistoryTable() {
+      const tbody = document.getElementById('history-table-body');
+      tbody.innerHTML = '';
+      if (state.history.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">ยังไม่มีประวัติการบันทึก</td></tr>';
+        return;
+      }
+
+      state.history.forEach(item => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${item.timestamp}</td>
+          <td style="color:#38bdf8;">${item.activity}</td>
+          <td style="font-weight:700; color:#34d399;">${item.result}</td>
+          <td>${item.student}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function exportHistoryCSV() {
+      if (state.history.length === 0) {
+        alert('ยังไม่มีข้อมูลสำหรับส่งออก');
+        return;
+      }
+      let csv = 'Timestamp,Activity,Result,Student\n';
+      state.history.forEach(h => {
+        csv += `"${h.timestamp}","${h.activity}","${h.result}","${h.student}"\n`;
+      });
+      const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `diode_learning_log_${Date.now()}.csv`;
+      a.click();
+      playSound('click');
+    }
+
+    /* ================================================================= */
+    /* 8. MAIN ANIMATION LOOP & APP INITIALIZATION                       */
+    /* ================================================================= */
+    function mainAnimationLoop() {
+      if (state.activeTab === 'tab-physics') {
+        if (state.bias && state.bias.subMode === 'bias') {
+          drawBiasCircuitSchematic();
+        } else if (state.bias && state.bias.subMode === 'physics') {
+          renderPnCanvas();
+        }
+      } else if (state.activeTab === 'tab-ivcurve') {
+        renderIvCanvas();
+      } else if (state.activeTab === 'tab-circuits') {
+        renderCircuitSchematic();
+        renderCircuitCanvas();
+      }
+      requestAnimationFrame(mainAnimationLoop);
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      // Check GAS environment
+      if (typeof google !== 'undefined' && google.script && google.script.run) {
+        const gasBadge = document.getElementById('gas-status');
+        gasBadge.className = 'status-badge connected';
+        document.getElementById('status-text').textContent = 'เชื่อมต่อ Google Sheets สำเร็จ';
+      }
+
+      initPnParticles();
+      calculatePnState();
+      onBiasParamChange();
+      drawDiodePackageCanvas();
+      calculateIvQPoint();
+      updateCircuitSimParams();
+      updateTesterUI();
+      renderQuiz();
+      renderHistoryTable();
+
+      // Seed initial history item
+      logHistory('เปิดใช้งานระบบจำลองไดโอด', 'พร้อมสำหรับการทดลอง');
+
+      requestAnimationFrame(mainAnimationLoop);
+    });
+  </script>
+</body>
+</html>

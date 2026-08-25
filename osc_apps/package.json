@@ -1,0 +1,18 @@
+{
+  "name": "oscilloscope-sheet-app",
+  "version": "1.0.0",
+  "description": "Google Sheets Oscilloscope Simulator & Analyzer Web App",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "oscilloscope",
+    "simulator",
+    "google-sheets",
+    "apps-script"
+  ],
+  "author": "Antigravity",
+  "license": "ISC"
+}

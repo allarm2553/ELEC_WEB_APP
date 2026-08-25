@@ -1,0 +1,20 @@
+﻿{
+  "name": "diode-application-learning-app",
+  "version": "1.0.0",
+  "description": "Diode Clippers, Clampers, and Voltage Multipliers Interactive Simulator with Google Sheets Integration",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [
+    "diode",
+    "clipper",
+    "clamper",
+    "voltage-multiplier",
+    "electronics",
+    "simulator",
+    "education"
+  ],
+  "author": "Antigravity",
+  "license": "MIT"
+}

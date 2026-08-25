@@ -1,0 +1,19 @@
+{
+  "name": "multimeter-sheet-app",
+  "version": "1.0.0",
+  "description": "Google Sheets Analog Multimeter Simulator Web App",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "multimeter",
+    "analog",
+    "simulator",
+    "google-sheets",
+    "apps-script"
+  ],
+  "author": "Antigravity",
+  "license": "ISC"
+}

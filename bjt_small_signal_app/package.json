@@ -1,0 +1,20 @@
+﻿{
+  "name": "bjt-small-signal-app",
+  "version": "1.0.0",
+  "description": "BJT Small-Signal Analysis Interactive Learning Lab (re Model & h-Parameter)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [
+    "bjt",
+    "small-signal",
+    "re-model",
+    "h-parameter",
+    "hybrid-model",
+    "electronics",
+    "simulator"
+  ],
+  "author": "Antigravity",
+  "license": "MIT"
+}

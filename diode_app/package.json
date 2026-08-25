@@ -1,0 +1,18 @@
+{
+  "name": "diode-learning-app",
+  "version": "1.0.0",
+  "description": "Diode Simulator & Interactive Learning Lab Web App with Google Sheets Integration",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [
+    "diode",
+    "electronics",
+    "simulator",
+    "gas",
+    "education"
+  ],
+  "author": "Antigravity",
+  "license": "MIT"
+}

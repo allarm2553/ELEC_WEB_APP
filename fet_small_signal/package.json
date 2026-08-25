@@ -1,0 +1,19 @@
+﻿{
+  "name": "fet-small-signal-app",
+  "version": "1.0.0",
+  "description": "FET Small-Signal Analysis Interactive Learning Lab",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [
+    "fet",
+    "jfet",
+    "mosfet",
+    "small-signal",
+    "electronics",
+    "simulator"
+  ],
+  "author": "Antigravity",
+  "license": "MIT"
+}

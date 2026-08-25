@@ -1,0 +1,3287 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>แอปการเรียนรู้ FET และ MOSFET — FET/MOSFET Fundamentals & Biasing Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root {
+  --bg-base: #050b14;
+  --bg-surface: rgba(13, 23, 42, 0.75);
+  --bg-card: rgba(18, 30, 56, 0.65);
+  --bg-card-hover: rgba(26, 43, 79, 0.8);
+  --border-glass: rgba(56, 189, 248, 0.15);
+  --border-active: rgba(6, 182, 212, 0.5);
+  --accent-primary: #06b6d4;
+  --accent-secondary: #3b82f6;
+  --accent-glow: rgba(6, 182, 212, 0.35);
+  --accent-amber: #f59e0b;
+  --accent-green: #10b981;
+  --accent-rose: #f43f5e;
+  --accent-purple: #a855f7;
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --font-thai: 'Sarabun', -apple-system, sans-serif;
+  --font-en: 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --shadow-glow: 0 0 25px rgba(6, 182, 212, 0.15);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: var(--font-thai);
+  background-color: var(--bg-base);
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(6, 182, 212, 0.12) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(59, 130, 246, 0.1) 0px, transparent 50%),
+    radial-gradient(at 50% 50%, rgba(15, 23, 42, 0.6) 0px, transparent 100%);
+  color: var(--text-primary);
+  min-height: 100vh;
+  padding-bottom: 3rem;
+  line-height: 1.6;
+}
+
+header {
+  background: rgba(10, 19, 36, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border-glass);
+  padding: 0.85rem 1.5rem;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.header-left { display: flex; align-items: center; gap: 1rem; }
+.header-logo {
+  width: 44px; height: 44px;
+  background: linear-gradient(135deg, #06b6d4, #3b82f6);
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.4rem; color: white;
+  box-shadow: 0 0 15px rgba(6, 182, 212, 0.4);
+}
+.header-title h1 {
+  font-size: 1.15rem; font-weight: 700; color: var(--text-primary);
+  display: flex; align-items: center; gap: 0.5rem;
+}
+.header-title p { font-size: 0.78rem; color: var(--text-secondary); }
+
+.nav-tabs {
+  display: flex; gap: 0.4rem; background: rgba(5, 11, 20, 0.6);
+  padding: 0.3rem; border-radius: var(--radius-md);
+  border: 1px solid var(--border-glass);
+}
+.tab-btn {
+  background: transparent; border: none; outline: none;
+  color: var(--text-secondary); padding: 0.45rem 1rem;
+  border-radius: var(--radius-sm); font-family: var(--font-thai);
+  font-size: 0.85rem; font-weight: 500; cursor: pointer;
+  transition: all 0.25s ease; display: flex; align-items: center; gap: 0.4rem;
+}
+.tab-btn:hover { color: var(--text-primary); background: rgba(255,255,255,0.05); }
+.tab-btn.active {
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.25), rgba(59, 130, 246, 0.25));
+  color: var(--accent-primary); border: 1px solid var(--border-active);
+  box-shadow: 0 0 12px rgba(6, 182, 212, 0.25);
+}
+
+.main-container { max-width: 1380px; margin: 1.5rem auto; padding: 0 1.25rem; }
+.tab-content { display: none; }
+.tab-content.active { display: block; animation: fadeIn 0.3s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+.grid-2col { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 1.25rem; }
+.grid-3col { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
+@media (max-width: 1024px) {
+  .grid-2col, .grid-3col { grid-template-columns: 1fr; }
+  header { flex-direction: column; gap: 0.8rem; align-items: flex-start; }
+  .nav-tabs { width: 100%; overflow-x: auto; }
+}
+
+.glass-card {
+  background: var(--bg-surface);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  box-shadow: var(--shadow-glow);
+  position: relative;
+}
+.card-title {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 1rem; padding-bottom: 0.6rem; border-bottom: 1px solid var(--border-glass);
+}
+.card-title-text {
+  font-size: 1rem; font-weight: 600; color: var(--text-primary);
+  display: flex; align-items: center; gap: 0.5rem;
+}
+.card-title-text i { color: var(--accent-primary); }
+
+.pill-group { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem; }
+.pill-btn {
+  background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border-glass);
+  color: var(--text-secondary); padding: 0.35rem 0.85rem; border-radius: 20px;
+  font-size: 0.8rem; font-weight: 500; cursor: pointer; transition: all 0.2s;
+  display: flex; align-items: center; gap: 0.35rem;
+}
+.pill-btn:hover { color: var(--text-primary); border-color: var(--accent-primary); }
+.pill-btn.active {
+  background: var(--accent-primary); color: #04101e; font-weight: 700;
+  border-color: var(--accent-primary); box-shadow: 0 0 10px rgba(6, 182, 212, 0.4);
+}
+
+.control-group { margin-bottom: 1rem; }
+.control-label-row {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 0.4rem; font-size: 0.85rem;
+}
+.control-label-title { color: var(--text-secondary); font-weight: 500; }
+.control-value-badge {
+  font-family: var(--font-mono); font-size: 0.82rem; font-weight: 700;
+  color: var(--accent-primary); background: rgba(6, 182, 212, 0.12);
+  padding: 0.15rem 0.5rem; border-radius: 6px; border: 1px solid rgba(6, 182, 212, 0.3);
+}
+
+input[type=range] {
+  width: 100%; -webkit-appearance: none; height: 6px; border-radius: 3px;
+  background: rgba(56, 189, 248, 0.2); outline: none; transition: background 0.2s;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none; width: 18px; height: 18px;
+  border-radius: 50%; background: var(--accent-primary); cursor: pointer;
+  box-shadow: 0 0 8px var(--accent-primary); transition: transform 0.15s;
+}
+input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.15); }
+
+.readout-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; margin-top: 1rem; }
+.readout-card {
+  background: rgba(5, 11, 20, 0.65); border: 1px solid var(--border-glass);
+  border-radius: var(--radius-sm); padding: 0.75rem; border-left: 3px solid var(--accent-primary);
+}
+.readout-card.secondary { border-left-color: var(--accent-secondary); }
+.readout-card.amber { border-left-color: var(--accent-amber); }
+.readout-card.green { border-left-color: var(--accent-green); }
+.readout-card.rose { border-left-color: var(--accent-rose); }
+.readout-card.purple { border-left-color: var(--accent-purple); }
+.readout-title { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.2rem; }
+.readout-val { font-family: var(--font-mono); font-size: 1.15rem; font-weight: 700; color: var(--text-primary); }
+.readout-unit { font-size: 0.8rem; color: var(--text-secondary); font-weight: 400; }
+
+.status-badge {
+  display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.75rem;
+  padding: 0.25rem 0.6rem; border-radius: 20px; font-weight: 600;
+}
+.status-badge.connected { background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); }
+.status-badge.saturation { background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3); }
+.status-badge.cutoff { background: rgba(244, 63, 94, 0.15); color: #f43f5e; border: 1px solid rgba(244, 63, 94, 0.3); }
+.status-badge.active-region { background: rgba(6, 182, 212, 0.15); color: #06b6d4; border: 1px solid rgba(6, 182, 212, 0.3); }
+
+.canvas-card-wrapper {
+  background: #050b14; border-radius: var(--radius-md); border: 1px solid var(--border-glass);
+  overflow: hidden; margin-bottom: 1rem; position: relative;
+}
+.canvas-header-bar {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 0.5rem 0.85rem; background: rgba(15, 23, 42, 0.7);
+  border-bottom: 1px solid var(--border-glass); font-size: 0.8rem; font-weight: 600;
+}
+
+.theory-box {
+  background: rgba(6, 182, 212, 0.05); border: 1px solid rgba(6, 182, 212, 0.2);
+  border-radius: var(--radius-sm); padding: 0.85rem; font-size: 0.82rem;
+  color: var(--text-secondary); line-height: 1.55; margin-top: 1rem;
+}
+.theory-box strong { color: var(--accent-primary); }
+
+.btn {
+  background: var(--accent-primary); color: #04101e; border: none;
+  padding: 0.5rem 1rem; border-radius: var(--radius-sm); font-family: var(--font-thai);
+  font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s;
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem;
+}
+.btn:hover { background: #22d3ee; box-shadow: 0 0 12px rgba(6, 182, 212, 0.4); }
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.08); color: var(--text-primary);
+  border: 1px solid var(--border-glass);
+}
+.btn-secondary:hover { background: rgba(255, 255, 255, 0.15); }
+.btn-sm { padding: 0.3rem 0.65rem; font-size: 0.78rem; }
+.btn-success { background: #10b981; color: white; }
+.btn-danger { background: #f43f5e; color: white; }
+
+.quiz-container { display: flex; flex-direction: column; gap: 1rem; margin-top: 1rem; }
+.quiz-question {
+  background: rgba(5, 11, 20, 0.55); border: 1px solid var(--border-glass);
+  border-radius: var(--radius-md); padding: 1rem; transition: all 0.2s;
+}
+.quiz-question h4 { font-size: 0.92rem; font-weight: 600; margin-bottom: 0.75rem; color: var(--text-primary); }
+.quiz-options { display: flex; flex-direction: column; gap: 0.4rem; }
+.quiz-option {
+  padding: 0.5rem 0.75rem; border-radius: var(--radius-sm);
+  background: rgba(255,255,255,0.03); border: 1px solid var(--border-glass);
+  font-size: 0.83rem; cursor: pointer; transition: all 0.2s;
+  display: flex; align-items: center; gap: 0.5rem;
+}
+.quiz-option:hover { background: rgba(6, 182, 212, 0.1); border-color: var(--accent-primary); }
+.quiz-option.correct { background: rgba(16, 185, 129, 0.2); border-color: #10b981; color: #34d399; font-weight: 600; }
+.quiz-option.wrong { background: rgba(244, 63, 94, 0.2); border-color: #f43f5e; color: #f87171; }
+.quiz-explanation {
+  margin-top: 0.6rem; padding: 0.6rem; border-radius: 6px;
+  background: rgba(6, 182, 212, 0.08); border-left: 3px solid var(--accent-primary);
+  font-size: 0.8rem; color: var(--text-secondary); display: none;
+}
+
+.table-custom { width: 100%; border-collapse: collapse; font-size: 0.8rem; margin-top: 0.8rem; }
+.table-custom th, .table-custom td {
+  padding: 0.55rem 0.75rem; border-bottom: 1px solid var(--border-glass); text-align: left;
+}
+.table-custom th {
+  background: rgba(15, 23, 42, 0.75); color: var(--accent-primary); font-weight: 600;
+}
+.table-custom tr:hover td { background: rgba(255,255,255,0.02); }
+
+.osc-control-bar {
+  display: flex; justify-content: space-between; align-items: center;
+  background: rgba(15, 23, 42, 0.6); padding: 0.35rem 0.75rem;
+  border-radius: var(--radius-sm); border: 1px solid var(--border-glass);
+  margin-top: 0.5rem; font-size: 0.75rem;
+}
+.osc-ctrl-item { display: flex; align-items: center; gap: 0.35rem; }
+.osc-select {
+  background: #0a1324; color: var(--text-primary); border: 1px solid var(--border-glass);
+  padding: 0.15rem 0.4rem; border-radius: 4px; font-family: var(--font-mono); font-size: 0.75rem;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <div class="header-logo"><i class="fa-solid fa-microchip"></i></div>
+    <div class="header-title">
+      <h1>FET & MOSFET Learning Lab <span style="font-size:0.75rem;padding:0.15rem 0.45rem;background:rgba(6,182,212,0.15);border:1px solid var(--border-active);border-radius:6px;color:var(--accent-primary);font-weight:600;">JFET / D-MOSFET / E-MOSFET</span></h1>
+      <p>แอปการเรียนรู้โครงสร้าง ฟิสิกส์การนำกระแส กราฟลักษณะเฉพาะ และการไบอัสทรานซิสเตอร์สนามไฟฟ้า</p>
+    </div>
+  </div>
+  <div class="nav-tabs">
+    <button class="tab-btn active" onclick="switchTab('tab-physics', this)"><i class="fa-solid fa-atom"></i> 1. ชนิด & โครงสร้าง</button>
+    <button class="tab-btn" onclick="switchTab('tab-curves', this)"><i class="fa-solid fa-chart-line"></i> 2. กราฟลักษณะเฉพาะ</button>
+    <button class="tab-btn" onclick="switchTab('tab-circuits', this)"><i class="fa-solid fa-plug"></i> 3. วงจรไบอัส & Lab</button>
+    <button class="tab-btn" onclick="switchTab('tab-tester', this)"><i class="fa-solid fa-toolbox"></i> 4. FET Tester</button>
+    <button class="tab-btn" onclick="switchTab('tab-quiz', this)"><i class="fa-solid fa-graduation-cap"></i> 5. แบบทดสอบ & Sheets</button>
+  </div>
+</header>
+<main class="main-container">
+
+<!-- TAB 1: FET/MOSFET TYPES, STRUCTURE PHYSICS & SCHEMATIC SYMBOLS -->
+<section id="tab-physics" class="tab-content active">
+  <!-- Sub-mode Selector for Tab 1 -->
+  <div style="display:flex;gap:0.75rem;margin-bottom:1.25rem;flex-wrap:wrap;border-bottom:1px solid rgba(255,255,255,0.08);padding-bottom:0.75rem;">
+    <button class="pill-btn active" id="subtab-btn-physics" onclick="switchPhysicsSubTab('carrier_physics', this)">
+      <i class="fa-solid fa-atom"></i> 1. โครงสร้างฟิสิกส์ &amp; การเคลื่อนที่ของพาหะ (Carrier Physics)
+    </button>
+    <button class="pill-btn" id="subtab-btn-symbols" onclick="switchPhysicsSubTab('symbols_gallery', this)">
+      <i class="fa-solid fa-shapes"></i> 2. สัญลักษณ์ของ FET แต่ละชนิด (Schematic Symbols &amp; Pinouts)
+    </button>
+  </div>
+
+  <!-- SUB-VIEW 1: CARRIER PHYSICS SIMULATOR -->
+  <div id="subview-carrier-physics">
+    <div class="pill-group" style="margin-bottom:1rem;">
+      <button class="pill-btn active" onclick="selectFetType('jfet_n', this)"><i class="fa-solid fa-bolt"></i> 1. N-Channel JFET</button>
+      <button class="pill-btn" onclick="selectFetType('jfet_p', this)"><i class="fa-solid fa-bolt"></i> 2. P-Channel JFET</button>
+      <button class="pill-btn" onclick="selectFetType('dmosfet_n', this)"><i class="fa-solid fa-layer-group"></i> 3. N-Channel D-MOSFET (Depletion)</button>
+      <button class="pill-btn" onclick="selectFetType('emosfet_n', this)"><i class="fa-solid fa-microchip"></i> 4. N-Channel E-MOSFET (Enhancement)</button>
+    </div>
+
+    <div class="grid-2col">
+      <div class="glass-card">
+        <div class="card-title">
+          <div class="card-title-text"><i class="fa-solid fa-atom"></i> โครงสร้างทางกายภาพ &amp; การเคลื่อนที่ของพาหะ (Carrier Physics)</div>
+          <span class="status-badge active-region" id="physics-state-badge"><i class="fa-solid fa-wave-square"></i> นำกระแสปกติ (Active Channel)</span>
+        </div>
+        <div class="canvas-card-wrapper">
+          <div class="canvas-header-bar">
+            <span style="color:var(--accent-primary);" id="physics-canvas-title">โครงสร้าง N-Channel JFET (Electrons Flow: Source &rarr; Drain)</span>
+            <span style="font-family:var(--font-mono);font-size:0.75rem;color:var(--text-muted);">Canvas 2D Simulator</span>
+          </div>
+          <canvas id="canvas-carrier-physics" width="660" height="280"></canvas>
+        </div>
+
+        <div class="theory-box" id="physics-theory-box">
+          <strong>โครงสร้างและฟิสิกส์การนำกระแสของ N-Channel JFET:</strong><br>
+          • ขั้วต่อ 3 ขั้ว: <strong>Drain (D), Source (S), Gate (G)</strong><br>
+          • ขั้ว Gate ต่อเข้ากับสารกึ่งตัวนำชนิด P ขนาบสองข้างของ N-Channel เมื่อป้อนแรงดันย้อนกลับ (Reverse Bias) V<sub>GS</sub> &lt; 0 จะเกิด <strong>Depletion Region</strong> ขยายตัวบีบช่องทางเดินของอิเล็กตรอน<br>
+          • เมื่อ V<sub>GS</sub> = V<sub>P</sub> (Pinch-off Voltage) ช่องนำกระแสจะถูกบีบจนตัดกระแส (I<sub>D</sub> = 0)
+        </div>
+      </div>
+
+      <div class="glass-card">
+        <div class="card-title">
+          <div class="card-title-text"><i class="fa-solid fa-sliders"></i> ควบคุมแรงดันไบอัสรอยต่อ</div>
+        </div>
+
+        <div class="control-group">
+          <div class="control-label-row">
+            <span class="control-label-title">แรงดันเกต-ซอร์ส V<sub>GS</sub></span>
+            <span class="control-value-badge" id="phy-vgs-badge">-1.0 V</span>
+          </div>
+          <input type="range" id="slider-phy-vgs" min="-6.0" max="4.0" step="0.1" value="-1.0" oninput="onPhysicsChange()">
+          <div style="font-size:0.75rem;color:var(--text-muted);margin-top:4px;" id="phy-vgs-hint">ช่วงการทำงาน JFET: 0V ถึง V_P (-4V)</div>
+        </div>
+
+        <div class="control-group">
+          <div class="control-label-row">
+            <span class="control-label-title">แรงดันเดรน-ซอร์ส V<sub>DS</sub></span>
+            <span class="control-value-badge" id="phy-vds-badge">5.0 V</span>
+          </div>
+          <input type="range" id="slider-phy-vds" min="0" max="15" step="0.2" value="5.0" oninput="onPhysicsChange()">
+        </div>
+
+        <div class="readout-grid">
+          <div class="readout-card">
+            <div class="readout-title">กระแสเดรน I<sub>D</sub></div>
+            <div class="readout-val" id="phy-id-val">5.62 <span class="readout-unit">mA</span></div>
+          </div>
+          <div class="readout-card green">
+            <div class="readout-title">บริเวณการทำงาน (Region)</div>
+            <div class="readout-val" id="phy-region-val" style="font-size:0.95rem;">Saturation</div>
+          </div>
+          <div class="readout-card amber">
+            <div class="readout-title">ความกว้าง Channel (W<sub>ch</sub>)</div>
+            <div class="readout-val" id="phy-wch-val">68 <span class="readout-unit">%</span></div>
+          </div>
+          <div class="readout-card secondary">
+            <div class="readout-title">Pinch-off / V<sub>th</sub></div>
+            <div class="readout-val" id="phy-vp-val">-4.0 <span class="readout-unit">V</span></div>
+          </div>
+        </div>
+
+        <div style="margin-top:1.25rem;padding:0.75rem;background:rgba(15,23,42,0.6);border-radius:var(--radius-sm);border:1px solid var(--border-glass);">
+          <div style="font-size:0.8rem;font-weight:600;color:var(--accent-primary);margin-bottom:0.4rem;">
+            <i class="fa-solid fa-circle-info"></i> เปรียบเทียบโหมดของ MOSFET:
+          </div>
+          <div style="font-size:0.76rem;color:var(--text-secondary);line-height:1.45;">
+            • <strong>Depletion Mode (D-MOS):</strong> มี Channel อยู่แล้ว ป้อน V<sub>GS</sub> &lt; 0 เพื่อลดกระแส หรือ V<sub>GS</sub> &gt; 0 เพื่อเพิ่มกระแส<br>
+            • <strong>Enhancement Mode (E-MOS):</strong> ไม่มี Channel ปกติตัดกระแส ต้องป้อน V<sub>GS</sub> &gt; V<sub>th</sub> เพื่อดึงอิเล็กตรอนสร้าง Inversion Layer
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUB-VIEW 2: FET SCHEMATIC SYMBOLS GALLERY & INSPECTOR -->
+  <div id="subview-symbols-gallery" style="display:none;">
+    <!-- Top Pill Switcher for Symbol Inspector -->
+    <div class="pill-group" style="margin-bottom:1rem;">
+      <button class="pill-btn active" id="btn-sym-jfet-n" onclick="selectSymbolView('jfet_n', this)"><i class="fa-solid fa-bolt"></i> N-JFET</button>
+      <button class="pill-btn" id="btn-sym-jfet-p" onclick="selectSymbolView('jfet_p', this)"><i class="fa-solid fa-bolt"></i> P-JFET</button>
+      <button class="pill-btn" id="btn-sym-dmos-n" onclick="selectSymbolView('dmos_n', this)"><i class="fa-solid fa-layer-group"></i> N-Channel D-MOS</button>
+      <button class="pill-btn" id="btn-sym-dmos-p" onclick="selectSymbolView('dmos_p', this)"><i class="fa-solid fa-layer-group"></i> P-Channel D-MOS</button>
+      <button class="pill-btn" id="btn-sym-emos-n" onclick="selectSymbolView('emos_n', this)"><i class="fa-solid fa-microchip"></i> N-Channel E-MOS</button>
+      <button class="pill-btn" id="btn-sym-emos-p" onclick="selectSymbolView('emos_p', this)"><i class="fa-solid fa-microchip"></i> P-Channel E-MOS</button>
+      <button class="pill-btn" id="btn-sym-power-mos" onclick="selectSymbolView('power_mos', this)"><i class="fa-solid fa-shield-halved"></i> Power MOSFET (Body Diode)</button>
+    </div>
+
+    <div class="grid-2col">
+      <!-- Left: Interactive Vector Symbol Canvas -->
+      <div class="glass-card">
+        <div class="card-title">
+          <div class="card-title-text"><i class="fa-solid fa-compass-drafting"></i> <span id="symbol-detail-title">สัญลักษณ์วงจร N-Channel JFET</span></div>
+          <span class="status-badge active-region" id="symbol-detail-badge">JFET N-Type</span>
+        </div>
+        
+        <div class="canvas-card-wrapper" style="margin-bottom:1rem;">
+          <div class="canvas-header-bar">
+            <span style="color:var(--accent-primary);" id="symbol-canvas-header">Schematic Symbol &amp; Terminal Identification</span>
+            <span style="font-family:var(--font-mono);font-size:0.75rem;color:var(--text-muted);">Vector Canvas</span>
+          </div>
+          <canvas id="canvas-symbol-inspector" width="660" height="280"></canvas>
+        </div>
+
+        <div class="theory-box" id="symbol-detail-explanation">
+          <!-- Injected via JavaScript -->
+        </div>
+      </div>
+
+      <!-- Right: Rules for Reading FET Symbols & Complete Comparison Table -->
+      <div class="glass-card">
+        <div class="card-title">
+          <div class="card-title-text"><i class="fa-solid fa-key"></i> หลักการจำและวิธีดูสัญลักษณ์ FET ทุกชนิด</div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr;gap:0.75rem;margin-bottom:1rem;">
+          <div style="padding:0.65rem 0.85rem;background:rgba(6,182,212,0.08);border-left:3px solid var(--accent-primary);border-radius:6px;font-size:0.8rem;line-height:1.5;">
+            <strong style="color:var(--accent-primary);"><i class="fa-solid fa-arrow-right-to-bracket"></i> 1. ทิศทางหัวลูกศร (Arrow Direction):</strong><br>
+            • <strong>ลูกศรชี้เข้า (Point IN):</strong> คือ <strong>N-Channel</strong> (อิเล็กตรอนวิ่งเข้าหา Channel)<br>
+            • <strong>ลูกศรชี้ออก (Point OUT):</strong> คือ <strong>P-Channel</strong> (โฮลไหลออกจาก Channel)
+          </div>
+
+          <div style="padding:0.65rem 0.85rem;background:rgba(168,85,247,0.08);border-left:3px solid #a855f7;border-radius:6px;font-size:0.8rem;line-height:1.5;">
+            <strong style="color:#c084fc;"><i class="fa-solid fa-layer-group"></i> 2. ขา Gate &amp; ฉนวน (JFET vs MOSFET):</strong><br>
+            • <strong>JFET:</strong> ขา Gate ลาก <strong>แตะติดกับเส้น Channel</strong> โดยตรง (รอยต่อ PN)<br>
+            • <strong>MOSFET:</strong> ขา Gate ลาก <strong>เว้นวรรคไม่แตะเส้น Channel</strong> (มีฉนวน SiO<sub>2</sub> คั่นกั้นกระแส)
+          </div>
+
+          <div style="padding:0.65rem 0.85rem;background:rgba(16,185,129,0.08);border-left:3px solid #10b981;border-radius:6px;font-size:0.8rem;line-height:1.5;">
+            <strong style="color:#34d399;"><i class="fa-solid fa-grip-lines"></i> 3. ลักษณะเส้น Channel (D-MOS vs E-MOS):</strong><br>
+            • <strong>D-MOSFET (Depletion):</strong> เส้น Channel ลากเป็น <strong>เส้นทึบแถบยาวต่อเนื่อง</strong> (Normally ON มีช่องนำกระแสตั้งแต่แรก)<br>
+            • <strong>E-MOSFET (Enhancement):</strong> เส้น Channel ลากเป็น <strong>เส้นประ 3 ท่อนขาดตอน</strong> (Normally OFF ต้องป้อน V<sub>GS</sub> &gt; V<sub>th</sub> เพื่อสร้าง Inversion Layer)
+          </div>
+        </div>
+
+        <div style="font-size:0.85rem;font-weight:600;color:var(--text-secondary);margin-bottom:0.45rem;">
+          <i class="fa-solid fa-table-list"></i> ตารางสรุปเปรียบเทียบสัญลักษณ์ FET ทั้งหมด:
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="datasheet-table" style="font-size:0.75rem;">
+            <thead>
+              <tr>
+                <th>ชนิด (Type)</th>
+                <th>ขั้วเกต (Gate)</th>
+                <th>เส้น Channel</th>
+                <th>หัวลูกศร (Arrow)</th>
+                <th>สภาวะปกติ (V<sub>GS</sub> = 0)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="font-weight:700;color:#38bdf8;">N-JFET</td>
+                <td>แตะตรง Channel</td>
+                <td>เส้นทึบ</td>
+                <td style="color:#34d399;font-weight:700;">ชี้เข้าที่ Gate &rarr;</td>
+                <td>ON (นำกระแส I<sub>DSS</sub>)</td>
+              </tr>
+              <tr>
+                <td style="font-weight:700;color:#fb7185;">P-JFET</td>
+                <td>แตะตรง Channel</td>
+                <td>เส้นทึบ</td>
+                <td style="color:#f43f5e;font-weight:700;">ชี้ออกจาก Gate &larr;</td>
+                <td>ON (นำกระแส I<sub>DSS</sub>)</td>
+              </tr>
+              <tr>
+                <td style="font-weight:700;color:#38bdf8;">N-Channel D-MOS</td>
+                <td>เว้นวรรค (ฉนวน)</td>
+                <td>เส้นทึบแถบยาว</td>
+                <td style="color:#34d399;font-weight:700;">ชี้เข้าที่ Substrate &rarr;</td>
+                <td>ON (นำกระแส I<sub>DSS</sub>)</td>
+              </tr>
+              <tr>
+                <td style="font-weight:700;color:#fb7185;">P-Channel D-MOS</td>
+                <td>เว้นวรรค (ฉนวน)</td>
+                <td>เส้นทึบแถบยาว</td>
+                <td style="color:#f43f5e;font-weight:700;">ชี้ออกจาก Substrate &larr;</td>
+                <td>ON (นำกระแส I<sub>DSS</sub>)</td>
+              </tr>
+              <tr>
+                <td style="font-weight:700;color:#38bdf8;">N-Channel E-MOS</td>
+                <td>เว้นวรรค (ฉนวน)</td>
+                <td style="color:#eab308;font-weight:700;">เส้นประ 3 ท่อน</td>
+                <td style="color:#34d399;font-weight:700;">ชี้เข้าที่ Substrate &rarr;</td>
+                <td>OFF (ตัดกระแส I<sub>D</sub> = 0)</td>
+              </tr>
+              <tr>
+                <td style="font-weight:700;color:#fb7185;">P-Channel E-MOS</td>
+                <td>เว้นวรรค (ฉนวน)</td>
+                <td style="color:#eab308;font-weight:700;">เส้นประ 3 ท่อน</td>
+                <td style="color:#f43f5e;font-weight:700;">ชี้ออกจาก Substrate &larr;</td>
+                <td>OFF (ตัดกระแส I<sub>D</sub> = 0)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div></section>
+
+
+<!-- TAB 2: FET CHARACTERISTIC CURVES -->
+<section id="tab-curves" class="tab-content">
+  <div class="grid-2col">
+    <div class="glass-card">
+      <div class="card-title">
+        <div class="card-title-text"><i class="fa-solid fa-chart-line"></i> กราฟลักษณะเฉพาะเดรน & เส้นโหลด DC (Drain Curves & Load Line)</div>
+      </div>
+      <div class="canvas-card-wrapper">
+        <div class="canvas-header-bar">
+          <span style="color:var(--accent-primary);">Family of Curves (I_D vs V_DS) พร้อมจุดทำงาน Q-Point</span>
+          <span style="font-family:var(--font-mono);font-size:0.75rem;color:var(--text-muted);" id="curves-mode-text">JFET (I_DSS = 10mA, V_P = -4V)</span>
+        </div>
+        <canvas id="canvas-drain-curves" width="660" height="300"></canvas>
+      </div>
+
+      <div class="readout-grid">
+        <div class="readout-card">
+          <div class="readout-title">I<sub>D(Q)</sub> (จุดทำงาน)</div>
+          <div class="readout-val" id="crv-idq-val">4.50 <span class="readout-unit">mA</span></div>
+        </div>
+        <div class="readout-card secondary">
+          <div class="readout-title">V<sub>DS(Q)</sub> (จุดทำงาน)</div>
+          <div class="readout-val" id="crv-vdsq-val">6.25 <span class="readout-unit">V</span></div>
+        </div>
+        <div class="readout-card green">
+          <div class="readout-title">Transconductance (g<sub>m</sub>)</div>
+          <div class="readout-val" id="crv-gm-val">2.8 <span class="readout-unit">mS</span></div>
+        </div>
+        <div class="readout-card amber">
+          <div class="readout-title">สถานะบริเวณ (State)</div>
+          <div class="readout-val" id="crv-state-val" style="font-size:0.95rem;">Active / Sat</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="glass-card">
+      <div class="card-title">
+        <div class="card-title-text"><i class="fa-solid fa-sliders"></i> ปรับแต่งพารามิเตอร์กราฟ & จุด Q</div>
+      </div>
+
+      <div class="control-group">
+        <div class="control-label-row">
+          <span class="control-label-title">ชนิดอุปกรณ์ (Device Model)</span>
+        </div>
+        <div class="pill-group" style="margin-bottom:0.5rem;">
+          <button class="pill-btn active" id="btn-crv-jfet" onclick="setCurvesDevice('jfet')">JFET (Shockley)</button>
+          <button class="pill-btn" id="btn-crv-dmos" onclick="setCurvesDevice('dmos')">D-MOSFET</button>
+          <button class="pill-btn" id="btn-crv-emos" onclick="setCurvesDevice('emos')">E-MOSFET</button>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <div class="control-label-row">
+          <span class="control-label-title">แรงดันไบอัส V<sub>GS</sub></span>
+          <span class="control-value-badge" id="crv-vgs-badge">-1.5 V</span>
+        </div>
+        <input type="range" id="slider-crv-vgs" min="-4.0" max="6.0" step="0.1" value="-1.5" oninput="onCurvesChange()">
+      </div>
+
+      <div class="control-group">
+        <div class="control-label-row">
+          <span class="control-label-title">แรงดันแหล่งจ่าย V<sub>DD</sub></span>
+          <span class="control-value-badge" id="crv-vdd-badge">15.0 V</span>
+        </div>
+        <input type="range" id="slider-crv-vdd" min="6.0" max="24.0" step="0.5" value="15.0" oninput="onCurvesChange()">
+      </div>
+
+      <div class="control-group">
+        <div class="control-label-row">
+          <span class="control-label-title">ตัวต้านทานเดรน R<sub>D</sub></span>
+          <span class="control-value-badge" id="crv-rd-badge">1.8 kΩ</span>
+        </div>
+        <input type="range" id="slider-crv-rd" min="0.5" max="5.0" step="0.1" value="1.8" oninput="onCurvesChange()">
+      </div>
+
+      <div class="theory-box">
+        <strong>สมการลักษณะเฉพาะหลัก:</strong><br>
+        • <strong>สมการ Shockley (JFET / D-MOSFET):</strong><br>
+        <span style="font-family:var(--font-mono);color:#38bdf8;">I<sub>D</sub> = I<sub>DSS</sub> · [1 − (V<sub>GS</sub> / V<sub>P</sub>)]²</span><br>
+        • <strong>สมการ E-MOSFET (Square Law):</strong><br>
+        <span style="font-family:var(--font-mono);color:#38bdf8;">I<sub>D</sub> = k · (V<sub>GS</sub> − V<sub>th</sub>)²</span> (เมื่อ V<sub>GS</sub> ≥ V<sub>th</sub>)<br>
+        • <strong>ความชัน Transconductance:</strong> g<sub>m</sub> = ΔI<sub>D</sub> / ΔV<sub>GS</sub>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TAB 3: FET BIASING CIRCUITS & VIRTUAL LAB -->
+<section id="tab-circuits" class="tab-content">
+  <div class="pill-group" style="margin-bottom:1.25rem;">
+    <button class="pill-btn active" onclick="switchBiasMode('fixed_bias', this)"><i class="fa-solid fa-battery-half"></i> 1. Fixed-Bias (JFET)</button>
+    <button class="pill-btn" onclick="switchBiasMode('self_bias', this)"><i class="fa-solid fa-arrows-rotate"></i> 2. Self-Bias (JFET)</button>
+    <button class="pill-btn" onclick="switchBiasMode('voltage_divider', this)"><i class="fa-solid fa-divide"></i> 3. Voltage-Divider Bias</button>
+    <button class="pill-btn" onclick="switchBiasMode('mosfet_switch', this)"><i class="fa-solid fa-toggle-on"></i> 4. MOSFET Power Switch</button>
+  </div>
+
+  <div class="grid-2col">
+    <div class="glass-card">
+      <div class="card-title">
+        <div class="card-title-text"><i class="fa-solid fa-display"></i> <span id="circuit-lab-title">วงจร Fixed-Bias ของ JFET</span></div>
+        <button class="btn btn-secondary btn-sm" id="btn-pause-sim" onclick="toggleSimPause()">
+          <i class="fa-solid fa-pause"></i> <span id="pause-btn-text">หยุดชั่วคราว</span>
+        </button>
+      </div>
+
+      <div class="canvas-card-wrapper">
+        <div class="canvas-header-bar">
+          <div class="canvas-header-title" style="color:var(--accent-primary);">
+            <i class="fa-solid fa-diagram-project"></i> ผังวงจรเสมือนจริง (Interactive Circuit Schematic)
+          </div>
+          <span class="status-badge connected" id="schematic-badge"><i class="fa-solid fa-bolt"></i> กำลังทำงาน</span>
+        </div>
+        <canvas id="canvas-schematic" width="660" height="250"></canvas>
+      </div>
+
+      <div class="canvas-card-wrapper">
+        <div class="canvas-header-bar">
+          <div class="canvas-header-title"><i class="fa-solid fa-wave-square"></i> สัญญาณออสซิลโลสโคป (CH1 Input สีเหลือง / CH2 Output สีฟ้า)</div>
+          <div class="osc-control-bar" style="margin:0;padding:0.2rem 0.5rem;">
+            <div class="osc-ctrl-item">
+              <span>CH1:</span>
+              <select class="osc-select" id="osc-ch1-scale" onchange="onOscScaleChange()">
+                <option value="0.05">0.05V/div</option>
+                <option value="0.1">0.1V/div</option>
+                <option value="0.2">0.2V/div</option>
+                <option value="0.5" selected>0.5V/div</option>
+                <option value="1">1V/div</option>
+              </select>
+            </div>
+            <div class="osc-ctrl-item">
+              <span>CH2:</span>
+              <select class="osc-select" id="osc-ch2-scale" onchange="onOscScaleChange()">
+                <option value="0.5">0.5V/div</option>
+                <option value="1">1V/div</option>
+                <option value="2" selected>2V/div</option>
+                <option value="5">5V/div</option>
+                <option value="10">10V/div</option>
+              </select>
+            </div>
+            <div class="osc-ctrl-item">
+              <label style="cursor:pointer;display:flex;align-items:center;gap:3px;">
+                <input type="checkbox" id="osc-autoscale" checked onchange="onOscScaleChange()">
+                <span style="font-size:0.72rem;color:var(--accent-primary);">Auto</span>
+              </label>
+            </div>
+          </div>
+        </div>
+        <canvas id="canvas-osc" width="660" height="185"></canvas>
+      </div>
+    </div>
+
+    <div class="glass-card">
+      <div class="card-title"><div class="card-title-text"><i class="fa-solid fa-sliders"></i> ตัวควบคุมวงจรไบอัส</div></div>
+
+      <!-- Controls: Fixed Bias -->
+      <div id="ctrl-fixed-bias">
+        <div class="control-group">
+          <div class="control-label-row"><span class="control-label-title">แรงดันไบอัสเกต V<sub>GG</sub></span><span class="control-value-badge" id="fx-vgg-badge">-1.5 V</span></div>
+          <input type="range" id="slider-fx-vgg" min="-4.0" max="0.0" step="0.1" value="-1.5" oninput="onCircuitChange()">
+        </div>
+        <div class="control-group">
+          <div class="control-label-row"><span class="control-label-title">แรงดันแหล่งจ่าย V<sub>DD</sub></span><span class="control-value-badge" id="fx-vdd-badge">12.0 V</span></div>
+          <input type="range" id="slider-fx-vdd" min="6.0" max="24.0" step="0.5" value="12.0" oninput="onCircuitChange()">
+        </div>
+        <div class="control-group">
+          <div class="control-label-row"><span class="control-label-title">ตัวต้านทานเดรน R<sub>D</sub></span><span class="control-value-badge" id="fx-rd-badge">2.2 kΩ</span></div>
+          <input type="range" id="slider-fx-rd" min="0.5" max="5.0" step="0.1" value="2.2" oninput="onCircuitChange()">
+        </div>
+      </div>
+
+      <!-- Controls: Self Bias -->
+      <div id="ctrl-self-bias" style="display:none;">
+        <div class="control-group">
+          <div class="control-label-row"><span class="control-label-title">ตัวต้านทานซอร์ส R<sub>S</sub> (สร้าง V<sub>GS</sub> = −I<sub>D</sub>R<sub>S</sub>)</span><span class="control-value-badge" id="sb-rs-badge">500 Ω</span></div>
+          <input type="range" id="slider-sb-rs" min="100" max="2000" step="50" value="500" oninput="onCircuitChange()">
+        </div>
+        <div class="control-group">
+          <div class="control-label-row"><span class="control-label-title">แรงดันแหล่งจ่าย V<sub>DD</sub></span><span class="control-value-badge" id="sb-vdd-badge">15.0 V</span></div>
+          <input type="range" id="slider-sb-vdd" min="6.0" max="24.0" step="0.5" value="15.0" oninput="onCircuitChange()">
+        </div>
+        <div class="control-group">
+          <div class="control-label-row"><span class="control-label-title">ตัวต้านทานเดรน R<sub>D</sub></span><span class="control-value-badge" id="sb-rd-badge">2.7 kΩ</span></div>
+          <input type="range" id="slider-sb-rd" min="0.5" max="5.0" step="0.1" value="2.7" oninput="onCircuitChange()">
+        </div>
+      </div>
+
+      <!-- Controls: Voltage Divider -->
+      <div id="ctrl-voltage-divider" style="display:none;">
+        <div class="control-group">
+          <div class="control-label-row"><span class="control-label-title">แรงดันแหล่งจ่าย V<sub>DD</sub></span><span class="control-value-badge" id="vd-vdd-badge">15.0 V</span></div>
+          <input type="range" id="slider-vd-vdd" min="6.0" max="24.0" step="0.5" value="15.0" oninput="onCircuitChange()">
+        </div>
+        <div class="control-group">
+          <div class="control-label-row"><span class="control-label-title">ตัวต้านทาน R<sub>1</sub></span><span class="control-value-badge" id="vd-r1-badge">1.0 MΩ</span></div>
+          <input type="range" id="slider-vd-r1" min="0.2" max="5.0" step="0.1" value="1.0" oninput="onCircuitChange()">
+        </div>
+        <div class="control-group">
+          <div class="control-label-row"><span class="control-label-title">ตัวต้านทาน R<sub>2</sub></span><span class="control-value-badge" id="vd-r2-badge">220 kΩ</span></div>
+          <input type="range" id="slider-vd-r2" min="50" max="500" step="10" value="220" oninput="onCircuitChange()">
+        </div>
+        <div class="control-group">
+          <div class="control-label-row"><span class="control-label-title">ตัวต้านทานเดรน R<sub>D</sub></span><span class="control-value-badge" id="vd-rd-badge">2.2 kΩ</span></div>
+          <input type="range" id="slider-vd-rd" min="0.5" max="5.0" step="0.1" value="2.2" oninput="onCircuitChange()">
+        </div>
+        <div class="control-group">
+          <div class="control-label-row"><span class="control-label-title">ตัวต้านทานซอร์ส R<sub>S</sub></span><span class="control-value-badge" id="vd-rs-badge">1.5 kΩ</span></div>
+          <input type="range" id="slider-vd-rs" min="0.2" max="4.0" step="0.1" value="1.5" oninput="onCircuitChange()">
+        </div>
+      </div>
+
+      <!-- Controls: MOSFET Switch -->
+      <div id="ctrl-mosfet-switch" style="display:none;">
+        <div class="control-group">
+          <div style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:0.75rem;font-weight:500;">ควบคุมสัญญาณ Logic Gate Input:</div>
+          <div style="display:flex;gap:0.75rem;">
+            <button class="btn btn-success" style="flex:1;" onclick="setMosfetSwitch(true)"><i class="fa-solid fa-toggle-on"></i> Logic HIGH (5V - ON)</button>
+            <button class="btn btn-danger" style="flex:1;" onclick="setMosfetSwitch(false)"><i class="fa-solid fa-toggle-off"></i> Logic LOW (0V - OFF)</button>
+          </div>
+        </div>
+        <div class="control-group">
+          <div class="control-label-row"><span class="control-label-title">แรงดันโหลด V<sub>DD</sub></span><span class="control-value-badge" id="sw-vdd-badge">12.0 V</span></div>
+          <input type="range" id="slider-sw-vdd" min="5.0" max="24.0" step="0.5" value="12.0" oninput="onCircuitChange()">
+        </div>
+        <div class="control-group">
+          <div class="control-label-row"><span class="control-label-title">ตัวต้านทานโหลด R<sub>Load</sub> (Motor/LED)</span><span class="control-value-badge" id="sw-rload-badge">24 Ω</span></div>
+          <input type="range" id="slider-sw-rload" min="5" max="100" step="1" value="24" oninput="onCircuitChange()">
+        </div>
+      </div>
+
+      <div class="readout-grid" style="margin-top:1rem;">
+        <div class="readout-card"><div class="readout-title">V<sub>DS</sub> / สถานะเอาต์พุต</div><div class="readout-val" id="cir-vds-val">—</div></div>
+        <div class="readout-card green"><div class="readout-title">กระแสเดรน I<sub>D</sub></div><div class="readout-val" id="cir-id-val">—</div></div>
+        <div class="readout-card amber"><div class="readout-title">แรงดันเกต-ซอร์ส V<sub>GS</sub></div><div class="readout-val" id="cir-vgs-val">—</div></div>
+        <div class="readout-card secondary"><div class="readout-title">แรงดันเดรน V<sub>D</sub></div><div class="readout-val" id="cir-vd-val">—</div></div>
+        <div class="readout-card purple"><div class="readout-title">แรงดันซอร์ส V<sub>S</sub></div><div class="readout-val" id="cir-vs-val">0.00 V</div></div>
+        <div class="readout-card"><div class="readout-title" id="cir-gm-title">Transconductance g<sub>m</sub></div><div class="readout-val" id="cir-gm-val">—</div></div>
+      </div>
+
+      <div class="theory-box" id="circuit-theory-box" style="margin-top:1rem;">
+        <div style="font-size:0.85rem;font-weight:700;color:var(--accent-primary);margin-bottom:0.4rem;display:flex;align-items:center;gap:0.4rem;">
+          <i class="fa-solid fa-square-root-variable"></i> สมการหลัก & ขั้นตอนการคำนวณพารามิเตอร์วงจรไบอัส (Step-by-Step Calculations):
+        </div>
+        <div id="circuit-calc-details" style="font-size:0.8rem;line-height:1.6;color:var(--text-secondary);">
+          <!-- Dynamic calculations inserted by JavaScript -->
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TAB 4: FET TESTER & DATASHEETS -->
+<section id="tab-tester" class="tab-content">
+  <div class="grid-2col">
+    <div class="glass-card">
+      <div class="card-title">
+        <div class="card-title-text"><i class="fa-solid fa-toolbox"></i> จำลองเครื่องมือวัดและทดสอบ FET (Digital Multimeter Tester)</div>
+        <span class="status-badge connected" id="tester-status-badge"><i class="fa-solid fa-check"></i> ตัวถังปกติ (Good Device)</span>
+      </div>
+
+      <div class="canvas-card-wrapper">
+        <div class="canvas-header-bar">
+          <span style="color:var(--accent-primary);">การวัดด้วย DMM โหมด Diode / Ohms</span>
+          <span style="font-family:var(--font-mono);font-size:0.75rem;color:var(--text-muted);" id="tester-mode-label">Gate-Source Resistance</span>
+        </div>
+        <canvas id="canvas-tester" width="660" height="260"></canvas>
+      </div>
+
+      <div class="readout-grid">
+        <div class="readout-card">
+          <div class="readout-title">ค่าที่วัดได้บนหน้าจอ DMM</div>
+          <div class="readout-val" id="dmm-display-val">O.L <span class="readout-unit">(MΩ)</span></div>
+        </div>
+        <div class="readout-card green">
+          <div class="readout-title">สถานะความต้านทานรอยต่อ</div>
+          <div class="readout-val" id="dmm-state-val" style="font-size:0.95rem;">Insulated (ฉนวน)</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="glass-card">
+      <div class="card-title"><div class="card-title-text"><i class="fa-solid fa-sliders"></i> เลือกการทดสอบ & จำลอง Fault</div></div>
+
+      <div class="control-group">
+        <div class="control-label-row"><span class="control-label-title">ชนิดอุปกรณ์ที่ต้องการวัด</span></div>
+        <div class="pill-group" style="margin-bottom:0.75rem;">
+          <button class="pill-btn active" id="btn-tst-jfet" onclick="setTesterDevice('jfet')">JFET (2N5457)</button>
+          <button class="pill-btn" id="btn-tst-mosfet" onclick="setTesterDevice('mosfet')">MOSFET (2N7000)</button>
+          <button class="pill-btn" id="btn-tst-power" onclick="setTesterDevice('power')">Power MOS (IRFZ44N)</button>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <div class="control-label-row"><span class="control-label-title">คู่ขาที่นำสายมิเตอร์วัด</span></div>
+        <div class="pill-group" style="margin-bottom:0.75rem;">
+          <button class="pill-btn active" id="btn-tst-gs" onclick="setTesterPins('GS')">Gate − Source</button>
+          <button class="pill-btn" id="btn-tst-gd" onclick="setTesterPins('GD')">Gate − Drain</button>
+          <button class="pill-btn" id="btn-tst-ds" onclick="setTesterPins('DS')">Drain − Source</button>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <div class="control-label-row"><span class="control-label-title">จำลองสภาวะตัวถัง (Fault Condition)</span></div>
+        <div class="pill-group" style="margin-bottom:0.75rem;">
+          <button class="pill-btn active" id="btn-flt-good" onclick="setTesterFault('good')">ปกติ (Good)</button>
+          <button class="pill-btn" id="btn-flt-leak" onclick="setTesterFault('leak')">Gate รั่ว (Leaky)</button>
+          <button class="pill-btn" id="btn-flt-short" onclick="setTesterFault('short')">D-S ช็อต (Short)</button>
+          <button class="pill-btn" id="btn-flt-open" onclick="setTesterFault('open')">ขาขาด (Open)</button>
+        </div>
+      </div>
+
+      <div class="theory-box" id="tester-explanation-box">
+        <strong>หลักการตรวจสอบ FET ด้วยมัลติมิเตอร์:</strong><br>
+        • <strong>MOSFET:</strong> ขา Gate ถูกคั่นด้วยชั้นฉนวน SiO₂ ดังนั้นวัดระหว่าง G-S และ G-D ต้องได้ความต้านทานเป็นอนันต์ (O.L / Infinite) เสมอทั้งไปและกลับ<br>
+        • <strong>JFET:</strong> ขา G-S และ G-D คือรอยต่อ PN Junction วัดแบบไดโอดจะขึ้นแรงดันตกคร่อม ~0.6–0.7V ในทาง Forward และ O.L ในทาง Reverse<br>
+        • <strong>Body Diode ใน Power MOSFET:</strong> วัดระหว่าง D-S จะพบไดโอดป้องกันภายในนำกระแสได้ในทิศทาง Source → Drain
+      </div>
+    </div>
+  </div>
+
+  <div class="glass-card" style="margin-top:1.25rem;">
+    <div class="card-title"><div class="card-title-text"><i class="fa-solid fa-table"></i> ตาราง Datasheet พิกัดสำคัญของ FET และ MOSFET ยอดนิยม</div></div>
+    <div style="overflow-x:auto;">
+      <table class="table-custom">
+        <thead>
+          <tr>
+            <th>เบอร์อุปกรณ์ (Part No.)</th>
+            <th>ชนิด (Type)</th>
+            <th>V<sub>DS(max)</sub></th>
+            <th>I<sub>D(max)</sub> / I<sub>DSS</sub></th>
+            <th>V<sub>P</sub> / V<sub>GS(th)</sub></th>
+            <th>R<sub>DS(on)</sub> / g<sub>m</sub></th>
+            <th>การนำไปใช้งาน (Applications)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="font-family:var(--font-mono);font-weight:700;color:var(--accent-primary);">2N5457</td>
+            <td>N-Channel JFET</td>
+            <td>25 V</td>
+            <td>1.0 – 5.0 mA</td>
+            <td>-0.5 ถึง -6.0 V</td>
+            <td>g<sub>m</sub> ≈ 1.0–5.0 mS</td>
+            <td>วงจรขยาย Audio Pre-amp, Buffer</td>
+          </tr>
+          <tr>
+            <td style="font-family:var(--font-mono);font-weight:700;color:var(--accent-primary);">BF245</td>
+            <td>N-Channel JFET</td>
+            <td>30 V</td>
+            <td>2.0 – 25 mA</td>
+            <td>-0.5 ถึง -8.0 V</td>
+            <td>g<sub>m</sub> ≈ 3.0–6.0 mS</td>
+            <td>วงจรความถี่สูง VHF / RF Mixer & Amp</td>
+          </tr>
+          <tr>
+            <td style="font-family:var(--font-mono);font-weight:700;color:var(--accent-secondary);">2N7000</td>
+            <td>N-Channel E-MOSFET</td>
+            <td>60 V</td>
+            <td>200 mA</td>
+            <td>V<sub>th</sub> = 0.8 – 3.0 V</td>
+            <td>R<sub>DS(on)</sub> ≈ 5.0 Ω</td>
+            <td>Logic Switching, Relay & LED Driver</td>
+          </tr>
+          <tr>
+            <td style="font-family:var(--font-mono);font-weight:700;color:var(--accent-secondary);">BS170</td>
+            <td>N-Channel E-MOSFET</td>
+            <td>60 V</td>
+            <td>500 mA</td>
+            <td>V<sub>th</sub> = 0.8 – 3.0 V</td>
+            <td>R<sub>DS(on)</sub> ≈ 1.2 Ω</td>
+            <td>High-speed Logic & Motor Driver</td>
+          </tr>
+          <tr>
+            <td style="font-family:var(--font-mono);font-weight:700;color:var(--accent-amber);">IRFZ44N</td>
+            <td>Power N-MOSFET</td>
+            <td>55 V</td>
+            <td>49 A</td>
+            <td>V<sub>th</sub> = 2.0 – 4.0 V</td>
+            <td>R<sub>DS(on)</sub> = 17.5 mΩ</td>
+            <td>SMPS, Inverter, DC Motor PWM Driver</td>
+          </tr>
+          <tr>
+            <td style="font-family:var(--font-mono);font-weight:700;color:var(--accent-amber);">IRF540N</td>
+            <td>Power N-MOSFET</td>
+            <td>100 V</td>
+            <td>33 A</td>
+            <td>V<sub>th</sub> = 2.0 – 4.0 V</td>
+            <td>R<sub>DS(on)</sub> = 44 mΩ</td>
+            <td>DC-DC Converter, Solenoid Driver</td>
+          </tr>
+          <tr>
+            <td style="font-family:var(--font-mono);font-weight:700;color:var(--accent-rose);">IRF9540</td>
+            <td>Power P-MOSFET</td>
+            <td>-100 V</td>
+            <td>-23 A</td>
+            <td>V<sub>th</sub> = -2.0 ถึง -4.0 V</td>
+            <td>R<sub>DS(on)</sub> = 117 mΩ</td>
+            <td>High-Side Switching, H-Bridge Driver</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- TAB 5: QUIZ & GOOGLE SHEETS -->
+<section id="tab-quiz" class="tab-content">
+  <div class="grid-2col">
+    <div class="glass-card">
+      <div class="card-title">
+        <div class="card-title-text"><i class="fa-solid fa-graduation-cap"></i> แบบทดสอบวัดความรู้เรื่อง FET & MOSFET (12 ข้อ)</div>
+        <span class="status-badge connected" id="quiz-score-badge">คะแนน: 0 / 12</span>
+      </div>
+      <div id="quiz-container" class="quiz-container"></div>
+      <div style="display:flex;gap:0.75rem;margin-top:1.25rem;">
+        <button class="btn" onclick="submitQuiz()"><i class="fa-solid fa-paper-plane"></i> ตรวจคำตอบ</button>
+        <button class="btn btn-secondary" onclick="resetQuiz()"><i class="fa-solid fa-rotate-right"></i> เริ่มทำใหม่</button>
+      </div>
+    </div>
+
+    <div class="glass-card">
+      <div class="card-title"><div class="card-title-text"><i class="fa-solid fa-cloud-arrow-up"></i> บันทึกผลคะแนนสู่ Google Sheets</div></div>
+
+      <div class="control-group">
+        <label style="font-size:0.83rem;color:var(--text-secondary);display:block;margin-bottom:0.35rem;">ชื่อ-นามสกุล ผู้เรียน:</label>
+        <input type="text" id="student-name" placeholder="ระบุชื่อ-นามสกุล..." style="width:100%;padding:0.5rem 0.75rem;background:rgba(5,11,20,0.6);border:1px solid var(--border-glass);border-radius:var(--radius-sm);color:var(--text-primary);font-family:var(--font-thai);outline:none;">
+      </div>
+
+      <div class="control-group">
+        <label style="font-size:0.83rem;color:var(--text-secondary);display:block;margin-bottom:0.35rem;">รหัสนักศึกษา / กลุ่มเรียน:</label>
+        <input type="text" id="student-class" placeholder="ระบุรหัส / กลุ่ม..." style="width:100%;padding:0.5rem 0.75rem;background:rgba(5,11,20,0.6);border:1px solid var(--border-glass);border-radius:var(--radius-sm);color:var(--text-primary);font-family:var(--font-thai);outline:none;">
+      </div>
+
+      <div class="control-group">
+        <label style="font-size:0.83rem;color:var(--text-secondary);display:block;margin-bottom:0.35rem;">Google Apps Script Web App URL:</label>
+        <input type="text" id="gas-url" placeholder="https://script.google.com/macros/s/.../exec" style="width:100%;padding:0.5rem 0.75rem;background:rgba(5,11,20,0.6);border:1px solid var(--border-glass);border-radius:var(--radius-sm);color:var(--text-primary);font-family:var(--font-mono);font-size:0.75rem;outline:none;">
+      </div>
+
+      <div style="display:flex;gap:0.75rem;margin-top:1rem;">
+        <button class="btn" style="flex:1;" onclick="saveToSheets()"><i class="fa-solid fa-floppy-disk"></i> ส่งข้อมูลไป Google Sheet</button>
+        <button class="btn btn-secondary" onclick="exportQuizCSV()"><i class="fa-solid fa-file-csv"></i> Export CSV</button>
+      </div>
+
+      <div style="margin-top:1.5rem;">
+        <div style="font-size:0.85rem;font-weight:600;color:var(--text-primary);margin-bottom:0.5rem;"><i class="fa-solid fa-clock-rotate-left"></i> ประวัติการทำแบบทดสอบ (Local History)</div>
+        <div style="max-height:220px;overflow-y:auto;border:1px solid var(--border-glass);border-radius:var(--radius-sm);">
+          <table class="table-custom" style="margin:0;">
+            <thead>
+              <tr>
+                <th>เวลา</th>
+                <th>ชื่อ</th>
+                <th>กิจกรรม</th>
+                <th>ผลคะแนน</th>
+              </tr>
+            </thead>
+            <tbody id="history-table-body">
+              <tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:1.5rem;">ยังไม่มีประวัติการส่งคะแนน</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+<script>
+
+/* ================================================================= */
+/* 1. GLOBAL STATE & AUDIO SYNTHESIZER                               */
+/* ================================================================= */
+const state = {
+  activeTab: 'tab-physics',
+  physics: {
+    type: 'jfet_n', // 'jfet_n', 'jfet_p', 'dmosfet_n', 'emosfet_n'
+    vgs: -1.0,
+    vds: 5.0,
+    electrons: []
+  },
+  curves: {
+    device: 'jfet', // 'jfet', 'dmos', 'emos'
+    vgs: -1.5,
+    vdd: 15.0,
+    rd_kohm: 1.8
+  },
+  circuit: {
+    mode: 'fixed_bias', // 'fixed_bias', 'self_bias', 'voltage_divider', 'mosfet_switch'
+    time: 0,
+    isPaused: false,
+    autoScale: true,
+    ch1Scale: 0.5,
+    ch2Scale: 2.0,
+    // Params
+    vgg: -1.5,
+    vdd: 12.0,
+    rd_kohm: 2.2,
+    rs_ohm: 500,
+    r1_Mohm: 1.0,
+    r2_kohm: 220,
+    rs_kohm: 1.5,
+    vd_vdd: 15.0,
+    vd_rd: 2.2,
+    switchOn: false,
+    swVdd: 12.0,
+    rload: 24
+  },
+  tester: {
+    device: 'jfet', // 'jfet', 'mosfet', 'power'
+    pins: 'GS',     // 'GS', 'GD', 'DS'
+    fault: 'good'   // 'good', 'leak', 'short', 'open'
+  },
+  quiz: {
+    submitted: false,
+    score: 0,
+    answers: {}
+  },
+  history: []
+};
+
+// Initialize electrons for Carrier Physics Canvas
+for (let i = 0; i < 45; i++) {
+  state.physics.electrons.push({
+    x: Math.random() * 400 + 130,
+    y: Math.random() * 80 + 100,
+    speed: Math.random() * 1.5 + 1.0,
+    size: Math.random() * 2 + 3
+  });
+}
+
+// Web Audio API
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+function playSound(type) {
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+  const now = audioCtx.currentTime;
+
+  if (type === 'click') {
+    osc.type = 'sine'; osc.frequency.setValueAtTime(800, now);
+    osc.frequency.exponentialRampToValueAtTime(300, now + 0.04);
+    gain.gain.setValueAtTime(0.12, now); gain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+    osc.start(now); osc.stop(now + 0.04);
+  } else if (type === 'success') {
+    osc.type = 'triangle'; osc.frequency.setValueAtTime(523.25, now);
+    osc.frequency.setValueAtTime(659.25, now + 0.08);
+    osc.frequency.setValueAtTime(783.99, now + 0.16);
+    gain.gain.setValueAtTime(0.15, now); gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+    osc.start(now); osc.stop(now + 0.3);
+  } else if (type === 'buzzer') {
+    osc.type = 'sawtooth'; osc.frequency.setValueAtTime(160, now);
+    osc.frequency.setValueAtTime(110, now + 0.1);
+    gain.gain.setValueAtTime(0.2, now); gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+    osc.start(now); osc.stop(now + 0.25);
+  }
+}
+
+/* ================================================================= */
+/* 2. TAB NAVIGATION                                                 */
+/* ================================================================= */
+function switchTab(tabId, btn) {
+  state.activeTab = tabId;
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+  document.getElementById(tabId).classList.add('active');
+  if (btn) btn.classList.add('active');
+  playSound('click');
+
+  if (tabId === 'tab-physics') onPhysicsChange();
+  else if (tabId === 'tab-curves') onCurvesChange();
+  else if (tabId === 'tab-circuits') onCircuitChange();
+  else if (tabId === 'tab-tester') onTesterChange();
+}
+
+/* ================================================================= */
+/* 3. MODULE 1 — FET TYPES & CARRIER PHYSICS                         */
+/* ================================================================= */
+const phyCanvas = document.getElementById('canvas-carrier-physics');
+const phyCtx = phyCanvas.getContext('2d');
+
+function drawArrow(ctx, fromX, fromY, toX, toY, color = '#38bdf8', headLen = 8) {
+  const angle = Math.atan2(toY - fromY, toX - fromX);
+  ctx.strokeStyle = color;
+  ctx.fillStyle = color;
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(fromX, fromY);
+  ctx.lineTo(toX, toY);
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(toX, toY);
+  ctx.lineTo(toX - headLen * Math.cos(angle - Math.PI / 6), toY - headLen * Math.sin(angle - Math.PI / 6));
+  ctx.lineTo(toX - headLen * Math.cos(angle + Math.PI / 6), toY - headLen * Math.sin(angle + Math.PI / 6));
+  ctx.closePath();
+  ctx.fill();
+}
+
+function dotNode(ctx, x, y, label='', side='top') {
+  ctx.beginPath(); ctx.arc(x, y, 4, 0, Math.PI*2); ctx.fillStyle = '#ffffff'; ctx.fill();
+  if (label) {
+    ctx.font = 'bold 10px JetBrains Mono'; ctx.fillStyle = '#38bdf8';
+    if (side === 'top') { ctx.textAlign = 'center'; ctx.fillText(label, x, y - 8); }
+    else if (side === 'right') { ctx.textAlign = 'left'; ctx.fillText(label, x + 8, y + 3); }
+    else if (side === 'bottom') { ctx.textAlign = 'center'; ctx.fillText(label, x, y + 14); }
+    else { ctx.textAlign = 'right'; ctx.fillText(label, x - 8, y + 3); }
+    ctx.textAlign = 'left';
+  }
+}
+
+function switchPhysicsSubTab(subTab, btn) {
+  state.physicsSubTab = subTab;
+  document.querySelectorAll('#tab-physics .pill-btn').forEach(b => {
+    if (b.id && b.id.startsWith('subtab-btn-')) b.classList.remove('active');
+  });
+  if (btn) btn.classList.add('active');
+
+  const vPhy = document.getElementById('subview-carrier-physics');
+  const vSym = document.getElementById('subview-symbols-gallery');
+
+  if (subTab === 'carrier_physics') {
+    if (vPhy) vPhy.style.display = 'block';
+    if (vSym) vSym.style.display = 'none';
+    drawCarrierPhysicsCanvas();
+  } else {
+    if (vPhy) vPhy.style.display = 'none';
+    if (vSym) vSym.style.display = 'block';
+    selectSymbolView(state.symbol.type || 'jfet_n');
+    drawSymbolInspectorCanvas();
+  }
+  playSound('click');
+}
+
+const FET_SYMBOLS_DATA = {
+  jfet_n: {
+    title: 'สัญลักษณ์วงจร N-Channel JFET (Junction Field-Effect Transistor)',
+    badge: 'N-JFET (Normally ON)',
+    header: 'N-Channel JFET Schematic Symbol',
+    exp: `<strong>คุณลักษณะสัญลักษณ์ N-Channel JFET:</strong><br>` +
+         `• <strong>ทิศทางหัวลูกศร:</strong> ชี้เข้าหาตัว Channel ที่ขา <strong>Gate (G &rarr;)</strong> แสดงถึงรอยต่อ PN ที่ชี้เข้าหาเนื้อสารกึ่งตัวนำ N<br>` +
+         `• <strong>ขา Gate:</strong> ลากเส้นตรง <strong>แตะติดกับแถบ Channel</strong> โดยตรง (ไม่มีชั้นฉนวนกั้นแบบ MOSFET)<br>` +
+         `• <strong>สภาวะการทำงาน:</strong> เป็นอุปกรณ์แบบ <strong>Depletion Mode (Normally ON)</strong> เมื่อ V<sub>GS</sub> = 0V จะมีกระแส I<sub>D</sub> = I<sub>DSS</sub> ไหลผ่านช่องนำกระแสได้เต็มที่`
+  },
+  jfet_p: {
+    title: 'สัญลักษณ์วงจร P-Channel JFET (Junction Field-Effect Transistor)',
+    badge: 'P-JFET (Normally ON)',
+    header: 'P-Channel JFET Schematic Symbol',
+    exp: `<strong>คุณลักษณะสัญลักษณ์ P-Channel JFET:</strong><br>` +
+         `• <strong>ทิศทางหัวลูกศร:</strong> ชี้ออกจากตัว Channel ที่ขา <strong>Gate (G &larr;)</strong> แสดงถึงรอยต่อ PN ที่ชี้ออกจากเนื้อสารกึ่งตัวนำ P ไปยัง Gate ชนิด N<br>` +
+         `• <strong>ขา Gate:</strong> ลากเส้นตรง <strong>แตะติดกับแถบ Channel</strong><br>` +
+         `• <strong>สภาวะการทำงาน:</strong> เป็นอุปกรณ์แบบ <strong>Depletion Mode (Normally ON)</strong> ต้องป้อน V<sub>GS</sub> &gt; 0V (บวก) เพื่อบีบ Depletion Region ให้ตัดกระแส`
+  },
+  dmos_n: {
+    title: 'สัญลักษณ์วงจร N-Channel D-MOSFET (Depletion-Type MOSFET)',
+    badge: 'N-Channel D-MOS (Solid Channel)',
+    header: 'N-Channel Depletion-Mode MOSFET Symbol',
+    exp: `<strong>คุณลักษณะสัญลักษณ์ N-Channel D-MOSFET:</strong><br>` +
+         `• <strong>เส้น Channel:</strong> เป็น <strong>เส้นทึบแถบยาวต่อเนื่อง</strong> แสดงว่ามีเนื้อ Channel ชนิด N ฝังเชื่อมระหว่าง Drain และ Source อยู่ตั้งแต่แรก<br>` +
+         `• <strong>ขา Gate:</strong> มี <strong>ช่องว่างเว้นวรรค</strong> ไม่แตะกับ Channel แสดงถึงชั้นฉนวนไดอิเล็กทริก SiO<sub>2</sub> ทำให้ I<sub>G</sub> &approx; 0 A (อิมพีแดนซ์สูงมากระดับ 10<sup>12</sup> &Omega;)<br>` +
+         `• <strong>หัวลูกศร:</strong> อยู่ที่ขา Substrate (SS / Bulk) และ <strong>ชี้เข้าหา Channel (&rarr;)</strong><br>` +
+         `• <strong>การทำงาน:</strong> ทำงานได้ทั้งสองย่าน: Depletion Mode (V<sub>GS</sub> &lt; 0) และ Enhancement Mode (V<sub>GS</sub> &gt; 0)`
+  },
+  dmos_p: {
+    title: 'สัญลักษณ์วงจร P-Channel D-MOSFET (Depletion-Type MOSFET)',
+    badge: 'P-Channel D-MOS (Solid Channel)',
+    header: 'P-Channel Depletion-Mode MOSFET Symbol',
+    exp: `<strong>คุณลักษณะสัญลักษณ์ P-Channel D-MOSFET:</strong><br>` +
+         `• <strong>เส้น Channel:</strong> เป็น <strong>เส้นทึบแถบยาวต่อเนื่อง</strong> (มี P-Channel ฝังอยู่เดิม)<br>` +
+         `• <strong>ขา Gate:</strong> เว้นวรรคฉนวน SiO<sub>2</sub><br>` +
+         `• <strong>หัวลูกศร:</strong> อยู่ที่ขา Substrate (SS / Bulk) และ <strong>ชี้ออกจาก Channel (&larr;)</strong><br>` +
+         `• <strong>การทำงาน:</strong> ทำงานได้ทั้งป้อน V<sub>GS</sub> &gt; 0 เพื่อลดกระแส หรือ V<sub>GS</sub> &lt; 0 เพื่อเพิ่มกระแส`
+  },
+  emos_n: {
+    title: 'สัญลักษณ์วงจร N-Channel E-MOSFET (Enhancement-Type MOSFET)',
+    badge: 'N-Channel E-MOS (Dashed Channel)',
+    header: 'N-Channel Enhancement-Mode MOSFET Symbol',
+    exp: `<strong>คุณลักษณะสัญลักษณ์ N-Channel E-MOSFET:</strong><br>` +
+         `• <strong>เส้น Channel:</strong> เป็น <strong>เส้นประ 3 ท่อนขาดตอน (Dashed 3-lines)</strong> แสดงว่าในสภาวะปกติไม่มีช่องนำกระแส (Normally OFF, I<sub>D</sub> = 0 เมื่อ V<sub>GS</sub> = 0)<br>` +
+         `• <strong>ขา Gate:</strong> เว้นวรรคฉนวน SiO<sub>2</sub><br>` +
+         `• <strong>หัวลูกศร:</strong> อยู่ที่ขา Substrate และ <strong>ชี้เข้าหา Channel (&rarr;)</strong><br>` +
+         `• <strong>การทำงาน:</strong> ต้องป้อน V<sub>GS</sub> &gt; V<sub>th</sub> (บวก) เพื่อดึงอิเล็กตรอนมารวมตัวสร้างเป็น <strong>Inversion Layer</strong> จึงจะเริ่มนำกระแสได้`
+  },
+  emos_p: {
+    title: 'สัญลักษณ์วงจร P-Channel E-MOSFET (Enhancement-Type MOSFET)',
+    badge: 'P-Channel E-MOS (Dashed Channel)',
+    header: 'P-Channel Enhancement-Mode MOSFET Symbol',
+    exp: `<strong>คุณลักษณะสัญลักษณ์ P-Channel E-MOSFET:</strong><br>` +
+         `• <strong>เส้น Channel:</strong> เป็น <strong>เส้นประ 3 ท่อนขาดตอน</strong> (Normally OFF)<br>` +
+         `• <strong>ขา Gate:</strong> เว้นวรรคฉนวน SiO<sub>2</sub><br>` +
+         `• <strong>หัวลูกศร:</strong> อยู่ที่ขา Substrate และ <strong>ชี้ออกจาก Channel (&larr;)</strong><br>` +
+         `• <strong>การทำงาน:</strong> ต้องป้อน V<sub>GS</sub> &lt; V<sub>th</sub> (ลบ) เพื่อดึงโฮลมาสร้างช่องนำกระแส P-Inversion Layer`
+  },
+  power_mos: {
+    title: 'สัญลักษณ์ Power MOSFET พร้อมไดโอดตัวถังภายใน (Internal Body Diode)',
+    badge: 'Power MOSFET with Body Diode',
+    header: 'Power MOSFET 3-Terminal Symbol & Parasitic Diode',
+    exp: `<strong>คุณลักษณะของ Power MOSFET และ Body Diode:</strong><br>` +
+         `• <strong>การต่อขาภายใน:</strong> ขา Substrate (Bulk) จะ <strong>ต่อเชื่อมกับขา Source (S)</strong> มาจากโรงงาน ทำให้มีขั้วใช้งาน 3 ขาหลัก (D, G, S)<br>` +
+         `• <strong>Body Diode (Parasitic Diode):</strong> โครงสร้างรอยต่อ PN ระหว่าง Substrate และ Drain ทำให้เกิดไดโอดต่อคร่อมระหว่าง Source กับ Drain โดยอัตโนมัติ (Anode อยู่ที่ Source, Cathode อยู่ที่ Drain สำหรับ N-Channel)<br>` +
+         `• <strong>ประโยชน์:</strong> ช่วยทำหน้าที่เป็น <strong>Freewheeling / Flyback Diode</strong> ป้องกันแรงดันกระชาก (Back EMF) เมื่อขับโหลดขดลวดเหนี่ยวนำ เช่น มอเตอร์ รีเลย์ และสวิตชิ่งพาวเวอร์ซัพพลาย (SMPS)`
+  }
+};
+
+function selectSymbolView(symType, btn) {
+  state.symbol = state.symbol || {};
+  state.symbol.type = symType;
+  document.querySelectorAll('#subview-symbols-gallery .pill-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  else {
+    const btnMap = {
+      jfet_n: 'btn-sym-jfet-n',
+      jfet_p: 'btn-sym-jfet-p',
+      dmos_n: 'btn-sym-dmos-n',
+      dmos_p: 'btn-sym-dmos-p',
+      emos_n: 'btn-sym-emos-n',
+      emos_p: 'btn-sym-emos-p',
+      power_mos: 'btn-sym-power-mos'
+    };
+    if (btnMap[symType] && document.getElementById(btnMap[symType])) {
+      document.getElementById(btnMap[symType]).classList.add('active');
+    }
+  }
+
+  const data = FET_SYMBOLS_DATA[symType] || FET_SYMBOLS_DATA['jfet_n'];
+  
+  const titleEl = document.getElementById('symbol-detail-title');
+  const badgeEl = document.getElementById('symbol-detail-badge');
+  const headEl = document.getElementById('symbol-canvas-header');
+  const expEl = document.getElementById('symbol-detail-explanation');
+
+  if (titleEl) titleEl.textContent = data.title;
+  if (badgeEl) badgeEl.textContent = data.badge;
+  if (headEl) headEl.textContent = data.header;
+  if (expEl) expEl.innerHTML = data.exp;
+
+  drawSymbolInspectorCanvas();
+}
+
+function drawSymbolInspectorCanvas() {
+  const canvas = document.getElementById('canvas-symbol-inspector');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = '#050b14';
+  ctx.fillRect(0, 0, W, H);
+
+  const type = (state.symbol && state.symbol.type) || 'jfet_n';
+  const cx = 330, cy = 135;
+
+  // Background circle highlight
+  ctx.beginPath();
+  ctx.arc(cx, cy, 95, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(15, 23, 42, 0.6)';
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(56, 189, 248, 0.25)';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  if (type === 'jfet_n' || type === 'jfet_p') {
+    const isN = (type === 'jfet_n');
+    const chCol = isN ? '#06b6d4' : '#fb7185';
+
+    // Channel Bar
+    ctx.strokeStyle = chCol;
+    ctx.lineWidth = 5;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy - 45);
+    ctx.lineTo(cx, cy + 45);
+    ctx.stroke();
+
+    // Drain Lead (Top)
+    ctx.strokeStyle = '#38bdf8';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy - 35);
+    ctx.lineTo(cx + 45, cy - 35);
+    ctx.lineTo(cx + 45, cy - 80);
+    ctx.stroke();
+
+    // Source Lead (Bottom)
+    ctx.strokeStyle = '#10b981';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy + 35);
+    ctx.lineTo(cx + 45, cy + 35);
+    ctx.lineTo(cx + 45, cy + 80);
+    ctx.stroke();
+
+    // Gate Lead (Left)
+    ctx.strokeStyle = '#eab308';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.moveTo(cx - 75, cy + 10);
+    ctx.lineTo(cx, cy + 10);
+    ctx.stroke();
+
+    // Gate Arrow on JFET
+    if (isN) {
+      // N-JFET: Arrow points IN to channel (left to right)
+      drawArrow(ctx, cx - 40, cy + 10, cx - 10, cy + 10, '#eab308', 9);
+    } else {
+      // P-JFET: Arrow points OUT from channel (right to left)
+      drawArrow(ctx, cx - 10, cy + 10, cx - 40, cy + 10, '#eab308', 9);
+    }
+
+    // Terminal Node Dots and Text Labels
+    dotNode(ctx, cx + 45, cy - 80, 'Drain (D)', 'top');
+    dotNode(ctx, cx + 45, cy + 80, 'Source (S)', 'bottom');
+    dotNode(ctx, cx - 75, cy + 10, 'Gate (G)', 'left');
+
+    // Characteristic annotations
+    ctx.font = 'bold 12px JetBrains Mono';
+    ctx.fillStyle = chCol;
+    ctx.textAlign = 'left';
+    ctx.fillText(`${isN ? 'N-Channel' : 'P-Channel'} Bar`, cx + 8, cy - 10);
+
+    ctx.font = '10px Sarabun';
+    ctx.fillStyle = '#94a3b8';
+    ctx.fillText(isN ? 'ลูกศร Gate ชี้เข้าหา Channel' : 'ลูกศร Gate ชี้ออกจาก Channel', cx - 140, cy + 35);
+
+  } else if (type === 'dmos_n' || type === 'dmos_p') {
+    const isN = (type === 'dmos_n');
+    const chCol = isN ? '#06b6d4' : '#fb7185';
+
+    // 1. Gate Metal Plate (Left Bar)
+    ctx.strokeStyle = '#eab308';
+    ctx.lineWidth = 3.5;
+    ctx.beginPath();
+    ctx.moveTo(cx - 15, cy - 45);
+    ctx.lineTo(cx - 15, cy + 45);
+    ctx.stroke();
+
+    // Gate Lead
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.moveTo(cx - 75, cy);
+    ctx.lineTo(cx - 15, cy);
+    ctx.stroke();
+    dotNode(ctx, cx - 75, cy, 'Gate (G)', 'left');
+
+    // 2. SiO2 Dielectric Gap annotation
+    ctx.font = 'bold 9px JetBrains Mono';
+    ctx.fillStyle = '#38bdf8';
+    ctx.textAlign = 'center';
+    ctx.fillText('SiO₂ Gap', cx - 7, cy - 54);
+
+    // 3. Channel Bar (Solid continuous line for D-MOS)
+    ctx.strokeStyle = chCol;
+    ctx.lineWidth = 5;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy - 40);
+    ctx.lineTo(cx, cy + 40);
+    ctx.stroke();
+
+    // Drain Lead (Top)
+    ctx.strokeStyle = '#38bdf8';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy - 30);
+    ctx.lineTo(cx + 45, cy - 30);
+    ctx.lineTo(cx + 45, cy - 80);
+    ctx.stroke();
+    dotNode(ctx, cx + 45, cy - 80, 'Drain (D)', 'top');
+
+    // Source Lead (Bottom)
+    ctx.strokeStyle = '#10b981';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy + 30);
+    ctx.lineTo(cx + 45, cy + 30);
+    ctx.lineTo(cx + 45, cy + 80);
+    ctx.stroke();
+    dotNode(ctx, cx + 45, cy + 80, 'Source (S)', 'bottom');
+
+    // Substrate Lead (Middle)
+    ctx.strokeStyle = '#a855f7';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(cx + 45, cy);
+    ctx.lineTo(cx + 45, cy + 30); // Connect to Source
+    ctx.stroke();
+
+    // Arrow on Substrate
+    if (isN) {
+      // Point IN to channel (right to left)
+      drawArrow(ctx, cx + 35, cy, cx + 8, cy, '#a855f7', 9);
+    } else {
+      // Point OUT from channel (left to right)
+      drawArrow(ctx, cx + 8, cy, cx + 35, cy, '#a855f7', 9);
+    }
+
+    ctx.font = 'bold 11px JetBrains Mono';
+    ctx.fillStyle = chCol;
+    ctx.textAlign = 'left';
+    ctx.fillText(`Solid ${isN ? 'N-Channel' : 'P-Channel'} (Normally ON)`, cx + 55, cy - 10);
+
+  } else if (type === 'emos_n' || type === 'emos_p') {
+    const isN = (type === 'emos_n');
+    const chCol = isN ? '#06b6d4' : '#fb7185';
+
+    // 1. Gate Metal Plate (Left Bar)
+    ctx.strokeStyle = '#eab308';
+    ctx.lineWidth = 3.5;
+    ctx.beginPath();
+    ctx.moveTo(cx - 15, cy - 45);
+    ctx.lineTo(cx - 15, cy + 45);
+    ctx.stroke();
+
+    // Gate Lead
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.moveTo(cx - 75, cy);
+    ctx.lineTo(cx - 15, cy);
+    ctx.stroke();
+    dotNode(ctx, cx - 75, cy, 'Gate (G)', 'left');
+
+    // 2. Dashed 3-Segment Channel for E-MOSFET
+    ctx.strokeStyle = chCol;
+    ctx.lineWidth = 5;
+    // Top segment (Drain)
+    ctx.beginPath(); ctx.moveTo(cx, cy - 40); ctx.lineTo(cx, cy - 16); ctx.stroke();
+    // Middle segment (Substrate)
+    ctx.beginPath(); ctx.moveTo(cx, cy - 10); ctx.lineTo(cx, cy + 10); ctx.stroke();
+    // Bottom segment (Source)
+    ctx.beginPath(); ctx.moveTo(cx, cy + 16); ctx.lineTo(cx, cy + 40); ctx.stroke();
+
+    // Drain Lead (Top)
+    ctx.strokeStyle = '#38bdf8';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy - 28);
+    ctx.lineTo(cx + 45, cy - 28);
+    ctx.lineTo(cx + 45, cy - 80);
+    ctx.stroke();
+    dotNode(ctx, cx + 45, cy - 80, 'Drain (D)', 'top');
+
+    // Source Lead (Bottom)
+    ctx.strokeStyle = '#10b981';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy + 28);
+    ctx.lineTo(cx + 45, cy + 28);
+    ctx.lineTo(cx + 45, cy + 80);
+    ctx.stroke();
+    dotNode(ctx, cx + 45, cy + 80, 'Source (S)', 'bottom');
+
+    // Substrate Lead (Middle)
+    ctx.strokeStyle = '#a855f7';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(cx + 45, cy);
+    ctx.lineTo(cx + 45, cy + 28); // Connect to Source
+    ctx.stroke();
+
+    // Arrow on Substrate
+    if (isN) {
+      drawArrow(ctx, cx + 35, cy, cx + 8, cy, '#a855f7', 9);
+    } else {
+      drawArrow(ctx, cx + 8, cy, cx + 35, cy, '#a855f7', 9);
+    }
+
+    ctx.font = 'bold 11px JetBrains Mono';
+    ctx.fillStyle = chCol;
+    ctx.textAlign = 'left';
+    ctx.fillText(`Dashed 3-Lines (Normally OFF)`, cx + 55, cy - 10);
+    ctx.font = '9px Sarabun';
+    ctx.fillStyle = '#94a3b8';
+    ctx.fillText('เส้นประแสดงว่าไม่มี Channel เดิม', cx + 55, cy + 8);
+
+  } else if (type === 'power_mos') {
+    // Power MOSFET with Body Diode
+    // 1. Gate Plate
+    ctx.strokeStyle = '#eab308';
+    ctx.lineWidth = 3.5;
+    ctx.beginPath();
+    ctx.moveTo(cx - 20, cy - 45);
+    ctx.lineTo(cx - 20, cy + 45);
+    ctx.stroke();
+
+    // Gate Lead
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.moveTo(cx - 75, cy);
+    ctx.lineTo(cx - 20, cy);
+    ctx.stroke();
+    dotNode(ctx, cx - 75, cy, 'Gate (G)', 'left');
+
+    // 2. Dashed 3-Segment Channel
+    ctx.strokeStyle = '#06b6d4';
+    ctx.lineWidth = 5;
+    ctx.beginPath(); ctx.moveTo(cx - 5, cy - 40); ctx.lineTo(cx - 5, cy - 16); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx - 5, cy - 10); ctx.lineTo(cx - 5, cy + 10); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx - 5, cy + 16); ctx.lineTo(cx - 5, cy + 40); ctx.stroke();
+
+    // Drain Lead (Top)
+    ctx.strokeStyle = '#38bdf8';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.moveTo(cx - 5, cy - 28);
+    ctx.lineTo(cx + 35, cy - 28);
+    ctx.lineTo(cx + 35, cy - 80);
+    ctx.stroke();
+    dotNode(ctx, cx + 35, cy - 80, 'Drain (D)', 'top');
+
+    // Source Lead (Bottom)
+    ctx.strokeStyle = '#10b981';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.moveTo(cx - 5, cy + 28);
+    ctx.lineTo(cx + 35, cy + 28);
+    ctx.lineTo(cx + 35, cy + 80);
+    ctx.stroke();
+    dotNode(ctx, cx + 35, cy + 80, 'Source (S)', 'bottom');
+
+    // Substrate Arrow
+    ctx.strokeStyle = '#a855f7';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(cx - 5, cy);
+    ctx.lineTo(cx + 35, cy);
+    ctx.lineTo(cx + 35, cy + 28);
+    ctx.stroke();
+    drawArrow(ctx, cx + 28, cy, cx + 5, cy, '#a855f7', 8);
+
+    // Body Diode between Source and Drain (X = cx + 75)
+    const dioX = cx + 75;
+    ctx.strokeStyle = '#f59e0b';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(cx + 35, cy - 28); ctx.lineTo(dioX, cy - 28); ctx.lineTo(dioX, cy - 12);
+    ctx.moveTo(cx + 35, cy + 28); ctx.lineTo(dioX, cy + 28); ctx.lineTo(dioX, cy + 12);
+    ctx.stroke();
+
+    // Draw Diode Triangle (Anode at Source bottom, Cathode at Drain top)
+    ctx.fillStyle = '#f59e0b';
+    ctx.beginPath();
+    ctx.moveTo(dioX, cy - 12);
+    ctx.lineTo(dioX - 10, cy + 10);
+    ctx.lineTo(dioX + 10, cy + 10);
+    ctx.closePath();
+    ctx.fill();
+
+    // Cathode Bar
+    ctx.strokeStyle = '#f59e0b';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.moveTo(dioX - 10, cy - 12);
+    ctx.lineTo(dioX + 10, cy - 12);
+    ctx.stroke();
+
+    ctx.font = 'bold 10px JetBrains Mono';
+    ctx.fillStyle = '#f59e0b';
+    ctx.textAlign = 'left';
+    ctx.fillText('Body Diode', dioX + 14, cy + 3);
+    ctx.font = '9px Sarabun';
+    ctx.fillStyle = '#94a3b8';
+    ctx.fillText('(Freewheeling Protection)', dioX + 14, cy + 16);
+  }
+}
+
+
+function selectFetType(type, btn) {
+  state.physics.type = type;
+  document.querySelectorAll('#tab-physics .pill-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+
+  const titleEl = document.getElementById('physics-canvas-title');
+  const theoryEl = document.getElementById('physics-theory-box');
+  const hintEl = document.getElementById('phy-vgs-hint');
+  const sliderVgs = document.getElementById('slider-phy-vgs');
+
+  if (type === 'jfet_n') {
+    titleEl.textContent = 'โครงสร้าง N-Channel JFET (Electrons Flow: Source → Drain)';
+    sliderVgs.min = -6.0; sliderVgs.max = 0.5; sliderVgs.value = -1.0;
+    hintEl.textContent = 'ช่วงการทำงาน N-JFET: 0V ถึง V_P (-4V)';
+    theoryEl.innerHTML = 
+      `<strong>โครงสร้างและฟิสิกส์การนำกระแสของ N-Channel JFET:</strong><br>` +
+      `• ขั้วต่อ 3 ขั้ว: <strong>Drain (D), Source (S), Gate (G)</strong><br>` +
+      `• ขั้ว Gate ต่อกับสาร P ขนาบสองข้างของแท่งสาร N เมื่อป้อนไบอัสกลับ (Reverse Bias) V<sub>GS</sub> < 0 จะเกิด <strong>Depletion Region</strong> ขยายตัวบีบช่องทางเดินของอิเล็กตรอน<br>` +
+      `• เมื่อ V<sub>GS</sub> = V<sub>P</sub> (Pinch-off Voltage ≈ −4V) ช่องนำกระแสจะถูกปิดกั้นสนิทจนตัดกระแส (I<sub>D</sub> = 0)`;
+  } else if (type === 'jfet_p') {
+    titleEl.textContent = 'โครงสร้าง P-Channel JFET (Holes Flow: Source → Drain)';
+    sliderVgs.min = -0.5; sliderVgs.max = 6.0; sliderVgs.value = 1.0;
+    hintEl.textContent = 'ช่วงการทำงาน P-JFET: 0V ถึง V_P (+4V)';
+    theoryEl.innerHTML = 
+      `<strong>โครงสร้างและฟิสิกส์การนำกระแสของ P-Channel JFET:</strong><br>` +
+      `• ใช้แท่งสารกึ่งตัวนำชนิด P เป็นช่องนำกระแส โดยมีพาหะส่วนใหญ่เป็น <strong>โฮล (Holes)</strong><br>` +
+      `• ป้อนแรงดันไบอัสกลับ V<sub>GS</sub> > 0 (บวกที่ Gate) เพื่อให้ Depletion Region ขยายตัวบีบ P-Channel<br>` +
+      `• เมื่อ V<sub>GS</sub> = +V<sub>P</sub> ช่องนำกระแสจะ Pinch-off`;
+  } else if (type === 'dmosfet_n') {
+    titleEl.textContent = 'โครงสร้าง N-Channel D-MOSFET (ชั้นฉนวน SiO₂ + Built-in Channel)';
+    sliderVgs.min = -5.0; sliderVgs.max = 4.0; sliderVgs.value = 0.0;
+    hintEl.textContent = 'ทำงานได้ทั้ง Depletion (V_GS < 0) และ Enhancement (V_GS > 0)';
+    theoryEl.innerHTML = 
+      `<strong>โครงสร้าง Depletion MOSFET (D-MOSFET):</strong><br>` +
+      `• มี <strong>ชั้นฉนวนซิลิกอนไดออกไซด์ (SiO₂)</strong> กั้นระหว่างขา Gate โลหะกับ Channel ทำให้อิมพีแดนซ์อินพุตสูงระดับ 10<sup>12</sup> Ω<br>` +
+      `• มีช่องนำกระแส N-Channel ฝังอยู่แล้วในกระบวนการผลิต (Built-in Channel)<br>` +
+      `• สามารถป้อน V<sub>GS</sub> < 0 เพื่อลดกระแส (Depletion Mode) หรือป้อน V<sub>GS</sub> > 0 เพื่อเหนี่ยวนำอิเล็กตรอนเพิ่มกระแส (Enhancement Mode)`;
+  } else if (type === 'emosfet_n') {
+    titleEl.textContent = 'โครงสร้าง N-Channel E-MOSFET (Inversion Layer Physics)';
+    sliderVgs.min = 0.0; sliderVgs.max = 8.0; sliderVgs.value = 3.5;
+    hintEl.textContent = 'นำกระแสเมื่อ V_GS > V_th (Threshold Voltage ≈ +2.0V)';
+    theoryEl.innerHTML = 
+      `<strong>โครงสร้าง Enhancement MOSFET (E-MOSFET):</strong><br>` +
+      `• <strong>ไม่มี Channel ในสภาวะปกติ (Normally OFF):</strong> บริเวณระหว่าง Source (N+) และ Drain (N+) ถูกคั่นด้วย Substrate ชนิด P<br>` +
+      `• เมื่อป้อน V<sub>GS</sub> > V<sub>th</sub> สนามไฟฟ้าบวกจะดึงดูดอิเล็กตรอนอิสระมาสะสมใต้ชั้นฉนวน SiO₂ เกิดเป็น <strong>Inversion Layer (N-Channel เสมือน)</strong> เชื่อมต่อระหว่าง D และ S นำกระแสได้`;
+  }
+
+  onPhysicsChange();
+  playSound('click');
+}
+
+function onPhysicsChange() {
+  const type = state.physics.type;
+  state.physics.vgs = parseFloat(document.getElementById('slider-phy-vgs').value);
+  state.physics.vds = parseFloat(document.getElementById('slider-phy-vds').value);
+
+  document.getElementById('phy-vgs-badge').textContent = state.physics.vgs.toFixed(1) + ' V';
+  document.getElementById('phy-vds-badge').textContent = state.physics.vds.toFixed(1) + ' V';
+
+  const vgs = state.physics.vgs;
+  const vds = state.physics.vds;
+  let id = 0, region = 'Cutoff', vpStr = '-4.0 V', wchPct = 0;
+
+  if (type === 'jfet_n') {
+    const vp = -4.0, idss = 10.0;
+    vpStr = `${vp.toFixed(1)} V (V_P)`;
+    if (vgs <= vp) {
+      id = 0; region = 'Cutoff (Pinch-off)'; wchPct = 0;
+    } else {
+      wchPct = Math.max(0, Math.min(100, ((vgs - vp) / Math.abs(vp)) * 100));
+      const vds_sat = Math.max(0, vgs - vp);
+      const id_sat = idss * Math.pow(1 - vgs / vp, 2);
+      if (vds < vds_sat) {
+        id = idss * (2 * (1 - vgs / vp) * (vds / Math.abs(vp)) - Math.pow(vds / Math.abs(vp), 2));
+        region = 'Ohmic / Triode';
+      } else {
+        id = id_sat;
+        region = 'Saturation / Active';
+      }
+    }
+  } else if (type === 'jfet_p') {
+    const vp = 4.0, idss = 10.0;
+    vpStr = `+${vp.toFixed(1)} V (V_P)`;
+    if (vgs >= vp) {
+      id = 0; region = 'Cutoff (Pinch-off)'; wchPct = 0;
+    } else {
+      wchPct = Math.max(0, Math.min(100, ((vp - vgs) / vp) * 100));
+      const vds_sat = Math.max(0, vp - vgs);
+      const id_sat = idss * Math.pow(1 - vgs / vp, 2);
+      if (vds < vds_sat) {
+        id = idss * (2 * (1 - vgs / vp) * (vds / vp) - Math.pow(vds / vp, 2));
+        region = 'Ohmic / Triode';
+      } else {
+        id = id_sat;
+        region = 'Saturation / Active';
+      }
+    }
+  } else if (type === 'dmosfet_n') {
+    const vp = -4.0, idss = 8.0;
+    vpStr = `${vp.toFixed(1)} V (V_P)`;
+    if (vgs <= vp) {
+      id = 0; region = 'Cutoff'; wchPct = 0;
+    } else {
+      wchPct = Math.max(0, Math.min(100, ((vgs - vp) / 6.0) * 100));
+      const id_sat = idss * Math.pow(1 - vgs / vp, 2);
+      id = vds < 4.0 ? id_sat * (vds / 4.0) : id_sat;
+      region = vgs >= 0 ? 'Enhancement Mode' : 'Depletion Mode';
+    }
+  } else if (type === 'emosfet_n') {
+    const vth = 2.0, k = 0.5; // mA/V^2
+    vpStr = `+${vth.toFixed(1)} V (V_th)`;
+    if (vgs < vth) {
+      id = 0; region = 'Cutoff (No Channel)'; wchPct = 0;
+    } else {
+      const vover = vgs - vth;
+      wchPct = Math.max(0, Math.min(100, (vover / 5.0) * 100));
+      if (vds < vover) {
+        id = k * (2 * vover * vds - vds * vds);
+        region = 'Ohmic / Triode';
+      } else {
+        id = k * Math.pow(vover, 2);
+        region = 'Saturation / Pinch-off';
+      }
+    }
+  }
+
+  document.getElementById('phy-id-val').innerHTML = `${id.toFixed(2)} <span class="readout-unit">mA</span>`;
+  document.getElementById('phy-region-val').textContent = region;
+  document.getElementById('phy-wch-val').innerHTML = `${wchPct.toFixed(0)} <span class="readout-unit">%</span>`;
+  document.getElementById('phy-vp-val').innerHTML = `${vpStr}`;
+
+  const stateBadge = document.getElementById('physics-state-badge');
+  if (region.includes('Cutoff')) {
+    stateBadge.className = 'status-badge cutoff';
+    stateBadge.innerHTML = '<i class="fa-solid fa-circle-xmark"></i> ตัดกระแส (Cutoff / Pinch-off)';
+  } else if (region.includes('Ohmic')) {
+    stateBadge.className = 'status-badge saturation';
+    stateBadge.innerHTML = '<i class="fa-solid fa-wave-square"></i> ตัวต้านทานแปรค่า (Ohmic)';
+  } else {
+    stateBadge.className = 'status-badge connected';
+    stateBadge.innerHTML = '<i class="fa-solid fa-bolt"></i> แหล่งจ่ายกระแสคงที่ (Active/Sat)';
+  }
+
+  drawCarrierPhysicsCanvas();
+}
+
+function drawCarrierPhysicsCanvas() {
+  const W = phyCanvas.width, H = phyCanvas.height;
+  phyCtx.clearRect(0, 0, W, H);
+  phyCtx.fillStyle = '#050b14'; phyCtx.fillRect(0, 0, W, H);
+
+  const type = state.physics.type;
+  const vgs = state.physics.vgs;
+  const vds = state.physics.vds;
+  const ch_left = 135, ch_right = 525, ch_top = 70, ch_bot = 215;
+  const ch_w = ch_right - ch_left, ch_h = ch_bot - ch_top;
+
+  if (type === 'jfet_n') {
+    // 1. N-JFET: Full N-Channel Bar
+    phyCtx.fillStyle = 'rgba(6, 182, 212, 0.16)';
+    phyCtx.fillRect(ch_left, ch_top, ch_w, ch_h);
+    phyCtx.strokeStyle = '#06b6d4'; phyCtx.lineWidth = 1.5;
+    phyCtx.strokeRect(ch_left, ch_top, ch_w, ch_h);
+
+    // Depletion Regions
+    const vp = 4.0;
+    const rev_v = Math.max(0, -vgs);
+    const depH = Math.min(ch_h * 0.48, (rev_v / vp) * (ch_h * 0.48));
+
+    phyCtx.fillStyle = 'rgba(148, 163, 184, 0.3)';
+    phyCtx.fillRect(ch_left + 90, ch_top, ch_w - 180, depH);
+    phyCtx.fillRect(ch_left + 90, ch_bot - depH, ch_w - 180, depH);
+
+    // Top & Bottom P-Gates
+    phyCtx.fillStyle = '#f43f5e';
+    phyCtx.fillRect(ch_left + 90, ch_top - 18, ch_w - 180, 18);
+    phyCtx.fillRect(ch_left + 90, ch_bot, ch_w - 180, 18);
+
+    phyCtx.font = 'bold 11px JetBrains Mono';
+    phyCtx.fillStyle = '#ffffff'; phyCtx.textAlign = 'center';
+    phyCtx.fillText('P-Gate', ch_left + ch_w / 2, ch_top - 5);
+    phyCtx.fillText('P-Gate', ch_left + ch_w / 2, ch_bot + 13);
+
+    // Gate Wire
+    phyCtx.strokeStyle = '#eab308'; phyCtx.lineWidth = 2;
+    phyCtx.beginPath();
+    phyCtx.moveTo(ch_left + ch_w / 2, ch_top - 18); phyCtx.lineTo(ch_left + ch_w / 2, ch_top - 42);
+    phyCtx.lineTo(ch_left + 45, ch_top - 42);
+    phyCtx.stroke();
+    phyCtx.fillStyle = '#eab308'; phyCtx.fillText(`Gate (V_GS = ${vgs.toFixed(1)}V)`, ch_left + 45, ch_top - 48);
+
+    // Channel Center Label
+    phyCtx.font = 'bold 12px JetBrains Mono'; phyCtx.fillStyle = 'rgba(6,182,212,0.8)';
+    phyCtx.fillText('N-Channel', ch_left + ch_w / 2, ch_top + ch_h / 2 + 4);
+
+  } else if (type === 'jfet_p') {
+    // 2. P-JFET: Full P-Channel Bar
+    phyCtx.fillStyle = 'rgba(244, 63, 94, 0.16)';
+    phyCtx.fillRect(ch_left, ch_top, ch_w, ch_h);
+    phyCtx.strokeStyle = '#f43f5e'; phyCtx.lineWidth = 1.5;
+    phyCtx.strokeRect(ch_left, ch_top, ch_w, ch_h);
+
+    const vp = 4.0;
+    const rev_v = Math.max(0, vgs);
+    const depH = Math.min(ch_h * 0.48, (rev_v / vp) * (ch_h * 0.48));
+
+    phyCtx.fillStyle = 'rgba(148, 163, 184, 0.3)';
+    phyCtx.fillRect(ch_left + 90, ch_top, ch_w - 180, depH);
+    phyCtx.fillRect(ch_left + 90, ch_bot - depH, ch_w - 180, depH);
+
+    // N-Gates
+    phyCtx.fillStyle = '#06b6d4';
+    phyCtx.fillRect(ch_left + 90, ch_top - 18, ch_w - 180, 18);
+    phyCtx.fillRect(ch_left + 90, ch_bot, ch_w - 180, 18);
+
+    phyCtx.font = 'bold 11px JetBrains Mono';
+    phyCtx.fillStyle = '#ffffff'; phyCtx.textAlign = 'center';
+    phyCtx.fillText('N-Gate', ch_left + ch_w / 2, ch_top - 5);
+    phyCtx.fillText('N-Gate', ch_left + ch_w / 2, ch_bot + 13);
+
+    phyCtx.strokeStyle = '#eab308'; phyCtx.lineWidth = 2;
+    phyCtx.beginPath();
+    phyCtx.moveTo(ch_left + ch_w / 2, ch_top - 18); phyCtx.lineTo(ch_left + ch_w / 2, ch_top - 42);
+    phyCtx.lineTo(ch_left + 45, ch_top - 42);
+    phyCtx.stroke();
+    phyCtx.fillStyle = '#eab308'; phyCtx.fillText(`Gate (V_GS = ${vgs.toFixed(1)}V)`, ch_left + 45, ch_top - 48);
+
+    phyCtx.font = 'bold 12px JetBrains Mono'; phyCtx.fillStyle = 'rgba(244,63,94,0.8)';
+    phyCtx.fillText('P-Channel', ch_left + ch_w / 2, ch_top + ch_h / 2 + 4);
+
+  } else if (type === 'dmosfet_n') {
+    // 3. N-Channel D-MOSFET: P-Substrate + PERMANENT Built-in N-Channel Strip!
+    const builtInHeight = 44;
+
+    // A. P-Substrate (Bottom bulk)
+    phyCtx.fillStyle = 'rgba(244, 63, 94, 0.14)';
+    phyCtx.fillRect(ch_left, ch_top + builtInHeight, ch_w, ch_h - builtInHeight);
+    phyCtx.strokeStyle = '#f43f5e'; phyCtx.lineWidth = 1.5;
+    phyCtx.strokeRect(ch_left, ch_top + builtInHeight, ch_w, ch_h - builtInHeight);
+
+    phyCtx.font = 'bold 11px JetBrains Mono'; phyCtx.fillStyle = '#f43f5e'; phyCtx.textAlign = 'center';
+    phyCtx.fillText('P-Type Substrate / Bulk (ฐานรองชนิด P)', ch_left + ch_w / 2, ch_top + builtInHeight + (ch_h - builtInHeight)/2 + 4);
+
+    // B. PERMANENT Built-in N-Channel (แถบช่องนำกระแส N-Channel ถาวร)
+    phyCtx.fillStyle = 'rgba(6, 182, 212, 0.35)';
+    phyCtx.fillRect(ch_left, ch_top, ch_w, builtInHeight);
+    phyCtx.strokeStyle = '#06b6d4'; phyCtx.lineWidth = 2;
+    phyCtx.strokeRect(ch_left, ch_top, ch_w, builtInHeight);
+
+    // Depletion in Built-in Channel when V_GS < 0
+    if (vgs < 0) {
+      const vp = 4.0;
+      const depH = Math.min(builtInHeight * 0.95, (Math.abs(vgs) / vp) * (builtInHeight * 0.95));
+      phyCtx.fillStyle = 'rgba(148, 163, 184, 0.45)';
+      phyCtx.fillRect(ch_left + 60, ch_top, ch_w - 120, depH);
+      phyCtx.font = '9px Sarabun'; phyCtx.fillStyle = '#cbd5e1';
+      if (depH > 14) phyCtx.fillText('Depletion Layer (บีบช่องถาวร)', ch_left + ch_w/2, ch_top + depH/2 + 3);
+    } else if (vgs > 0) {
+      // Enhancement mode: Channel widens
+      const enhH = Math.min(18, vgs * 6);
+      phyCtx.fillStyle = 'rgba(56, 189, 248, 0.55)';
+      phyCtx.fillRect(ch_left + 60, ch_top + builtInHeight - enhH, ch_w - 120, enhH);
+    }
+
+    // Built-in Channel Badge Label
+    phyCtx.font = 'bold 11px JetBrains Mono'; phyCtx.fillStyle = '#38bdf8'; phyCtx.textAlign = 'center';
+    phyCtx.fillText('⚡ Built-in N-Channel (ช่องนำกระแสถาวร)', ch_left + ch_w / 2, ch_top + (vgs < 0 ? builtInHeight - 8 : builtInHeight / 2 + 4));
+
+    // C. SiO2 Insulator Layer
+    phyCtx.fillStyle = '#38bdf8';
+    phyCtx.fillRect(ch_left + 60, ch_top - 12, ch_w - 120, 12);
+    phyCtx.font = 'bold 9px JetBrains Mono'; phyCtx.fillStyle = '#050b14'; phyCtx.textAlign = 'center';
+    phyCtx.fillText('SiO₂ Insulator Layer (ฉนวนไดอิเล็กทริก)', ch_left + ch_w/2, ch_top - 3);
+
+    // D. Metal Gate
+    phyCtx.fillStyle = '#eab308';
+    phyCtx.fillRect(ch_left + 80, ch_top - 24, ch_w - 160, 12);
+    phyCtx.fillStyle = '#ffffff';
+    phyCtx.fillText('Metal Gate (G)', ch_left + ch_w/2, ch_top - 28);
+
+    // Gate Wire
+    phyCtx.strokeStyle = '#eab308'; phyCtx.lineWidth = 2;
+    phyCtx.beginPath();
+    phyCtx.moveTo(ch_left + ch_w / 2, ch_top - 24); phyCtx.lineTo(ch_left + ch_w / 2, ch_top - 42);
+    phyCtx.lineTo(ch_left + 45, ch_top - 42);
+    phyCtx.stroke();
+    phyCtx.fillStyle = '#eab308'; phyCtx.fillText(`Gate (V_GS = ${vgs.toFixed(1)}V)`, ch_left + 45, ch_top - 48);
+
+  } else if (type === 'emosfet_n') {
+    // 4. N-Channel E-MOSFET: P-Substrate throughout (NO permanent channel!)
+    phyCtx.fillStyle = 'rgba(244, 63, 94, 0.14)';
+    phyCtx.fillRect(ch_left, ch_top, ch_w, ch_h);
+    phyCtx.strokeStyle = '#f43f5e'; phyCtx.lineWidth = 1.5;
+    phyCtx.strokeRect(ch_left, ch_top, ch_w, ch_h);
+
+    phyCtx.font = 'bold 11px JetBrains Mono'; phyCtx.fillStyle = '#f43f5e'; phyCtx.textAlign = 'center';
+    phyCtx.fillText('P-Type Substrate (ไม่มีช่องนำกระแสถาวร — Normally OFF)', ch_left + ch_w / 2, ch_top + ch_h/2 + 10);
+
+    // Inversion Layer created only if V_GS > V_th
+    const vth = 2.0;
+    if (vgs > vth) {
+      const invH = Math.min(32, (vgs - vth) * 8);
+      phyCtx.fillStyle = 'rgba(6, 182, 212, 0.55)';
+      phyCtx.fillRect(ch_left + 60, ch_top, ch_w - 120, invH);
+      phyCtx.strokeStyle = '#38bdf8'; phyCtx.lineWidth = 1.5;
+      phyCtx.strokeRect(ch_left + 60, ch_top, ch_w - 120, invH);
+
+      phyCtx.fillStyle = '#38bdf8'; phyCtx.font = 'bold 10px Sarabun';
+      phyCtx.fillText('✨ Induced N-Channel (Inversion Layer เหนี่ยวนำ)', ch_left + ch_w/2, ch_top + invH/2 + 4);
+    } else {
+      phyCtx.font = '10px Sarabun'; phyCtx.fillStyle = '#94a3b8';
+      phyCtx.fillText('⛔ ตัดกระแส (V_GS < V_th) — ต้องป้อนแรงดันบวกเพื่อเหนี่ยวนำ Channel', ch_left + ch_w/2, ch_top + 25);
+    }
+
+    // SiO2 Insulator Layer
+    phyCtx.fillStyle = '#38bdf8';
+    phyCtx.fillRect(ch_left + 60, ch_top - 12, ch_w - 120, 12);
+    phyCtx.font = 'bold 9px JetBrains Mono'; phyCtx.fillStyle = '#050b14'; phyCtx.textAlign = 'center';
+    phyCtx.fillText('SiO₂ Insulator Layer (ฉนวน)', ch_left + ch_w/2, ch_top - 3);
+
+    // Metal Gate
+    phyCtx.fillStyle = '#eab308';
+    phyCtx.fillRect(ch_left + 80, ch_top - 24, ch_w - 160, 12);
+    phyCtx.fillStyle = '#ffffff';
+    phyCtx.fillText('Metal Gate (G)', ch_left + ch_w/2, ch_top - 28);
+
+    // Gate Wire
+    phyCtx.strokeStyle = '#eab308'; phyCtx.lineWidth = 2;
+    phyCtx.beginPath();
+    phyCtx.moveTo(ch_left + ch_w / 2, ch_top - 24); phyCtx.lineTo(ch_left + ch_w / 2, ch_top - 42);
+    phyCtx.lineTo(ch_left + 45, ch_top - 42);
+    phyCtx.stroke();
+    phyCtx.fillStyle = '#eab308'; phyCtx.fillText(`Gate (V_GS = ${vgs.toFixed(1)}V)`, ch_left + 45, ch_top - 48);
+  }
+
+  // Source & Drain Electrodes (N+ for N-types, P+ for P-JFET)
+  const isP = (type === 'jfet_p');
+  const elecColor = isP ? '#f43f5e' : '#06b6d4';
+  const elecText = isP ? 'P+ SOURCE' : 'N+ SOURCE';
+  const drainText = isP ? 'P+ DRAIN' : 'N+ DRAIN';
+
+  phyCtx.fillStyle = elecColor;
+  phyCtx.fillRect(ch_left - 30, ch_top, 30, ch_h);
+  phyCtx.fillRect(ch_right, ch_top, 30, ch_h);
+  phyCtx.strokeStyle = '#ffffff'; phyCtx.lineWidth = 1;
+  phyCtx.strokeRect(ch_left - 30, ch_top, 30, ch_h);
+  phyCtx.strokeRect(ch_right, ch_top, 30, ch_h);
+
+  phyCtx.fillStyle = '#ffffff'; phyCtx.font = 'bold 9px JetBrains Mono'; phyCtx.textAlign = 'center';
+  phyCtx.fillText(elecText, ch_left - 15, ch_top + ch_h/2 + 3);
+  phyCtx.fillText(drainText, ch_right + 15, ch_top + ch_h/2 + 3);
+
+  // Wires to Source and Drain
+  phyCtx.strokeStyle = '#475569'; phyCtx.lineWidth = 2;
+  phyCtx.beginPath();
+  phyCtx.moveTo(ch_left - 30, ch_top + ch_h/2); phyCtx.lineTo(ch_left - 65, ch_top + ch_h/2);
+  phyCtx.moveTo(ch_right + 30, ch_top + ch_h/2); phyCtx.lineTo(ch_right + 65, ch_top + ch_h/2);
+  phyCtx.stroke();
+
+  phyCtx.fillStyle = '#94a3b8'; phyCtx.font = 'bold 10px JetBrains Mono';
+  phyCtx.fillText('S (0V)', ch_left - 85, ch_top + ch_h/2 + 4);
+  phyCtx.fillText(`D (+${vds.toFixed(1)}V)`, ch_right + 95, ch_top + ch_h/2 + 4);
+
+  // Animate Carriers (Electrons in N-Channel or Holes in P-Channel)
+  const curId = parseFloat(document.getElementById('phy-id-val').textContent);
+  if (curId > 0.05) {
+    phyCtx.fillStyle = isP ? '#fb7185' : '#38bdf8';
+    state.physics.electrons.forEach(el => {
+      el.x += el.speed * (vds / 5.0 + 0.5);
+      if (el.x > ch_right - 10) el.x = ch_left + 5;
+
+      let validY = el.y;
+      if (type === 'dmosfet_n') {
+        // Confine electrons to the top built-in channel strip (ch_top + 5 to ch_top + 38)
+        validY = ch_top + 8 + (el.y % 28);
+      } else if (type === 'emosfet_n') {
+        // Confine electrons to thin inversion layer at top
+        validY = ch_top + 6 + (el.y % 20);
+      }
+
+      phyCtx.beginPath();
+      phyCtx.arc(el.x, validY, el.size, 0, Math.PI*2);
+      phyCtx.fill();
+    });
+  }
+}
+
+
+/* ================================================================= */
+/* 4. MODULE 2 — FET CHARACTERISTIC CURVES (DRAIN & TRANSFER)        */
+/* ================================================================= */
+const crvCanvas = document.getElementById('canvas-drain-curves');
+const crvCtx = crvCanvas.getContext('2d');
+
+function setCurvesDevice(dev) {
+  state.curves.device = dev;
+  ['btn-crv-jfet', 'btn-crv-dmos', 'btn-crv-emos'].forEach(id => document.getElementById(id).classList.remove('active'));
+  const btnMap = { jfet: 'btn-crv-jfet', dmos: 'btn-crv-dmos', emos: 'btn-crv-emos' };
+  document.getElementById(btnMap[dev]).classList.add('active');
+
+  const sliderVgs = document.getElementById('slider-crv-vgs');
+  const modeText = document.getElementById('curves-mode-text');
+
+  if (dev === 'jfet') {
+    sliderVgs.min = -4.0; sliderVgs.max = 0.0; sliderVgs.value = -1.5;
+    modeText.textContent = 'JFET (I_DSS = 10mA, V_P = -4V)';
+  } else if (dev === 'dmos') {
+    sliderVgs.min = -4.0; sliderVgs.max = 2.0; sliderVgs.value = 0.0;
+    modeText.textContent = 'D-MOSFET (I_DSS = 8mA, V_P = -4V)';
+  } else if (dev === 'emos') {
+    sliderVgs.min = 0.0; sliderVgs.max = 6.0; sliderVgs.value = 3.5;
+    modeText.textContent = 'E-MOSFET (k = 0.5 mA/V², V_th = +2V)';
+  }
+
+  onCurvesChange();
+  playSound('click');
+}
+
+function onCurvesChange() {
+  state.curves.vgs = parseFloat(document.getElementById('slider-crv-vgs').value);
+  state.curves.vdd = parseFloat(document.getElementById('slider-crv-vdd').value);
+  state.curves.rd_kohm = parseFloat(document.getElementById('slider-crv-rd').value);
+
+  document.getElementById('crv-vgs-badge').textContent = state.curves.vgs.toFixed(1) + ' V';
+  document.getElementById('crv-vdd-badge').textContent = state.curves.vdd.toFixed(1) + ' V';
+  document.getElementById('crv-rd-badge').textContent = state.curves.rd_kohm.toFixed(1) + ' kΩ';
+
+  const dev = state.curves.device;
+  const vgs = state.curves.vgs;
+  const vdd = state.curves.vdd;
+  const rd = state.curves.rd_kohm;
+
+  let id_q = 0, gm = 0, stateStr = 'Active / Sat';
+
+  if (dev === 'jfet') {
+    const idss = 10.0, vp = -4.0;
+    if (vgs <= vp) {
+      id_q = 0; gm = 0; stateStr = 'Cutoff';
+    } else {
+      id_q = idss * Math.pow(1 - vgs / vp, 2);
+      const gm0 = (2 * idss) / Math.abs(vp);
+      gm = gm0 * (1 - vgs / vp);
+    }
+  } else if (dev === 'dmos') {
+    const idss = 8.0, vp = -4.0;
+    if (vgs <= vp) {
+      id_q = 0; gm = 0; stateStr = 'Cutoff';
+    } else {
+      id_q = idss * Math.pow(1 - vgs / vp, 2);
+      const gm0 = (2 * idss) / Math.abs(vp);
+      gm = gm0 * (1 - vgs / vp);
+      stateStr = vgs >= 0 ? 'Enhancement' : 'Depletion';
+    }
+  } else if (dev === 'emos') {
+    const vth = 2.0, k = 0.5;
+    if (vgs < vth) {
+      id_q = 0; gm = 0; stateStr = 'Cutoff (No Channel)';
+    } else {
+      id_q = k * Math.pow(vgs - vth, 2);
+      gm = 2 * k * (vgs - vth);
+      stateStr = 'Saturation';
+    }
+  }
+
+  const vds_q = Math.max(0.2, vdd - id_q * rd);
+  if (vds_q <= 1.0 && id_q > 0) stateStr = 'Ohmic / Triode';
+
+  document.getElementById('crv-idq-val').innerHTML = `${id_q.toFixed(2)} <span class="readout-unit">mA</span>`;
+  document.getElementById('crv-vdsq-val').innerHTML = `${vds_q.toFixed(2)} <span class="readout-unit">V</span>`;
+  document.getElementById('crv-gm-val').innerHTML = `${gm.toFixed(2)} <span class="readout-unit">mS</span>`;
+  document.getElementById('crv-state-val').textContent = stateStr;
+
+  drawDrainCurves();
+}
+
+function drawDrainCurves() {
+  const W = crvCanvas.width, H = crvCanvas.height;
+  crvCtx.clearRect(0, 0, W, H);
+  crvCtx.fillStyle = '#050b14'; crvCtx.fillRect(0, 0, W, H);
+
+  const ox = 50, oy = H - 35;
+  const maxV = 20.0, maxI = 14.0;
+  const pxPerV = (W - 80) / maxV;
+  const pxPerI = (H - 65) / maxI;
+
+  // Grid
+  crvCtx.strokeStyle = 'rgba(255,255,255,0.06)'; crvCtx.lineWidth = 1;
+  for (let v = 2; v <= maxV; v += 2) {
+    const x = ox + v * pxPerV;
+    crvCtx.beginPath(); crvCtx.moveTo(x, 25); crvCtx.lineTo(x, oy); crvCtx.stroke();
+    crvCtx.fillStyle = '#64748b'; crvCtx.font = '9px JetBrains Mono'; crvCtx.textAlign = 'center';
+    crvCtx.fillText(v, x, oy + 14);
+  }
+  for (let i = 2; i <= maxI; i += 2) {
+    const y = oy - i * pxPerI;
+    crvCtx.beginPath(); crvCtx.moveTo(ox, y); crvCtx.lineTo(W - 25, y); crvCtx.stroke();
+    crvCtx.fillStyle = '#64748b'; crvCtx.font = '9px JetBrains Mono'; crvCtx.textAlign = 'right';
+    crvCtx.fillText(i, ox - 6, y + 3);
+  }
+
+  // Axes
+  crvCtx.strokeStyle = '#94a3b8'; crvCtx.lineWidth = 1.8;
+  crvCtx.beginPath();
+  crvCtx.moveTo(ox, 20); crvCtx.lineTo(ox, oy); crvCtx.lineTo(W - 20, oy);
+  crvCtx.stroke();
+
+  crvCtx.font = 'bold 10px JetBrains Mono';
+  crvCtx.fillStyle = '#38bdf8'; crvCtx.textAlign = 'left';
+  crvCtx.fillText('V_DS (V)', W - 60, oy - 8);
+  crvCtx.fillText('I_D (mA)', ox + 8, 28);
+
+  const dev = state.curves.device;
+  let vgsList = [];
+  if (dev === 'jfet') vgsList = [0, -0.5, -1.0, -1.5, -2.0, -2.5, -3.0, -3.5];
+  else if (dev === 'dmos') vgsList = [1.5, 1.0, 0.5, 0, -1.0, -2.0, -3.0];
+  else if (dev === 'emos') vgsList = [5.0, 4.5, 4.0, 3.5, 3.0, 2.5];
+
+  // Family of curves
+  vgsList.forEach(vgs => {
+    let id_sat = 0, v_pinch = 0;
+    if (dev === 'jfet' || dev === 'dmos') {
+      const idss = dev === 'jfet' ? 10.0 : 8.0, vp = -4.0;
+      if (vgs > vp) {
+        id_sat = idss * Math.pow(1 - vgs / vp, 2);
+        v_pinch = Math.max(0.5, vgs - vp);
+      }
+    } else {
+      const vth = 2.0, k = 0.5;
+      if (vgs > vth) {
+        id_sat = k * Math.pow(vgs - vth, 2);
+        v_pinch = vgs - vth;
+      }
+    }
+
+    const isCurrentVgs = Math.abs(vgs - state.curves.vgs) < 0.25;
+    crvCtx.strokeStyle = isCurrentVgs ? '#06b6d4' : 'rgba(56, 189, 248, 0.35)';
+    crvCtx.lineWidth = isCurrentVgs ? 2.5 : 1.2;
+
+    crvCtx.beginPath();
+    for (let v = 0; v <= maxV; v += 0.2) {
+      let curId = 0;
+      if (v < v_pinch) {
+        curId = id_sat * (2 * (v / v_pinch) - Math.pow(v / v_pinch, 2));
+      } else {
+        curId = id_sat + 0.015 * (v - v_pinch); // Early slope
+      }
+      const px = ox + v * pxPerV, py = oy - curId * pxPerI;
+      if (v === 0) crvCtx.moveTo(px, py); else crvCtx.lineTo(px, py);
+    }
+    crvCtx.stroke();
+
+    // Label curve
+    const lastY = oy - (id_sat + 0.015 * (maxV - v_pinch)) * pxPerI;
+    crvCtx.font = '9px JetBrains Mono';
+    crvCtx.fillStyle = isCurrentVgs ? '#06b6d4' : '#64748b';
+    crvCtx.textAlign = 'left';
+    crvCtx.fillText(`V_GS=${vgs}V`, W - 58, Math.max(30, Math.min(oy - 5, lastY)));
+  });
+
+  // DC Load Line
+  const vdd = state.curves.vdd;
+  const rd = state.curves.rd_kohm;
+  const i_sat_load = vdd / rd;
+
+  crvCtx.strokeStyle = '#f43f5e'; crvCtx.lineWidth = 2;
+  crvCtx.setLineDash([4, 4]);
+  crvCtx.beginPath();
+  const loadX1 = ox, loadY1 = oy - Math.min(maxI, i_sat_load) * pxPerI;
+  const loadX2 = ox + Math.min(maxV, vdd) * pxPerV, loadY2 = oy;
+  crvCtx.moveTo(loadX1, loadY1);
+  crvCtx.lineTo(loadX2, loadY2);
+  crvCtx.stroke();
+  crvCtx.setLineDash([]);
+
+  // Draw Q-Point
+  const id_q = parseFloat(document.getElementById('crv-idq-val').textContent);
+  const vds_q = parseFloat(document.getElementById('crv-vdsq-val').textContent);
+  const qX = ox + vds_q * pxPerV, qY = oy - id_q * pxPerI;
+
+  crvCtx.fillStyle = '#f59e0b';
+  crvCtx.beginPath(); crvCtx.arc(qX, qY, 6, 0, Math.PI*2); crvCtx.fill();
+  crvCtx.strokeStyle = '#ffffff'; crvCtx.lineWidth = 1.5; crvCtx.stroke();
+
+  crvCtx.font = 'bold 10px JetBrains Mono'; crvCtx.fillStyle = '#f59e0b';
+  crvCtx.fillText(`Q (${vds_q.toFixed(1)}V, ${id_q.toFixed(1)}mA)`, qX + 8, qY - 6);
+}
+
+/* ================================================================= */
+/* 5. MODULE 3 — FET BIASING CIRCUITS & VIRTUAL LAB                  */
+/* ================================================================= */
+const schemCanvas = document.getElementById('canvas-schematic');
+const schemCtx = schemCanvas.getContext('2d');
+const oscCanvas = document.getElementById('canvas-osc');
+const oscCtx = oscCanvas.getContext('2d');
+
+function switchBiasMode(mode, btn) {
+  state.circuit.mode = mode;
+  document.querySelectorAll('#tab-circuits .pill-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+
+  ['ctrl-fixed-bias', 'ctrl-self-bias', 'ctrl-voltage-divider', 'ctrl-mosfet-switch'].forEach(id => document.getElementById(id).style.display = 'none');
+  const ctrlMap = { fixed_bias: 'ctrl-fixed-bias', self_bias: 'ctrl-self-bias', voltage_divider: 'ctrl-voltage-divider', mosfet_switch: 'ctrl-mosfet-switch' };
+  document.getElementById(ctrlMap[mode]).style.display = 'block';
+
+  const titleEl = document.getElementById('circuit-lab-title');
+  if (mode === 'fixed_bias') {
+    titleEl.textContent = 'วงจร Fixed-Bias ของ JFET (ไบอัสคงที่ด้วย V_GG)';
+  } else if (mode === 'self_bias') {
+    titleEl.textContent = 'วงจร Self-Bias ของ JFET (ไบอัสตัวเองด้วย R_S)';
+  } else if (mode === 'voltage_divider') {
+    titleEl.textContent = 'วงจรแบ่งแรงดัน (Voltage-Divider Bias)';
+  } else if (mode === 'mosfet_switch') {
+    titleEl.textContent = 'วงจร MOSFET Power Switch & Driver (ขับโหลดกระแสสูง)';
+  }
+
+  onCircuitChange();
+  playSound('click');
+}
+
+function setMosfetSwitch(val) {
+  state.circuit.switchOn = val;
+  onCircuitChange();
+  playSound(val ? 'success' : 'click');
+}
+
+function toggleSimPause() {
+  state.circuit.isPaused = !state.circuit.isPaused;
+  document.getElementById('pause-btn-text').textContent = state.circuit.isPaused ? 'เล่นต่อ' : 'หยุดชั่วคราว';
+  document.getElementById('btn-pause-sim').querySelector('i').className = state.circuit.isPaused ? 'fa-solid fa-play' : 'fa-solid fa-pause';
+}
+
+function onOscScaleChange() {
+  state.circuit.autoScale = document.getElementById('osc-autoscale').checked;
+  state.circuit.ch1Scale = parseFloat(document.getElementById('osc-ch1-scale').value);
+  state.circuit.ch2Scale = parseFloat(document.getElementById('osc-ch2-scale').value);
+}
+
+function onCircuitChange() {
+  const mode = state.circuit.mode;
+  let id = 0, vgs = 0, vds = 0, vd = 0, vs = 0, gm = 0;
+  const idss = 10.0, vp = -4.0;
+  const gm0 = (2 * idss) / Math.abs(vp); // 5.0 mS
+  let calcHtml = '';
+
+  if (mode === 'fixed_bias') {
+    state.circuit.vgg = parseFloat(document.getElementById('slider-fx-vgg').value);
+    state.circuit.vdd = parseFloat(document.getElementById('slider-fx-vdd').value);
+    state.circuit.rd_kohm = parseFloat(document.getElementById('slider-fx-rd').value);
+
+    const vgg = state.circuit.vgg;
+    const vdd = state.circuit.vdd;
+    const rd = state.circuit.rd_kohm;
+
+    document.getElementById('fx-vgg-badge').textContent = vgg.toFixed(1) + ' V';
+    document.getElementById('fx-vdd-badge').textContent = vdd.toFixed(1) + ' V';
+    document.getElementById('fx-rd-badge').textContent = rd.toFixed(1) + ' kΩ';
+
+    vgs = vgg;
+    const ratio = Math.max(0, 1 - vgs / vp);
+    const id_calc = vgs > vp ? idss * Math.pow(ratio, 2) : 0;
+    const max_id = (vdd - 0.2) / rd;
+    const isOhmic = (id_calc >= max_id);
+
+    id = isOhmic ? max_id : id_calc;
+    vd = isOhmic ? 0.2 : (vdd - id * rd);
+    vds = vd;
+    vs = 0.0;
+    gm = gm0 * ratio;
+
+    const vds_sat = Math.max(0, vgs - vp);
+    const isSat = !isOhmic && (vds >= vds_sat);
+
+    calcHtml = 
+      `<div style="margin-bottom:0.5rem;padding:0.5rem;background:rgba(6,182,212,0.06);border-left:3px solid var(--accent-primary);border-radius:4px;">` +
+      `  <strong style="color:var(--accent-primary);"><i class="fa-solid fa-calculator"></i> ขั้นตอนและสูตรการคำนวณหากระแสเดรน I<sub>D</sub> (Shockley Equation):</strong><br>` +
+      `  1. <strong>สมการแรงดันเกต-ซอร์ส:</strong> V<sub>GS</sub> = V<sub>GG</sub> = <span style="color:var(--accent-primary);font-weight:700;">${vgs.toFixed(2)} V</span> (เนื่องจากขา Gate เป็นฉนวน I<sub>G</sub> ≈ 0)<br>` +
+      `  2. <strong>แทนค่าลงในสมการช็อคลีย์ (Shockley's Equation):</strong><br>` +
+      `  &nbsp;&nbsp;<strong>I<sub>D</sub> = I<sub>DSS</sub> · [1 − (V<sub>GS</sub> / V<sub>P</sub>)]<sup>2</sup></strong><br>` +
+      `  &nbsp;&nbsp;I<sub>D</sub> = 10.0 mA · [1 − (${vgs.toFixed(2)} / ${vp.toFixed(1)})]<sup>2</sup> = 10.0 · (${ratio.toFixed(3)})<sup>2</sup> = <span style="color:#10b981;font-weight:700;font-size:0.95rem;">${id.toFixed(2)} mA</span>` +
+      `</div>` +
+      `<div style="margin-bottom:0.4rem;"><strong>3. คำนวณแรงดันตกคร่อมเดรน-ซอร์ส (V<sub>DS</sub>):</strong><br>` +
+      `&nbsp;&nbsp;• V<sub>D</sub> = V<sub>DD</sub> − (I<sub>D</sub> · R<sub>D</sub>) = ${vdd.toFixed(1)} V − (${id.toFixed(2)} mA × ${rd.toFixed(1)} kΩ) = <span style="color:#38bdf8;font-weight:700;">${vd.toFixed(2)} V</span><br>` +
+      `&nbsp;&nbsp;• V<sub>S</sub> = 0.00 V → V<sub>DS</sub> = V<sub>D</sub> − V<sub>S</sub> = <span style="color:#38bdf8;font-weight:700;">${vds.toFixed(2)} V</span></div>` +
+      `<div style="margin-bottom:0.4rem;"><strong>4. คำนวณค่า Transconductance (g<sub>m</sub>):</strong><br>` +
+      `&nbsp;&nbsp;g<sub>m0</sub> = 2·I<sub>DSS</sub> / |V<sub>P</sub>| = (2 × 10.0) / 4.0 = 5.00 mS<br>` +
+      `&nbsp;&nbsp;g<sub>m</sub> = g<sub>m0</sub> · [1 − (V<sub>GS</sub> / V<sub>P</sub>)] = 5.00 mS × ${ratio.toFixed(3)} = <span style="color:var(--accent-primary);font-weight:700;">${gm.toFixed(2)} mS</span></div>` +
+      `<div style="padding:0.35rem 0.5rem;background:rgba(255,255,255,0.03);border-radius:4px;font-size:0.76rem;">` +
+      `<strong>เงื่อนไขสภาวะอิ่มตัว (Pinch-off Saturation):</strong> V<sub>DS</sub> (${vds.toFixed(2)}V) ${isSat ? '≥' : '<'} V<sub>GS</sub> − V<sub>P</sub> (${vds_sat.toFixed(2)}V) → <span style="color:${isSat ? '#10b981' : '#f59e0b'};font-weight:700;">${isSat ? 'ทำงานใน Saturation Region (ปกติ)' : 'ทำงานใน Ohmic/Triode Region'}</span></div>`;
+
+    document.getElementById('cir-gm-title').innerHTML = 'Transconductance g<sub>m</sub>';
+    document.getElementById('cir-gm-val').innerHTML = `${gm.toFixed(2)} <span class="readout-unit">mS</span>`;
+
+  } else if (mode === 'self_bias') {
+    state.circuit.rs_ohm = parseFloat(document.getElementById('slider-sb-rs').value);
+    state.circuit.vdd = parseFloat(document.getElementById('slider-sb-vdd').value);
+    state.circuit.rd_kohm = parseFloat(document.getElementById('slider-sb-rd').value);
+
+    const rs_ohm = state.circuit.rs_ohm;
+    const rs_k = rs_ohm / 1000;
+    const vdd = state.circuit.vdd;
+    const rd = state.circuit.rd_kohm;
+
+    document.getElementById('sb-rs-badge').textContent = rs_ohm.toFixed(0) + ' Ω';
+    document.getElementById('sb-vdd-badge').textContent = vdd.toFixed(1) + ' V';
+    document.getElementById('sb-rd-badge').textContent = rd.toFixed(1) + ' kΩ';
+
+    // Exact Quadratic Solution for Self-Bias:
+    // VGS = -ID * RS
+    // 1 - VGS/VP = 1 - (-ID*RS)/VP = 1 - ID*(RS/|VP|)
+    // Let B = RS / |VP| = rs_k / 4.0
+    // ID = IDSS * (1 - B*ID)^2 = IDSS * (1 - 2*B*ID + B^2 * ID^2)
+    // IDSS * B^2 * ID^2 - (2*IDSS*B + 1)*ID + IDSS = 0
+    // a = IDSS * B^2
+    // b = -(2 * IDSS * B + 1)
+    // c = IDSS
+    const termB = rs_k / Math.abs(vp);
+    const qa = idss * Math.pow(termB, 2);
+    const qb = -(2.0 * idss * termB + 1.0);
+    const qc = idss;
+    const disc = Math.max(0, qb * qb - 4.0 * qa * qc);
+
+    // Root selection: root with minus sign is physical root
+    const id_calc = (-qb - Math.sqrt(disc)) / (2.0 * qa);
+    const max_id = (vdd - 0.2) / (rd + rs_k);
+    const isOhmic = (id_calc >= max_id);
+
+    id = isOhmic ? max_id : id_calc;
+    if (isOhmic) {
+      vds = 0.2;
+      vs = id * rs_k;
+      vd = vs + vds;
+      vgs = -vs;
+    } else {
+      vs = id * rs_k;
+      vd = vdd - id * rd;
+      vds = vd - vs;
+      vgs = -vs;
+    }
+
+    const ratio = Math.max(0, 1 - vgs / vp);
+    gm = gm0 * ratio;
+    const vds_sat = Math.max(0, vgs - vp);
+    const isSat = !isOhmic && (vds >= vds_sat);
+
+    calcHtml = 
+      `<div style="margin-bottom:0.5rem;padding:0.5rem;background:rgba(6,182,212,0.06);border-left:3px solid var(--accent-primary);border-radius:4px;">` +
+      `  <strong style="color:var(--accent-primary);"><i class="fa-solid fa-calculator"></i> ขั้นตอนและสูตรการคำนวณหากระแสเดรน I<sub>D</sub> (Quadratic Derivation):</strong><br>` +
+      `  1. <strong>สมการเส้นไบอัสตัวเอง (Self-Bias Line):</strong> V<sub>GS</sub> = V<sub>G</sub> − V<sub>S</sub> = −(I<sub>D</sub> · R<sub>S</sub>) = −(I<sub>D</sub> × ${rs_k.toFixed(3)} kΩ)<br>` +
+      `  2. <strong>แทน V<sub>GS</sub> ในสมการของช็อคลีย์ (Shockley):</strong><br>` +
+      `  &nbsp;&nbsp;I<sub>D</sub> = I<sub>DSS</sub> · [1 − (−I<sub>D</sub>·R<sub>S</sub> / V<sub>P</sub>)]<sup>2</sup> = 10.0 · [1 − (${rs_k.toFixed(3)}/4.0)·I<sub>D</sub>]<sup>2</sup><br>` +
+      `  3. <strong>จัดรูปเป็นสมการกำลังสอง (a·I<sub>D</sub><sup>2</sup> + b·I<sub>D</sub> + c = 0):</strong><br>` +
+      `  &nbsp;&nbsp;• a = I<sub>DSS</sub>·(R<sub>S</sub>/|V<sub>P</sub>|)<sup>2</sup> = 10.0 × (${(rs_k/4).toFixed(4)})<sup>2</sup> = <strong>${qa.toFixed(4)}</strong><br>` +
+      `  &nbsp;&nbsp;• b = −[2·I<sub>DSS</sub>·(R<sub>S</sub>/|V<sub>P</sub>|) + 1] = −[2(10.0)(${(rs_k/4).toFixed(4)}) + 1] = <strong>${qb.toFixed(4)}</strong><br>` +
+      `  &nbsp;&nbsp;• c = I<sub>DSS</sub> = <strong>${qc.toFixed(4)}</strong><br>` +
+      `  4. <strong>แก้สมการด้วยสูตรกำลังสอง (Quadratic Formula):</strong><br>` +
+      `  &nbsp;&nbsp;<strong>I<sub>D</sub> = [−b − √(b<sup>2</sup> − 4ac)] / (2a)</strong> = <span style="color:#10b981;font-weight:700;font-size:0.95rem;">${id.toFixed(2)} mA</span>` +
+      `</div>` +
+      `<div style="margin-bottom:0.4rem;"><strong>5. คำนวณแรงดันขั้วต่างๆ (V<sub>GS</sub>, V<sub>S</sub>, V<sub>D</sub>, V<sub>DS</sub>):</strong><br>` +
+      `&nbsp;&nbsp;• V<sub>S</sub> = I<sub>D</sub> · R<sub>S</sub> = ${id.toFixed(2)} mA × ${rs_k.toFixed(3)} kΩ = <span style="color:#a855f7;font-weight:700;">${vs.toFixed(2)} V</span><br>` +
+      `&nbsp;&nbsp;• V<sub>GS</sub> = −V<sub>S</sub> = <span style="color:var(--accent-primary);font-weight:700;">${vgs.toFixed(2)} V</span><br>` +
+      `&nbsp;&nbsp;• V<sub>D</sub> = V<sub>DD</sub> − (I<sub>D</sub> · R<sub>D</sub>) = ${vdd.toFixed(1)} V − (${id.toFixed(2)} × ${rd.toFixed(1)}) = <span style="color:#38bdf8;font-weight:700;">${vd.toFixed(2)} V</span><br>` +
+      `&nbsp;&nbsp;• V<sub>DS</sub> = V<sub>D</sub> − V<sub>S</sub> = ${vd.toFixed(2)} V − ${vs.toFixed(2)} V = <span style="color:#38bdf8;font-weight:700;">${vds.toFixed(2)} V</span> (ถูกต้อง: V<sub>DS</sub> &lt; V<sub>DD</sub>)</div>` +
+      `<div style="margin-bottom:0.4rem;"><strong>6. ค่า Transconductance (g<sub>m</sub>):</strong> g<sub>m</sub> = 5.00 mS · [1 − (${vgs.toFixed(2)} / ${vp.toFixed(1)})] = <span style="color:var(--accent-primary);font-weight:700;">${gm.toFixed(2)} mS</span></div>` +
+      `<div style="padding:0.35rem 0.5rem;background:rgba(255,255,255,0.03);border-radius:4px;font-size:0.76rem;">` +
+      `<strong>สภาวะทำงาน:</strong> V<sub>DS</sub> (${vds.toFixed(2)}V) ${isSat ? '≥' : '<'} V<sub>GS</sub> − V<sub>P</sub> (${vds_sat.toFixed(2)}V) → <span style="color:${isSat ? '#10b981' : '#f59e0b'};font-weight:700;">${isSat ? 'Saturation Region เสถียรภาพสูง' : 'Ohmic Region'}</span></div>`;
+
+    document.getElementById('cir-gm-title').innerHTML = 'Transconductance g<sub>m</sub>';
+    document.getElementById('cir-gm-val').innerHTML = `${gm.toFixed(2)} <span class="readout-unit">mS</span>`;
+
+  } else if (mode === 'voltage_divider') {
+    state.circuit.vd_vdd = parseFloat(document.getElementById('slider-vd-vdd').value);
+    state.circuit.r1_Mohm = parseFloat(document.getElementById('slider-vd-r1').value);
+    state.circuit.r2_kohm = parseFloat(document.getElementById('slider-vd-r2').value);
+    state.circuit.vd_rd = parseFloat(document.getElementById('slider-vd-rd').value);
+    state.circuit.rs_kohm = parseFloat(document.getElementById('slider-vd-rs').value);
+
+    const vdd = state.circuit.vd_vdd;
+    const r1_k = state.circuit.r1_Mohm * 1000;
+    const r2_k = state.circuit.r2_kohm;
+    const rd = state.circuit.vd_rd;
+    const rs_k = state.circuit.rs_kohm;
+
+    document.getElementById('vd-vdd-badge').textContent = vdd.toFixed(1) + ' V';
+    document.getElementById('vd-r1-badge').textContent = state.circuit.r1_Mohm.toFixed(1) + ' MΩ';
+    document.getElementById('vd-r2-badge').textContent = r2_k.toFixed(0) + ' kΩ';
+    document.getElementById('vd-rd-badge').textContent = rd.toFixed(1) + ' kΩ';
+    document.getElementById('vd-rs-badge').textContent = rs_k.toFixed(1) + ' kΩ';
+
+    const vg = vdd * (r2_k / (r1_k + r2_k));
+    const rth = (r1_k * r2_k) / (r1_k + r2_k);
+
+    // Exact Quadratic Solution for Voltage-Divider:
+    // 1 - VGS/VP = (1 + VG/|VP|) - ID*(RS/|VP|)
+    // Let A = 1 + VG/|VP|, B = RS/|VP|
+    // ID = IDSS * (A - B*ID)^2 = IDSS * (A^2 - 2*A*B*ID + B^2*ID^2)
+    // IDSS * B^2 * ID^2 - (2*IDSS*A*B + 1)*ID + IDSS * A^2 = 0
+    // a = IDSS * B^2
+    // b = -(2 * IDSS * A * B + 1)
+    // c = IDSS * A^2
+    const A = 1.0 + (vg / Math.abs(vp));
+    const B = rs_k / Math.abs(vp);
+    const qa = idss * Math.pow(B, 2);
+    const qb = -(2.0 * idss * A * B + 1.0);
+    const qc = idss * Math.pow(A, 2);
+    const disc = Math.max(0, qb * qb - 4.0 * qa * qc);
+
+    const id_calc = (-qb - Math.sqrt(disc)) / (2.0 * qa);
+    const max_id = (vdd - 0.2) / (rd + rs_k);
+    const isOhmic = (id_calc >= max_id);
+
+    id = isOhmic ? max_id : id_calc;
+    if (isOhmic) {
+      vds = 0.2;
+      vs = id * rs_k;
+      vd = vs + vds;
+      vgs = vg - vs;
+    } else {
+      vs = id * rs_k;
+      vd = vdd - id * rd;
+      vds = vd - vs;
+      vgs = vg - vs;
+    }
+
+    const ratio = Math.max(0, 1 - vgs / vp);
+    gm = gm0 * ratio;
+    const vds_sat = Math.max(0, vgs - vp);
+    const isSat = !isOhmic && (vds >= vds_sat);
+
+    calcHtml = 
+      `<div style="margin-bottom:0.4rem;"><strong>1. คำนวณวงจรสมมูล Thevenin ที่ขา Gate:</strong><br>` +
+      `&nbsp;&nbsp;• <strong>V<sub>G</sub></strong> = V<sub>DD</sub> · [R<sub>2</sub> / (R<sub>1</sub> + R<sub>2</sub>)] = ${vdd.toFixed(1)} V · [${r2_k.toFixed(0)} / (${r1_k.toFixed(0)} + ${r2_k.toFixed(0)})] = <span style="color:var(--accent-primary);font-weight:700;">${vg.toFixed(2)} V</span><br>` +
+      `&nbsp;&nbsp;• <strong>R<sub>TH</sub></strong> = R<sub>1</sub> ∥ R<sub>2</sub> = (${r1_k.toFixed(0)} × ${r2_k.toFixed(0)}) / (${r1_k.toFixed(0)} + ${r2_k.toFixed(0)}) = <span style="color:var(--text-muted);font-family:var(--font-mono);">${rth.toFixed(1)} kΩ</span></div>` +
+      `<div style="margin-bottom:0.5rem;padding:0.5rem;background:rgba(6,182,212,0.06);border-left:3px solid var(--accent-primary);border-radius:4px;">` +
+      `  <strong style="color:var(--accent-primary);"><i class="fa-solid fa-calculator"></i> 2. ขั้นตอนและสูตรการคำนวณหากระแสเดรน I<sub>D</sub> (Quadratic Derivation):</strong><br>` +
+      `  • <strong>สมการเส้นโหลดไบอัส:</strong> V<sub>GS</sub> = V<sub>G</sub> − (I<sub>D</sub> · R<sub>S</sub>) = ${vg.toFixed(2)} V − (I<sub>D</sub> × ${rs_k.toFixed(2)} kΩ)<br>` +
+      `  • <strong>แทนค่า V<sub>GS</sub> ในสมการของช็อคลีย์ (Shockley):</strong><br>` +
+      `  &nbsp;&nbsp;I<sub>D</sub> = I<sub>DSS</sub> · [1 − (V<sub>G</sub> − I<sub>D</sub>·R<sub>S</sub>) / V<sub>P</sub>]<sup>2</sup> = I<sub>DSS</sub> · [ (1 + V<sub>G</sub>/|V<sub>P</sub>|) − (R<sub>S</sub>/|V<sub>P</sub>|)·I<sub>D</sub> ]<sup>2</sup><br>` +
+      `  • <strong>กระจายเป็นสมการกำลังสอง (a·I<sub>D</sub><sup>2</sup> + b·I<sub>D</sub> + c = 0):</strong><br>` +
+      `  &nbsp;&nbsp;&nbsp;&nbsp;a = I<sub>DSS</sub> · (R<sub>S</sub>/|V<sub>P</sub>|)<sup>2</sup> = 10.0 × (${(rs_k/4).toFixed(4)})<sup>2</sup> = <strong>${qa.toFixed(4)}</strong><br>` +
+      `  &nbsp;&nbsp;&nbsp;&nbsp;b = −[2·I<sub>DSS</sub>·(1 + V<sub>G</sub>/|V<sub>P</sub>|)·(R<sub>S</sub>/|V<sub>P</sub>|) + 1] = <strong>${qb.toFixed(4)}</strong><br>` +
+      `  &nbsp;&nbsp;&nbsp;&nbsp;c = I<sub>DSS</sub> · (1 + V<sub>G</sub>/|V<sub>P</sub>|)<sup>2</sup> = 10.0 × (${A.toFixed(3)})<sup>2</sup> = <strong>${qc.toFixed(4)}</strong><br>` +
+      `  • <strong>แก้สมการหากระแสเดรน (Quadratic Formula):</strong><br>` +
+      `  &nbsp;&nbsp;<strong>I<sub>D</sub> = [−b − √(b<sup>2</sup> − 4ac)] / (2a)</strong> = <span style="color:#10b981;font-weight:700;font-size:0.95rem;">${id.toFixed(2)} mA</span>` +
+      `</div>` +
+      `<div style="margin-bottom:0.4rem;"><strong>3. คำนวณแรงดันขั้วต่างๆ (V<sub>S</sub>, V<sub>GS</sub>, V<sub>D</sub>, V<sub>DS</sub>):</strong><br>` +
+      `&nbsp;&nbsp;• V<sub>S</sub> = I<sub>D</sub> · R<sub>S</sub> = ${id.toFixed(2)} mA × ${rs_k.toFixed(2)} kΩ = <span style="color:#a855f7;font-weight:700;">${vs.toFixed(2)} V</span><br>` +
+      `&nbsp;&nbsp;• V<sub>GS</sub> = V<sub>G</sub> − V<sub>S</sub> = ${vg.toFixed(2)} V − ${vs.toFixed(2)} V = <span style="color:var(--accent-primary);font-weight:700;">${vgs.toFixed(2)} V</span><br>` +
+      `&nbsp;&nbsp;• V<sub>D</sub> = V<sub>DD</sub> − (I<sub>D</sub> · R<sub>D</sub>) = ${vdd.toFixed(1)} V − (${id.toFixed(2)} × ${rd.toFixed(1)}) = <span style="color:#38bdf8;font-weight:700;">${vd.toFixed(2)} V</span><br>` +
+      `&nbsp;&nbsp;• V<sub>DS</sub> = V<sub>D</sub> − V<sub>S</sub> = ${vd.toFixed(2)} V − ${vs.toFixed(2)} V = <span style="color:#38bdf8;font-weight:700;">${vds.toFixed(2)} V</span> (ถูกต้อง: V<sub>DS</sub> &lt; V<sub>DD</sub>)</div>` +
+      `<div style="margin-bottom:0.4rem;"><strong>4. ค่า Transconductance (g<sub>m</sub>):</strong> g<sub>m</sub> = 5.00 mS · [1 − (${vgs.toFixed(2)} / ${vp.toFixed(1)})] = <span style="color:var(--accent-primary);font-weight:700;">${gm.toFixed(2)} mS</span></div>` +
+      `<div style="padding:0.35rem 0.5rem;background:rgba(255,255,255,0.03);border-radius:4px;font-size:0.76rem;">` +
+      `<strong>ข้อดี Voltage-Divider:</strong> วงจรใช้ Negative Feedback จาก R<sub>S</sub> ชดเชยการเปลี่ยนแปลงของ I<sub>DSS</sub> ได้เสถียรที่สุด</div>`;
+
+    document.getElementById('cir-gm-title').innerHTML = 'Transconductance g<sub>m</sub>';
+    document.getElementById('cir-gm-val').innerHTML = `${gm.toFixed(2)} <span class="readout-unit">mS</span>`;
+
+  } else if (mode === 'mosfet_switch') {
+    state.circuit.swVdd = parseFloat(document.getElementById('slider-sw-vdd').value);
+    state.circuit.rload = parseFloat(document.getElementById('slider-sw-rload').value);
+
+    const swVdd = state.circuit.swVdd;
+    const rload = state.circuit.rload;
+
+    document.getElementById('sw-vdd-badge').textContent = swVdd.toFixed(1) + ' V';
+    document.getElementById('sw-rload-badge').textContent = rload.toFixed(0) + ' Ω';
+
+    const isOn = state.circuit.switchOn;
+    vgs = isOn ? 5.0 : 0.0;
+    const rds_on = 0.035; // 35 mΩ
+    const vth = 2.0;
+
+    if (isOn) {
+      const i_A = swVdd / (rload + rds_on);
+      id = i_A * 1000; // mA
+      vds = i_A * rds_on; // V
+      vd = vds;
+      vs = 0.0;
+      const ploss_mW = (i_A * i_A * rds_on) * 1000;
+      const pload_W = (i_A * i_A * rload);
+      const eff = (pload_W / (pload_W + ploss_mW / 1000)) * 100;
+
+      calcHtml = 
+        `<div style="margin-bottom:0.5rem;padding:0.5rem;background:rgba(16,185,129,0.08);border-left:3px solid #10b981;border-radius:4px;">` +
+        `  <strong style="color:#10b981;"><i class="fa-solid fa-toggle-on"></i> ขั้นตอนการคำนวณสภาวะ ON (Logic HIGH 5V > V<sub>th</sub>):</strong><br>` +
+        `  1. <strong>เงื่อนไขสวิตช์ ON:</strong> V<sub>GS</sub> = 5.0 V > V<sub>th</sub> (2.0V) → MOSFET นำกระแสเต็มที่เข้าสู่ Ohmic Region (R<sub>DS(on)</sub> = 35 mΩ)<br>` +
+        `  2. <strong>สูตรคำนวณกระแสเดรนผ่านโหลด (I<sub>D</sub>):</strong><br>` +
+        `  &nbsp;&nbsp;<strong>I<sub>D</sub> = V<sub>DD</sub> / (R<sub>load</sub> + R<sub>DS(on)</sub>)</strong> = ${swVdd.toFixed(1)} V / (${rload.toFixed(0)} Ω + 0.035 Ω) = <span style="color:#10b981;font-weight:700;font-size:0.95rem;">${i_A.toFixed(3)} A (${id.toFixed(1)} mA)</span><br>` +
+        `  3. <strong>แรงดันตกคร่อมสวิตช์ (V<sub>DS(on)</sub>):</strong> V<sub>DS</sub> = I<sub>D</sub> · R<sub>DS(on)</sub> = ${i_A.toFixed(3)} A × 0.035 Ω = <span style="color:#38bdf8;font-weight:700;">${(vds*1000).toFixed(1)} mV</span>` +
+        `</div>` +
+        `<div style="margin-bottom:0.4rem;"><strong>4. การสูญเสียกำลังงานและประสิทธิภาพ (Efficiency):</strong><br>` +
+        `&nbsp;&nbsp;• กำลังสูญเสียใน MOSFET: P<sub>loss</sub> = I<sub>D</sub><sup>2</sup> · R<sub>DS(on)</sub> = <span style="color:#f59e0b;font-weight:700;">${ploss_mW.toFixed(1)} mW</span><br>` +
+        `&nbsp;&nbsp;• กำลังงานส่งมอบให้โหลด: P<sub>load</sub> = I<sub>D</sub><sup>2</sup> · R<sub>load</sub> = <span style="color:#10b981;font-weight:700;">${pload_W.toFixed(2)} W</span><br>` +
+        `&nbsp;&nbsp;• ประสิทธิภาพการสวิตชิ่ง: η = [P<sub>load</sub> / (P<sub>load</sub> + P<sub>loss</sub>)] × 100% = <span style="color:var(--accent-primary);font-weight:700;">${eff.toFixed(2)}%</span></div>`;
+
+      document.getElementById('cir-gm-title').innerHTML = 'กำลังสูญเสีย P<sub>loss</sub> (FET)';
+      document.getElementById('cir-gm-val').innerHTML = `${ploss_mW.toFixed(1)} <span class="readout-unit">mW</span>`;
+
+    } else {
+      id = 0.0;
+      vds = swVdd;
+      vd = swVdd;
+      vs = 0.0;
+
+      calcHtml = 
+        `<div style="margin-bottom:0.5rem;padding:0.5rem;background:rgba(244,63,94,0.08);border-left:3px solid #f43f5e;border-radius:4px;">` +
+        `  <strong style="color:#f43f5e;"><i class="fa-solid fa-toggle-off"></i> ขั้นตอนการคำนวณสภาวะ OFF (Logic LOW 0V < V<sub>th</sub>):</strong><br>` +
+        `  1. <strong>เงื่อนไขสวิตช์ OFF:</strong> V<sub>GS</sub> = 0.0 V < V<sub>th</sub> (2.0V) → สภาวะ Cutoff สวิตช์เปิดวงจร<br>` +
+        `  2. <strong>สูตรคำนวณกระแสเดรน (I<sub>D</sub>):</strong> <span style="color:#f43f5e;font-weight:700;font-size:0.95rem;">I<sub>D</sub> = 0.00 mA</span> (โหลด Motor/LED ดับสนิท)<br>` +
+        `  3. <strong>แรงดันตกคร่อมสวิตช์ (V<sub>DS</sub>):</strong> V<sub>DS</sub> = V<sub>DD</sub> = <span style="color:#38bdf8;font-weight:700;">${swVdd.toFixed(1)} V</span><br>` +
+        `  4. <strong>กำลังสูญเสีย:</strong> P<sub>loss</sub> = 0 mW, P<sub>load</sub> = 0 W (ไม่มีการสิ้นเปลืองพลังงาน)` +
+        `</div>`;
+
+      document.getElementById('cir-gm-title').innerHTML = 'กำลังสูญเสีย P<sub>loss</sub> (FET)';
+      document.getElementById('cir-gm-val').innerHTML = `0.0 <span class="readout-unit">mW</span>`;
+    }
+  }
+
+  document.getElementById('cir-vds-val').innerHTML = `${vds.toFixed(2)} <span class="readout-unit">V</span>`;
+  document.getElementById('cir-id-val').innerHTML = `${id.toFixed(2)} <span class="readout-unit">mA</span>`;
+  document.getElementById('cir-vgs-val').innerHTML = `${vgs.toFixed(2)} <span class="readout-unit">V</span>`;
+  document.getElementById('cir-vd-val').innerHTML = `${vd.toFixed(2)} <span class="readout-unit">V</span>`;
+  document.getElementById('cir-vs-val').innerHTML = `${vs.toFixed(2)} <span class="readout-unit">V</span>`;
+  document.getElementById('circuit-calc-details').innerHTML = calcHtml;
+
+  drawSchematic();
+}
+
+function wire(ctx, x1, y1, x2, y2, col='#475569', lw=2) {
+  ctx.strokeStyle = col; ctx.lineWidth = lw;
+  ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+}
+function dotNode(ctx, x, y, label='', side='top') {
+  ctx.beginPath(); ctx.arc(x, y, 4, 0, Math.PI*2); ctx.fillStyle = '#ffffff'; ctx.fill();
+  if (label) {
+    ctx.font = 'bold 10px JetBrains Mono'; ctx.fillStyle = '#38bdf8';
+    if (side === 'top') { ctx.textAlign = 'center'; ctx.fillText(label, x, y - 8); }
+    else if (side === 'right') { ctx.textAlign = 'left'; ctx.fillText(label, x + 8, y + 3); }
+    else if (side === 'bottom') { ctx.textAlign = 'center'; ctx.fillText(label, x, y + 14); }
+    else { ctx.textAlign = 'right'; ctx.fillText(label, x - 8, y + 3); }
+    ctx.textAlign = 'left';
+  }
+}
+function gndSymbol(ctx, x, y) {
+  ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 2;
+  wire(ctx, x, y - 8, x, y);
+  for (let i = 0; i < 3; i++) {
+    const hw = 10 - i * 3.5, yy = y + i * 4;
+    ctx.beginPath(); ctx.moveTo(x - hw, yy); ctx.lineTo(x + hw, yy); ctx.stroke();
+  }
+}
+function vddRail(ctx, x, y, v) {
+  ctx.fillStyle = '#f97316'; ctx.font = 'bold 11px JetBrains Mono'; ctx.textAlign = 'center';
+  ctx.fillText(`+${v}V (V_DD)`, x, y - 6);
+  ctx.beginPath(); ctx.moveTo(x - 14, y); ctx.lineTo(x + 14, y);
+  ctx.strokeStyle = '#f97316'; ctx.lineWidth = 2.5; ctx.stroke();
+  ctx.textAlign = 'left';
+}
+function drawResistorV(ctx, x, y1, y2, lbl, val, labelSide='left') {
+  const my = (y1 + y2) / 2, segH = 14;
+  wire(ctx, x, y1, x, my - segH, '#475569');
+  wire(ctx, x, my + segH, x, y2, '#475569');
+  ctx.strokeStyle = '#f59e0b'; ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(x, my - segH);
+  ctx.lineTo(x - 6, my - 10); ctx.lineTo(x + 6, my - 5);
+  ctx.lineTo(x - 6, my);      ctx.lineTo(x + 6, my + 5);
+  ctx.lineTo(x - 6, my + 10); ctx.lineTo(x, my + segH);
+  ctx.stroke();
+  ctx.font = 'bold 10px Sarabun';
+  if (labelSide === 'left') {
+    ctx.textAlign = 'right'; ctx.fillStyle = '#94a3b8'; ctx.fillText(lbl, x - 10, my - 2);
+    ctx.fillStyle = '#f59e0b'; ctx.fillText(val, x - 10, my + 11);
+  } else {
+    ctx.textAlign = 'left'; ctx.fillStyle = '#94a3b8'; ctx.fillText(lbl, x + 10, my - 2);
+    ctx.fillStyle = '#f59e0b'; ctx.fillText(val, x + 10, my + 11);
+  }
+  ctx.textAlign = 'left';
+}
+function drawResistorH(ctx, x1, x2, y, lbl, val, labelSide='top') {
+  const mx = (x1 + x2) / 2, segW = 14;
+  wire(ctx, x1, y, mx - segW, y, '#475569');
+  wire(ctx, mx + segW, y, x2, y, '#475569');
+  ctx.strokeStyle = '#f59e0b'; ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(mx - segW, y);
+  ctx.lineTo(mx - 10, y - 6); ctx.lineTo(mx - 5, y + 6);
+  ctx.lineTo(mx, y - 6);      ctx.lineTo(mx + 5, y + 6);
+  ctx.lineTo(mx + 10, y - 6); ctx.lineTo(mx + segW, y);
+  ctx.stroke();
+  ctx.font = 'bold 10px Sarabun'; ctx.textAlign = 'center';
+  if (labelSide === 'top') {
+    ctx.fillStyle = '#94a3b8'; ctx.fillText(lbl, mx, y - 10);
+    ctx.fillStyle = '#f59e0b'; ctx.fillText(val, mx, y + 18);
+  }
+  ctx.textAlign = 'left';
+}
+function drawCapH(ctx, x1, x2, y, lbl) {
+  const mx = (x1 + x2) / 2;
+  wire(ctx, x1, y, mx - 4, y, '#475569');
+  wire(ctx, mx + 4, y, x2, y, '#475569');
+  ctx.strokeStyle = '#06b6d4'; ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.moveTo(mx - 4, y - 12); ctx.lineTo(mx - 4, y + 12); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(mx + 4, y - 12); ctx.lineTo(mx + 4, y + 12); ctx.stroke();
+  ctx.fillStyle = '#06b6d4'; ctx.font = 'bold 10px Sarabun'; ctx.textAlign = 'center';
+  ctx.fillText(lbl, mx, y - 16); ctx.textAlign = 'left';
+}
+function drawJFETSchem(ctx, cx, cy, isN=true) {
+  ctx.beginPath(); ctx.arc(cx, cy, 20, 0, Math.PI*2);
+  ctx.strokeStyle = '#06b6d4'; ctx.lineWidth = 2; ctx.stroke();
+
+  // Channel bar
+  ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.moveTo(cx - 5, cy - 14); ctx.lineTo(cx - 5, cy + 14); ctx.stroke();
+
+  // Drain lead
+  wire(ctx, cx - 5, cy - 10, cx + 18, cy - 10, '#06b6d4');
+  wire(ctx, cx + 18, cy - 10, cx + 18, cy - 20, '#06b6d4');
+
+  // Source lead
+  wire(ctx, cx - 5, cy + 10, cx + 18, cy + 10, '#06b6d4');
+  wire(ctx, cx + 18, cy + 10, cx + 18, cy + 20, '#06b6d4');
+
+  // Gate lead
+  wire(ctx, cx - 20, cy, cx - 5, cy, '#eab308');
+  // Arrow on Gate
+  ctx.fillStyle = '#eab308';
+  ctx.beginPath();
+  if (isN) {
+    ctx.moveTo(cx - 6, cy); ctx.lineTo(cx - 12, cy - 4); ctx.lineTo(cx - 12, cy + 4);
+  } else {
+    ctx.moveTo(cx - 14, cy); ctx.lineTo(cx - 8, cy - 4); ctx.lineTo(cx - 8, cy + 4);
+  }
+  ctx.closePath(); ctx.fill();
+
+  ctx.font = 'bold 9px JetBrains Mono';
+  ctx.fillStyle = '#eab308'; ctx.fillText('G', cx - 28, cy - 3);
+  ctx.fillStyle = '#06b6d4'; ctx.fillText('D', cx + 22, cy - 14); ctx.fillText('S', cx + 22, cy + 22);
+}
+
+function drawMOSFETSchem(ctx, cx, cy, isN=true) {
+  ctx.beginPath(); ctx.arc(cx, cy, 20, 0, Math.PI*2);
+  ctx.strokeStyle = '#a855f7'; ctx.lineWidth = 2; ctx.stroke();
+
+  // Gate plate
+  ctx.strokeStyle = '#eab308'; ctx.lineWidth = 2.5;
+  ctx.beginPath(); ctx.moveTo(cx - 8, cy - 14); ctx.lineTo(cx - 8, cy + 14); ctx.stroke();
+  wire(ctx, cx - 20, cy, cx - 8, cy, '#eab308');
+
+  // Broken channel segments (Enhancement)
+  ctx.strokeStyle = '#a855f7'; ctx.lineWidth = 2.5;
+  ctx.beginPath(); ctx.moveTo(cx - 3, cy - 14); ctx.lineTo(cx - 3, cy - 6); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx - 3, cy - 3);  ctx.lineTo(cx - 3, cy + 3); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx - 3, cy + 6);  ctx.lineTo(cx - 3, cy + 14); ctx.stroke();
+
+  // Drain lead
+  wire(ctx, cx - 3, cy - 10, cx + 18, cy - 10, '#a855f7');
+  wire(ctx, cx + 18, cy - 10, cx + 18, cy - 20, '#a855f7');
+
+  // Source lead
+  wire(ctx, cx - 3, cy + 10, cx + 18, cy + 10, '#a855f7');
+  wire(ctx, cx + 18, cy + 10, cx + 18, cy + 20, '#a855f7');
+
+  // Bulk / Substrate arrow
+  wire(ctx, cx - 3, cy, cx + 18, cy, '#a855f7');
+  wire(ctx, cx + 18, cy, cx + 18, cy + 10, '#a855f7');
+  ctx.fillStyle = '#a855f7';
+  ctx.beginPath();
+  if (isN) {
+    ctx.moveTo(cx - 4, cy); ctx.lineTo(cx + 6, cy - 4); ctx.lineTo(cx + 6, cy + 4);
+  }
+  ctx.closePath(); ctx.fill();
+
+  ctx.font = 'bold 9px JetBrains Mono';
+  ctx.fillStyle = '#eab308'; ctx.fillText('G', cx - 28, cy - 3);
+  ctx.fillStyle = '#a855f7'; ctx.fillText('D', cx + 22, cy - 14); ctx.fillText('S', cx + 22, cy + 22);
+}
+
+function drawSchematic() {
+  const W = schemCanvas.width, H = schemCanvas.height;
+  schemCtx.clearRect(0, 0, W, H);
+  schemCtx.fillStyle = '#050b14'; schemCtx.fillRect(0, 0, W, H);
+
+  const mode = state.circuit.mode;
+  const fet_cx = 330, fet_cy = 125;
+
+  if (mode === 'fixed_bias') {
+    // Gate fixed V_GG
+    wire(schemCtx, 120, 125, fet_cx - 20, 125, '#eab308');
+    drawResistorH(schemCtx, 120, 240, 125, 'R_G', '1MΩ', 'top');
+    wire(schemCtx, 120, 125, 120, 185);
+    // V_GG battery
+    schemCtx.font = 'bold 10px JetBrains Mono'; schemCtx.fillStyle = '#fbbf24';
+    schemCtx.textAlign = 'center'; schemCtx.fillText(`V_GG (${state.circuit.vgg}V)`, 120, 205);
+    gndSymbol(schemCtx, 120, 225);
+
+    drawJFETSchem(schemCtx, fet_cx, fet_cy, true);
+
+    // Drain
+    const d_x = fet_cx + 18, d_y = fet_cy - 20;
+    vddRail(schemCtx, d_x, 25, state.circuit.vdd);
+    drawResistorV(schemCtx, d_x, 25, d_y, 'R_D', `${state.circuit.rd_kohm.toFixed(1)}kΩ`, 'right');
+    dotNode(schemCtx, d_x, d_y, 'V_D (Drain)', 'right');
+
+    // Source to GND
+    const s_x = fet_cx + 18, s_y = fet_cy + 20;
+    wire(schemCtx, s_x, s_y, s_x, 225);
+    gndSymbol(schemCtx, s_x, 225);
+
+  } else if (mode === 'self_bias') {
+    // Gate to GND via RG
+    drawResistorV(schemCtx, 220, 125, 225, 'R_G', '1MΩ', 'left');
+    wire(schemCtx, 220, 125, fet_cx - 20, 125, '#eab308');
+    gndSymbol(schemCtx, 220, 225);
+
+    drawJFETSchem(schemCtx, fet_cx, fet_cy, true);
+
+    // Drain
+    const d_x = fet_cx + 18, d_y = fet_cy - 20;
+    vddRail(schemCtx, d_x, 25, state.circuit.vdd);
+    drawResistorV(schemCtx, d_x, 25, d_y, 'R_D', `${state.circuit.rd_kohm.toFixed(1)}kΩ`, 'right');
+    dotNode(schemCtx, d_x, d_y, 'V_D', 'right');
+
+    // Source with RS
+    const s_x = fet_cx + 18, s_y = fet_cy + 20;
+    wire(schemCtx, s_x, s_y, s_x, 160);
+    drawResistorV(schemCtx, s_x, 160, 225, 'R_S', `${state.circuit.rs_ohm}Ω`, 'right');
+    gndSymbol(schemCtx, s_x, 225);
+    dotNode(schemCtx, s_x, 160, 'V_S', 'right');
+
+  } else if (mode === 'voltage_divider') {
+    const nodeG_x = 220;
+    vddRail(schemCtx, nodeG_x, 25, state.circuit.vd_vdd);
+    drawResistorV(schemCtx, nodeG_x, 25, 125, 'R_1', `${state.circuit.r1_Mohm}MΩ`, 'left');
+    drawResistorV(schemCtx, nodeG_x, 125, 225, 'R_2', `${state.circuit.r2_kohm}kΩ`, 'left');
+    gndSymbol(schemCtx, nodeG_x, 225);
+    dotNode(schemCtx, nodeG_x, 125);
+    wire(schemCtx, nodeG_x, 125, fet_cx - 20, 125, '#eab308');
+
+    drawJFETSchem(schemCtx, fet_cx, fet_cy, true);
+
+    // Drain
+    const d_x = fet_cx + 18, d_y = fet_cy - 20;
+    vddRail(schemCtx, d_x, 25, state.circuit.vd_vdd);
+    drawResistorV(schemCtx, d_x, 25, d_y, 'R_D', `${state.circuit.vd_rd}kΩ`, 'right');
+    dotNode(schemCtx, d_x, d_y);
+
+    // Source with RS
+    const s_x = fet_cx + 18, s_y = fet_cy + 20;
+    wire(schemCtx, s_x, s_y, s_x, 160);
+    drawResistorV(schemCtx, s_x, 160, 225, 'R_S', `${state.circuit.rs_kohm}kΩ`, 'right');
+    gndSymbol(schemCtx, s_x, 225);
+
+  } else if (mode === 'mosfet_switch') {
+    const isOn = state.circuit.switchOn;
+    // Logic control button
+    schemCtx.beginPath(); schemCtx.arc(100, 125, 22, 0, Math.PI*2);
+    schemCtx.fillStyle = isOn ? 'rgba(16,185,129,0.25)' : 'rgba(239,68,68,0.25)'; schemCtx.fill();
+    schemCtx.strokeStyle = isOn ? '#10b981' : '#ef4444'; schemCtx.lineWidth = 2.5; schemCtx.stroke();
+    schemCtx.fillStyle = isOn ? '#10b981' : '#ef4444'; schemCtx.font = 'bold 12px JetBrains Mono';
+    schemCtx.textAlign = 'center'; schemCtx.fillText(isOn ? '5V HIGH' : '0V LOW', 100, 129);
+    schemCtx.font = '10px Sarabun'; schemCtx.fillText(isOn ? 'Switch ON' : 'Switch OFF', 100, 162);
+    schemCtx.textAlign = 'left';
+
+    wire(schemCtx, 122, 125, fet_cx - 20, 125, '#eab308');
+    drawMOSFETSchem(schemCtx, fet_cx, fet_cy, true);
+
+    // Drain with Motor / Lamp Load
+    const d_x = fet_cx + 18, d_y = fet_cy - 20;
+    vddRail(schemCtx, d_x, 25, state.circuit.swVdd);
+    drawResistorV(schemCtx, d_x, 25, d_y, 'R_Load', `${state.circuit.rload}Ω`, 'right');
+    dotNode(schemCtx, d_x, d_y, 'V_DS', 'right');
+
+    // Source to GND
+    const s_x = fet_cx + 18, s_y = fet_cy + 20;
+    wire(schemCtx, s_x, s_y, s_x, 225);
+    gndSymbol(schemCtx, s_x, 225);
+  }
+}
+
+function drawOscilloscope() {
+  const W = oscCanvas.width, H = oscCanvas.height;
+  oscCtx.clearRect(0, 0, W, H);
+  oscCtx.fillStyle = '#050b14'; oscCtx.fillRect(0, 0, W, H);
+
+  // Grid
+  oscCtx.strokeStyle = 'rgba(6,182,212,0.12)'; oscCtx.lineWidth = 1;
+  const numDivX = 10, numDivY = 8;
+  const divW = W / numDivX, divH = H / numDivY;
+
+  for (let x = 0; x <= W; x += divW) {
+    oscCtx.beginPath(); oscCtx.moveTo(x, 0); oscCtx.lineTo(x, H); oscCtx.stroke();
+  }
+  for (let y = 0; y <= H; y += divH) {
+    oscCtx.beginPath(); oscCtx.moveTo(0, y); oscCtx.lineTo(W, y); oscCtx.stroke();
+  }
+  const midY = H / 2;
+  oscCtx.strokeStyle = 'rgba(255,255,255,0.25)'; oscCtx.lineWidth = 1.2;
+  oscCtx.beginPath(); oscCtx.moveTo(0, midY); oscCtx.lineTo(W, midY); oscCtx.stroke();
+
+  if (!state.circuit.isPaused) state.circuit.time += 0.05;
+  const t = state.circuit.time, mode = state.circuit.mode, pts = 300, stepX = W / pts;
+
+  let ch1Scale = state.circuit.ch1Scale;
+  let ch2Scale = state.circuit.ch2Scale;
+
+  let vInArr = new Float32Array(pts);
+  let vOutArr = new Float32Array(pts);
+  let maxVout = 0.1;
+
+  for (let i = 0; i < pts; i++) {
+    const st = t + (i / pts) * 4 * Math.PI;
+    let vin_val = 0.2 * Math.sin(st);
+    let vout_val = 0;
+
+    if (mode === 'fixed_bias' || mode === 'self_bias' || mode === 'voltage_divider') {
+      const av = -4.5; // JFET Inverted Voltage Gain
+      vout_val = av * vin_val;
+    } else if (mode === 'mosfet_switch') {
+      vin_val = state.circuit.switchOn ? 5.0 : 0.0;
+      vout_val = state.circuit.switchOn ? 0.05 : state.circuit.swVdd;
+    }
+
+    vInArr[i] = vin_val;
+    vOutArr[i] = vout_val;
+    if (Math.abs(vout_val) > maxVout) maxVout = Math.abs(vout_val);
+  }
+
+  // Auto-scale
+  if (state.circuit.autoScale) {
+    if (maxVout <= 1.0) ch2Scale = 0.5;
+    else if (maxVout <= 2.5) ch2Scale = 1.0;
+    else if (maxVout <= 6.0) ch2Scale = 2.0;
+    else if (maxVout <= 12.0) ch2Scale = 5.0;
+    else ch2Scale = 10.0;
+  }
+
+  const pxPerVolt_CH1 = divH / ch1Scale;
+  const pxPerVolt_CH2 = divH / ch2Scale;
+
+  // CH1: Input (Yellow)
+  oscCtx.strokeStyle = '#fbbf24'; oscCtx.lineWidth = 2;
+  oscCtx.beginPath();
+  for (let i = 0; i < pts; i++) {
+    const px = i * stepX, py = midY - vInArr[i] * pxPerVolt_CH1;
+    if (i === 0) oscCtx.moveTo(px, py); else oscCtx.lineTo(px, py);
+  }
+  oscCtx.stroke();
+
+  // CH2: Output (Cyan)
+  oscCtx.strokeStyle = '#06b6d4'; oscCtx.lineWidth = 2.5;
+  oscCtx.beginPath();
+  for (let i = 0; i < pts; i++) {
+    const px = i * stepX, py = midY - vOutArr[i] * pxPerVolt_CH2;
+    if (i === 0) oscCtx.moveTo(px, py); else oscCtx.lineTo(px, py);
+  }
+  oscCtx.stroke();
+
+  // Header Labels
+  oscCtx.font = 'bold 10px JetBrains Mono';
+  oscCtx.fillStyle = '#fbbf24'; oscCtx.fillText(`— CH1: V_in (${ch1Scale}V/div)`, 15, 18);
+  oscCtx.fillStyle = '#06b6d4'; oscCtx.fillText(`— CH2: V_out (${ch2Scale}V/div)`, 190, 18);
+  if (mode === 'mosfet_switch') {
+    oscCtx.fillStyle = state.circuit.switchOn ? '#10b981' : '#ef4444';
+    oscCtx.fillText(state.circuit.switchOn ? 'ON: V_in=5V → V_DS≈0V (ขับโหลดติด)' : 'OFF: V_in=0V → V_DS=V_DD (โหลดดับ)', 390, 18);
+  } else {
+    oscCtx.fillStyle = '#f43f5e'; oscCtx.fillText('↕ กลับเฟส 180° (Inverted AC Amp)', 390, 18);
+  }
+}
+
+/* ================================================================= */
+/* 6. MODULE 4 — FET TESTER (DMM MULTIMETER SIMULATOR)               */
+/* ================================================================= */
+const tstCanvas = document.getElementById('canvas-tester');
+const tstCtx = tstCanvas.getContext('2d');
+
+function setTesterDevice(dev) {
+  state.tester.device = dev;
+  ['btn-tst-jfet', 'btn-tst-mosfet', 'btn-tst-power'].forEach(id => document.getElementById(id).classList.remove('active'));
+  const m = { jfet: 'btn-tst-jfet', mosfet: 'btn-tst-mosfet', power: 'btn-tst-power' };
+  document.getElementById(m[dev]).classList.add('active');
+  onTesterChange(); playSound('click');
+}
+
+function setTesterPins(pins) {
+  state.tester.pins = pins;
+  ['btn-tst-gs', 'btn-tst-gd', 'btn-tst-ds'].forEach(id => document.getElementById(id).classList.remove('active'));
+  const m = { GS: 'btn-tst-gs', GD: 'btn-tst-gd', DS: 'btn-tst-ds' };
+  document.getElementById(m[pins]).classList.add('active');
+  onTesterChange(); playSound('click');
+}
+
+function setTesterFault(flt) {
+  state.tester.fault = flt;
+  ['btn-flt-good', 'btn-flt-leak', 'btn-flt-short', 'btn-flt-open'].forEach(id => document.getElementById(id).classList.remove('active'));
+  const m = { good: 'btn-flt-good', leak: 'btn-flt-leak', short: 'btn-flt-short', open: 'btn-flt-open' };
+  document.getElementById(m[flt]).classList.add('active');
+  onTesterChange(); playSound('click');
+}
+
+function onTesterChange() {
+  const dev = state.tester.device;
+  const pins = state.tester.pins;
+  const flt = state.tester.fault;
+
+  let displayStr = 'O.L MΩ', stateStr = 'Insulated (ฉนวน)', isGood = true;
+
+  if (flt === 'short') {
+    displayStr = '0.00 Ω'; stateStr = '⚠️ ช็อตสนิท (Dead Short)'; isGood = false;
+  } else if (flt === 'open') {
+    displayStr = 'O.L MΩ'; stateStr = '⚠️ ขั้วภายในขาด (Open Circuit)'; isGood = false;
+  } else if (flt === 'leak') {
+    displayStr = '12.4 kΩ'; stateStr = '⚠️ ฉนวน Gate รั่ว (Gate Puncture/Leaky)'; isGood = false;
+  } else {
+    // Normal Good Device
+    if (dev === 'mosfet' || dev === 'power') {
+      if (pins === 'GS' || pins === 'GD') {
+        displayStr = 'O.L MΩ'; stateStr = 'ฉนวนเกตสมบูรณ์ (Gate SiO₂ OK)';
+      } else if (pins === 'DS') {
+        displayStr = dev === 'power' ? '0.58 V (Diode)' : 'O.L MΩ';
+        stateStr = dev === 'power' ? 'ตรวจพบ Body Diode ภายใน' : 'ตัดกระแสปกติ (Normally OFF)';
+      }
+    } else if (dev === 'jfet') {
+      if (pins === 'GS' || pins === 'GD') {
+        displayStr = '0.68 V (Diode)'; stateStr = 'รอยต่อ PN Junction ปกติ';
+      } else if (pins === 'DS') {
+        displayStr = '280 Ω'; stateStr = 'ความต้านทาน Channel ปกติ';
+      }
+    }
+  }
+
+  document.getElementById('dmm-display-val').innerHTML = displayStr;
+  document.getElementById('dmm-state-val').textContent = stateStr;
+
+  const badge = document.getElementById('tester-status-badge');
+  badge.className = isGood ? 'status-badge connected' : 'status-badge cutoff';
+  badge.innerHTML = isGood ? '<i class="fa-solid fa-check"></i> ตัวถังปกติ (Good Device)' : '<i class="fa-solid fa-triangle-exclamation"></i> พบความผิดปกติ (Defective)';
+
+  document.getElementById('tester-mode-label').textContent = `วัดคู่ขา ${pins} (${dev.toUpperCase()}) — ${flt.toUpperCase()}`;
+  drawTesterCanvas();
+}
+
+function drawTesterCanvas() {
+  const W = tstCanvas.width, H = tstCanvas.height;
+  tstCtx.clearRect(0, 0, W, H);
+  tstCtx.fillStyle = '#050b14'; tstCtx.fillRect(0, 0, W, H);
+
+  // Draw Multimeter body
+  const dmm_x = 80, dmm_y = 35, dmm_w = 170, dmm_h = 190;
+  tstCtx.fillStyle = '#1e293b'; tstCtx.roundRect ? tstCtx.roundRect(dmm_x, dmm_y, dmm_w, dmm_h, 12) : tstCtx.rect(dmm_x, dmm_y, dmm_w, dmm_h);
+  tstCtx.fill();
+  tstCtx.strokeStyle = '#f59e0b'; tstCtx.lineWidth = 2.5; tstCtx.stroke();
+
+  // LCD screen
+  tstCtx.fillStyle = '#0f172a';
+  tstCtx.fillRect(dmm_x + 15, dmm_y + 15, dmm_w - 30, 48);
+  tstCtx.strokeStyle = '#334155'; tstCtx.lineWidth = 1;
+  tstCtx.strokeRect(dmm_x + 15, dmm_y + 15, dmm_w - 30, 48);
+
+  tstCtx.font = 'bold 16px JetBrains Mono'; tstCtx.fillStyle = '#38bdf8'; tstCtx.textAlign = 'center';
+  tstCtx.fillText(document.getElementById('dmm-display-val').textContent, dmm_x + dmm_w/2, dmm_y + 46);
+
+  // Rotary Knob
+  tstCtx.beginPath(); tstCtx.arc(dmm_x + dmm_w/2, dmm_y + 105, 22, 0, Math.PI*2);
+  tstCtx.fillStyle = '#334155'; tstCtx.fill(); tstCtx.strokeStyle = '#94a3b8'; tstCtx.stroke();
+  tstCtx.fillStyle = '#f59e0b'; tstCtx.fillRect(dmm_x + dmm_w/2 - 2, dmm_y + 88, 4, 16);
+
+  // Banana jacks
+  const red_jack_x = dmm_x + dmm_w/2 + 25, red_jack_y = dmm_y + 160;
+  const blk_jack_x = dmm_x + dmm_w/2 - 25, blk_jack_y = dmm_y + 160;
+  tstCtx.beginPath(); tstCtx.arc(red_jack_x, red_jack_y, 6, 0, Math.PI*2); tstCtx.fillStyle = '#ef4444'; tstCtx.fill();
+  tstCtx.beginPath(); tstCtx.arc(blk_jack_x, blk_jack_y, 6, 0, Math.PI*2); tstCtx.fillStyle = '#1e293b'; tstCtx.fill();
+  tstCtx.strokeStyle = '#ffffff'; tstCtx.lineWidth = 1; tstCtx.stroke();
+
+  // Draw FET Device Package (TO-92 / TO-220)
+  const pkg_x = 440, pkg_y = 65, pkg_w = 110, pkg_h = 130;
+  tstCtx.fillStyle = '#0f172a';
+  tstCtx.fillRect(pkg_x, pkg_y, pkg_w, pkg_h);
+  tstCtx.strokeStyle = '#06b6d4'; tstCtx.lineWidth = 2; tstCtx.strokeRect(pkg_x, pkg_y, pkg_w, pkg_h);
+
+  tstCtx.font = 'bold 11px JetBrains Mono'; tstCtx.fillStyle = '#38bdf8'; tstCtx.textAlign = 'center';
+  const devName = state.tester.device === 'jfet' ? '2N5457 (JFET)' : state.tester.device === 'mosfet' ? '2N7000 (MOS)' : 'IRFZ44N (POWER)';
+  tstCtx.fillText(devName, pkg_x + pkg_w/2, pkg_y + 35);
+  tstCtx.font = '9px Sarabun'; tstCtx.fillStyle = '#94a3b8';
+  tstCtx.fillText('TO-92 / TO-220', pkg_x + pkg_w/2, pkg_y + 55);
+
+  // 3 Pins
+  const pin1_x = pkg_x + 25, pin2_x = pkg_x + 55, pin3_x = pkg_x + 85, pin_y = pkg_y + pkg_h;
+  wire(tstCtx, pin1_x, pin_y, pin1_x, pin_y + 35, '#94a3b8', 3);
+  wire(tstCtx, pin2_x, pin_y, pin2_x, pin_y + 35, '#94a3b8', 3);
+  wire(tstCtx, pin3_x, pin_y, pin3_x, pin_y + 35, '#94a3b8', 3);
+
+  tstCtx.font = 'bold 10px JetBrains Mono'; tstCtx.fillStyle = '#eab308';
+  tstCtx.fillText('D (1)', pin1_x, pin_y + 48);
+  tstCtx.fillText('G (2)', pin2_x, pin_y + 48);
+  tstCtx.fillText('S (3)', pin3_x, pin_y + 48);
+
+  // Connect Probes
+  const pins = state.tester.pins;
+  let targetRed_x = pin1_x, targetBlk_x = pin3_x;
+  if (pins === 'GS') { targetRed_x = pin2_x; targetBlk_x = pin3_x; }
+  else if (pins === 'GD') { targetRed_x = pin2_x; targetBlk_x = pin1_x; }
+  else if (pins === 'DS') { targetRed_x = pin1_x; targetBlk_x = pin3_x; }
+
+  // Red Lead wire
+  tstCtx.strokeStyle = '#ef4444'; tstCtx.lineWidth = 2.5;
+  tstCtx.beginPath();
+  tstCtx.moveTo(red_jack_x, red_jack_y);
+  tstCtx.bezierCurveTo(red_jack_x + 50, red_jack_y + 60, targetRed_x - 50, pin_y + 80, targetRed_x, pin_y + 35);
+  tstCtx.stroke();
+
+  // Black Lead wire
+  tstCtx.strokeStyle = '#94a3b8'; tstCtx.lineWidth = 2.5;
+  tstCtx.beginPath();
+  tstCtx.moveTo(blk_jack_x, blk_jack_y);
+  tstCtx.bezierCurveTo(blk_jack_x + 50, blk_jack_y + 80, targetBlk_x - 50, pin_y + 90, targetBlk_x, pin_y + 35);
+  tstCtx.stroke();
+}
+
+/* ================================================================= */
+/* 7. MODULE 5 — QUIZ & GOOGLE SHEETS                                */
+/* ================================================================= */
+const quizQuestions = [
+  {
+    q: 'FET เป็นอุปกรณ์สารกึ่งตัวนำประเภทใด และควบคุมการนำกระแสด้วยสิ่งใด?',
+    opts: [
+      'Unipolar Transistor ควบคุมกระแสด้วยแรงดันสนามไฟฟ้า (Voltage-Controlled)',
+      'Bipolar Transistor ควบคุมด้วยกระแสเบส (Current-Controlled)',
+      'ควบคุมด้วยอุณหภูมิความร้อนเท่านั้น',
+      'อุปกรณ์ 4 ขั้วควบคุมด้วยแสงสว่าง'
+    ],
+    ans: 0,
+    exp: 'FET (Field Effect Transistor) เป็น Unipolar Device เพราะใช้พาหะนำกระแสชนิดเดียว (อิเล็กตรอนหรือโฮล) และควบคุมกระแสเดรนด้วยแรงดันสนามไฟฟ้าที่ขา Gate'
+  },
+  {
+    q: 'ใน JFET ชนิด N-Channel การทำให้เกิดปรากฏการณ์ Pinch-off ต้องป้อนแรงดัน V_GS อย่างไร?',
+    opts: [
+      'ป้อนแรงดันไบอัสกลับเป็นลบ V_GS ≤ V_P (Pinch-off Voltage)',
+      'ป้อนแรงดันบวก V_GS > +5V',
+      'ต่อขา Gate ช็อตลงกราวด์ V_GS = 0V',
+      'ป้อนแรงดันสลับความถี่สูง'
+    ],
+    ans: 0,
+    exp: 'สำหรับ N-JFET การป้อน V_GS เป็นลบ (ไบอัสกลับ) จะทำให้ Depletion Region สองฝั่งขยายตัวเข้าหากันจนปิดกั้นช่องนำกระแส เรียกว่า Pinch-off Voltage (V_P)'
+  },
+  {
+    q: 'สมการของช็อคลีย์ (Shockley\'s Equation) สำหรับหาค่ากระแสเดรน I_D ของ JFET คือข้อใด?',
+    opts: [
+      'I_D = I_DSS · [1 − (V_GS / V_P)]²',
+      'I_D = β · I_B',
+      'I_D = I_DSS · (V_GS / V_P)',
+      'I_D = k · (V_GS − V_th)'
+    ],
+    ans: 0,
+    exp: 'สมการของช็อคลีย์สำหรับ JFET และ D-MOSFET คือ I_D = I_DSS · [1 − (V_GS / V_P)]² เมื่อ V_P ≤ V_GS ≤ 0'
+  },
+  {
+    q: 'ข้อใดคือคุณสมบัติเด่นที่สุดของ MOSFET เมื่อเปรียบเทียบกับ BJT และ JFET?',
+    opts: [
+      'มีอิมพีแดนซ์อินพุตสูงมากระดับ 10¹² Ω เนื่องจากมีชั้นฉนวน SiO₂ กั้นที่ขา Gate',
+      'มีอัตราขยายกระแส β สูงที่สุด',
+      'มีแรงดันตกคร่อมรอยต่อ V_BE คงที่ 0.7V เสมอ',
+      'ไม่สามารถใช้ในงานสวิตชิ่งได้'
+    ],
+    ans: 0,
+    exp: 'MOSFET มีชั้นฉนวนซิลิกอนไดออกไซด์ (SiO₂) คั่นระหว่าง Gate โลหะกับ Channel ทำให้กระแสเกต I_G ≈ 0 และมีอิมพีแดนซ์อินพุตสูงมากในระดับ Teraohm'
+  },
+  {
+    q: 'Enhancement MOSFET (E-MOSFET) จะเริ่มนำกระแสได้เมื่อเกิดเงื่อนไขใด?',
+    opts: [
+      'เมื่อแรงดันเกต-ซอร์ส V_GS มีค่าสูงกว่าแรงดันเธรชโฮลด์ (V_GS > V_th) จนสร้าง Inversion Layer',
+      'เมื่อ V_GS = 0V เสมอ',
+      'เมื่อป้อนแรงดันลบ V_GS < 0V',
+      'เมื่ออุณหภูมิตัวถังสูงเกิน 100°C'
+    ],
+    ans: 0,
+    exp: 'E-MOSFET เป็นสวิตช์แบบ Normally OFF จะเริ่มนำกระแสได้เมื่อ V_GS มีค่าบวกมากกว่าค่า Threshold Voltage (V_th) เพื่อดึงดูดอิเล็กตรอนมาสร้าง Inversion Channel'
+  },
+  {
+    q: 'ในวงจร Self-Bias ของ JFET เหตุใดจึงสามารถสร้างแรงดันไบอัสกลับ V_GS เป็นลบได้โดยไม่ต้องใช้แหล่งจ่ายไฟ V_GG แยกต่างหาก?',
+    opts: [
+      'เพราะกระแส I_D ไหลผ่าน R_S ทำให้เกิดศักย์บวกที่ขา Source (V_S = I_D·R_S) ขณะที่ Gate ต่อลงกราวด์ (V_G = 0V) ทำให้ V_GS = −I_D·R_S',
+      'เพราะตัวเก็บประจุปล่อยแรงดันลบออกมา',
+      'เพราะขา Drain มีแรงดันเป็นลบ',
+      'เพราะความต้านทาน R_G สร้างกระแสย้อนกลับ'
+    ],
+    ans: 0,
+    exp: 'ในวงจร Self-bias กระแสเดรนที่ไหลผ่าน R_S ทำให้เกิดแรงดัน V_S = I_D·R_S และเมื่อ Gate ต่อลงกราวด์ผ่าน R_G (V_G = 0V) จึงได้ V_GS = V_G − V_S = −I_D·R_S เป็นลบเสมอ'
+  },
+  {
+    q: 'บริเวณการทำงานใดของ FET ที่ทำหน้าที่เสมือนเป็น "ตัวต้านทานแปรค่าตามแรงดัน" (Voltage-Controlled Resistor)?',
+    opts: [
+      'บริเวณโอห์มมิก (Ohmic / Triode Region)',
+      'บริเวณอิ่มตัว (Saturation / Pinch-off Region)',
+      'บริเวณคัตออฟ (Cutoff Region)',
+      'บริเวณพังทลาย (Breakdown Region)'
+    ],
+    ans: 0,
+    exp: 'ในช่วง Ohmic Region (เมื่อ V_DS < V_GS − V_P) กราฟ I_D vs V_DS เป็นเส้นตรงความชันแปรผันตาม V_GS ทำหน้าที่เป็นตัวต้านทานปรับค่าได้ด้วยแรงดัน'
+  },
+  {
+    q: 'ในการตรวจสอบ MOSFET ด้วยมัลติมิเตอร์วัดความต้านทานระหว่างขา Gate และ Source ผลการวัดตัวถังปกติควรเป็นอย่างไร?',
+    opts: [
+      'วัดได้ความต้านทานเป็นอนันต์ (O.L / Infinite) ทั้งสองทิศทาง',
+      'วัดได้ 0 Ω (ลัดวงจร)',
+      'วัดได้แรงดันตกคร่อม 0.7V เสมอ',
+      'วัดได้ความต้านทาน 50 Ω'
+    ],
+    ans: 0,
+    exp: 'เนื่องจากขา Gate ของ MOSFET คั่นด้วยชั้นฉนวนแก้ว SiO₂ ที่สมบูรณ์ เมื่อวัดระหว่าง G-S หรือ G-D จะต้องได้ค่าความต้านทานเป็นอนันต์ (O.L) เสมอ'
+  },
+  {
+    q: 'หากใช้ดิจิตอลมัลติมิเตอร์วัดคู่ขา Gate-Source ของ MOSFET แล้วอ่านค่าได้ 12 kΩ แสดงว่าเกิดความเสียหายลักษณะใด?',
+    opts: [
+      'ชั้นฉนวน Gate Oxide เกิดการรั่วทะลุ (Gate Puncture / Leaky)',
+      'ตัวถังปกติสมบูรณ์แบบ',
+      'ขา Source ขาดภายใน',
+      'เกิดสภาวะ Saturation ถาวร'
+    ],
+    ans: 0,
+    exp: 'หากวัด Gate ของ MOSFET แล้วได้ค่าความต้านทานต่ำ (เช่น 12 kΩ) แสดงว่าฉนวน SiO₂ ถูกทำลายจากไฟฟ้าสถิต (ESD) หรือแรงดันเกินพิกัด'
+  },
+  {
+    q: 'พารามิเตอร์ R_DS(on) ใน Datasheet ของ Power MOSFET มีความสำคัญอย่างไรในวงจรสวิตชิ่ง?',
+    opts: [
+      'คือความต้านทานขณะนำกระแส ยิ่งต่ำยิ่งเกิดการสูญเสียกำลังงาน (Conduction Loss) และความร้อนน้อย',
+      'คือความต้านทานอินพุตที่ขา Gate',
+      'คือแรงดันสูงสุดที่ทนได้',
+      'คือความถี่สวิตชิ่งสูงสุด'
+    ],
+    ans: 0,
+    exp: 'R_DS(on) คือความต้านทานระหว่าง Drain-Source ในสภาวะ ON ยิ่งมีค่าน้อย (ระดับ mΩ) การสูญเสียกำลังงาน P = I_D² · R_DS(on) จะยิ่งต่ำ ทำให้ประสิทธิภาพสูง'
+  },
+  {
+    q: 'ไดโอดป้องกันที่ต่อกลับทิศขนานอยู่ระหว่างขา Drain และ Source ภายในตัวถัง Power MOSFET เรียกว่าอะไร?',
+    opts: [
+      'Body Diode (หรือ Intrinsic Reverse Diode)',
+      'Zener Diode 5.1V',
+      'Schottky Barrier Diode',
+      'Photodiode'
+    ],
+    ans: 0,
+    exp: 'ในโครงสร้าง Power MOSFET แนวตั้ง (VMOS/DMOS) จะเกิดรอยต่อ PN Junction แฝงระหว่าง P-Body กับ N-Epi กลายเป็น Body Diode ต่อขนานย้อนกลับจาก Source ไป Drain'
+  },
+  {
+    q: 'เหตุใดวงจรไบอัสแบบ Voltage-Divider Bias จึงเป็นที่นิยมมากที่สุดในวงจรขยายสัญญาณ FET?',
+    opts: [
+      'เพราะรักษาจุดทำงาน Q-Point ให้คงที่และเสถียรภาพสูง ไม่ขึ้นกับค่าความแปรปรวนของ I_DSS และ V_P จากโรงงานผลิต',
+      'เพราะใช้ตัวต้านทานน้อยที่สุด',
+      'เพราะทำให้อิมพีแดนซ์อินพุตลดลงเหลือศูนย์',
+      'เพราะไม่ต้องใช้แหล่งจ่ายไฟ V_DD'
+    ],
+    ans: 0,
+    exp: 'การใช้วงจรแบ่งแรงดันร่วมกับ R_S จะสร้าง Negative Feedback ที่ยอดเยี่ยม ช่วยล็อกจุดทำงาน Q-Point ให้อยู่กึ่งกลาง ไม่คลาดเคลื่อนตามตัวแปรของ FET แต่ละตัว'
+  }
+];
+
+function renderQuiz() {
+  const container = document.getElementById('quiz-container');
+  container.innerHTML = '';
+  quizQuestions.forEach((q, qi) => {
+    const div = document.createElement('div');
+    div.className = 'quiz-question';
+    div.id = `quiz-q${qi}`;
+    let optsHtml = '';
+    q.opts.forEach((opt, oi) => {
+      optsHtml += `<label class="quiz-option" id="quiz-opt-${qi}-${oi}" onclick="selectAnswer(${qi},${oi})">` +
+        `<span style="font-family:var(--font-mono);font-size:0.75rem;color:var(--text-muted);font-weight:700;">${String.fromCharCode(65+oi)}.</span>${opt}</label>`;
+    });
+    div.innerHTML = `<h4>ข้อที่ ${qi+1}. ${q.q}</h4><div class="quiz-options">${optsHtml}</div><div class="quiz-explanation" id="quiz-exp-${qi}"><i class="fa-solid fa-circle-info" style="color:var(--accent-primary)"></i> <strong>คำอธิบาย:</strong> ${q.exp}</div>`;
+    container.appendChild(div);
+  });
+  updateQuizScore();
+}
+
+function selectAnswer(qi, oi) {
+  if (state.quiz.submitted) return;
+  state.quiz.answers[qi] = oi;
+  quizQuestions[qi].opts.forEach((_, i) => {
+    const el = document.getElementById(`quiz-opt-${qi}-${i}`);
+    el.classList.remove('correct', 'wrong');
+    el.style.borderColor = '';
+    el.style.background = '';
+  });
+  const selEl = document.getElementById(`quiz-opt-${qi}-${oi}`);
+  selEl.style.borderColor = 'var(--accent-primary)';
+  selEl.style.background = 'rgba(6,182,212,0.15)';
+  playSound('click');
+}
+
+function submitQuiz() {
+  if (state.quiz.submitted) return;
+  state.quiz.submitted = true;
+  let score = 0;
+  quizQuestions.forEach((q, qi) => {
+    const sel = state.quiz.answers[qi];
+    q.opts.forEach((_, i) => {
+      const el = document.getElementById(`quiz-opt-${qi}-${i}`);
+      el.classList.remove('correct', 'wrong');
+      el.style.borderColor = '';
+      el.style.background = '';
+      if (i === q.ans) el.classList.add('correct');
+      else if (i === sel && i !== q.ans) el.classList.add('wrong');
+    });
+    document.getElementById(`quiz-exp-${qi}`).style.display = 'block';
+    if (sel === q.ans) score++;
+  });
+  state.quiz.score = score;
+  updateQuizScore();
+  playSound(score >= 8 ? 'success' : 'buzzer');
+
+  const entry = {
+    timestamp: new Date().toLocaleString('th-TH'),
+    student: document.getElementById('student-name').value.trim() || 'นักศึกษา',
+    activity: 'FET & MOSFET Fundamentals Quiz',
+    result: `${score}/12 (${(score/12*100).toFixed(0)}%)`
+  };
+  state.history.unshift(entry);
+  renderHistory();
+}
+
+function updateQuizScore() {
+  document.getElementById('quiz-score-badge').textContent = `คะแนน: ${state.quiz.score} / 12`;
+}
+
+function resetQuiz() {
+  state.quiz = { submitted: false, score: 0, answers: {} };
+  renderQuiz();
+  playSound('click');
+}
+
+function renderHistory() {
+  const tbody = document.getElementById('history-table-body');
+  if (state.history.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:1.5rem;">ยังไม่มีประวัติการส่งคะแนน</td></tr>';
+    return;
+  }
+  tbody.innerHTML = '';
+  state.history.slice(0, 20).forEach(r => {
+    tbody.innerHTML += `<tr><td>${r.timestamp}</td><td>${r.student}</td><td>${r.activity}</td><td style="color:var(--accent-primary);font-family:var(--font-mono);font-weight:700;">${r.result}</td></tr>`;
+  });
+}
+
+function exportQuizCSV() {
+  const rows = [['Timestamp', 'Student', 'Activity', 'Score']];
+  state.history.forEach(r => rows.push([r.timestamp, r.student, r.activity, r.result]));
+  const csvContent = rows.map(r => r.join(',')).join(String.fromCharCode(10));
+  const blob = new Blob([String.fromCharCode(0xFEFF) + csvContent], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'fet_mosfet_quiz_history.csv';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+async function saveToSheets() {
+  const url = document.getElementById('gas-url').value.trim();
+  if (!url) { alert('กรุณากรอก Google Apps Script Web App URL ก่อนครับ'); return; }
+  try {
+    const payload = {
+      student: document.getElementById('student-name').value.trim() || 'นักศึกษา',
+      class: document.getElementById('student-class').value.trim() || '',
+      activity: 'FET & MOSFET Fundamentals Lab Quiz',
+      result: `${state.quiz.score}/12`,
+      note: `คะแนน ${state.quiz.score} จาก 12 ข้อ (${(state.quiz.score/12*100).toFixed(0)}%)`
+    };
+    await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload)
+    });
+    alert('บันทึกข้อมูล FET/MOSFET ลง Google Sheets สำเร็จเรียบร้อยแล้ว!');
+  } catch(e) {
+    alert('ส่งข้อมูลไปยัง Google Apps Script แล้ว (หากตั้งค่า Web App ถูกต้องตรวจสอบในชีตได้เลย)');
+  }
+}
+
+/* ================================================================= */
+/* 8. MAIN ANIMATION LOOP & INIT                                     */
+/* ================================================================= */
+let animTime = 0;
+function mainLoop() {
+  animTime += 0.03;
+  if (state.activeTab === 'tab-physics') {
+    if (state.physicsSubTab === 'symbols_gallery') {
+      drawSymbolInspectorCanvas();
+    } else {
+      drawCarrierPhysicsCanvas();
+    }
+  } else if (state.activeTab === 'tab-circuits') {
+    drawSchematic();
+    drawOscilloscope();
+  }
+  requestAnimationFrame(mainLoop);
+}
+
+function init() {
+  state.physicsSubTab = 'carrier_physics';
+  state.symbol = { type: 'jfet_n' };
+  selectSymbolView('jfet_n');
+  onPhysicsChange();
+  onCurvesChange();
+  onCircuitChange();
+  onTesterChange();
+  renderQuiz();
+  mainLoop();
+}
+
+init();
+</script>
+</body>
+</html>

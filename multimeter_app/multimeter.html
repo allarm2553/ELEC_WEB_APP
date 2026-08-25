@@ -1,0 +1,1446 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>เครื่องจำลองมัลติมิเตอร์แบบอนาล็อก (Analog Multimeter Simulator)</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <style>
+    /* Styling Design Tokens */
+    :root {
+      --bg-dark: #070b13;
+      --bg-card: rgba(20, 29, 47, 0.7);
+      --card-border: rgba(255, 255, 255, 0.05);
+      --accent: #e11d48; /* Crimson red accent */
+      --accent-glow: rgba(225, 29, 72, 0.3);
+      --glow-dcv: #3b82f6; /* Blue for DC */
+      --glow-acv: #ef4444; /* Red for AC */
+      --glow-ohms: #10b981; /* Green for Ohms */
+      --text-main: #f1f5f9;
+      --text-muted: #64748b;
+      --font-body: 'Sarabun', 'Outfit', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: radial-gradient(circle at top, #0f1c30 0%, var(--bg-dark) 100%);
+      color: var(--text-main);
+      font-family: var(--font-body);
+      min-height: 100vh;
+      padding: 1.5rem;
+    }
+
+    .container {
+      max-width: 1300px;
+      margin: 0 auto;
+    }
+
+    /* Header */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .logo-group {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .logo-icon {
+      font-size: 2.2rem;
+      background: linear-gradient(135deg, var(--accent), #f43f5e);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 0 8px rgba(225, 29, 72, 0.3));
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      font-family: 'Outfit', 'Sarabun', sans-serif;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.4rem 0.9rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      background: rgba(245, 158, 11, 0.1);
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.2);
+    }
+
+    .status-badge.connected {
+      background: rgba(16, 185, 129, 0.1);
+      color: #34d399;
+      border-color: rgba(16, 185, 129, 0.2);
+    }
+
+    /* Main Grid Layout */
+    .app-grid {
+      display: grid;
+      grid-template-columns: 1.25fr 1fr;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    @media (max-width: 1024px) {
+      .app-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .glass-card {
+      background: var(--bg-card);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    /* Multimeter Frame Styling */
+    .multimeter-device {
+      background: #181c25;
+      border: 6px solid #2e3546;
+      border-radius: 20px;
+      padding: 1.25rem;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.5), inset 0 0 15px rgba(255,255,255,0.05);
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    /* Meter Face Canvas Wrapper */
+    .meter-face-wrapper {
+      background: #fbf9f4; /* Retro cream/off-white dial face */
+      border: 4px solid #111;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: inset 0 4px 10px rgba(0,0,0,0.3);
+      position: relative;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 340px;
+    }
+
+    /* Rotary Selector Styling */
+    .dial-and-probes-container {
+      display: grid;
+      grid-template-columns: 1.3fr 1fr;
+      gap: 1.25rem;
+      align-items: center;
+    }
+
+    @media (max-width: 580px) {
+      .dial-and-probes-container {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .rotary-switch-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: #11141a;
+      padding: 1rem 0.5rem;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.02);
+      position: relative;
+    }
+
+    /* Rotary knob container - Enlarged to 200px to prevent overlapping labels */
+    .rotary-knob-wrapper {
+      position: relative;
+      width: 200px;
+      height: 200px;
+      background: radial-gradient(circle, #222 30%, #111 70%);
+      border-radius: 50%;
+      border: 4px solid #333;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.5);
+      margin-bottom: 0.5rem;
+    }
+
+    /* Dial knob - enlarged */
+    .rotary-knob-dial {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 130px;
+      height: 130px;
+      background: linear-gradient(135deg, #444, #1a1a1a);
+      border-radius: 50%;
+      border: 3px solid #555;
+      margin-top: -65px;
+      margin-left: -65px;
+      cursor: pointer;
+      box-shadow: inset 0 2px 4px rgba(255,255,255,0.2), 0 4px 6px rgba(0,0,0,0.4);
+      transform: rotate(0deg);
+      transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    /* Dial pointer bar shape */
+    .rotary-knob-dial::after {
+      content: '';
+      position: absolute;
+      top: 4px;
+      left: 50%;
+      width: 8px;
+      height: 50px;
+      background: #ffffff;
+      border-radius: 2px;
+      transform: translateX(-50%);
+      box-shadow: 0 0 5px rgba(255,255,255,0.5);
+    }
+
+    /* Dial range options text layout around knob */
+    .dial-label-overlay {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+    }
+
+    .dial-text {
+      position: absolute;
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      font-weight: 700;
+      transform: translate(-50%, -50%);
+      color: var(--text-muted);
+      cursor: pointer;
+      pointer-events: all;
+    }
+
+    .dial-text:hover {
+      color: #ffffff;
+    }
+
+    .dial-text.active {
+      color: #ffffff !important;
+      text-shadow: 0 0 8px rgba(255,255,255,0.8);
+      font-size: 0.75rem;
+      font-weight: 800;
+    }
+
+    /* Colorized sections */
+    .dial-text.dcv { color: #60a5fa; }
+    .dial-text.acv { color: #f87171; }
+    .dial-text.ohms { color: #34d399; }
+    .dial-text.dca { color: #fbbf24; }
+
+    /* Ohm adjustment system */
+    .ohm-adj-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.25rem;
+      background: #11141a;
+      padding: 0.75rem;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.02);
+    }
+
+    .adj-knob-dial {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, #333, #151515);
+      border-radius: 50%;
+      border: 2px solid #555;
+      cursor: pointer;
+      position: relative;
+      transform: rotate(0deg);
+      box-shadow: 0 3px 5px rgba(0,0,0,0.3);
+    }
+
+    .adj-knob-dial::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 50%;
+      width: 3px;
+      height: 12px;
+      background: #e2e8f0;
+      border-radius: 1px;
+      transform: translateX(-50%);
+    }
+
+    /* Probes Jack sockets */
+    .probes-jacks {
+      display: flex;
+      justify-content: center;
+      gap: 1.5rem;
+      margin-top: 0.25rem;
+    }
+
+    .jack-socket {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 3px solid #334155;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      font-weight: 700;
+      font-size: 0.75rem;
+      font-family: var(--font-mono);
+    }
+
+    .jack-socket.black { background: #000; color: #fff; border-color: #222; }
+    .jack-socket.red { background: #ef4444; color: #fff; border-color: #7f1d1d; }
+
+    /* Probe plug wire visual indicator */
+    .jack-socket::after {
+      content: '';
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #111;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    /* Components Playground */
+    .playground-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      padding-bottom: 0.5rem;
+    }
+
+    .component-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
+    }
+
+    @media (max-width: 480px) {
+      .component-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .comp-btn {
+      background: rgba(15, 23, 42, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+      padding: 0.75rem;
+      color: var(--text-main);
+      font-family: var(--font-body);
+      text-align: left;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .comp-btn:hover {
+      border-color: var(--accent);
+      background: rgba(225, 29, 72, 0.05);
+    }
+
+    .comp-btn.active {
+      border-color: var(--accent);
+      background: rgba(225, 29, 72, 0.1);
+      box-shadow: 0 0 10px rgba(225, 29, 72, 0.15);
+    }
+
+    .comp-icon {
+      font-size: 1.25rem;
+      width: 28px;
+      height: 28px;
+      background: rgba(255,255,255,0.03);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .comp-btn.active .comp-icon {
+      background: var(--accent);
+      color: white;
+    }
+
+    .comp-details {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .comp-name {
+      font-weight: 600;
+      font-size: 0.85rem;
+    }
+
+    .comp-spec {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+    }
+
+    /* Probe Visual Lead overlay details */
+    .probe-leads-animation {
+      background: rgba(15, 23, 42, 0.5);
+      border: 1px solid rgba(255,255,255,0.03);
+      border-radius: 10px;
+      padding: 0.85rem;
+      margin-bottom: 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      min-height: 90px;
+      text-align: center;
+    }
+
+    .probe-graphic {
+      display: flex;
+      gap: 2rem;
+      font-size: 1.5rem;
+      margin-top: 0.25rem;
+    }
+
+    .probe-black { color: #3b82f6; text-shadow: 0 0 6px rgba(59, 130, 246, 0.4); }
+    .probe-red { color: #ef4444; text-shadow: 0 0 6px rgba(239, 68, 68, 0.4); }
+    .probe-wire-glow {
+      animation: pulse 1s infinite alternate;
+    }
+
+    /* Reading Assistant Overlay */
+    .assistant-card {
+      background: rgba(15, 23, 42, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+      padding: 0.85rem 1rem;
+      font-size: 0.85rem;
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      border-left: 4px solid var(--accent);
+    }
+
+    .assistant-title {
+      font-weight: 700;
+      color: var(--accent);
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .assistant-formula {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      background: rgba(0, 0, 0, 0.25);
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      color: #38bdf8;
+      display: inline-block;
+      margin-top: 0.25rem;
+    }
+
+    /* History table */
+    .history-card {
+      margin-top: 1.5rem;
+    }
+
+    .table-wrapper {
+      overflow-x: auto;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      background: rgba(15, 23, 42, 0.2);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.85rem;
+    }
+
+    th {
+      background: rgba(15, 23, 42, 0.5);
+      padding: 0.75rem 1rem;
+      color: var(--text-muted);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    td {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+      font-family: var(--font-mono);
+    }
+
+    .note-cell {
+      font-family: var(--font-body);
+      color: var(--text-muted);
+    }
+
+    .btn {
+      background: linear-gradient(135deg, var(--accent), #f43f5e);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 0.65rem 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 0.85rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      width: 100%;
+    }
+
+    .btn:hover {
+      box-shadow: 0 0 12px var(--accent-glow);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: var(--text-main);
+    }
+
+    /* Animations */
+    @keyframes pulse {
+      0% { filter: drop-shadow(0 0 1px rgba(225,29,72,0.3)); }
+      100% { filter: drop-shadow(0 0 6px rgba(225,29,72,0.8)); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    
+    <!-- Header -->
+    <header>
+      <div class="logo-group">
+        <i class="fa-solid fa-square-poll-vertical logo-icon"></i>
+        <h1>เครื่องจำลองมัลติมิเตอร์แบบอนาล็อก</h1>
+      </div>
+      <div id="gas-status" class="status-badge">
+        <i class="fa-solid fa-circle-nodes"></i> <span>โหมดจำลองในเครื่อง (Local Mode)</span>
+      </div>
+    </header>
+
+    <!-- Main Grid -->
+    <div class="app-grid">
+      
+      <!-- Left Column: Multimeter Hardware View -->
+      <div class="multimeter-device">
+        
+        <!-- Analog scale face canvas -->
+        <div class="meter-face-wrapper">
+          <canvas id="meter-canvas" width="600" height="340"></canvas>
+        </div>
+
+        <!-- Dial knobs & probes jacks layout -->
+        <div class="dial-and-probes-container">
+          
+          <!-- Rotary Range Selector Switch (Enlarged card) -->
+          <div class="rotary-switch-card">
+            <div style="font-size: 0.7rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.5rem; text-transform: uppercase;">SELECT RANGE / ย่านวัด</div>
+            <div class="rotary-knob-wrapper" id="dial-wrapper">
+              <div class="rotary-knob-dial" id="rotary-knob"></div>
+              <div class="dial-label-overlay" id="dial-labels">
+                <!-- Labels dynamically generated via script -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Ohms adjuster & Probes jacks -->
+          <div style="display: flex; flex-direction: column; gap: 1rem; width: 100%; height: 100%; justify-content: space-between; padding: 0.5rem 0;">
+            
+            <!-- 0 Ohm Adjuster Knob -->
+            <div class="ohm-adj-container">
+              <span class="control-label" style="font-size: 0.65rem; color: var(--glow-ohms);">0-Ω ADJ (ปรับศูนย์โอห์ม)</span>
+              <div class="adj-knob-dial" id="adj-knob" onmousedown="startOhmAdjust(event)"></div>
+              <span style="font-size: 0.65rem; color: var(--text-muted); font-family: var(--font-mono);" id="adj-value-display">0.0% Offset</span>
+            </div>
+
+            <!-- Probes Jacks sockets -->
+            <div style="background: #11141a; padding: 0.75rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.02); display: flex; flex-direction: column; gap: 0.5rem; align-items: center;">
+              <span class="control-label" style="font-size: 0.65rem;">PROBES JACKS (ช่องเสียบสายวัด)</span>
+              <div class="probes-jacks">
+                <div class="jack-socket black" title="Black Probe (-)">COM</div>
+                <div class="jack-socket red" title="Red Probe (+)">+</div>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Right Column: Components Playground, Assistant, Logger -->
+      <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+        
+        <!-- Component select playground -->
+        <div class="glass-card">
+          <div class="playground-title">
+            <i class="fa-solid fa-vial" style="color: var(--accent);"></i>
+            <span>ชิ้นส่วนจำลองสำหรับทดสอบวัดค่า (Components Playground)</span>
+          </div>
+
+          <div class="component-grid" id="components-panel">
+            <!-- Dynamic button components injected here -->
+          </div>
+
+          <!-- Probe leads animation visual overlay -->
+          <div class="probe-leads-animation">
+            <div style="font-size: 0.75rem; color: var(--text-muted);">สถานะการแตะสายวัด (Probe Leads Connection)</div>
+            <div class="probe-graphic" id="probe-status-graphic">
+              <i class="fa-solid fa-plug probe-black"></i>
+              <i class="fa-solid fa-arrows-left-right text-muted" style="font-size: 1rem; align-self: center;"></i>
+              <i class="fa-solid fa-plug probe-red"></i>
+            </div>
+            <div style="font-size: 0.8rem; font-weight: 600;" id="probe-status-text">แตะสายวัดเข้ากับ: ขั้วชิ้นส่วนวัด</div>
+          </div>
+        </div>
+
+        <!-- Reading Assistant Guide Card -->
+        <div class="assistant-card">
+          <div class="assistant-title">
+            <i class="fa-solid fa-graduation-cap"></i>
+            <span>คู่มือการช่วยอ่านค่ามิเตอร์เข็ม (Reading Assistant)</span>
+          </div>
+          <div id="assist-text">เลือกชิ้นส่วนทดสอบเพื่อเปิดระบบวิเคราะห์การอ่านเข็มวัด...</div>
+          <div id="assist-formula-container" style="display: none;">
+            <span class="assistant-formula" id="assist-formula">สูตรการคิด: [ค่าที่อ่านบนหน้าปัด] * [ตัวคูณ]</span>
+          </div>
+        </div>
+
+        <!-- Google Sheet Logger Panel -->
+        <div class="glass-card">
+          <div class="playground-title" style="margin-bottom: 0.75rem;">
+            <i class="fa-solid fa-cloud-arrow-up"></i>
+            <span>บันทึกผลการวัดค่าลงฐานข้อมูล</span>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+            <div class="form-group" style="display:flex; flex-direction:column; gap:0.25rem;">
+              <label for="multimeter-note" style="font-size: 0.75rem;">บันทึกช่วยจำเพิ่มเติม</label>
+              <textarea id="multimeter-note" rows="2" placeholder="เช่น ตัวเก็บประจุ C1 บวม, แบตเตอรี่รถมอเตอร์ไซค์สตาร์ทไม่ติด" style="background: #0f172a; border: 1px solid var(--card-border); border-radius: 6px; padding: 0.5rem; color: white; resize: none; font-size: 0.85rem; font-family: var(--font-body);"></textarea>
+            </div>
+            <button class="btn" id="btn-save-log" onclick="saveMultimeterLog()">
+              <i class="fa-solid fa-cloud-arrow-up"></i> บันทึกค่าการวัดลง Google Sheet
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- History table card -->
+    <div class="glass-card history-card">
+      <div class="playground-title" style="justify-content: space-between; align-items: center; margin-bottom: 0.85rem;">
+        <span style="display: flex; align-items: center; gap: 0.5rem;">
+          <i class="fa-solid fa-clock-rotate-left"></i>
+          <span>ประวัติการวัดบันทึกย้อนหลังล่าสุด</span>
+        </span>
+        <button class="btn btn-secondary" style="width: auto; padding: 0.35rem 0.85rem; font-size: 0.75rem;" onclick="loadMultimeterHistory()">
+          <i class="fa-solid fa-rotate-right" id="refresh-icon"></i> รีเฟรชประวัติ
+        </button>
+      </div>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 20%;">วัน-เวลา</th>
+              <th style="width: 15%;">ย่านวัดที่ตั้ง</th>
+              <th style="width: 18%;">ค่าที่วัดได้</th>
+              <th style="width: 18%;">ชิ้นส่วนที่เสียบ</th>
+              <th style="width: 12%;">ความเบนเข็ม (%)</th>
+              <th style="width: 17%;">บันทึกเพิ่มเติม</th>
+            </tr>
+          </thead>
+          <tbody id="history-table-body">
+            <!-- Row items dynamically generated -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Script logic code -->
+  <script>
+    // Data range settings mapping for rotary dial
+    // Rearranged sequentially clockwise from -150 to +150 to prevent overlap!
+    const DIAL_RANGES = [
+      // DCV (Blue) - clockwise from -150 to -66 degrees
+      { code: 'dcv_025', name: 'DC V 0.25', type: 'DCV', limit: 0.25, display: '0.25', angle: -150, color: 'dcv' },
+      { code: 'dcv_25', name: 'DC V 2.5', type: 'DCV', limit: 2.5, display: '2.5', angle: -133, color: 'dcv' },
+      { code: 'dcv_10', name: 'DC V 10', type: 'DCV', limit: 10, display: '10', angle: -116, color: 'dcv' },
+      { code: 'dcv_50', name: 'DC V 50', type: 'DCV', limit: 50, display: '50', angle: -100, color: 'dcv' },
+      { code: 'dcv_250', name: 'DC V 250', type: 'DCV', limit: 250, display: '250', angle: -83, color: 'dcv' },
+      { code: 'dcv_1000', name: 'DC V 1000', type: 'DCV', limit: 1000, display: '1000', angle: -66, color: 'dcv' },
+      
+      // ACV (Red) - from -48 to 0 degrees
+      { code: 'acv_10', name: 'AC V 10', type: 'ACV', limit: 10, display: '10V~', angle: -48, color: 'acv' },
+      { code: 'acv_50', name: 'AC V 50', type: 'ACV', limit: 50, display: '50V~', angle: -32, color: 'acv' },
+      { code: 'acv_250', name: 'AC V 250', type: 'ACV', limit: 250, display: '250V~', angle: -16, color: 'acv' },
+      { code: 'acv_1000', name: 'AC V 1000', type: 'ACV', limit: 1000, display: '1000V~', angle: 0, color: 'acv' },
+
+      // Ohms (Green) - from 18 to 82 degrees
+      { code: 'ohms_x10k', name: 'Ω x10k', type: 'OHM', mult: 10000, display: 'x10k', angle: 18, color: 'ohms' },
+      { code: 'ohms_x1k', name: 'Ω x1k', type: 'OHM', mult: 1000, display: 'x1k', angle: 34, color: 'ohms' },
+      { code: 'ohms_x100', name: 'Ω x100', type: 'OHM', mult: 100, display: 'x100', angle: 50, color: 'ohms' },
+      { code: 'ohms_x10', name: 'Ω x10', type: 'OHM', mult: 10, display: 'x10', angle: 66, color: 'ohms' },
+      { code: 'ohms_x1', name: 'Ω x1', type: 'OHM', mult: 1, display: 'x1', angle: 82, color: 'ohms' },
+
+      // DCA (Yellow) - from 100 to 150 degrees
+      { code: 'dca_50u', name: 'DC mA 50µ', type: 'DCA', limit: 0.00005, display: '50µA', angle: 100, color: 'dca' },
+      { code: 'dca_25m', name: 'DC mA 2.5m', type: 'DCA', limit: 0.0025, display: '2.5mA', angle: 116, color: 'dca' },
+      { code: 'dca_250m', name: 'DC mA 25m', type: 'DCA', limit: 0.025, display: '25mA', angle: 133, color: 'dca' },
+      { code: 'dca_025a', name: 'DC A 0.25', type: 'DCA', limit: 0.25, display: '0.25A', angle: 150, color: 'dca' }
+    ];
+
+    // Simulated components data playground
+    const TEST_COMPONENTS = [
+      { id: 'open', name: 'สายวัดลอยอิสระ (Open Probes)', category: 'open', desc: 'วงจรเปิด ไม่มีค่าความต้านทานกระแสไฟ', type: 'OHM', value: Infinity, v: 0, ac: false },
+      { id: 'short', name: 'สายวัดช็อตกัน (Short Probes)', category: 'short', desc: 'ช็อตปลายสายวัดเพื่อตั้งศูนย์โอห์ม', type: 'OHM', value: 0, v: 0, ac: false },
+      { id: 'bat_15', name: 'ถ่านไฟฉาย AA', category: 'battery', desc: 'แบตเตอรี่กระแสตรงทั่วไป', type: 'DCV', value: 1.55, v: 1.55, ac: false },
+      { id: 'bat_9', name: 'แบตเตอรี่สี่เหลี่ยม 9V', category: 'battery', desc: 'แหล่งจ่ายพลังงานกระแสตรง 9V', type: 'DCV', value: 9.2, v: 9.2, ac: false },
+      { id: 'ac_outlet', name: 'เต้ารับปลั๊กไฟบ้าน AC', category: 'ac', desc: 'แหล่งไฟสลับความดันสูงในอาคาร', type: 'ACV', value: 228.0, v: 228.0, ac: true },
+      { id: 'r_100', name: 'ตัวต้านทาน 100 Ω', category: 'resistor', desc: 'สี: น้ำตาล - ดำ - น้ำตาล - ทอง', type: 'OHM', value: 100, v: 0, ac: false },
+      { id: 'r_15k', name: 'ตัวต้านทาน 1.5 kΩ', category: 'resistor', desc: 'สี: น้ำตาล - เขียว - แดง - ทอง', type: 'OHM', value: 1500, v: 0, ac: false },
+      { id: 'r_47k', name: 'ตัวต้านทาน 47 kΩ', category: 'resistor', desc: 'สี: เหลือง - ม่วง - ส้ม - ทอง', type: 'OHM', value: 47000, v: 0, ac: false }
+    ];
+
+    // State parameters
+    let state = {
+      selectedRangeIndex: 2, // Default DCV 10V
+      selectedComponentId: 'open', // Probes open
+      ohmOffsetPct: 0.0, // Ohm ADJ knob offset (-10% to +10%)
+      
+      // Physics spring needle variables
+      needleAngle: -140, // current angle (degrees)
+      needleVelocity: 0.0,
+      targetAngle: -140 // targeted resting angle (degrees)
+    };
+
+    let isGoogleAppsScript = false;
+    let canvas, ctx;
+    let dragOhmKnob = false;
+
+    // Run on startup
+    window.addEventListener('DOMContentLoaded', () => {
+      canvas = document.getElementById('meter-canvas');
+      ctx = canvas.getContext('2d');
+
+      detectEnvironment();
+      renderRotaryLabels();
+      renderPlaygroundButtons();
+      selectRange(2); // Set default DC 10V
+      selectComponent('open');
+
+      // Start physics loop
+      requestAnimationFrame(physicsRenderLoop);
+    });
+
+    function detectEnvironment() {
+      const badge = document.getElementById('gas-status');
+      if (typeof google !== 'undefined' && google.script && google.script.run) {
+        isGoogleAppsScript = true;
+        badge.className = 'status-badge connected';
+        badge.querySelector('span').innerText = 'เชื่อมต่อ Google Sheet แล้ว';
+        badge.querySelector('i').className = 'fa-solid fa-circle-nodes';
+      } else {
+        isGoogleAppsScript = false;
+        badge.className = 'status-badge';
+        badge.querySelector('span').innerText = 'โหมดจำลองในเครื่อง (Local Mode)';
+      }
+    }
+
+    // Dynamic rendering of rotary switch text labels around the circle
+    function renderRotaryLabels() {
+      const overlay = document.getElementById('dial-labels');
+      overlay.innerHTML = '';
+      
+      // Enlarged layout sizes
+      const radius = 82; // radius of labels circle placement
+      const center = 100; // center of 200x200 wrapper box
+
+      DIAL_RANGES.forEach((range, idx) => {
+        // Angle in radians (compensate offset since 0 is right, but our label scale has 90 degree offsets)
+        const rad = ((range.angle - 90) * Math.PI) / 180;
+        const x = center + radius * Math.cos(rad);
+        const y = center + radius * Math.sin(rad);
+
+        const label = document.createElement('div');
+        label.className = `dial-text ${range.color}`;
+        label.id = `dial-label-${idx}`;
+        label.innerText = range.display;
+        label.style.left = `${x}px`;
+        label.style.top = `${y}px`;
+        
+        // Add click listener directly to allow clicking labels to rotate dial
+        label.onclick = () => selectRange(idx);
+
+        overlay.appendChild(label);
+      });
+      
+      // Let dial click rotate clockwise/counter
+      document.getElementById('rotary-knob').addEventListener('click', rotateDialNext);
+    }
+
+    function rotateDialNext() {
+      const nextIdx = (state.selectedRangeIndex + 1) % DIAL_RANGES.length;
+      selectRange(nextIdx);
+    }
+
+    function selectRange(idx) {
+      // Deactive old active class
+      document.getElementById(`dial-label-${state.selectedRangeIndex}`).classList.remove('active');
+      
+      state.selectedRangeIndex = idx;
+      
+      // Activate new active class
+      document.getElementById(`dial-label-${idx}`).classList.add('active');
+
+      const range = DIAL_RANGES[idx];
+      // Rotate visual knob element matching angle
+      document.getElementById('rotary-knob').style.transform = `rotate(${range.angle}deg)`;
+
+      calculateMeasurement();
+    }
+
+    // Dynamic playground buttons rendering
+    function renderPlaygroundButtons() {
+      const container = document.getElementById('components-panel');
+      container.innerHTML = '';
+
+      TEST_COMPONENTS.forEach(comp => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = `comp-btn ${comp.id === state.selectedComponentId ? 'active' : ''}`;
+        btn.id = `comp-btn-${comp.id}`;
+        btn.onclick = () => selectComponent(comp.id);
+
+        let iconHtml = '<i class="fa-solid fa-battery-half"></i>';
+        if (comp.category === 'open') iconHtml = '<i class="fa-solid fa-arrows-spin"></i>';
+        else if (comp.category === 'short') iconHtml = '<i class="fa-solid fa-link"></i>';
+        else if (comp.category === 'ac') iconHtml = '<i class="fa-solid fa-bolt"></i>';
+        else if (comp.category === 'resistor') iconHtml = '<i class="fa-solid fa-wave-square"></i>';
+
+        btn.innerHTML = `
+          <div class="comp-icon">${iconHtml}</div>
+          <div class="comp-details">
+            <span class="comp-name">${comp.name}</span>
+            <span class="comp-spec">${comp.desc}</span>
+          </div>
+        `;
+        container.appendChild(btn);
+      });
+    }
+
+    function selectComponent(id) {
+      // Update visual active button states
+      document.querySelectorAll('.comp-btn').forEach(btn => btn.classList.remove('active'));
+      const activeBtn = document.getElementById(`comp-btn-${id}`);
+      if (activeBtn) activeBtn.classList.add('active');
+
+      state.selectedComponentId = id;
+      
+      // Update graphical probe wires status text
+      const comp = TEST_COMPONENTS.find(c => c.id === id);
+      const textEl = document.getElementById('probe-status-text');
+      const graphicEl = document.getElementById('probe-status-graphic');
+
+      if (id === 'open') {
+        textEl.innerText = 'สายวัดลอยเป็นอิสระ (ไม่มีการสัมผัส)';
+        graphicEl.querySelector('.probe-black').className = 'fa-solid fa-plug probe-black';
+        graphicEl.querySelector('.probe-red').className = 'fa-solid fa-plug probe-red';
+      } else if (id === 'short') {
+        textEl.innerText = 'สายสีแดงและดำสัมผัสกันโดยตรง (0 Ω)';
+        graphicEl.querySelector('.probe-black').className = 'fa-solid fa-plug probe-black probe-wire-glow';
+        graphicEl.querySelector('.probe-red').className = 'fa-solid fa-plug probe-red probe-wire-glow';
+      } else {
+        textEl.innerText = `สายวัดสัมผัสขั้ว: ${comp.name}`;
+        graphicEl.querySelector('.probe-black').className = 'fa-solid fa-plug probe-black probe-wire-glow';
+        graphicEl.querySelector('.probe-red').className = 'fa-solid fa-plug probe-red probe-wire-glow';
+      }
+
+      calculateMeasurement();
+    }
+
+    // Zero-ohm adjustment knob drag handler
+    function startOhmAdjust(e) {
+      dragOhmKnob = true;
+      const knob = document.getElementById('adj-knob');
+      const rect = knob.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+      
+      function handleDrag(evt) {
+        if (!dragOhmKnob) return;
+        // Calculate angle of pointer from center
+        const x = evt.clientX - centerX;
+        const y = evt.clientY - centerY;
+        const rad = Math.atan2(y, x);
+        let deg = (rad * 180) / Math.PI;
+        
+        // Clamp rotation angles
+        if (deg < -90) deg = -90;
+        if (deg > 90) deg = 90;
+
+        knob.style.transform = `rotate(${deg}deg)`;
+        
+        // Offset percentage (-10% to +10%)
+        state.ohmOffsetPct = (deg / 90) * 0.1;
+        document.getElementById('adj-value-display').innerText = (state.ohmOffsetPct >= 0 ? '+' : '') + (state.ohmOffsetPct * 100).toFixed(1) + '% Offset';
+        
+        calculateMeasurement();
+      }
+
+      function stopDrag() {
+        dragOhmKnob = false;
+        window.removeEventListener('mousemove', handleDrag);
+        window.removeEventListener('mouseup', stopDrag);
+      }
+
+      window.addEventListener('mousemove', handleDrag);
+      window.addEventListener('mouseup', stopDrag);
+    }
+
+    // CORE MEASUREMENT CALCULATOR (Binds ranges & test source input values)
+    let calculatedValueText = '0.00 V';
+    let currentDeflectionPct = 0; // 0 to 100% full scale deflection
+
+    function calculateMeasurement() {
+      const range = DIAL_RANGES[state.selectedRangeIndex];
+      const comp = TEST_COMPONENTS.find(c => c.id === state.selectedComponentId);
+      
+      let deflection = 0; // target deflection ratio 0 to 1
+      let assistMsg = '';
+      let formula = '';
+
+      if (comp.id === 'open') {
+        deflection = 0;
+        calculatedValueText = range.type === 'OHM' ? 'Infinity Ω' : '0.00 ' + (range.type === 'DCA' ? 'mA' : 'V');
+        
+        assistMsg = `สายวัดลอยเป็นอิสระ เข็มชี้จึงไม่กระดิก ค้างอยู่ที่มุมซ้ายสุด (0 สำหรับ V/A และ ∞ สำหรับ Ω)`;
+      } 
+      else if (range.type === 'DCV') {
+        // Measure DC voltage
+        if (comp.ac) {
+          deflection = 0.02 * Math.sin(Date.now() / 20); // Vibrate needle slightly
+          calculatedValueText = '0.00 V (AC Signal on DC range)';
+          assistMsg = `⚠️ ตรวจพบสัญญาณ AC บนย่านวัด DC! เข็มมิเตอร์จะสั่นสะเทือนหรือชี้ที่ 0V เนื่องจากระบบวัดค่าเฉลี่ยไดโอดไม่ทำงาน กรุณาสลับย่านวัดเป็น AC V`;
+        } else {
+          const vInput = comp.v;
+          const limit = range.limit;
+          
+          deflection = Math.min(1.1, vInput / limit);
+          const measuredVal = Math.min(limit * 1.1, vInput);
+          calculatedValueText = measuredVal.toFixed(2) + ' V';
+
+          // Readings guidance assistant logic
+          let scaleVal = 250;
+          if (limit === 10 || limit === 0.1) scaleVal = 10;
+          else if (limit === 50 || limit === 0.5) scaleVal = 50;
+
+          const readingLine = (deflection * scaleVal).toFixed(1);
+          const divisor = scaleVal / limit;
+
+          assistMsg = `วิธีอ่านค่า: อ่านแถบสเกล DC **0 - ${scaleVal}** (เข็มจะชี้ประมาณขีดที่ **${readingLine}**)<br>จากนั้นนำมาหารด้วยตัวคูณ **${divisor}**`;
+          formula = `สูตรคำนวณ: ค่าที่อ่านได้ (${readingLine}) / ตัวหาร (${divisor}) = ${measuredVal.toFixed(2)} V`;
+        }
+      } 
+      else if (range.type === 'ACV') {
+        // Measure AC voltage
+        const vInput = comp.v;
+        const limit = range.limit;
+
+        if (!comp.ac && vInput > 0) {
+          deflection = Math.min(1.1, (vInput * 1.11) / limit);
+          calculatedValueText = vInput.toFixed(2) + ' V (DC on AC Range)';
+          assistMsg = `วัดไฟ DC ด้วยย่าน AC: เข็มจะเบนเนื่องจากไดโอดเรกติไฟเออร์ภายใน แต่ค่าที่ได้จะไม่ตรงกับความเป็นจริง`;
+        } else {
+          deflection = Math.min(1.1, vInput / limit);
+          const measuredVal = Math.min(limit * 1.1, vInput);
+          calculatedValueText = measuredVal.toFixed(1) + ' V (AC)';
+
+          let scaleVal = 250;
+          if (limit === 10) scaleVal = 10;
+          else if (limit === 50) scaleVal = 50;
+
+          const readingLine = (deflection * scaleVal).toFixed(1);
+          const divisor = scaleVal / limit;
+
+          assistMsg = `วิธีอ่านค่า: อ่านแถบสเกลสีแดง AC **0 - ${scaleVal}** (เข็มจะชี้ที่ขีดประมาณ **${readingLine}**)<br>จากนั้นนำมาหารด้วยตัวคูณ **${divisor}**`;
+          formula = `สูตรคำนวณ: ค่าที่อ่านได้ (${readingLine}) / ตัวหาร (${divisor}) = ${measuredVal.toFixed(1)} V`;
+        }
+      } 
+      else if (range.type === 'DCA') {
+        if (comp.type !== 'DCA' && comp.v > 0) {
+          deflection = 1.1; // Pegged
+          calculatedValueText = 'OVERLOAD (FUSE BLOWN)';
+          assistMsg = `⚠️ คำเตือน! เสียบมัลติมิเตอร์วัดกระแสไฟคร่อมขั้วแหล่งจ่ายแรงดันโดยตรง (ไฟฟ้าลัดวงจร) เข็มตีสุดสเกลและฟิวส์ภายใจจะขาดทันที!`;
+        } else {
+          deflection = 0;
+          calculatedValueText = '0.00 mA';
+          assistMsg = `มัลติมิเตอร์กำลังต่อวัดกระแสลูปปิด เข็มอยู่ที่ขอบซ้ายสุดเนื่องจากชิ้นส่วนนี้ไม่มีการไหลของกระแสไฟฟ้า`;
+        }
+      } 
+      else if (range.type === 'OHM') {
+        // Measure resistance (Ohms)
+        if (comp.v > 0) {
+          deflection = 1.1; // Peg needle
+          calculatedValueText = 'OVERLOAD / METER DAMAGE';
+          assistMsg = `⚠️ คำเตือนร้ายแรง! ห้ามใช้ย่านวัดโอห์ม (Ω) ไปวัดชิ้นส่วนที่มีกระแสไฟฟ้าหล่อเลี้ยงอยู่เด็ดขาด หน้าปัดอาจพังเสียหายและเข็มตีสุดกระแทกกระจก`;
+        } else if (comp.value === Infinity) {
+          deflection = 0.0;
+          calculatedValueText = 'Infinity Ω';
+          assistMsg = `สายวัดลอยเป็นอิสระ (ความต้านทานเป็นอนันต์ ∞) เข็มจะชี้อยู่ที่ซ้ายมือสุดของขอบสเกลความต้านทาน`;
+        } else {
+          const R_actual = comp.value;
+          const multiplier = range.mult;
+          const R_dial_scale = R_actual / multiplier; // value to read on dial
+          
+          const R_mid = 20.0;
+          const R_mid_adj = R_mid * (1.0 - state.ohmOffsetPct * 10); // adjusting knob moves scale
+
+          deflection = R_mid_adj / (R_dial_scale + R_mid_adj);
+          deflection = Math.max(0, Math.min(1.1, deflection));
+
+          calculatedValueText = R_actual >= 1000 ? (R_actual / 1000).toFixed(1) + ' kΩ' : R_actual.toFixed(0) + ' Ω';
+
+          const dialValueText = R_dial_scale.toFixed(1);
+          
+          if (comp.id === 'short') {
+            if (Math.abs(deflection - 1.0) > 0.002) {
+              const diffText = deflection > 1.0 ? 'ขวาเกินขีด 0' : 'ยังไม่ถึงขีด 0';
+              assistMsg = `🔧 ขั้นตอนการปรับแต่ง (Calibration): คุณกำลังช็อตปลายสายวัดแรงดันเป็น 0 Ω เข็มควรจะตกลงที่เลข **0** ขวาสุดพอดี<br>แต่ตอนนี้เข็มชี้ ${diffText} กรุณาปรับหมุนปุ่ม **0-Ω ADJ** ด้านข้างให้เข็มทับขีดเลข 0 พอดี`;
+            } else {
+              assistMsg = `ปรับแต่งศูนย์สำเร็จ! มัลติมิเตอร์พร้อมใช้วัดค่าความต้านทานได้อย่างแม่นยำแล้ว`;
+            }
+          } else {
+            assistMsg = `วิธีอ่านค่า: อ่านแถบสเกลด้านบนสุด (สเกลสีเขียว) จากขวาไปซ้าย เข็มจะชี้ตรงกับขีด **${dialValueText}**<br>จากนั้นให้นำมาคูณกับตัวคูณย่านวัด **${range.display}**`;
+            formula = `สูตรคำนวณ: ค่าหน้าปัด (${dialValueText}) * ตัวคูณ (${multiplier}) = ${calculatedValueText}`;
+          }
+        }
+      }
+
+      currentDeflectionPct = deflection * 100;
+      state.targetAngle = -140 + deflection * 100; // Sweep span (-140 to -40)
+
+      if (formula) {
+        document.getElementById('assist-formula').innerText = formula;
+        document.getElementById('assist-formula-container').style.display = 'block';
+      } else {
+        document.getElementById('assist-formula-container').style.display = 'none';
+      }
+      document.getElementById('assist-text').innerHTML = assistMsg;
+    }
+
+    // ANIMATION & CANVAS RENDERING LOOP
+    function physicsRenderLoop() {
+      const springK = 0.18;
+      const damperC = 0.52;
+      
+      const acceleration = (state.targetAngle - state.needleAngle) * springK - state.needleVelocity * damperC;
+      state.needleVelocity += acceleration;
+      state.needleAngle += state.needleVelocity;
+
+      const pegMin = -146;
+      const pegMax = -26;
+      if (state.needleAngle < pegMin) {
+        state.needleAngle = pegMin;
+        state.needleVelocity = -state.needleVelocity * 0.15; // bounce
+      } else if (state.needleAngle > pegMax) {
+        state.needleAngle = pegMax;
+        state.needleVelocity = -state.needleVelocity * 0.15; // bounce
+      }
+
+      drawMeterFace();
+      requestAnimationFrame(physicsRenderLoop);
+    }
+
+    function drawMeterFace() {
+      const W = canvas.width;
+      const H = canvas.height;
+      
+      // Clear canvas
+      ctx.fillStyle = '#fbf9f4';
+      ctx.fillRect(0, 0, W, H);
+
+      // Center of rotation for needle (Y_c pushed down to H-25 for spacing)
+      const X_c = W / 2;
+      const Y_c = H - 25;
+      
+      // Redesigned radii to prevent number overlapping!
+      const rOhms = 245;     // Ohms arc
+      const rDC = 210;       // DC arc
+      const rAC = 165;       // AC arc
+      const rMirror = 135;   // Mirror band
+
+      // Draw Mirror band arc (Silver/grey)
+      ctx.strokeStyle = '#e2e8f0';
+      ctx.lineWidth = 10;
+      ctx.beginPath();
+      ctx.arc(X_c, Y_c, rMirror, angleToRad(-140), angleToRad(-40));
+      ctx.stroke();
+
+      ctx.strokeStyle = '#b8c2cc';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.arc(X_c, Y_c, rMirror - 5, angleToRad(-140), angleToRad(-40));
+      ctx.arc(X_c, Y_c, rMirror + 5, angleToRad(-140), angleToRad(-40));
+      ctx.stroke();
+
+      // --- 1. DRAW OHMS SCALE (Green - Curved top, Right to Left) ---
+      ctx.strokeStyle = '#047857';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.arc(X_c, Y_c, rOhms, angleToRad(-140), angleToRad(-40));
+      ctx.stroke();
+
+      // Ohms ticks
+      const ohmTicks = [
+        { r: Infinity, lbl: '∞' }, { r: 5000, lbl: '5k' }, { r: 2000, lbl: '2k' }, 
+        { r: 1000, lbl: '1k' }, { r: 500, lbl: '500' }, { r: 200, lbl: '200' }, 
+        { r: 100, lbl: '100' }, { r: 50, lbl: '50' }, { r: 30, lbl: '30' }, 
+        { r: 20, lbl: '20' }, { r: 15, lbl: '15' }, { r: 10, lbl: '10' }, 
+        { r: 5, lbl: '5' }, { r: 2, lbl: '2' }, { r: 0, lbl: '0' }
+      ];
+
+      ctx.fillStyle = '#047857';
+      ctx.font = 'bold 9.5px var(--font-mono)';
+      ctx.textAlign = 'center';
+      
+      ohmTicks.forEach(tick => {
+        let d = 0;
+        if (tick.r === Infinity) d = 0;
+        else {
+          const R_mid = 20.0;
+          d = R_mid / (tick.r + R_mid);
+        }
+        
+        const degAngle = -140 + d * 100;
+        const rad = angleToRad(degAngle);
+        
+        const xStart = X_c + rOhms * Math.cos(rad);
+        const yStart = Y_c + rOhms * Math.sin(rad);
+        const xEnd = X_c + (rOhms + 7) * Math.cos(rad);
+        const yEnd = Y_c + (rOhms + 7) * Math.sin(rad);
+        
+        ctx.strokeStyle = '#047857';
+        ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        ctx.moveTo(xStart, yStart);
+        ctx.lineTo(xEnd, yEnd);
+        ctx.stroke();
+
+        // Print labels at radius rOhms + 15 to separate from DC ticks
+        const xText = X_c + (rOhms + 15) * Math.cos(rad);
+        const yText = Y_c + (rOhms + 15) * Math.sin(rad) + 3;
+        ctx.fillText(tick.lbl, xText, yText);
+      });
+
+      // --- 2. DRAW DC V.A SCALE (Blue - Linear middle, Left to Right) ---
+      ctx.strokeStyle = '#1d4ed8';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(X_c, Y_c, rDC, angleToRad(-140), angleToRad(-40));
+      ctx.stroke();
+
+      // DC subdivisions
+      ctx.fillStyle = '#1d4ed8';
+      ctx.font = '7.5px var(--font-mono)'; // Smaller cleaner font to prevent overlaps
+      
+      for (let i = 0; i <= 50; i++) {
+        const d = i / 50;
+        const degAngle = -140 + d * 100;
+        const rad = angleToRad(degAngle);
+        
+        let tickLen = 4;
+        let showLabel = false;
+        
+        if (i % 10 === 0) {
+          tickLen = 8;
+          showLabel = true;
+        } else if (i % 5 === 0) {
+          tickLen = 6;
+        }
+
+        const xStart = X_c + rDC * Math.cos(rad);
+        const yStart = Y_c + rDC * Math.sin(rad);
+        const xEnd = X_c + (rDC - tickLen) * Math.cos(rad);
+        const yEnd = Y_c + (rDC - tickLen) * Math.sin(rad);
+        
+        ctx.strokeStyle = '#1d4ed8';
+        ctx.lineWidth = i % 10 === 0 ? 1.2 : 0.6;
+        ctx.beginPath();
+        ctx.moveTo(xStart, yStart);
+        ctx.lineTo(xEnd, yEnd);
+        ctx.stroke();
+
+        if (showLabel) {
+          const idx = i / 10;
+          const val10 = (idx * 2).toString();
+          const val50 = (idx * 10).toString();
+          const val250 = (idx * 50).toString();
+
+          ctx.textAlign = 'center';
+          
+          // Generous radial separation (13px steps: rDC-14, rDC-27, rDC-40) to prevent overlaps!
+          ctx.fillText(val250, X_c + (rDC - 14) * Math.cos(rad), Y_c + (rDC - 14) * Math.sin(rad) + 3);
+          ctx.fillText(val50, X_c + (rDC - 27) * Math.cos(rad), Y_c + (rDC - 27) * Math.sin(rad) + 3);
+          ctx.fillText(val10, X_c + (rDC - 40) * Math.cos(rad), Y_c + (rDC - 40) * Math.sin(rad) + 3);
+        }
+      }
+
+      // Draw Scale labels title text
+      ctx.fillStyle = '#475569';
+      ctx.font = '9px var(--font-body)';
+      ctx.textAlign = 'left';
+      ctx.fillText('DC V.A', X_c - 180, Y_c - 100);
+      ctx.fillStyle = '#047857';
+      ctx.fillText('Ω', X_c - 180, Y_c - 120);
+      ctx.fillStyle = '#b91c1c';
+      ctx.fillText('AC V', X_c - 180, Y_c - 80);
+
+      // --- 3. DRAW ACV SCALE (Red - Linear bottom, Left to Right) ---
+      ctx.strokeStyle = '#b91c1c';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.arc(X_c, Y_c, rAC, angleToRad(-140), angleToRad(-40));
+      ctx.stroke();
+
+      ctx.fillStyle = '#b91c1c';
+      ctx.font = '7.5px var(--font-mono)';
+      ctx.textAlign = 'center';
+      
+      for (let i = 0; i <= 5; i++) {
+        const d = i / 5;
+        const degAngle = -140 + d * 100;
+        const rad = angleToRad(degAngle);
+        
+        const xStart = X_c + rAC * Math.cos(rad);
+        const yStart = Y_c + rAC * Math.sin(rad);
+        const xEnd = X_c + (rAC - 6) * Math.cos(rad);
+        const yEnd = Y_c + (rAC - 6) * Math.sin(rad);
+        
+        ctx.strokeStyle = '#b91c1c';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(xStart, yStart);
+        ctx.lineTo(xEnd, yEnd);
+        ctx.stroke();
+
+        // Print AC labels at radius rAC - 14 (i.e. 151 radius) to avoid overlapping DC scale Tier 3 (at 170)
+        const acVal = (i * 50).toString();
+        ctx.fillText(acVal, X_c + (rAC - 14) * Math.cos(rad), Y_c + (rAC - 14) * Math.sin(rad) + 3);
+      }
+
+      // --- 4. DRAW NEEDLE POINTER (Red) ---
+      const radNeedle = angleToRad(state.needleAngle);
+      const needleLength = 236;
+      
+      const xNeedleEnd = X_c + needleLength * Math.cos(radNeedle);
+      const yNeedleEnd = Y_c + needleLength * Math.sin(radNeedle);
+
+      // Shadow
+      ctx.strokeStyle = 'rgba(0, 0, 0, 0.12)';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      const shadowOffset = (state.needleAngle + 90) / 10;
+      ctx.moveTo(X_c + shadowOffset, Y_c);
+      ctx.lineTo(xNeedleEnd + shadowOffset, yNeedleEnd + 2);
+      ctx.stroke();
+
+      // Needle line
+      ctx.strokeStyle = '#ef4444';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(X_c, Y_c);
+      ctx.lineTo(xNeedleEnd, yNeedleEnd);
+      ctx.stroke();
+
+      // Pivot Cap
+      ctx.fillStyle = '#0f172a';
+      ctx.strokeStyle = '#334155';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.arc(X_c, Y_c, 16, 0, 2 * Math.PI);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = '#94a3b8';
+      ctx.beginPath();
+      ctx.arc(X_c, Y_c, 4, 0, 2 * Math.PI);
+      ctx.fill();
+    }
+
+    function angleToRad(deg) {
+      return (deg * Math.PI) / 180;
+    }
+
+    // GOOGLE SHEETS COMMUNICATIONS (Log saving and reading)
+    function saveMultimeterLog() {
+      const btn = document.getElementById('btn-save-log');
+      const origHtml = btn.innerHTML;
+      
+      const range = DIAL_RANGES[state.selectedRangeIndex];
+      const comp = TEST_COMPONENTS.find(c => c.id === state.selectedComponentId);
+      const note = document.getElementById('multimeter-note').value.trim();
+
+      const logData = {
+        range: range.name,
+        value: calculatedValueText,
+        component: comp.name,
+        deflection: currentDeflectionPct.toFixed(1) + '%',
+        note: note
+      };
+
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังบันทึกข้อมูล...';
+
+      if (isGoogleAppsScript) {
+        google.script.run
+          .withSuccessHandler((res) => {
+            btn.disabled = false;
+            btn.innerHTML = origHtml;
+            alert(res.message);
+            document.getElementById('multimeter-note').value = '';
+            loadMultimeterHistory();
+          })
+          .withFailureHandler((err) => {
+            btn.disabled = false;
+            btn.innerHTML = origHtml;
+            alert('เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์ Apps Script');
+            console.error(err);
+          })
+          .saveMultimeterToSheet(logData);
+      } else {
+        // Local simulation fallback
+        setTimeout(() => {
+          btn.disabled = false;
+          btn.innerHTML = origHtml;
+
+          try {
+            const localHist = JSON.parse(localStorage.getItem('multimeter_history') || '[]');
+            const now = new Date();
+            const formattedDate = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth()+1).padStart(2, '0')}/${now.getFullYear()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+            
+            logData.timestamp = formattedDate;
+            localHist.unshift(logData);
+
+            if (localHist.length > 20) localHist.pop();
+            localStorage.setItem('multimeter_history', JSON.stringify(localHist));
+
+            alert('จำลองการบันทึกข้อมูลสำเร็จ (โหมดจำลองในเครื่อง)!');
+            document.getElementById('multimeter-note').value = '';
+            loadMultimeterHistory();
+          } catch(e) {
+            alert('จำลองการบันทึกผิดพลาด');
+            console.error(e);
+          }
+        }, 800);
+      }
+    }
+
+    function loadMultimeterHistory() {
+      const tbody = document.getElementById('history-table-body');
+      const refreshIcon = document.getElementById('refresh-icon');
+
+      if (refreshIcon) refreshIcon.classList.add('fa-spin');
+
+      if (isGoogleAppsScript) {
+        google.script.run
+          .withSuccessHandler((historyList) => {
+            if (refreshIcon) refreshIcon.classList.remove('fa-spin');
+            populateHistoryTable(historyList);
+          })
+          .withFailureHandler((err) => {
+            if (refreshIcon) refreshIcon.classList.remove('fa-spin');
+            console.error(err);
+          })
+          .getMultimeterHistory();
+      } else {
+        // Local simulation fallback
+        setTimeout(() => {
+          if (refreshIcon) refreshIcon.classList.remove('fa-spin');
+          const historyList = JSON.parse(localStorage.getItem('multimeter_history') || '[]');
+          populateHistoryTable(historyList);
+        }, 500);
+      }
+    }
+
+    function populateHistoryTable(historyList) {
+      const tbody = document.getElementById('history-table-body');
+      tbody.innerHTML = '';
+
+      if (!historyList || historyList.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="6">
+              <div class="empty-state">
+                <i class="fa-solid fa-box-open" style="font-size: 1.8rem; opacity: 0.4; margin-bottom: 0.5rem; display:block;"></i>
+                ไม่มีประวัติข้อมูลมัลติมิเตอร์อนาล็อก
+              </div>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      historyList.forEach(item => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td style="color: var(--text-muted); font-size: 0.75rem; white-space: nowrap;">${item.timestamp}</td>
+          <td style="font-weight: 600;">${item.range}</td>
+          <td style="color: #38bdf8; font-weight: 600;">${item.value}</td>
+          <td>${item.component}</td>
+          <td style="text-align: center;">${item.deflection}</td>
+          <td class="note-cell" style="max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${item.note || ''}">${item.note || '-'}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+  </script>
+</body>
+</html>
