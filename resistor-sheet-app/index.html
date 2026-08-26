@@ -1296,7 +1296,7 @@
             <ul style="padding-left:1.2rem; line-height:1.6;">
               <li><strong>โวลต์มิเตอร์ (V):</strong> ต่อแบบ <em>ขนาน (Parallel)</em> คร่อมจุดที่ต้องการวัด (ความต้านทานภายในมิเตอร์สูงมาก)</li>
               <li><strong>แอมมิเตอร์ (A):</strong> ต่อแบบ <em>อนุกรม (Series)</em> ตัดสายแล้วต่อแทรก (ความต้านทานภายในต่ำมาก ห้ามต่อขนานเด็ดขาด)</li>
-              <li><strong>วัตต์มิเตอร์ (W):</strong> ต่อทั้ง <em>ขดลวดกระแส (อนุกรม)</em> และ <em>ขดลวดแรงดัน (ขนาน)</em> คำนวณ $P = V \\times I$</li>
+              <li><strong>วัตต์มิเตอร์ (W):</strong> ต่อทั้ง <em>ขดลวดกระแส (อนุกรม)</em> และ <em>ขดลวดแรงดัน (ขนาน)</em> คำนวณ <strong>P = V × I</strong></li>
               <li><strong>โอห์มมิเตอร์ (Ω):</strong> <em>ต้องปลดแหล่งจ่ายไฟออกก่อนเสมอ</em> แล้วนำสายวัดต่อคร่อมตัวต้านทาน</li>
             </ul>
           </div>
@@ -1438,7 +1438,7 @@
           </div>
 
           <div style="background:rgba(0,0,0,0.25); border-radius:10px; padding:0.85rem; font-size:0.82rem; color:var(--text-secondary);">
-            <strong>💡 ทฤษฎีสำคัญ:</strong> เมื่อไม่มีโหลด $V_{out} = V_{in} \\times \\frac{R_2}{R_1 + R_2}$ แต่เมื่อต่อโหลด $R_L$ ขนานกับ $R_2$ แรงดันขาออกจะตกลงเนื่องจากความต้านทานสมมูลลดลง เรียกว่า <em>Loading Effect</em>
+            <strong>💡 ทฤษฎีสำคัญ:</strong> เมื่อไม่มีโหลด <strong>V<sub>out</sub> = V<sub>in</sub> × [R<sub>2</sub> / (R<sub>1</sub> + R<sub>2</sub>)]</strong> แต่เมื่อต่อโหลด <strong>R<sub>L</sub></strong> ขนานกับ <strong>R<sub>2</sub></strong> แรงดันขาออกจะตกลงเนื่องจากความต้านทานสมมูลลดลง เรียกว่า <em>Loading Effect</em>
           </div>
 
         </div>
@@ -2421,17 +2421,17 @@
         icon.style.background = 'rgba(239,68,68,0.2)';
         icon.style.color = '#ef4444';
         icon.innerHTML = '<i class="fa-solid fa-gauge-high"></i>';
-        text.innerHTML = `<strong>🔴 การต่อโวลต์มิเตอร์ (Voltmeter):</strong> ต่อสายวัดแบบ <u>ขนาน (Parallel)</u> คร่อมจุดที่ต้องการวัด [${mTarget.toUpperCase()}] โดยไม่ต้องตัดต่อสายวงจร โวลต์มิเตอร์มีความต้านทานภายในสูงมาก ($R_{in} \approx \infty$) จึงไม่รบกวนการทำงานของวงจร`;
+        text.innerHTML = `<strong>🔴 การต่อโวลต์มิเตอร์ (Voltmeter):</strong> ต่อสายวัดแบบ <u>ขนาน (Parallel)</u> คร่อมจุดที่ต้องการวัด [${mTarget.toUpperCase()}] โดยไม่ต้องตัดต่อสายวงจร โวลต์มิเตอร์มีความต้านทานภายในสูงมาก (R<sub>in</sub> ≈ ∞) จึงไม่รบกวนการทำงานของวงจร`;
       } else if (mMode === 'amp') {
         icon.style.background = 'rgba(56,189,248,0.2)';
         icon.style.color = '#38bdf8';
         icon.innerHTML = '<i class="fa-solid fa-bolt"></i>';
-        text.innerHTML = `<strong>🔵 การต่อแอมมิเตอร์ (Ammeter):</strong> ต้อง <u>ตัดเปิดวงจร (Break Circuit)</u> แล้วนำมิเตอร์ต่อแทรกแบบ <u>อนุกรม (Series)</u> เพื่อให้กระแสไหลผ่านตัวมิเตอร์ แอมมิเตอร์มีความต้านทานภายในต่ำมาก ($R_{in} \approx 0$) <strong style="color:#f87171;">⚠️ ห้ามต่อขนานเด็ดขาดเพราะจะเกิดการลัดวงจร!</strong>`;
+        text.innerHTML = `<strong>🔵 การต่อแอมมิเตอร์ (Ammeter):</strong> ต้อง <u>ตัดเปิดวงจร (Break Circuit)</u> แล้วนำมิเตอร์ต่อแทรกแบบ <u>อนุกรม (Series)</u> เพื่อให้กระแสไหลผ่านตัวมิเตอร์ แอมมิเตอร์มีความต้านทานภายในต่ำมาก (R<sub>in</sub> ≈ 0) <strong style="color:#f87171;">⚠️ ห้ามต่อขนานเด็ดขาดเพราะจะเกิดการลัดวงจร!</strong>`;
       } else if (mMode === 'watt') {
         icon.style.background = 'rgba(245,158,11,0.2)';
         icon.style.color = '#f59e0b';
         icon.innerHTML = '<i class="fa-solid fa-fire"></i>';
-        text.innerHTML = `<strong>🟡 การต่อวัตต์มิเตอร์ (Wattmeter / Power Probe):</strong> ต่อวัดทั้ง <u>ขดลวดกระแส (อนุกรม)</u> และ <u>ขดลวดแรงดัน (ขนาน)</u> เพื่อคำนวณกำลังไฟฟ้า $P = V \\times I = I^2 R$ ที่โหลดแต่ละตัวสูญเสียในรูปความร้อน`;
+        text.innerHTML = `<strong>🟡 การต่อวัตต์มิเตอร์ (Wattmeter / Power Probe):</strong> ต่อวัดทั้ง <u>ขดลวดกระแส (อนุกรม)</u> และ <u>ขดลวดแรงดัน (ขนาน)</u> เพื่อคำนวณกำลังไฟฟ้า <strong>P = V × I = I<sup>2</sup>R</strong> ที่โหลดแต่ละตัวสูญเสียในรูปความร้อน`;
       } else if (mMode === 'ohm') {
         icon.style.background = 'rgba(16,185,129,0.2)';
         icon.style.color = '#10b981';
@@ -3297,7 +3297,7 @@
           "ง. ปลดไฟออกจากวงจรแล้ววัดค่าวัตต์"
         ],
         correct: 2,
-        explain: "กำลังไฟฟ้า $P = V \\times I$ ดังนั้นวัตต์มิเตอร์จึงต้องรับสัญญาณทั้งกระแสที่ไหลผ่าน (อนุกรม) และแรงดันตกคร่อม (ขนาน) มาประมวลผลพร้อมกัน"
+        explain: "กำลังไฟฟ้า P = V × I ดังนั้นวัตต์มิเตอร์จึงต้องรับสัญญาณทั้งกระแสที่ไหลผ่าน (อนุกรม) และแรงดันตกคร่อม (ขนาน) มาประมวลผลพร้อมกัน"
       },
       {
         id: 5,
