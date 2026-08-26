@@ -212,28 +212,28 @@
             <option value="MPF102">MPF102 (I_DSS = 15 mA, V_P = -5.0 V, r_d = 35 kΩ)</option>
           </optgroup>
           <optgroup label="N-Channel E-MOSFET">
-            <option value="2N7000">2N7000 (V_TH = 2.0 V, k = 0.12 mA/V², r_d = 40 kΩ)</option>
-            <option value="BS170">BS170 (V_TH = 2.1 V, k = 0.15 mA/V², r_d = 30 kΩ)</option>
+            <option value="2N7000">2N7000 (V_TH = 2.0 V, k = 1.20 mA/V², r_d = 40 kΩ)</option>
+            <option value="BS170">BS170 (V_TH = 2.1 V, k = 1.50 mA/V², r_d = 30 kΩ)</option>
           </optgroup>
         </select>
       </div>
       <div class="control-group">
         <div class="control-label-row">
-          <span class="control-label-title">แรงดันไบแอส Gate-Source (V<sub>GS(Q)</sub>)</span>
+          <span class="control-label-title" id="lbl-vgs-q">แรงดันไบแอส Gate-Source (V<sub>GS(Q)</sub>)</span>
           <span class="control-value-badge" id="vgs-q-badge">-1.50 V</span>
         </div>
         <input type="range" id="slider-vgs-q" min="-5.0" max="0.0" step="0.05" value="-1.50" oninput="onModelChange()">
       </div>
       <div class="control-group">
         <div class="control-label-row">
-          <span class="control-label-title">กระแสอิ่มตัว I<sub>DSS</sub> (mA)</span>
+          <span class="control-label-title" id="lbl-param-2">กระแสอิ่มตัว I<sub>DSS</sub> (mA)</span>
           <span class="control-value-badge" id="idss-badge">9.0 mA</span>
         </div>
         <input type="range" id="slider-idss" min="2" max="25" step="0.5" value="9.0" oninput="onModelChange()">
       </div>
       <div class="control-group">
         <div class="control-label-row">
-          <span class="control-label-title">แรงดันคัตออฟ Pinch-off V<sub>P</sub> (V)</span>
+          <span class="control-label-title" id="lbl-param-3">แรงดันคัตออฟ Pinch-off V<sub>P</sub> (V)</span>
           <span class="control-value-badge" id="vp-badge">-4.0 V</span>
         </div>
         <input type="range" id="slider-vp" min="-8.0" max="-1.0" step="0.2" value="-4.0" oninput="onModelChange()">
@@ -598,8 +598,8 @@ const FET_DEVICES = {
   '2N3819': { type: 'JFET', idss: 12.0, vp: -3.5, rd: 40.0, label: '2N3819 N-JFET' },
   'BF245B': { type: 'JFET', idss: 10.0, vp: -2.7, rd: 60.0, label: 'BF245B N-JFET' },
   'MPF102': { type: 'JFET', idss: 15.0, vp: -5.0, rd: 35.0, label: 'MPF102 N-JFET' },
-  '2N7000': { type: 'EMOS', vth: 2.0, k: 0.12, rd: 40.0, label: '2N7000 N-EMOS' },
-  'BS170':  { type: 'EMOS', vth: 2.1, k: 0.15, rd: 30.0, label: 'BS170 N-EMOS' }
+  '2N7000': { type: 'EMOS', vth: 2.0, k: 1.20, rd: 40.0, label: '2N7000 N-EMOS' },
+  'BS170':  { type: 'EMOS', vth: 2.1, k: 1.50, rd: 30.0, label: 'BS170 N-EMOS' }
 };
 
 /* ================================================================= */
@@ -668,15 +668,31 @@ function onModelChange() {
   state.model.type = dev.type;
   state.model.rd = dev.rd;
 
-  const isJfet = dev.type === 'JFET';
+  const isJfet = (dev.type === 'JFET');
   const vgsSlider = document.getElementById('slider-vgs-q');
+  const idssSlider = document.getElementById('slider-idss');
+  const vpSlider = document.getElementById('slider-vp');
+  const lblParam2 = document.getElementById('lbl-param-2');
+  const lblParam3 = document.getElementById('lbl-param-3');
 
   if (isJfet) {
-    state.model.idss = parseFloat(document.getElementById('slider-idss').value);
-    state.model.vp = parseFloat(document.getElementById('slider-vp').value);
+    if (lblParam2) lblParam2.innerHTML = 'กระแสอิ่มตัว I<sub>DSS</sub> (mA)';
+    if (lblParam3) lblParam3.innerHTML = 'แรงดันคัตออฟ Pinch-off V<sub>P</sub> (V)';
+
+    idssSlider.min = '2.0'; idssSlider.max = '25.0'; idssSlider.step = '0.5';
+    if (parseFloat(idssSlider.value) < 2.0 || parseFloat(idssSlider.value) > 25.0) idssSlider.value = dev.idss;
+    vpSlider.min = '-8.0'; vpSlider.max = '-1.0'; vpSlider.step = '0.1';
+    if (parseFloat(vpSlider.value) < -8.0 || parseFloat(vpSlider.value) > -1.0) vpSlider.value = dev.vp;
+
+    state.model.idss = parseFloat(idssSlider.value);
+    state.model.vp = parseFloat(vpSlider.value);
+
     vgsSlider.min = state.model.vp.toFixed(1);
     vgsSlider.max = '0.0';
-    if (parseFloat(vgsSlider.value) < state.model.vp) vgsSlider.value = (state.model.vp / 2).toFixed(2);
+    vgsSlider.step = '0.05';
+    if (parseFloat(vgsSlider.value) < state.model.vp || parseFloat(vgsSlider.value) > 0) {
+      vgsSlider.value = (state.model.vp / 2).toFixed(2);
+    }
     state.model.vgs_q = parseFloat(vgsSlider.value);
 
     document.getElementById('idss-badge').textContent = state.model.idss.toFixed(1) + ' mA';
@@ -702,23 +718,45 @@ function onModelChange() {
 
   } else {
     // E-MOSFET:
-    state.model.vth = dev.vth;
-    state.model.k = dev.k;
+    if (lblParam2) lblParam2.innerHTML = 'พารามิเตอร์การนำกระแส k (mA/V²)';
+    if (lblParam3) lblParam3.innerHTML = 'แรงดันขีดเริ่ม Threshold Voltage V<sub>TH</sub> (V)';
+
+    idssSlider.min = '0.2'; idssSlider.max = '4.0'; idssSlider.step = '0.1';
+    if (parseFloat(idssSlider.value) < 0.2 || parseFloat(idssSlider.value) > 4.0) idssSlider.value = dev.k;
+    vpSlider.min = '1.0'; vpSlider.max = '5.0'; vpSlider.step = '0.1';
+    if (parseFloat(vpSlider.value) < 1.0 || parseFloat(vpSlider.value) > 5.0) vpSlider.value = dev.vth;
+
+    state.model.k = parseFloat(idssSlider.value);
+    state.model.vth = parseFloat(vpSlider.value);
+
     vgsSlider.min = '0.0';
     vgsSlider.max = '8.0';
-    if (parseFloat(vgsSlider.value) < state.model.vth) vgsSlider.value = (state.model.vth + 1.5).toFixed(2);
+    vgsSlider.step = '0.05';
+    if (parseFloat(vgsSlider.value) < 0 || parseFloat(vgsSlider.value) > 8.0) {
+      vgsSlider.value = (state.model.vth + 1.5).toFixed(2);
+    }
     state.model.vgs_q = parseFloat(vgsSlider.value);
 
+    document.getElementById('idss-badge').textContent = state.model.k.toFixed(2) + ' mA/V²';
+    document.getElementById('vp-badge').textContent = state.model.vth.toFixed(1) + ' V (V_th)';
     document.getElementById('vgs-q-badge').textContent = state.model.vgs_q.toFixed(2) + ' V';
     document.getElementById('fet-model-title').textContent = `${dev.label} Transfer Curve (Enhancement Mode)`;
 
-    const gm = 2 * state.model.k * Math.max(0, state.model.vgs_q - state.model.vth);
-    const id_q = state.model.k * Math.pow(Math.max(0, state.model.vgs_q - state.model.vth), 2);
+    const vgs_eff = Math.max(0, state.model.vgs_q - state.model.vth);
+    const gm = 2 * state.model.k * vgs_eff;
+    const id_q = state.model.k * Math.pow(vgs_eff, 2);
 
-    document.getElementById('mod-gm-val').innerHTML = `${(gm*10).toFixed(2)} <span class="readout-unit">mS</span>`;
-    document.getElementById('mod-id-val').innerHTML = `${(id_q*10).toFixed(2)} <span class="readout-unit">mA</span>`;
+    document.getElementById('mod-gm-val').innerHTML = `${gm.toFixed(2)} <span class="readout-unit">mS</span>`;
+    document.getElementById('mod-id-val').innerHTML = `${id_q.toFixed(2)} <span class="readout-unit">mA</span>`;
     document.getElementById('mod-gm0-val').innerHTML = `— <span class="readout-unit">(E-MOS)</span>`;
     document.getElementById('mod-rd-val').innerHTML = `${state.model.rd.toFixed(1)} <span class="readout-unit">kΩ</span>`;
+
+    document.getElementById('model-theory-box').innerHTML = 
+      `<strong>E-MOSFET Small-Signal Parameters (Square-Law Equation):</strong><br>` +
+      `• <strong>สมการกระแสเดรน (Enhancement Mode):</strong> I<sub>D</sub> = k · (V<sub>GS</sub> − V<sub>TH</sub>)<sup>2</sup> (เมื่อ V<sub>GS</sub> ≥ V<sub>TH</sub>)<br>` +
+      `• <strong>I<sub>D(Q)</sub></strong> = ${state.model.k.toFixed(2)} mA/V² · (${state.model.vgs_q.toFixed(2)} − ${state.model.vth.toFixed(1)})<sup>2</sup> = <strong>${id_q.toFixed(2)} mA</strong><br>` +
+      `• <strong>Transconductance g<sub>m</sub></strong> = dI<sub>D</sub>/dV<sub>GS</sub> = 2 · k · (V<sub>GS</sub> − V<sub>TH</sub>) = 2 × ${state.model.k.toFixed(2)} × (${state.model.vgs_q.toFixed(2)} − ${state.model.vth.toFixed(1)}) = <strong>${gm.toFixed(2)} mS (mA/V)</strong><br>` +
+      `• <strong>Output Resistance r<sub>d</sub></strong> = <strong>${state.model.rd.toFixed(1)} kΩ</strong> (ความชันเส้นลักษณะสมบัติเอาต์พุต)`;
   }
 
   drawTransferCurve();
@@ -730,7 +768,7 @@ function drawTransferCurve() {
   transCtx.clearRect(0, 0, W, H);
   transCtx.fillStyle = '#050b14'; transCtx.fillRect(0, 0, W, H);
 
-  const isJfet = state.model.type === 'JFET';
+  const isJfet = (state.model.type === 'JFET');
   const mx = 60, my = 25, pw = W - mx - 40, ph = H - my - 45;
 
   // Grid
@@ -765,7 +803,7 @@ function drawTransferCurve() {
     transCtx.fillText('0V', zeroX, my + ph + 14);
 
     // Ticks
-    transCtx.fillText(`${vp}V (V_P)`, mx + ((vp - minV) / (maxV - minV)) * pw, my + ph + 14);
+    transCtx.fillText(`${vp.toFixed(1)}V (V_P)`, mx + ((vp - minV) / (maxV - minV)) * pw, my + ph + 14);
     transCtx.textAlign = 'right';
     transCtx.fillText(`${idss.toFixed(1)} (I_DSS)`, mx - 6, my + ph - (idss / maxI) * ph + 3);
 
@@ -808,8 +846,96 @@ function drawTransferCurve() {
     // Q-Point Text
     transCtx.fillStyle = '#10b981'; transCtx.font = 'bold 11px JetBrains Mono'; transCtx.textAlign = 'left';
     transCtx.fillText(`Q (${vgs_q.toFixed(2)}V, ${id_q.toFixed(2)}mA) → g_m=${gm.toFixed(2)}mS`, qx + 12, qy - 6);
+
+  } else {
+    // E-MOSFET Enhancement Transfer Curve
+    const k = state.model.k;
+    const vth = state.model.vth;
+    const vgs_q = state.model.vgs_q;
+    const minV = 0.0, maxV = 8.0;
+    const maxI_calc = k * Math.pow(Math.max(0, maxV - vth), 2);
+    const maxI = Math.max(6.0, maxI_calc * 1.15);
+
+    // V_TH Threshold Voltage Vertical Dashed Line
+    const vthX = mx + ((vth - minV) / (maxV - minV)) * pw;
+    transCtx.strokeStyle = '#f43f5e'; transCtx.lineWidth = 1.5; transCtx.setLineDash([4, 4]);
+    transCtx.beginPath(); transCtx.moveTo(vthX, my); transCtx.lineTo(vthX, my+ph); transCtx.stroke();
+    transCtx.setLineDash([]);
+
+    // Ticks & Labels
+    transCtx.fillStyle = '#f43f5e'; transCtx.font = 'bold 10px JetBrains Mono'; transCtx.textAlign = 'center';
+    transCtx.fillText(`V_TH (+${vth.toFixed(1)}V)`, vthX, my + ph + 14);
+
+    transCtx.fillStyle = '#94a3b8';
+    transCtx.fillText('0V', mx, my + ph + 14);
+    transCtx.fillText('+8V', mx + pw, my + ph + 14);
+
+    transCtx.textAlign = 'right';
+    transCtx.fillText(`${maxI_calc.toFixed(1)} mA`, mx - 6, my + 10);
+    transCtx.fillText('0 mA', mx - 6, my + ph + 3);
+
+    // Annotation for Cutoff Zone
+    transCtx.font = '9px Sarabun'; transCtx.fillStyle = '#64748b'; transCtx.textAlign = 'center';
+    if (vth > 1.2) {
+      transCtx.fillText('ย่านตัดกระแส (Cutoff)', mx + (vthX - mx)/2, my + ph - 15);
+      transCtx.fillText('I_D = 0', mx + (vthX - mx)/2, my + ph - 30);
+    }
+
+    // Transfer Curve: I_D = k * (V_GS - V_TH)^2
+    transCtx.strokeStyle = '#a855f7'; transCtx.lineWidth = 3.5;
+    transCtx.beginPath();
+    // Flat cutoff segment (0 to V_TH)
+    transCtx.moveTo(mx, my + ph);
+    transCtx.lineTo(vthX, my + ph);
+
+    // Parabolic enhancement segment (V_TH to maxV)
+    for (let v = vth; v <= maxV; v += 0.05) {
+      const id = k * Math.pow(v - vth, 2);
+      const x = mx + ((v - minV) / (maxV - minV)) * pw;
+      const y = my + ph - (id / maxI) * ph;
+      transCtx.lineTo(x, y);
+    }
+    transCtx.stroke();
+
+    // Q-Point
+    const vgs_eff = Math.max(0, vgs_q - vth);
+    const id_q = k * Math.pow(vgs_eff, 2);
+    const gm = 2 * k * vgs_eff;
+    const qx = mx + ((vgs_q - minV) / (maxV - minV)) * pw;
+    const qy = my + ph - (id_q / maxI) * ph;
+
+    // Tangent Line through Q-Point
+    if (vgs_q >= vth && gm > 0.05) {
+      const dV = 1.0;
+      const x1 = mx + ((Math.max(vth, vgs_q - dV) - minV) / (maxV - minV)) * pw;
+      const y1 = my + ph - (Math.max(0, id_q - gm * dV) / maxI) * ph;
+      const x2 = mx + ((Math.min(maxV, vgs_q + dV) - minV) / (maxV - minV)) * pw;
+      const y2 = my + ph - ((id_q + gm * dV) / maxI) * ph;
+
+      transCtx.strokeStyle = '#f59e0b'; transCtx.lineWidth = 2; transCtx.setLineDash([6, 3]);
+      transCtx.beginPath(); transCtx.moveTo(x1, y1); transCtx.lineTo(x2, y2); transCtx.stroke();
+      transCtx.setLineDash([]);
+    }
+
+    // Q-Point Dot
+    transCtx.shadowColor = '#10b981'; transCtx.shadowBlur = 14;
+    transCtx.beginPath(); transCtx.arc(qx, qy, 7, 0, Math.PI*2);
+    transCtx.fillStyle = '#10b981'; transCtx.fill();
+    transCtx.shadowBlur = 0;
+    transCtx.strokeStyle = '#ffffff'; transCtx.lineWidth = 2; transCtx.stroke();
+
+    // Q-Point Text
+    transCtx.fillStyle = '#10b981'; transCtx.font = 'bold 11px JetBrains Mono';
+    if (qx > mx + pw - 180) {
+      transCtx.textAlign = 'right';
+      transCtx.fillText(`Q (${vgs_q.toFixed(2)}V, ${id_q.toFixed(2)}mA) → g_m=${gm.toFixed(2)}mS`, qx - 12, qy - 8);
+    } else {
+      transCtx.textAlign = 'left';
+      transCtx.fillText(`Q (${vgs_q.toFixed(2)}V, ${id_q.toFixed(2)}mA) → g_m=${gm.toFixed(2)}mS`, qx + 12, qy - 8);
+    }
   }
 }
+
 
 function drawAcModelCanvas() {
   const W = acModCanvas.width, H = acModCanvas.height;
