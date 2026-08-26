@@ -2431,7 +2431,7 @@
         icon.style.background = 'rgba(245,158,11,0.2)';
         icon.style.color = '#f59e0b';
         icon.innerHTML = '<i class="fa-solid fa-fire"></i>';
-        text.innerHTML = `<strong>🟡 การต่อวัตต์มิเตอร์ (Wattmeter / Power Probe):</strong> ต่อวัดทั้ง <u>ขดลวดกระแส (อนุกรม)</u> และ <u>ขดลวดแรงดัน (ขนาน)</u> เพื่อคำนวณกำลังไฟฟ้า $P = V \times I = I^2 R$ ที่โหลดแต่ละตัวสูญเสียในรูปความร้อน`;
+        text.innerHTML = `<strong>🟡 การต่อวัตต์มิเตอร์ (Wattmeter / Power Probe):</strong> ต่อวัดทั้ง <u>ขดลวดกระแส (อนุกรม)</u> และ <u>ขดลวดแรงดัน (ขนาน)</u> เพื่อคำนวณกำลังไฟฟ้า $P = V \\times I = I^2 R$ ที่โหลดแต่ละตัวสูญเสียในรูปความร้อน`;
       } else if (mMode === 'ohm') {
         icon.style.background = 'rgba(16,185,129,0.2)';
         icon.style.color = '#10b981';
@@ -2659,7 +2659,7 @@
       `;
     }
 
-    // DRAW PARALLEL SVG
+// DRAW PARALLEL SVG
     function drawParallelSVG(vs, rVals, iTotal, mMode, mTarget) {
       const svg = document.getElementById('circuit-live-svg');
       const isOhmMode = (mMode === 'ohm');
@@ -2746,28 +2746,36 @@
           `;
         }
       } else if (mMode === 'watt') {
-        let pVal = (p1 * 1000).toFixed(1), lbl = 'วัตต์มิเตอร์ (PR1)', cx = 130;
-        if (mTarget === 'r2') { pVal = (p2 * 1000).toFixed(1); lbl = 'วัตต์มิเตอร์ (PR2)'; cx = 285; }
-        else if (mTarget === 'r3') { pVal = (p3 * 1000).toFixed(1); lbl = 'วัตต์มิเตอร์ (PR3)'; cx = 445; }
-        else if (mTarget === 'total') { pVal = (vs * iTotal >= 1) ? (vs * iTotal).toFixed(2) : (vs * iTotal * 1000).toFixed(1); lbl = 'วัตต์มิเตอร์รวม (P_total)'; cx = 610; }
+        let pVal = (p1 * 1000).toFixed(1), lbl = 'วัตต์มิเตอร์ (PR1)', cx = 130, targetX = b1X;
+        if (mTarget === 'r2') { pVal = (p2 * 1000).toFixed(1); lbl = 'วัตต์มิเตอร์ (PR2)'; cx = 285; targetX = b2X; }
+        else if (mTarget === 'r3') { pVal = (p3 * 1000).toFixed(1); lbl = 'วัตต์มิเตอร์ (PR3)'; cx = 445; targetX = b3X; }
+        else if (mTarget === 'total') { pVal = (vs * iTotal >= 1) ? (vs * iTotal).toFixed(2) : (vs * iTotal * 1000).toFixed(1); lbl = 'วัตต์มิเตอร์รวม (P_total)'; cx = 610; targetX = b3X; }
 
         meterOverlayHtml = `
           ${drawMeterDMM(cx, 140, 'watt', pVal, 'mW', lbl)}
+          <path d="M ${cx-30} 166 L ${cx-30} 100 L ${targetX} 100" stroke="#f59e0b" stroke-width="2.5" fill="none" stroke-dasharray="3"/>
+          <path d="M ${cx+30} 166 L ${cx+30} 190 L ${targetX} 190" stroke="#64748b" stroke-width="2.5" fill="none" stroke-dasharray="3"/>
+          <circle cx="${targetX}" cy="100" r="5" fill="#f59e0b" stroke="#fff" stroke-width="1.2"/>
+          <circle cx="${targetX}" cy="190" r="5" fill="#64748b" stroke="#fff" stroke-width="1.2"/>
         `;
       } else if (mMode === 'ohm') {
-        let rVal = (r1 >= 1000) ? (r1/1000).toFixed(2) : r1.toFixed(1), rUnit = (r1 >= 1000) ? 'kΩ' : 'Ω', lbl = 'โอห์มมิเตอร์ (R1)', cx = 130;
-        if (mTarget === 'r2') { rVal = (r2 >= 1000) ? (r2/1000).toFixed(2) : r2.toFixed(1); rUnit = (r2 >= 1000) ? 'kΩ' : 'Ω'; lbl = 'โอห์มมิเตอร์ (R2)'; cx = 285; }
-        else if (mTarget === 'r3') { rVal = (r3 >= 1000) ? (r3/1000).toFixed(2) : r3.toFixed(1); rUnit = (r3 >= 1000) ? 'kΩ' : 'Ω'; lbl = 'โอห์มมิเตอร์ (R3)'; cx = 445; }
+        let rVal = (r1 >= 1000) ? (r1/1000).toFixed(2) : r1.toFixed(1), rUnit = (r1 >= 1000) ? 'kΩ' : 'Ω', lbl = 'โอห์มมิเตอร์ (R1)', cx = 130, targetX = b1X;
+        if (mTarget === 'r2') { rVal = (r2 >= 1000) ? (r2/1000).toFixed(2) : r2.toFixed(1); rUnit = (r2 >= 1000) ? 'kΩ' : 'Ω'; lbl = 'โอห์มมิเตอร์ (R2)'; cx = 285; targetX = b2X; }
+        else if (mTarget === 'r3') { rVal = (r3 >= 1000) ? (r3/1000).toFixed(2) : r3.toFixed(1); rUnit = (r3 >= 1000) ? 'kΩ' : 'Ω'; lbl = 'โอห์มมิเตอร์ (R3)'; cx = 445; targetX = b3X; }
         else if (mTarget === 'total') {
           const rTot = 1 / ((1/r1) + (1/r2) + (1/r3));
           rVal = (rTot >= 1000) ? (rTot/1000).toFixed(2) : rTot.toFixed(1);
           rUnit = (rTot >= 1000) ? 'kΩ' : 'Ω';
           lbl = 'โอห์มมิเตอร์ (R_total ขนานรวม)';
-          cx = 610;
+          cx = 610; targetX = b3X;
         }
 
         meterOverlayHtml = `
           ${drawMeterDMM(cx, 140, 'ohm', rVal, rUnit, lbl)}
+          <path d="M ${cx-30} 166 L ${cx-30} 100 L ${targetX} 100" stroke="#10b981" stroke-width="2.5" fill="none" stroke-dasharray="4"/>
+          <path d="M ${cx+30} 166 L ${cx+30} 190 L ${targetX} 190" stroke="#64748b" stroke-width="2.5" fill="none" stroke-dasharray="4"/>
+          <circle cx="${targetX}" cy="100" r="5" fill="#10b981" stroke="#fff" stroke-width="1.5"/>
+          <circle cx="${targetX}" cy="190" r="5" fill="#64748b" stroke="#fff" stroke-width="1.5"/>
         `;
       }
 
@@ -2814,7 +2822,7 @@
       `;
     }
 
-    // DRAW MIXED SVG
+// DRAW MIXED SVG
     function drawMixedSVG(vs, r1, r2, r3, r4, iTotal, mMode, mTarget) {
       const svg = document.getElementById('circuit-live-svg');
       const isOhmMode = (mMode === 'ohm');
@@ -2910,29 +2918,37 @@
           `;
         }
       } else if (mMode === 'watt') {
-        let pVal = (v1 * iTotal * 1000).toFixed(1), lbl = 'วัตต์มิเตอร์ (PR1)', cx = 145;
-        if (mTarget === 'r2') { pVal = (vp * i2 * 1000).toFixed(1); lbl = 'วัตต์มิเตอร์ (PR2)'; cx = 350; }
-        else if (mTarget === 'r3') { pVal = (vp * i3 * 1000).toFixed(1); lbl = 'วัตต์มิเตอร์ (PR3)'; cx = 350; }
-        else if (mTarget === 'r4') { pVal = (v4 * iTotal * 1000).toFixed(1); lbl = 'วัตต์มิเตอร์ (PR4)'; cx = 555; }
-        else if (mTarget === 'total') { pVal = (vs * iTotal * 1000).toFixed(1); lbl = 'วัตต์มิเตอร์รวม (P_total)'; cx = 350; }
+        let pVal = (v1 * iTotal * 1000).toFixed(1), lbl = 'วัตต์มิเตอร์ (PR1)', cx = 145, pA = r1X - 35, pB = r1X + 35, lineY = topY;
+        if (mTarget === 'r2') { pVal = (vp * i2 * 1000).toFixed(1); lbl = 'วัตต์มิเตอร์ (PR2)'; cx = 350; pA = 310; pB = 390; lineY = r2Y; }
+        else if (mTarget === 'r3') { pVal = (vp * i3 * 1000).toFixed(1); lbl = 'วัตต์มิเตอร์ (PR3)'; cx = 350; pA = 310; pB = 390; lineY = r3Y; }
+        else if (mTarget === 'r4') { pVal = (v4 * iTotal * 1000).toFixed(1); lbl = 'วัตต์มิเตอร์ (PR4)'; cx = 555; pA = r4X - 35; pB = r4X + 35; lineY = topY; }
+        else if (mTarget === 'total') { pVal = (vs * iTotal * 1000).toFixed(1); lbl = 'วัตต์มิเตอร์รวม (P_total)'; cx = 350; pA = srcX; pB = rightX; lineY = topY; }
 
         meterOverlayHtml = `
           ${drawMeterDMM(cx, 160, 'watt', pVal, 'mW', lbl)}
+          <path d="M ${cx-30} 186 L ${cx-30} 195 L ${pA} 195 L ${pA} ${lineY}" stroke="#f59e0b" stroke-width="2.5" fill="none" stroke-dasharray="3"/>
+          <path d="M ${cx+30} 186 L ${cx+30} 195 L ${pB} 195 L ${pB} ${lineY}" stroke="#64748b" stroke-width="2.5" fill="none" stroke-dasharray="3"/>
+          <circle cx="${pA}" cy="${lineY}" r="5" fill="#f59e0b" stroke="#fff" stroke-width="1.2"/>
+          <circle cx="${pB}" cy="${lineY}" r="5" fill="#64748b" stroke="#fff" stroke-width="1.2"/>
         `;
       } else if (mMode === 'ohm') {
-        let rVal = (r1 >= 1000) ? (r1/1000).toFixed(2) : r1.toFixed(1), rUnit = (r1 >= 1000) ? 'kΩ' : 'Ω', lbl = 'โอห์มมิเตอร์ (R1)', cx = 145;
-        if (mTarget === 'r23') { rVal = (rp >= 1000) ? (rp/1000).toFixed(2) : rp.toFixed(1); rUnit = (rp >= 1000) ? 'kΩ' : 'Ω'; lbl = 'โอห์มมิเตอร์ (R2//R3)'; cx = 350; }
-        else if (mTarget === 'r4') { rVal = (r4 >= 1000) ? (r4/1000).toFixed(2) : r4.toFixed(1); rUnit = (r4 >= 1000) ? 'kΩ' : 'Ω'; lbl = 'โอห์มมิเตอร์ (R4)'; cx = 555; }
+        let rVal = (r1 >= 1000) ? (r1/1000).toFixed(2) : r1.toFixed(1), rUnit = (r1 >= 1000) ? 'kΩ' : 'Ω', lbl = 'โอห์มมิเตอร์ (R1)', cx = 145, pA = r1X - 35, pB = r1X + 35, lineY = topY;
+        if (mTarget === 'r23') { rVal = (rp >= 1000) ? (rp/1000).toFixed(2) : rp.toFixed(1); rUnit = (rp >= 1000) ? 'kΩ' : 'Ω'; lbl = 'โอห์มมิเตอร์ (R2//R3)'; cx = 350; pA = paraLeftX; pB = paraRightX; lineY = topY; }
+        else if (mTarget === 'r4') { rVal = (r4 >= 1000) ? (r4/1000).toFixed(2) : r4.toFixed(1); rUnit = (r4 >= 1000) ? 'kΩ' : 'Ω'; lbl = 'โอห์มมิเตอร์ (R4)'; cx = 555; pA = r4X - 35; pB = r4X + 35; lineY = topY; }
         else if (mTarget === 'total') {
           const rTot = r1 + rp + r4;
           rVal = (rTot >= 1000) ? (rTot/1000).toFixed(2) : rTot.toFixed(1);
           rUnit = (rTot >= 1000) ? 'kΩ' : 'Ω';
           lbl = 'โอห์มมิเตอร์ (R_total รวมผสม)';
-          cx = 350;
+          cx = 350; pA = srcX; pB = rightX; lineY = topY;
         }
 
         meterOverlayHtml = `
           ${drawMeterDMM(cx, 160, 'ohm', rVal, rUnit, lbl)}
+          <path d="M ${cx-30} 186 L ${cx-30} 195 L ${pA} 195 L ${pA} ${lineY}" stroke="#10b981" stroke-width="2.5" fill="none" stroke-dasharray="4"/>
+          <path d="M ${cx+30} 186 L ${cx+30} 195 L ${pB} 195 L ${pB} ${lineY}" stroke="#64748b" stroke-width="2.5" fill="none" stroke-dasharray="4"/>
+          <circle cx="${pA}" cy="${lineY}" r="5" fill="#10b981" stroke="#fff" stroke-width="1.5"/>
+          <circle cx="${pB}" cy="${lineY}" r="5" fill="#64748b" stroke="#fff" stroke-width="1.5"/>
         `;
       }
 
