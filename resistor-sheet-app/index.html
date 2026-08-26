@@ -1480,7 +1480,7 @@
 
             <div style="text-align:center;">
               <label style="font-size:0.8rem; color:var(--text-secondary); display:block; margin-bottom:0.4rem;">สภาวะตัวต้านทานที่นำมาวัด:</label>
-              <select id="dmm-test-condition" onchange="updateDmmMeasurement()" style="background:rgba(15,23,42,0.9);">
+              <select id="dmm-test-condition" onchange="onPowerSimulationChange()" style="background:rgba(15,23,42,0.9);">
                 <option value="good">ตัวต้านทานปกติ (อยู่ในพิกัดความคลาดเคลื่อน)</option>
                 <option value="open">ตัวต้านทานขาด (Open Circuit / O.L)</option>
                 <option value="short">ตัวต้านทานช็อตลัดวงจร (0.00 Ω)</option>
@@ -3186,12 +3186,21 @@
       const pRating = parseFloat(document.getElementById('power-resistor-rating').value) || 0.25;
       const v = parseFloat(document.getElementById('power-v-input').value) || 5;
       const r = parseFloat(document.getElementById('power-r-input').value) || 100;
+      const cond = document.getElementById('dmm-test-condition') ? document.getElementById('dmm-test-condition').value : 'good';
 
       document.getElementById('power-v-badge').textContent = v.toFixed(1) + ' V';
-      document.getElementById('power-r-badge').textContent = r + ' Ω';
+      document.getElementById('power-r-badge').textContent = formatOhms(r);
 
       // P = V^2 / R
-      const pActual = (v * v) / r;
+      let pActual = 0;
+      if (cond === 'open') {
+        pActual = 0; // Open circuit = no current = 0 W
+      } else if (cond === 'short') {
+        pActual = (v * v) / 0.1; // severe short circuit overload
+      } else {
+        pActual = (v * v) / r;
+      }
+
       document.getElementById('actual-power-val').textContent = (pActual >= 1) ? pActual.toFixed(2) + ' W' : (pActual * 1000).toFixed(1) + ' mW';
 
       const ratio = (pActual / pRating) * 100;
@@ -3199,12 +3208,25 @@
       fill.style.width = Math.min(ratio, 150) + '%';
 
       const badge = document.getElementById('thermal-status-badge');
-      if (ratio <= 75) {
+      if (cond === 'open') {
+        badge.className = 'status-badge';
+        badge.style.background = 'rgba(148, 163, 184, 0.2)';
+        badge.style.borderColor = '#94a3b8';
+        badge.style.color = '#cbd5e1';
+        badge.textContent = 'วงจรขาด (0 W / ไม่มีกระแส)';
+        fill.style.background = '#64748b';
+      } else if (ratio <= 75) {
         badge.className = 'status-badge connected';
+        badge.style.background = '';
+        badge.style.borderColor = '';
+        badge.style.color = '';
         badge.textContent = 'ปกติ (Safe)';
         fill.style.background = '#10b981';
       } else if (ratio <= 100) {
         badge.className = 'status-badge';
+        badge.style.background = 'rgba(245, 158, 11, 0.15)';
+        badge.style.borderColor = 'rgba(245, 158, 11, 0.3)';
+        badge.style.color = '#fbbf24';
         badge.textContent = 'อุ่นขึ้น (Warm)';
         fill.style.background = '#f59e0b';
       } else {
@@ -3216,16 +3238,23 @@
         fill.style.background = '#f43f5e';
         playSound('burn');
       }
+
+      // Synchronize DMM Ohmmeter reading with resistor value
+      updateDmmMeasurement(false);
     }
 
-    function updateDmmMeasurement() {
-      const cond = document.getElementById('dmm-test-condition').value;
+    function updateDmmMeasurement(withSound = true) {
+      const cond = document.getElementById('dmm-test-condition') ? document.getElementById('dmm-test-condition').value : 'good';
       const valEl = document.getElementById('dmm-reading-val');
       const unitEl = document.getElementById('dmm-reading-unit');
+      const rInput = document.getElementById('power-r-input');
+      const nominal = rInput ? (parseFloat(rInput.value) || 100) : 100;
+
+      if (!valEl || !unitEl) return;
 
       if (cond === 'good') {
-        const nominal = state.colorApp.resistanceValue || 1000;
-        const jitter = (Math.random() * 0.02 - 0.01) * nominal;
+        // Slight realistic measurement jitter (+0.1% to +0.2%)
+        const jitter = (Math.sin(nominal * 0.05) * 0.002) * nominal;
         const actual = nominal + jitter;
         if (actual >= 1000000) {
           valEl.textContent = (actual / 1000000).toFixed(3);
@@ -3234,7 +3263,7 @@
           valEl.textContent = (actual / 1000).toFixed(3);
           unitEl.textContent = 'kΩ';
         } else {
-          valEl.textContent = actual.toFixed(2);
+          valEl.textContent = actual.toFixed(1);
           unitEl.textContent = 'Ω';
         }
       } else if (cond === 'open') {
@@ -3244,7 +3273,10 @@
         valEl.textContent = '0.00';
         unitEl.textContent = 'Ω';
       }
-      playSound('click');
+
+      if (withSound) {
+        playSound('click');
+      }
     }
 
     /* ================================================================= */
