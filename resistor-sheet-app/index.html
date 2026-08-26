@@ -1296,7 +1296,7 @@
             <ul style="padding-left:1.2rem; line-height:1.6;">
               <li><strong>โวลต์มิเตอร์ (V):</strong> ต่อแบบ <em>ขนาน (Parallel)</em> คร่อมจุดที่ต้องการวัด (ความต้านทานภายในมิเตอร์สูงมาก)</li>
               <li><strong>แอมมิเตอร์ (A):</strong> ต่อแบบ <em>อนุกรม (Series)</em> ตัดสายแล้วต่อแทรก (ความต้านทานภายในต่ำมาก ห้ามต่อขนานเด็ดขาด)</li>
-              <li><strong>วัตต์มิเตอร์ (W):</strong> ต่อทั้ง <em>ขดลวดกระแส (อนุกรม)</em> และ <em>ขดลวดแรงดัน (ขนาน)</em> คำนวณ $P = V \times I$</li>
+              <li><strong>วัตต์มิเตอร์ (W):</strong> ต่อทั้ง <em>ขดลวดกระแส (อนุกรม)</em> และ <em>ขดลวดแรงดัน (ขนาน)</em> คำนวณ $P = V \\times I$</li>
               <li><strong>โอห์มมิเตอร์ (Ω):</strong> <em>ต้องปลดแหล่งจ่ายไฟออกก่อนเสมอ</em> แล้วนำสายวัดต่อคร่อมตัวต้านทาน</li>
             </ul>
           </div>
@@ -1438,7 +1438,7 @@
           </div>
 
           <div style="background:rgba(0,0,0,0.25); border-radius:10px; padding:0.85rem; font-size:0.82rem; color:var(--text-secondary);">
-            <strong>💡 ทฤษฎีสำคัญ:</strong> เมื่อไม่มีโหลด $V_{out} = V_{in} \times \frac{R_2}{R_1 + R_2}$ แต่เมื่อต่อโหลด $R_L$ ขนานกับ $R_2$ แรงดันขาออกจะตกลงเนื่องจากความต้านทานสมมูลลดลง เรียกว่า <em>Loading Effect</em>
+            <strong>💡 ทฤษฎีสำคัญ:</strong> เมื่อไม่มีโหลด $V_{out} = V_{in} \\times \\frac{R_2}{R_1 + R_2}$ แต่เมื่อต่อโหลด $R_L$ ขนานกับ $R_2$ แรงดันขาออกจะตกลงเนื่องจากความต้านทานสมมูลลดลง เรียกว่า <em>Loading Effect</em>
           </div>
 
         </div>
@@ -2037,17 +2037,17 @@
     }
 
     function formatOhms(ohms) {
-      if (ohms >= 1e9) return (ohms / 1e9).toFixed(2).replace(/\.00$/, '') + ' GΩ';
-      if (ohms >= 1e6) return (ohms / 1e6).toFixed(2).replace(/\.00$/, '') + ' MΩ';
-      if (ohms >= 1e3) return (ohms / 1e3).toFixed(2).replace(/\.00$/, '') + ' kΩ';
-      return ohms.toFixed(2).replace(/\.00$/, '') + ' Ω';
+      if (ohms >= 1e9) return (ohms / 1e9).toFixed(2).replace(/\\.00$/, '') + ' GΩ';
+      if (ohms >= 1e6) return (ohms / 1e6).toFixed(2).replace(/\\.00$/, '') + ' MΩ';
+      if (ohms >= 1e3) return (ohms / 1e3).toFixed(2).replace(/\\.00$/, '') + ' kΩ';
+      return ohms.toFixed(2).replace(/\\.00$/, '') + ' Ω';
     }
 
     function convertValueToColors() {
       const input = document.getElementById('resistance-input').value.trim();
       if (!input) return;
 
-      let clean = input.toUpperCase().replace(/\s+/g, '');
+      let clean = input.toUpperCase().replace(/\\s+/g, '');
       let multiplier = 1;
       if (clean.includes('K')) {
         const parts = clean.split('K');
@@ -2070,7 +2070,7 @@
 
       setBandCount(4, false);
       const str = val.toExponential();
-      const match = str.match(/^([0-9\.]+)e([+-]?[0-9]+)$/);
+      const match = str.match(/^([0-9\\.]+)e([+-]?[0-9]+)$/);
       if (match) {
         let sig = parseFloat(match[1]).toFixed(1);
         let exp = parseInt(match[2]);
@@ -2102,13 +2102,13 @@
       let explanation = '';
       let ohms = 0;
 
-      if (/^\d{3}$/.test(code)) {
+      if (/^\\d{3}$/.test(code)) {
         const d1 = parseInt(code[0]);
         const d2 = parseInt(code[1]);
         const exp = parseInt(code[2]);
         ohms = (d1 * 10 + d2) * Math.pow(10, exp);
         explanation = `<strong>รหัส 3 หลัก (Standard 5%):</strong> ตัวเลข ${d1}${d2} × 10<sup>${exp}</sup> = <strong>${formatOhms(ohms)}</strong>`;
-      } else if (/^\d{4}$/.test(code)) {
+      } else if (/^\\d{4}$/.test(code)) {
         const d1 = parseInt(code[0]);
         const d2 = parseInt(code[1]);
         const d3 = parseInt(code[2]);
@@ -2171,62 +2171,90 @@
         return;
       }
       bar.style.display = 'flex';
-      bar.innerHTML = '<span style="font-size:0.75rem; color:var(--text-muted); margin-right:0.25rem;"><i class="fa-solid fa-crosshairs"></i> จุดวัด:</span>';
+      bar.innerHTML = '<span style="font-size:0.75rem; color:var(--text-muted); margin-right:0.25rem;"><i class="fa-solid fa-crosshairs"></i> เลือกจุดต่อมิเตอร์:</span>';
 
       let targets = [];
-      if (mMode === 'volt' || mMode === 'watt') {
-        if (cMode === 'series' || cMode === 'parallel') {
+      if (mMode === 'volt') {
+        if (cMode === 'series') {
           targets = [
-            { key: 'total', label: 'ทั้งวงจร (Total / Vs)' },
-            { key: 'r1', label: 'คร่อม R1' },
-            { key: 'r2', label: 'คร่อม R2' },
-            { key: 'r3', label: 'คร่อม R3' }
+            { key: 'total', label: '1. คร่อมแหล่งจ่าย (Vs)' },
+            { key: 'r1', label: '2. คร่อม R1 (VR1)' },
+            { key: 'r2', label: '3. คร่อม R2 (VR2)' },
+            { key: 'r3', label: '4. คร่อม R3 (VR3)' }
+          ];
+        } else if (cMode === 'parallel') {
+          targets = [
+            { key: 'total', label: '1. คร่อมแหล่งจ่าย (Vs)' },
+            { key: 'r1', label: '2. คร่อมกิ่ง R1' },
+            { key: 'r2', label: '3. คร่อมกิ่ง R2' },
+            { key: 'r3', label: '4. คร่อมกิ่ง R3' }
           ];
         } else {
           targets = [
-            { key: 'total', label: 'ทั้งวงจร (Total / Vs)' },
-            { key: 'r1', label: 'คร่อม R1' },
-            { key: 'r2', label: 'คร่อม R2' },
-            { key: 'r3', label: 'คร่อม R3' },
-            { key: 'r4', label: 'คร่อม R4' }
+            { key: 'total', label: '1. คร่อมแหล่งจ่าย (Vs)' },
+            { key: 'r1', label: '2. คร่อม R1' },
+            { key: 'r2', label: '3. คร่อม R2//R3 (ส่วนขนาน)' },
+            { key: 'r4', label: '4. คร่อม R4' }
           ];
         }
       } else if (mMode === 'amp') {
         if (cMode === 'series') {
-          targets = [{ key: 'total', label: 'กระแสหลัก I_total (อนุกรมเท่ากันหมด)' }];
+          targets = [
+            { key: 'total_before_r1', label: '1. ตัดต่อก่อนเข้า R1' },
+            { key: 'r1_r2', label: '2. ตัดต่อระหว่าง R1-R2' },
+            { key: 'r2_r3', label: '3. ตัดต่อระหว่าง R2-R3' },
+            { key: 'return_wire', label: '4. ตัดต่อสายขากลับ (กราวด์)' }
+          ];
         } else if (cMode === 'parallel') {
           targets = [
-            { key: 'total', label: 'กระแสรวม I_total' },
-            { key: 'r1', label: 'กระแสกิ่ง I1' },
-            { key: 'r2', label: 'กระแสกิ่ง I2' },
-            { key: 'r3', label: 'กระแสกิ่ง I3' }
+            { key: 'total', label: '1. กระแสรวม I_total (สายหลัก)' },
+            { key: 'r1', label: '2. กิ่ง R1 (กระแส I1)' },
+            { key: 'r2', label: '3. กิ่ง R2 (กระแส I2)' },
+            { key: 'r3', label: '4. กิ่ง R3 (กระแส I3)' }
           ];
         } else {
           targets = [
-            { key: 'total', label: 'กระแสหลัก I_total' },
-            { key: 'r2', label: 'กระแสกิ่ง I_R2' },
-            { key: 'r3', label: 'กระแสกิ่ง I_R3' }
+            { key: 'total', label: '1. กระแสหลัก I_total (สายหน้า R1)' },
+            { key: 'r2', label: '2. กิ่งขนาน R2 (กระแส I_R2)' },
+            { key: 'r3', label: '3. กิ่งขนาน R3 (กระแส I_R3)' },
+            { key: 'r4', label: '4. สายหลังผ่าน R4' }
+          ];
+        }
+      } else if (mMode === 'watt') {
+        if (cMode === 'series' || cMode === 'parallel') {
+          targets = [
+            { key: 'total', label: '1. วัตต์รวมทั้งวงจร (P_total)' },
+            { key: 'r1', label: '2. กำลังไฟฟ้าที่ R1 (P1)' },
+            { key: 'r2', label: '3. กำลังไฟฟ้าที่ R2 (P2)' },
+            { key: 'r3', label: '4. กำลังไฟฟ้าที่ R3 (P3)' }
+          ];
+        } else {
+          targets = [
+            { key: 'total', label: '1. วัตต์รวมทั้งวงจร (P_total)' },
+            { key: 'r1', label: '2. วัตต์ที่ R1 (PR1)' },
+            { key: 'r2', label: '3. วัตต์ที่ R2 (PR2)' },
+            { key: 'r3', label: '4. วัตต์ที่ R3 (PR3)' },
+            { key: 'r4', label: '5. วัตต์ที่ R4 (PR4)' }
           ];
         }
       } else if (mMode === 'ohm') {
         if (cMode === 'series' || cMode === 'parallel') {
           targets = [
-            { key: 'total', label: 'วัดรวม R_total' },
-            { key: 'r1', label: 'วัดเฉพาะ R1' },
-            { key: 'r2', label: 'วัดเฉพาะ R2' },
-            { key: 'r3', label: 'วัดเฉพาะ R3' }
+            { key: 'total', label: '1. วัดรวมทั้งวงจร (R_total)' },
+            { key: 'r1', label: '2. วัดเฉพาะ R1' },
+            { key: 'r2', label: '3. วัดเฉพาะ R2' },
+            { key: 'r3', label: '4. วัดเฉพาะ R3' }
           ];
         } else {
           targets = [
-            { key: 'total', label: 'วัดรวม R_total' },
-            { key: 'r1', label: 'วัดเฉพาะ R1' },
-            { key: 'r23', label: 'วัดเฉพาะ R2//R3' },
-            { key: 'r4', label: 'วัดเฉพาะ R4' }
+            { key: 'total', label: '1. วัดรวมทั้งวงจร (R_total)' },
+            { key: 'r1', label: '2. วัดเฉพาะ R1' },
+            { key: 'r23', label: '3. วัดเฉพาะ R2//R3' },
+            { key: 'r4', label: '4. วัดเฉพาะ R4' }
           ];
         }
       }
 
-      // Check if current target is valid in new list
       if (!targets.some(t => t.key === state.circuit.meterTarget)) {
         state.circuit.meterTarget = targets[0]?.key || 'total';
       }
@@ -2413,7 +2441,7 @@
     }
 
     // =================================================================
-    // SVG SCHEMATICS & PROBE DRAWING ENGINE
+    // SVG SCHEMATICS & PROBE DRAWING ENGINE (PERFECT PROPORTIONS)
     // =================================================================
 
     // Helper: Draw DMM meter chassis with LCD readout
@@ -2426,18 +2454,18 @@
 
       return `
         <!-- DMM Chassis -->
-        <g id="dmm-device-group">
-          <rect x="${cx-65}" y="${cy-38}" width="130" height="76" rx="10" fill="#1e293b" stroke="${strokeColor}" stroke-width="2.5" filter="drop-shadow(0 6px 16px rgba(0,0,0,0.6))"/>
+        <g id="dmm-device-group" style="filter: drop-shadow(0 8px 20px rgba(0,0,0,0.7));">
+          <rect x="${cx-70}" y="${cy-40}" width="140" height="80" rx="10" fill="#1e293b" stroke="${strokeColor}" stroke-width="2.5"/>
           <!-- Screen Title -->
-          <text x="${cx}" y="${cy-22}" fill="${titleColor}" font-size="10" font-weight="700" text-anchor="middle" font-family="Outfit, sans-serif">${title}</text>
+          <text x="${cx}" y="${cy-24}" fill="${titleColor}" font-size="10.5" font-weight="700" text-anchor="middle" font-family="Outfit, sans-serif">${title}</text>
           <!-- LCD Display -->
-          <rect x="${cx-55}" y="${cy-16}" width="110" height="34" rx="4" fill="#9ab49d" stroke="#475569" stroke-width="1.5"/>
-          <text x="${cx+45}" y="${cy+8}" fill="#0f172a" font-size="16" font-weight="800" text-anchor="end" font-family="JetBrains Mono, monospace">${displayVal} <tspan font-size="10">${unit}</tspan></text>
+          <rect x="${cx-60}" y="${cy-18}" width="120" height="34" rx="4" fill="#9ab49d" stroke="#475569" stroke-width="1.5"/>
+          <text x="${cx+50}" y="${cy+6}" fill="#0f172a" font-size="16" font-weight="800" text-anchor="end" font-family="JetBrains Mono, monospace">${displayVal} <tspan font-size="11" font-weight="700">${unit}</tspan></text>
           <!-- Terminals -->
-          <circle cx="${cx-25}" cy="${cy+27}" r="5" fill="#ef4444" stroke="#fff" stroke-width="1"/>
-          <text x="${cx-25}" y="${cy+25}" fill="#fff" font-size="8" font-weight="800" text-anchor="middle">+</text>
-          <circle cx="${cx+25}" cy="${cy+27}" r="5" fill="#334155" stroke="#cbd5e1" stroke-width="1"/>
-          <text x="${cx+25}" y="${cy+25}" fill="#cbd5e1" font-size="8" font-weight="800" text-anchor="middle">−</text>
+          <circle cx="${cx-30}" cy="${cy+26}" r="5.5" fill="#ef4444" stroke="#fff" stroke-width="1.2"/>
+          <text x="${cx-30}" y="${cy+24}" fill="#fff" font-size="9" font-weight="800" text-anchor="middle">+</text>
+          <circle cx="${cx+30}" cy="${cy+26}" r="5.5" fill="#334155" stroke="#cbd5e1" stroke-width="1.2"/>
+          <text x="${cx+30}" y="${cy+24}" fill="#cbd5e1" font-size="9" font-weight="800" text-anchor="middle">−</text>
         </g>
       `;
     }
@@ -2451,131 +2479,179 @@
       const p1 = v1 * iTotal, p2 = v2 * iTotal, p3 = v3 * iTotal;
       const pTotal = vs * iTotal;
 
+      let topWireSegments = '';
+      let bottomWireSegments = '';
       let meterOverlayHtml = '';
 
-      if (mMode === 'volt') {
-        if (mTarget === 'r1') {
-          meterOverlayHtml = `
-            ${drawMeterDMM(200, 205, 'volt', v1.toFixed(2), 'V', 'โวลต์มิเตอร์ (VR1)')}
-            <!-- Probes to R1 (x1=150, x2=250, y=70) -->
-            <path d="M 175 232 L 150 232 L 150 70" stroke="#ef4444" stroke-width="2.5" fill="none" stroke-dasharray="4"/>
-            <path d="M 225 232 L 250 232 L 250 70" stroke="#64748b" stroke-width="2.5" fill="none" stroke-dasharray="4"/>
-            <circle cx="150" cy="70" r="5" fill="#ef4444" stroke="#fff" stroke-width="1.5"/>
-            <circle cx="250" cy="70" r="5" fill="#64748b" stroke="#fff" stroke-width="1.5"/>
-          `;
-        } else if (mTarget === 'r2') {
-          meterOverlayHtml = `
-            ${drawMeterDMM(360, 205, 'volt', v2.toFixed(2), 'V', 'โวลต์มิเตอร์ (VR2)')}
-            <path d="M 335 232 L 310 232 L 310 70" stroke="#ef4444" stroke-width="2.5" fill="none" stroke-dasharray="4"/>
-            <path d="M 385 232 L 410 232 L 410 70" stroke="#64748b" stroke-width="2.5" fill="none" stroke-dasharray="4"/>
-            <circle cx="310" cy="70" r="5" fill="#ef4444" stroke="#fff" stroke-width="1.5"/>
-            <circle cx="410" cy="70" r="5" fill="#64748b" stroke="#fff" stroke-width="1.5"/>
-          `;
-        } else if (mTarget === 'r3') {
-          meterOverlayHtml = `
-            ${drawMeterDMM(520, 205, 'volt', v3.toFixed(2), 'V', 'โวลต์มิเตอร์ (VR3)')}
-            <path d="M 495 232 L 470 232 L 470 70" stroke="#ef4444" stroke-width="2.5" fill="none" stroke-dasharray="4"/>
-            <path d="M 545 232 L 570 232 L 570 70" stroke="#64748b" stroke-width="2.5" fill="none" stroke-dasharray="4"/>
-            <circle cx="470" cy="70" r="5" fill="#ef4444" stroke="#fff" stroke-width="1.5"/>
-            <circle cx="570" cy="70" r="5" fill="#64748b" stroke="#fff" stroke-width="1.5"/>
-          `;
-        } else {
-          // Total Vs
-          meterOverlayHtml = `
-            ${drawMeterDMM(360, 210, 'volt', vs.toFixed(2), 'V', 'โวลต์มิเตอร์วัดคร่อมแหล่งจ่าย Vs')}
-            <path d="M 335 237 L 70 237 L 70 120" stroke="#ef4444" stroke-width="2.5" fill="none" stroke-dasharray="4"/>
-            <path d="M 385 237 L 610 237 L 610 120" stroke="#64748b" stroke-width="2.5" fill="none" stroke-dasharray="4"/>
-            <circle cx="70" cy="120" r="5" fill="#ef4444" stroke="#fff" stroke-width="1.5"/>
-            <circle cx="610" cy="120" r="5" fill="#64748b" stroke="#fff" stroke-width="1.5"/>
-          `;
-        }
+      // Base Coordinates
+      const topY = 60;
+      const botY = 240;
+      const srcX = 65;
+      const r1X = 220, r2X = 380, r3X = 540;
+      const rightX = 640;
+
+      if (mMode === 'normal') {
+        topWireSegments = `<line x1="${srcX}" y1="${topY}" x2="${rightX}" y2="${topY}" stroke="#64748b" stroke-width="3.5"/>`;
+        bottomWireSegments = `<line x1="${rightX}" y1="${botY}" x2="${srcX}" y2="${botY}" stroke="#64748b" stroke-width="3.5"/>`;
+      } else if (mMode === 'volt') {
+        topWireSegments = `<line x1="${srcX}" y1="${topY}" x2="${rightX}" y2="${topY}" stroke="#64748b" stroke-width="3.5"/>`;
+        bottomWireSegments = `<line x1="${rightX}" y1="${botY}" x2="${srcX}" y2="${botY}" stroke="#64748b" stroke-width="3.5"/>`;
+
+        let vVal = v1.toFixed(2), tX = r1X, lbl = 'โวลต์มิเตอร์ (VR1)';
+        let pA = r1X - 40, pB = r1X + 40;
+        if (mTarget === 'r2') { vVal = v2.toFixed(2); tX = r2X; lbl = 'โวลต์มิเตอร์ (VR2)'; pA = r2X - 40; pB = r2X + 40; }
+        else if (mTarget === 'r3') { vVal = v3.toFixed(2); tX = r3X; lbl = 'โวลต์มิเตอร์ (VR3)'; pA = r3X - 40; pB = r3X + 40; }
+        else if (mTarget === 'total') { vVal = vs.toFixed(2); tX = 380; lbl = 'โวลต์มิเตอร์วัด Vs รวม'; pA = srcX; pB = rightX; }
+
+        meterOverlayHtml = `
+          ${drawMeterDMM(tX, 150, 'volt', vVal, 'V', lbl)}
+          <path d="M ${tX-30} 176 L ${tX-30} 185 L ${pA} 185 L ${pA} ${topY}" stroke="#ef4444" stroke-width="2.5" fill="none" stroke-dasharray="4"/>
+          <path d="M ${tX+30} 176 L ${tX+30} 185 L ${pB} 185 L ${pB} ${topY}" stroke="#64748b" stroke-width="2.5" fill="none" stroke-dasharray="4"/>
+          <circle cx="${pA}" cy="${topY}" r="5" fill="#ef4444" stroke="#fff" stroke-width="1.5"/>
+          <circle cx="${pB}" cy="${topY}" r="5" fill="#64748b" stroke="#fff" stroke-width="1.5"/>
+        `;
       } else if (mMode === 'amp') {
         const valStr = (iTotal * 1000).toFixed(2);
+        let breakA_x = 100, breakB_x = 150;
+        let dmmX = 200;
+        let lbl = 'แอมมิเตอร์ (ตัดต่อสายก่อน R1)';
+
+        if (mTarget === 'r1_r2') {
+          breakA_x = r1X + 45; breakB_x = r2X - 45;
+          dmmX = 305;
+          lbl = 'แอมมิเตอร์ (ตัดต่อระหว่าง R1-R2)';
+          topWireSegments = `
+            <line x1="${srcX}" y1="${topY}" x2="${breakA_x}" y2="${topY}" stroke="#64748b" stroke-width="3.5"/>
+            <line x1="${breakB_x}" y1="${topY}" x2="${rightX}" y2="${topY}" stroke="#64748b" stroke-width="3.5"/>
+          `;
+          bottomWireSegments = `<line x1="${rightX}" y1="${botY}" x2="${srcX}" y2="${botY}" stroke="#64748b" stroke-width="3.5"/>`;
+        } else if (mTarget === 'r2_r3') {
+          breakA_x = r2X + 45; breakB_x = r3X - 45;
+          dmmX = 460;
+          lbl = 'แอมมิเตอร์ (ตัดต่อระหว่าง R2-R3)';
+          topWireSegments = `
+            <line x1="${srcX}" y1="${topY}" x2="${breakA_x}" y2="${topY}" stroke="#64748b" stroke-width="3.5"/>
+            <line x1="${breakB_x}" y1="${topY}" x2="${rightX}" y2="${topY}" stroke="#64748b" stroke-width="3.5"/>
+          `;
+          bottomWireSegments = `<line x1="${rightX}" y1="${botY}" x2="${srcX}" y2="${botY}" stroke="#64748b" stroke-width="3.5"/>`;
+        } else if (mTarget === 'return_wire') {
+          breakA_x = 420; breakB_x = 340;
+          dmmX = 380;
+          lbl = 'แอมมิเตอร์ (ตัดต่อสายขากลับ)';
+          topWireSegments = `<line x1="${srcX}" y1="${topY}" x2="${rightX}" y2="${topY}" stroke="#64748b" stroke-width="3.5"/>`;
+          bottomWireSegments = `
+            <line x1="${rightX}" y1="${botY}" x2="${breakA_x}" y2="${botY}" stroke="#64748b" stroke-width="3.5"/>
+            <line x1="${breakB_x}" y1="${botY}" x2="${srcX}" y2="${botY}" stroke="#64748b" stroke-width="3.5"/>
+          `;
+        } else {
+          // total_before_r1
+          breakA_x = 95; breakB_x = 155;
+          dmmX = 200;
+          lbl = 'แอมมิเตอร์ (ตัดต่อก่อนเข้า R1)';
+          topWireSegments = `
+            <line x1="${srcX}" y1="${topY}" x2="${breakA_x}" y2="${topY}" stroke="#64748b" stroke-width="3.5"/>
+            <line x1="${breakB_x}" y1="${topY}" x2="${rightX}" y2="${topY}" stroke="#64748b" stroke-width="3.5"/>
+          `;
+          bottomWireSegments = `<line x1="${rightX}" y1="${botY}" x2="${srcX}" y2="${botY}" stroke="#64748b" stroke-width="3.5"/>`;
+        }
+
+        const isBotCut = (mTarget === 'return_wire');
+        const cutY = isBotCut ? botY : topY;
+
         meterOverlayHtml = `
-          ${drawMeterDMM(110, 70, 'amp', valStr, 'mA', 'แอมมิเตอร์ (อนุกรม)')}
-          <!-- Break wire indicator -->
-          <circle cx="70" cy="70" r="5" fill="#ef4444" stroke="#fff" stroke-width="1.5"/>
-          <circle cx="150" cy="70" r="5" fill="#64748b" stroke="#fff" stroke-width="1.5"/>
-          <path d="M 85 97 L 70 97 L 70 70" stroke="#ef4444" stroke-width="2.5" fill="none"/>
-          <path d="M 135 97 L 150 97 L 150 70" stroke="#64748b" stroke-width="2.5" fill="none"/>
+          ${drawMeterDMM(dmmX, 150, 'amp', valStr, 'mA', lbl)}
+          <!-- Open Break Wire Terminals -->
+          <circle cx="${breakA_x}" cy="${cutY}" r="5.5" fill="#ef4444" stroke="#fff" stroke-width="2"/>
+          <circle cx="${breakB_x}" cy="${cutY}" r="5.5" fill="#64748b" stroke="#fff" stroke-width="2"/>
+          <!-- Probes Leading to Break -->
+          <path d="M ${dmmX-30} 176 L ${dmmX-30} ${isBotCut ? '215' : '90'} L ${breakA_x} ${isBotCut ? '215' : '90'} L ${breakA_x} ${cutY}" stroke="#ef4444" stroke-width="2.5" fill="none"/>
+          <path d="M ${dmmX+30} 176 L ${dmmX+30} ${isBotCut ? '215' : '90'} L ${breakB_x} ${isBotCut ? '215' : '90'} L ${breakB_x} ${cutY}" stroke="#64748b" stroke-width="2.5" fill="none"/>
+          <!-- Break Gap Notice -->
+          <text x="${(breakA_x+breakB_x)/2}" y="${isBotCut ? cutY+18 : cutY-12}" fill="#38bdf8" font-size="9" font-weight="700" text-anchor="middle">✂️ ตัดสายอนุกรม</text>
         `;
       } else if (mMode === 'watt') {
-        let pVal = (p1 * 1000).toFixed(1);
-        let pUnit = 'mW';
-        let lbl = 'วัตต์มิเตอร์ (PR1)';
-        let targetX = 200;
-        if (mTarget === 'r2') { pVal = (p2 * 1000).toFixed(1); lbl = 'วัตต์มิเตอร์ (PR2)'; targetX = 360; }
-        else if (mTarget === 'r3') { pVal = (p3 * 1000).toFixed(1); lbl = 'วัตต์มิเตอร์ (PR3)'; targetX = 520; }
-        else if (mTarget === 'total') { pVal = (pTotal >= 1) ? pTotal.toFixed(2) : (pTotal * 1000).toFixed(1); pUnit = pTotal >= 1 ? 'W' : 'mW'; lbl = 'วัตต์มิเตอร์รวม (P_total)'; targetX = 360; }
+        topWireSegments = `<line x1="${srcX}" y1="${topY}" x2="${rightX}" y2="${topY}" stroke="#64748b" stroke-width="3.5"/>`;
+        bottomWireSegments = `<line x1="${rightX}" y1="${botY}" x2="${srcX}" y2="${botY}" stroke="#64748b" stroke-width="3.5"/>`;
+
+        let pVal = (p1 * 1000).toFixed(1), pUnit = 'mW', lbl = 'วัตต์มิเตอร์ (PR1)', tX = r1X;
+        let pA = r1X - 40, pB = r1X + 40;
+        if (mTarget === 'r2') { pVal = (p2 * 1000).toFixed(1); lbl = 'วัตต์มิเตอร์ (PR2)'; tX = r2X; pA = r2X - 40; pB = r2X + 40; }
+        else if (mTarget === 'r3') { pVal = (p3 * 1000).toFixed(1); lbl = 'วัตต์มิเตอร์ (PR3)'; tX = r3X; pA = r3X - 40; pB = r3X + 40; }
+        else if (mTarget === 'total') { pVal = (pTotal >= 1) ? pTotal.toFixed(2) : (pTotal * 1000).toFixed(1); pUnit = pTotal >= 1 ? 'W' : 'mW'; lbl = 'วัตต์มิเตอร์รวม (P_total)'; tX = 380; pA = srcX; pB = rightX; }
 
         meterOverlayHtml = `
-          ${drawMeterDMM(targetX, 205, 'watt', pVal, pUnit, lbl)}
-          <path d="M ${targetX-25} 232 L ${targetX-50} 232 L ${targetX-50} 70" stroke="#f59e0b" stroke-width="2" fill="none" stroke-dasharray="3"/>
-          <path d="M ${targetX+25} 232 L ${targetX+50} 232 L ${targetX+50} 70" stroke="#64748b" stroke-width="2" fill="none" stroke-dasharray="3"/>
-          <circle cx="${targetX-50}" cy="70" r="4.5" fill="#f59e0b"/>
-          <circle cx="${targetX+50}" cy="70" r="4.5" fill="#64748b"/>
+          ${drawMeterDMM(tX, 150, 'watt', pVal, pUnit, lbl)}
+          <path d="M ${tX-30} 176 L ${tX-30} 185 L ${pA} 185 L ${pA} ${topY}" stroke="#f59e0b" stroke-width="2.5" fill="none" stroke-dasharray="3"/>
+          <path d="M ${tX+30} 176 L ${tX+30} 185 L ${pB} 185 L ${pB} ${topY}" stroke="#64748b" stroke-width="2.5" fill="none" stroke-dasharray="3"/>
+          <circle cx="${pA}" cy="${topY}" r="5" fill="#f59e0b"/>
+          <circle cx="${pB}" cy="${topY}" r="5" fill="#64748b"/>
         `;
       } else if (mMode === 'ohm') {
-        let rVal = (r1 >= 1000) ? (r1/1000).toFixed(2) : r1.toFixed(1);
-        let rUnit = (r1 >= 1000) ? 'kΩ' : 'Ω';
-        let lbl = 'โอห์มมิเตอร์ (R1)';
-        let xPos = 200;
+        topWireSegments = `<line x1="${srcX}" y1="${topY}" x2="${rightX}" y2="${topY}" stroke="#475569" stroke-width="3.5"/>`;
+        bottomWireSegments = `<line x1="${rightX}" y1="${botY}" x2="${srcX}" y2="${botY}" stroke="#475569" stroke-width="3.5" stroke-dasharray="6"/>`;
 
-        if (mTarget === 'r2') { rVal = (r2 >= 1000) ? (r2/1000).toFixed(2) : r2.toFixed(1); rUnit = (r2 >= 1000) ? 'kΩ' : 'Ω'; lbl = 'โอห์มมิเตอร์ (R2)'; xPos = 360; }
-        else if (mTarget === 'r3') { rVal = (r3 >= 1000) ? (r3/1000).toFixed(2) : r3.toFixed(1); rUnit = (r3 >= 1000) ? 'kΩ' : 'Ω'; lbl = 'โอห์มมิเตอร์ (R3)'; xPos = 520; }
+        let rVal = (r1 >= 1000) ? (r1/1000).toFixed(2) : r1.toFixed(1), rUnit = (r1 >= 1000) ? 'kΩ' : 'Ω', lbl = 'โอห์มมิเตอร์ (R1)', tX = r1X;
+        let pA = r1X - 40, pB = r1X + 40;
+        if (mTarget === 'r2') { rVal = (r2 >= 1000) ? (r2/1000).toFixed(2) : r2.toFixed(1); rUnit = (r2 >= 1000) ? 'kΩ' : 'Ω'; lbl = 'โอห์มมิเตอร์ (R2)'; tX = r2X; pA = r2X - 40; pB = r2X + 40; }
+        else if (mTarget === 'r3') { rVal = (r3 >= 1000) ? (r3/1000).toFixed(2) : r3.toFixed(1); rUnit = (r3 >= 1000) ? 'kΩ' : 'Ω'; lbl = 'โอห์มมิเตอร์ (R3)'; tX = r3X; pA = r3X - 40; pB = r3X + 40; }
         else if (mTarget === 'total') {
           const rTot = r1 + r2 + r3;
           rVal = (rTot >= 1000) ? (rTot/1000).toFixed(2) : rTot.toFixed(1);
           rUnit = (rTot >= 1000) ? 'kΩ' : 'Ω';
           lbl = 'โอห์มมิเตอร์ (R_total รวม)';
-          xPos = 360;
+          tX = 380; pA = srcX; pB = rightX;
         }
 
         meterOverlayHtml = `
-          ${drawMeterDMM(xPos, 205, 'ohm', rVal, rUnit, lbl)}
-          <path d="M ${xPos-25} 232 L ${xPos-50} 232 L ${xPos-50} 70" stroke="#10b981" stroke-width="2.5" fill="none" stroke-dasharray="4"/>
-          <path d="M ${xPos+25} 232 L ${xPos+50} 232 L ${xPos+50} 70" stroke="#64748b" stroke-width="2.5" fill="none" stroke-dasharray="4"/>
-          <circle cx="${xPos-50}" cy="70" r="5" fill="#10b981" stroke="#fff" stroke-width="1.5"/>
-          <circle cx="${xPos+50}" cy="70" r="5" fill="#64748b" stroke="#fff" stroke-width="1.5"/>
+          ${drawMeterDMM(tX, 150, 'ohm', rVal, rUnit, lbl)}
+          <path d="M ${tX-30} 176 L ${tX-30} 185 L ${pA} 185 L ${pA} ${topY}" stroke="#10b981" stroke-width="2.5" fill="none" stroke-dasharray="4"/>
+          <path d="M ${tX+30} 176 L ${tX+30} 185 L ${pB} 185 L ${pB} ${topY}" stroke="#64748b" stroke-width="2.5" fill="none" stroke-dasharray="4"/>
+          <circle cx="${pA}" cy="${topY}" r="5" fill="#10b981" stroke="#fff" stroke-width="1.5"/>
+          <circle cx="${pB}" cy="${topY}" r="5" fill="#64748b" stroke="#fff" stroke-width="1.5"/>
         `;
       }
 
       svg.innerHTML = `
-        <!-- Main Wire Loop -->
-        <path d="M 70 120 L 70 70 L 610 70 L 610 120" stroke="${isOhmMode ? '#475569' : '#64748b'}" stroke-width="3.5" fill="none"/>
-        <path d="M 70 160 L 70 210 L 610 210 L 610 160" stroke="${isOhmMode ? '#475569' : '#64748b'}" stroke-width="3.5" fill="none" stroke-dasharray="${isOhmMode ? '6' : '0'}"/>
+        <!-- Side Wires -->
+        <line x1="${srcX}" y1="${topY}" x2="${srcX}" y2="105" stroke="${isOhmMode ? '#475569' : '#64748b'}" stroke-width="3.5"/>
+        <line x1="${srcX}" y1="165" x2="${srcX}" y2="${botY}" stroke="${isOhmMode ? '#475569' : '#64748b'}" stroke-width="3.5"/>
+        <line x1="${rightX}" y1="${topY}" x2="${rightX}" y2="${botY}" stroke="${isOhmMode ? '#475569' : '#64748b'}" stroke-width="3.5"/>
 
-        <!-- DC Source (Left) or Power Disconnected Icon -->
+        <!-- Top & Bottom Rails -->
+        ${topWireSegments}
+        ${bottomWireSegments}
+
+        <!-- DC Source (Left) or Power OFF -->
         ${isOhmMode ? `
-          <rect x="45" y="115" width="50" height="50" rx="8" fill="#1e293b" stroke="#f43f5e" stroke-width="2"/>
-          <text x="70" y="138" fill="#f43f5e" font-size="11" font-weight="800" text-anchor="middle">ปลดไฟ</text>
-          <text x="70" y="153" fill="#94a3b8" font-size="9" font-weight="700" text-anchor="middle">OFF</text>
+          <rect x="40" y="105" width="50" height="55" rx="8" fill="#1e293b" stroke="#f43f5e" stroke-width="2"/>
+          <text x="65" y="128" fill="#f43f5e" font-size="11" font-weight="800" text-anchor="middle">ปลดไฟ</text>
+          <text x="65" y="145" fill="#94a3b8" font-size="9" font-weight="700" text-anchor="middle">OFF</text>
         ` : `
-          <circle cx="70" cy="140" r="26" fill="#0f172a" stroke="#38bdf8" stroke-width="3"/>
-          <text x="70" y="135" fill="#38bdf8" font-size="14" font-weight="700" text-anchor="middle">+</text>
-          <text x="70" y="153" fill="#94a3b8" font-size="14" font-weight="700" text-anchor="middle">−</text>
-          <text x="32" y="145" fill="#38bdf8" font-size="11" font-weight="700" text-anchor="end">Vs ${vs}V</text>
+          <circle cx="${srcX}" cy="135" r="25" fill="#0f172a" stroke="#38bdf8" stroke-width="3"/>
+          <text x="${srcX}" y="130" fill="#38bdf8" font-size="14" font-weight="700" text-anchor="middle">+</text>
+          <text x="${srcX}" y="148" fill="#94a3b8" font-size="14" font-weight="700" text-anchor="middle">−</text>
+          <text x="30" y="140" fill="#38bdf8" font-size="11" font-weight="700" text-anchor="end">Vs ${vs}V</text>
         `}
 
         <!-- Resistor 1 (Top Left) -->
-        <rect x="160" y="56" width="80" height="28" rx="4" fill="#8fa9c4" stroke="#ffffff" stroke-width="1.5"/>
-        <text x="200" y="46" fill="#f8fafc" font-size="11" font-weight="700" text-anchor="middle">R1: ${formatOhms(r1)}</text>
-        <text x="200" y="100" fill="#cbd5e1" font-size="9.5" font-family="monospace" text-anchor="middle">VR1=${v1.toFixed(2)}V</text>
+        <rect x="${r1X-38}" y="${topY-14}" width="76" height="28" rx="4" fill="#8fa9c4" stroke="#ffffff" stroke-width="1.5"/>
+        <text x="${r1X}" y="${topY-20}" fill="#f8fafc" font-size="11" font-weight="700" text-anchor="middle">R1: ${formatOhms(r1)}</text>
+        <text x="${r1X}" y="${topY+28}" fill="#cbd5e1" font-size="9.5" font-family="monospace" text-anchor="middle">VR1=${v1.toFixed(2)}V</text>
 
         <!-- Resistor 2 (Top Center) -->
-        <rect x="320" y="56" width="80" height="28" rx="4" fill="#8fa9c4" stroke="#ffffff" stroke-width="1.5"/>
-        <text x="360" y="46" fill="#f8fafc" font-size="11" font-weight="700" text-anchor="middle">R2: ${formatOhms(r2)}</text>
-        <text x="360" y="100" fill="#cbd5e1" font-size="9.5" font-family="monospace" text-anchor="middle">VR2=${v2.toFixed(2)}V</text>
+        <rect x="${r2X-38}" y="${topY-14}" width="76" height="28" rx="4" fill="#8fa9c4" stroke="#ffffff" stroke-width="1.5"/>
+        <text x="${r2X}" y="${topY-20}" fill="#f8fafc" font-size="11" font-weight="700" text-anchor="middle">R2: ${formatOhms(r2)}</text>
+        <text x="${r2X}" y="${topY+28}" fill="#cbd5e1" font-size="9.5" font-family="monospace" text-anchor="middle">VR2=${v2.toFixed(2)}V</text>
 
         <!-- Resistor 3 (Top Right) -->
-        <rect x="480" y="56" width="80" height="28" rx="4" fill="#8fa9c4" stroke="#ffffff" stroke-width="1.5"/>
-        <text x="520" y="46" fill="#f8fafc" font-size="11" font-weight="700" text-anchor="middle">R3: ${formatOhms(r3)}</text>
-        <text x="520" y="100" fill="#cbd5e1" font-size="9.5" font-family="monospace" text-anchor="middle">VR3=${v3.toFixed(2)}V</text>
+        <rect x="${r3X-38}" y="${topY-14}" width="76" height="28" rx="4" fill="#8fa9c4" stroke="#ffffff" stroke-width="1.5"/>
+        <text x="${r3X}" y="${topY-20}" fill="#f8fafc" font-size="11" font-weight="700" text-anchor="middle">R3: ${formatOhms(r3)}</text>
+        <text x="${r3X}" y="${topY+28}" fill="#cbd5e1" font-size="9.5" font-family="monospace" text-anchor="middle">VR3=${v3.toFixed(2)}V</text>
 
-        <!-- Current Flow Arrow if not Ohm Mode -->
-        ${!isOhmMode ? `
-          <path d="M 105 64 L 125 70 L 105 76 Z" fill="#34d399"/>
-          <text x="115" y="50" fill="#34d399" font-size="10" font-weight="700">I: ${(iTotal*1000).toFixed(1)}mA</text>
+        <!-- Current Flow Arrow in Normal Mode -->
+        ${mMode === 'normal' ? `
+          <path d="M 120 54 L 140 60 L 120 66 Z" fill="#34d399"/>
+          <text x="130" y="44" fill="#34d399" font-size="10" font-weight="700">I: ${(iTotal*1000).toFixed(1)}mA</text>
         ` : ''}
 
         <!-- Meter Overlay -->
@@ -2591,108 +2667,147 @@
       const i1 = vs / r1, i2 = vs / r2, i3 = vs / r3;
       const p1 = vs * i1, p2 = vs * i2, p3 = vs * i3;
 
+      const srcX = 65;
+      const b1X = 200, b2X = 360, b3X = 520;
+      const topY = 50, botY = 240;
+
+      let topRailHtml = `<line x1="${srcX}" y1="${topY}" x2="${b3X}" y2="${topY}" stroke="${isOhmMode ? '#475569' : '#64748b'}" stroke-width="4"/>`;
+      let b1Html = `<line x1="${b1X}" y1="${topY}" x2="${b1X}" y2="${botY}" stroke="#64748b" stroke-width="3.5"/>`;
+      let b2Html = `<line x1="${b2X}" y1="${topY}" x2="${b2X}" y2="${botY}" stroke="#64748b" stroke-width="3.5"/>`;
+      let b3Html = `<line x1="${b3X}" y1="${topY}" x2="${b3X}" y2="${botY}" stroke="#64748b" stroke-width="3.5"/>`;
       let meterOverlayHtml = '';
 
       if (mMode === 'volt') {
         let lbl = 'โวลต์มิเตอร์ (ขนานทุกตัว = ' + vs.toFixed(1) + 'V)';
         meterOverlayHtml = `
-          ${drawMeterDMM(530, 140, 'volt', vs.toFixed(2), 'V', lbl)}
-          <path d="M 505 167 L 460 167 L 460 50" stroke="#ef4444" stroke-width="2.5" fill="none" stroke-dasharray="4"/>
-          <path d="M 555 167 L 460 167 L 460 230" stroke="#64748b" stroke-width="2.5" fill="none" stroke-dasharray="4"/>
-          <circle cx="460" cy="50" r="5" fill="#ef4444" stroke="#fff" stroke-width="1.5"/>
-          <circle cx="460" cy="230" r="5" fill="#64748b" stroke="#fff" stroke-width="1.5"/>
+          ${drawMeterDMM(610, 140, 'volt', vs.toFixed(2), 'V', lbl)}
+          <path d="M 580 166 L 520 166 L 520 ${topY}" stroke="#ef4444" stroke-width="2.5" fill="none" stroke-dasharray="4"/>
+          <path d="M 640 166 L 520 166 L 520 ${botY}" stroke="#64748b" stroke-width="2.5" fill="none" stroke-dasharray="4"/>
+          <circle cx="520" cy="${topY}" r="5" fill="#ef4444" stroke="#fff" stroke-width="1.5"/>
+          <circle cx="520" cy="${botY}" r="5" fill="#64748b" stroke="#fff" stroke-width="1.5"/>
         `;
       } else if (mMode === 'amp') {
-        let curVal = (iTotal * 1000).toFixed(2);
-        let lbl = 'แอมมิเตอร์วัดกระแสรวม I_total';
-        let cutX = 130, cutY = 50;
-
-        if (mTarget === 'r1') { curVal = (i1 * 1000).toFixed(2); lbl = 'แอมมิเตอร์วัดกิ่ง I_R1'; cutX = 200; cutY = 85; }
-        else if (mTarget === 'r2') { curVal = (i2 * 1000).toFixed(2); lbl = 'แอมมิเตอร์วัดกิ่ง I_R2'; cutX = 330; cutY = 85; }
-        else if (mTarget === 'r3') { curVal = (i3 * 1000).toFixed(2); lbl = 'แอมมิเตอร์วัดกิ่ง I_R3'; cutX = 460; cutY = 85; }
-
-        meterOverlayHtml = `
-          ${drawMeterDMM(cutX, cutY-40, 'amp', curVal, 'mA', lbl)}
-          <circle cx="${cutX-20}" cy="${cutY}" r="4.5" fill="#ef4444"/>
-          <circle cx="${cutX+20}" cy="${cutY}" r="4.5" fill="#64748b"/>
-          <path d="M ${cutX-25} ${cutY-13} L ${cutX-20} ${cutY}" stroke="#ef4444" stroke-width="2"/>
-          <path d="M ${cutX+25} ${cutY-13} L ${cutX+20} ${cutY}" stroke="#64748b" stroke-width="2"/>
-        `;
+        if (mTarget === 'r1') {
+          const curVal = (i1 * 1000).toFixed(2);
+          b1Html = `
+            <line x1="${b1X}" y1="${topY}" x2="${b1X}" y2="75" stroke="#64748b" stroke-width="3.5"/>
+            <line x1="${b1X}" y1="110" x2="${b1X}" y2="${botY}" stroke="#64748b" stroke-width="3.5"/>
+          `;
+          meterOverlayHtml = `
+            ${drawMeterDMM(130, 140, 'amp', curVal, 'mA', 'แอมมิเตอร์วัดกิ่ง I_R1')}
+            <circle cx="${b1X}" cy="75" r="5" fill="#ef4444" stroke="#fff" stroke-width="1.5"/>
+            <circle cx="${b1X}" cy="110" r="5" fill="#64748b" stroke="#fff" stroke-width="1.5"/>
+            <path d="M 100 166 L 100 75 L ${b1X} 75" stroke="#ef4444" stroke-width="2.5" fill="none"/>
+            <path d="M 160 166 L 160 110 L ${b1X} 110" stroke="#64748b" stroke-width="2.5" fill="none"/>
+            <text x="${b1X+12}" y="95" fill="#38bdf8" font-size="8.5" font-weight="700">✂️ กิ่ง 1</text>
+          `;
+        } else if (mTarget === 'r2') {
+          const curVal = (i2 * 1000).toFixed(2);
+          b2Html = `
+            <line x1="${b2X}" y1="${topY}" x2="${b2X}" y2="75" stroke="#64748b" stroke-width="3.5"/>
+            <line x1="${b2X}" y1="110" x2="${b2X}" y2="${botY}" stroke="#64748b" stroke-width="3.5"/>
+          `;
+          meterOverlayHtml = `
+            ${drawMeterDMM(285, 140, 'amp', curVal, 'mA', 'แอมมิเตอร์วัดกิ่ง I_R2')}
+            <circle cx="${b2X}" cy="75" r="5" fill="#ef4444" stroke="#fff" stroke-width="1.5"/>
+            <circle cx="${b2X}" cy="110" r="5" fill="#64748b" stroke="#fff" stroke-width="1.5"/>
+            <path d="M 255 166 L 255 75 L ${b2X} 75" stroke="#ef4444" stroke-width="2.5" fill="none"/>
+            <path d="M 315 166 L 315 110 L ${b2X} 110" stroke="#64748b" stroke-width="2.5" fill="none"/>
+            <text x="${b2X+12}" y="95" fill="#38bdf8" font-size="8.5" font-weight="700">✂️ กิ่ง 2</text>
+          `;
+        } else if (mTarget === 'r3') {
+          const curVal = (i3 * 1000).toFixed(2);
+          b3Html = `
+            <line x1="${b3X}" y1="${topY}" x2="${b3X}" y2="75" stroke="#64748b" stroke-width="3.5"/>
+            <line x1="${b3X}" y1="110" x2="${b3X}" y2="${botY}" stroke="#64748b" stroke-width="3.5"/>
+          `;
+          meterOverlayHtml = `
+            ${drawMeterDMM(445, 140, 'amp', curVal, 'mA', 'แอมมิเตอร์วัดกิ่ง I_R3')}
+            <circle cx="${b3X}" cy="75" r="5" fill="#ef4444" stroke="#fff" stroke-width="1.5"/>
+            <circle cx="${b3X}" cy="110" r="5" fill="#64748b" stroke="#fff" stroke-width="1.5"/>
+            <path d="M 415 166 L 415 75 L ${b3X} 75" stroke="#ef4444" stroke-width="2.5" fill="none"/>
+            <path d="M 475 166 L 475 110 L ${b3X} 110" stroke="#64748b" stroke-width="2.5" fill="none"/>
+            <text x="${b3X+12}" y="95" fill="#38bdf8" font-size="8.5" font-weight="700">✂️ กิ่ง 3</text>
+          `;
+        } else {
+          // total main wire
+          const curVal = (iTotal * 1000).toFixed(2);
+          topRailHtml = `
+            <line x1="${srcX}" y1="${topY}" x2="100" y2="${topY}" stroke="#64748b" stroke-width="4"/>
+            <line x1="150" y1="${topY}" x2="${b3X}" y2="${topY}" stroke="#64748b" stroke-width="4"/>
+          `;
+          meterOverlayHtml = `
+            ${drawMeterDMM(130, 140, 'amp', curVal, 'mA', 'แอมมิเตอร์กระแสรวม I_total')}
+            <circle cx="100" cy="${topY}" r="5.5" fill="#ef4444" stroke="#fff" stroke-width="1.5"/>
+            <circle cx="150" cy="${topY}" r="5.5" fill="#64748b" stroke="#fff" stroke-width="1.5"/>
+            <path d="M 100 166 L 100 ${topY}" stroke="#ef4444" stroke-width="2.5" fill="none"/>
+            <path d="M 160 166 L 150 166 L 150 ${topY}" stroke="#64748b" stroke-width="2.5" fill="none"/>
+            <text x="125" y="${topY-12}" fill="#38bdf8" font-size="9" font-weight="700" text-anchor="middle">✂️ ตัดสายหลัก</text>
+          `;
+        }
       } else if (mMode === 'watt') {
-        let pVal = (p1 * 1000).toFixed(1);
-        let lbl = 'วัตต์มิเตอร์ (PR1)';
-        let cx = 200;
-        if (mTarget === 'r2') { pVal = (p2 * 1000).toFixed(1); lbl = 'วัตต์มิเตอร์ (PR2)'; cx = 330; }
-        else if (mTarget === 'r3') { pVal = (p3 * 1000).toFixed(1); lbl = 'วัตต์มิเตอร์ (PR3)'; cx = 460; }
-        else if (mTarget === 'total') { pVal = (vs * iTotal >= 1) ? (vs * iTotal).toFixed(2) : (vs * iTotal * 1000).toFixed(1); lbl = 'วัตต์มิเตอร์รวม (P_total)'; cx = 330; }
+        let pVal = (p1 * 1000).toFixed(1), lbl = 'วัตต์มิเตอร์ (PR1)', cx = 130;
+        if (mTarget === 'r2') { pVal = (p2 * 1000).toFixed(1); lbl = 'วัตต์มิเตอร์ (PR2)'; cx = 285; }
+        else if (mTarget === 'r3') { pVal = (p3 * 1000).toFixed(1); lbl = 'วัตต์มิเตอร์ (PR3)'; cx = 445; }
+        else if (mTarget === 'total') { pVal = (vs * iTotal >= 1) ? (vs * iTotal).toFixed(2) : (vs * iTotal * 1000).toFixed(1); lbl = 'วัตต์มิเตอร์รวม (P_total)'; cx = 610; }
 
         meterOverlayHtml = `
           ${drawMeterDMM(cx, 140, 'watt', pVal, 'mW', lbl)}
-          <path d="M ${cx-25} 167 L ${cx-30} 167 L ${cx-30} 50" stroke="#f59e0b" stroke-width="2" fill="none" stroke-dasharray="3"/>
-          <path d="M ${cx+25} 167 L ${cx+30} 167 L ${cx+30} 230" stroke="#64748b" stroke-width="2" fill="none" stroke-dasharray="3"/>
-          <circle cx="${cx-30}" cy="50" r="4" fill="#f59e0b"/>
-          <circle cx="${cx+30}" cy="230" r="4" fill="#64748b"/>
         `;
       } else if (mMode === 'ohm') {
-        let rVal = (r1 >= 1000) ? (r1/1000).toFixed(2) : r1.toFixed(1);
-        let rUnit = (r1 >= 1000) ? 'kΩ' : 'Ω';
-        let lbl = 'โอห์มมิเตอร์ (R1)';
-        let cx = 200;
-
-        if (mTarget === 'r2') { rVal = (r2 >= 1000) ? (r2/1000).toFixed(2) : r2.toFixed(1); rUnit = (r2 >= 1000) ? 'kΩ' : 'Ω'; lbl = 'โอห์มมิเตอร์ (R2)'; cx = 330; }
-        else if (mTarget === 'r3') { rVal = (r3 >= 1000) ? (r3/1000).toFixed(2) : r3.toFixed(1); rUnit = (r3 >= 1000) ? 'kΩ' : 'Ω'; lbl = 'โอห์มมิเตอร์ (R3)'; cx = 460; }
+        let rVal = (r1 >= 1000) ? (r1/1000).toFixed(2) : r1.toFixed(1), rUnit = (r1 >= 1000) ? 'kΩ' : 'Ω', lbl = 'โอห์มมิเตอร์ (R1)', cx = 130;
+        if (mTarget === 'r2') { rVal = (r2 >= 1000) ? (r2/1000).toFixed(2) : r2.toFixed(1); rUnit = (r2 >= 1000) ? 'kΩ' : 'Ω'; lbl = 'โอห์มมิเตอร์ (R2)'; cx = 285; }
+        else if (mTarget === 'r3') { rVal = (r3 >= 1000) ? (r3/1000).toFixed(2) : r3.toFixed(1); rUnit = (r3 >= 1000) ? 'kΩ' : 'Ω'; lbl = 'โอห์มมิเตอร์ (R3)'; cx = 445; }
         else if (mTarget === 'total') {
           const rTot = 1 / ((1/r1) + (1/r2) + (1/r3));
           rVal = (rTot >= 1000) ? (rTot/1000).toFixed(2) : rTot.toFixed(1);
           rUnit = (rTot >= 1000) ? 'kΩ' : 'Ω';
           lbl = 'โอห์มมิเตอร์ (R_total ขนานรวม)';
-          cx = 330;
+          cx = 610;
         }
 
         meterOverlayHtml = `
           ${drawMeterDMM(cx, 140, 'ohm', rVal, rUnit, lbl)}
-          <path d="M ${cx-25} 167 L ${cx-30} 167 L ${cx-30} 50" stroke="#10b981" stroke-width="2.5" fill="none" stroke-dasharray="4"/>
-          <path d="M ${cx+25} 167 L ${cx+30} 167 L ${cx+30} 230" stroke="#64748b" stroke-width="2.5" fill="none" stroke-dasharray="4"/>
-          <circle cx="${cx-30}" cy="50" r="5" fill="#10b981" stroke="#fff" stroke-width="1.5"/>
-          <circle cx="${cx+30}" cy="230" r="5" fill="#64748b" stroke="#fff" stroke-width="1.5"/>
         `;
       }
 
       svg.innerHTML = `
-        <!-- Main Top & Bottom Rails -->
-        <line x1="60" y1="50" x2="500" y2="50" stroke="${isOhmMode ? '#475569' : '#64748b'}" stroke-width="4"/>
-        <line x1="60" y1="230" x2="500" y2="230" stroke="${isOhmMode ? '#475569' : '#64748b'}" stroke-width="4"/>
+        <!-- Main Rails -->
+        ${topRailHtml}
+        <line x1="${srcX}" y1="${botY}" x2="${b3X}" y2="${botY}" stroke="${isOhmMode ? '#475569' : '#64748b'}" stroke-width="4"/>
 
-        <!-- DC Source (Left) or Power OFF -->
+        <!-- Source Left Rail -->
         ${isOhmMode ? `
-          <rect x="35" y="115" width="50" height="50" rx="8" fill="#1e293b" stroke="#f43f5e" stroke-width="2"/>
-          <text x="60" y="138" fill="#f43f5e" font-size="11" font-weight="800" text-anchor="middle">ปลดไฟ</text>
-          <text x="60" y="153" fill="#94a3b8" font-size="9" font-weight="700" text-anchor="middle">OFF</text>
+          <line x1="${srcX}" y1="${topY}" x2="${srcX}" y2="105" stroke="#475569" stroke-width="3.5"/>
+          <line x1="${srcX}" y1="165" x2="${srcX}" y2="${botY}" stroke="#475569" stroke-width="3.5"/>
+          <rect x="40" y="105" width="50" height="55" rx="8" fill="#1e293b" stroke="#f43f5e" stroke-width="2"/>
+          <text x="65" y="128" fill="#f43f5e" font-size="11" font-weight="800" text-anchor="middle">ปลดไฟ</text>
+          <text x="65" y="145" fill="#94a3b8" font-size="9" font-weight="700" text-anchor="middle">OFF</text>
         ` : `
-          <line x1="60" y1="50" x2="60" y2="230" stroke="#64748b" stroke-width="4"/>
-          <circle cx="60" cy="140" r="24" fill="#0f172a" stroke="#38bdf8" stroke-width="3"/>
-          <text x="60" y="135" fill="#38bdf8" font-size="14" font-weight="700" text-anchor="middle">+</text>
-          <text x="60" y="153" fill="#94a3b8" font-size="14" font-weight="700" text-anchor="middle">−</text>
-          <text x="25" y="145" fill="#38bdf8" font-size="11" font-weight="700" text-anchor="end">Vs ${vs}V</text>
+          <line x1="${srcX}" y1="${topY}" x2="${srcX}" y2="${botY}" stroke="#64748b" stroke-width="3.5"/>
+          <circle cx="${srcX}" cy="135" r="25" fill="#0f172a" stroke="#38bdf8" stroke-width="3"/>
+          <text x="${srcX}" y="130" fill="#38bdf8" font-size="14" font-weight="700" text-anchor="middle">+</text>
+          <text x="${srcX}" y="148" fill="#94a3b8" font-size="14" font-weight="700" text-anchor="middle">−</text>
+          <text x="30" y="140" fill="#38bdf8" font-size="11" font-weight="700" text-anchor="end">Vs ${vs}V</text>
         `}
 
         <!-- Branch 1 (R1) -->
-        <line x1="200" y1="50" x2="200" y2="230" stroke="#64748b" stroke-width="3"/>
-        <rect x="186" y="105" width="28" height="70" rx="4" fill="#8fa9c4" stroke="#ffffff" stroke-width="1.5"/>
-        <text x="170" y="145" fill="#f8fafc" font-size="10.5" font-weight="700" text-anchor="end">R1: ${formatOhms(r1)}</text>
-        <text x="225" y="145" fill="#38bdf8" font-size="9.5" font-family="monospace">I1=${(i1*1000).toFixed(1)}mA</text>
+        ${b1Html}
+        <rect x="${b1X-14}" y="115" width="28" height="60" rx="4" fill="#8fa9c4" stroke="#ffffff" stroke-width="1.5"/>
+        <text x="${b1X-20}" y="148" fill="#f8fafc" font-size="10.5" font-weight="700" text-anchor="end">R1: ${formatOhms(r1)}</text>
+        <text x="${b1X+20}" y="148" fill="#38bdf8" font-size="9.5" font-family="monospace">I1=${(i1*1000).toFixed(1)}mA</text>
 
         <!-- Branch 2 (R2) -->
-        <line x1="330" y1="50" x2="330" y2="230" stroke="#64748b" stroke-width="3"/>
-        <rect x="316" y="105" width="28" height="70" rx="4" fill="#8fa9c4" stroke="#ffffff" stroke-width="1.5"/>
-        <text x="300" y="145" fill="#f8fafc" font-size="10.5" font-weight="700" text-anchor="end">R2: ${formatOhms(r2)}</text>
-        <text x="355" y="145" fill="#38bdf8" font-size="9.5" font-family="monospace">I2=${(i2*1000).toFixed(1)}mA</text>
+        ${b2Html}
+        <rect x="${b2X-14}" y="115" width="28" height="60" rx="4" fill="#8fa9c4" stroke="#ffffff" stroke-width="1.5"/>
+        <text x="${b2X-20}" y="148" fill="#f8fafc" font-size="10.5" font-weight="700" text-anchor="end">R2: ${formatOhms(r2)}</text>
+        <text x="${b2X+20}" y="148" fill="#38bdf8" font-size="9.5" font-family="monospace">I2=${(i2*1000).toFixed(1)}mA</text>
 
         <!-- Branch 3 (R3) -->
-        <line x1="460" y1="50" x2="460" y2="230" stroke="#64748b" stroke-width="3"/>
-        <rect x="446" y="105" width="28" height="70" rx="4" fill="#8fa9c4" stroke="#ffffff" stroke-width="1.5"/>
-        <text x="430" y="145" fill="#f8fafc" font-size="10.5" font-weight="700" text-anchor="end">R3: ${formatOhms(r3)}</text>
-        <text x="485" y="145" fill="#38bdf8" font-size="9.5" font-family="monospace">I3=${(i3*1000).toFixed(1)}mA</text>
+        ${b3Html}
+        <rect x="${b3X-14}" y="115" width="28" height="60" rx="4" fill="#8fa9c4" stroke="#ffffff" stroke-width="1.5"/>
+        <text x="${b3X-20}" y="148" fill="#f8fafc" font-size="10.5" font-weight="700" text-anchor="end">R3: ${formatOhms(r3)}</text>
+        <text x="${b3X+20}" y="148" fill="#38bdf8" font-size="9.5" font-family="monospace">I3=${(i3*1000).toFixed(1)}mA</text>
 
         <!-- Meter Overlay -->
         ${meterOverlayHtml}
@@ -2707,114 +2822,159 @@
       const v1 = iTotal * r1, vp = iTotal * rp, v4 = iTotal * r4;
       const i2 = vp / r2, i3 = vp / r3;
 
+      const srcX = 60, rightX = 640;
+      const topY = 55, botY = 240;
+      const r1X = 145, r4X = 555;
+      const paraLeftX = 250, paraRightX = 450;
+      const r2Y = 25, r3Y = 85;
+
+      let topWireHtml = `
+        <line x1="${srcX}" y1="${topY}" x2="${paraLeftX}" y2="${topY}" stroke="#64748b" stroke-width="3.5"/>
+        <line x1="${paraRightX}" y1="${topY}" x2="${rightX}" y2="${topY}" stroke="#64748b" stroke-width="3.5"/>
+      `;
+      let r2WireHtml = `<line x1="${paraLeftX}" y1="${r2Y}" x2="${paraRightX}" y2="${r2Y}" stroke="#64748b" stroke-width="3"/>`;
+      let r3WireHtml = `<line x1="${paraLeftX}" y1="${r3Y}" x2="${paraRightX}" y2="${r3Y}" stroke="#64748b" stroke-width="3"/>`;
       let meterOverlayHtml = '';
 
       if (mMode === 'volt') {
-        let vVal = v1.toFixed(2);
-        let lbl = 'โวลต์มิเตอร์ (VR1)';
-        let cx = 142;
-        if (mTarget === 'r2' || mTarget === 'r3') { vVal = vp.toFixed(2); lbl = 'โวลต์มิเตอร์ (V_R2//R3)'; cx = 335; }
-        else if (mTarget === 'r4') { vVal = v4.toFixed(2); lbl = 'โวลต์มิเตอร์ (VR4)'; cx = 525; }
-        else if (mTarget === 'total') { vVal = vs.toFixed(2); lbl = 'โวลต์มิเตอร์รวม (Vs)'; cx = 335; }
+        let vVal = v1.toFixed(2), lbl = 'โวลต์มิเตอร์ (VR1)', cx = 145, pA = r1X - 35, pB = r1X + 35;
+        if (mTarget === 'r2' || mTarget === 'r3') { vVal = vp.toFixed(2); lbl = 'โวลต์มิเตอร์ (V_R2//R3)'; cx = 350; pA = paraLeftX; pB = paraRightX; }
+        else if (mTarget === 'r4') { vVal = v4.toFixed(2); lbl = 'โวลต์มิเตอร์ (VR4)'; cx = 555; pA = r4X - 35; pB = r4X + 35; }
+        else if (mTarget === 'total') { vVal = vs.toFixed(2); lbl = 'โวลต์มิเตอร์รวม (Vs)'; cx = 350; pA = srcX; pB = rightX; }
 
         meterOverlayHtml = `
-          ${drawMeterDMM(cx, 195, 'volt', vVal, 'V', lbl)}
-          <path d="M ${cx-25} 222 L ${cx-40} 222 L ${cx-40} 50" stroke="#ef4444" stroke-width="2" fill="none" stroke-dasharray="3"/>
-          <path d="M ${cx+25} 222 L ${cx+40} 222 L ${cx+40} 50" stroke="#64748b" stroke-width="2" fill="none" stroke-dasharray="3"/>
-          <circle cx="${cx-40}" cy="50" r="4" fill="#ef4444"/>
-          <circle cx="${cx+40}" cy="50" r="4" fill="#64748b"/>
+          ${drawMeterDMM(cx, 160, 'volt', vVal, 'V', lbl)}
+          <path d="M ${cx-30} 186 L ${cx-30} 195 L ${pA} 195 L ${pA} ${topY}" stroke="#ef4444" stroke-width="2.5" fill="none" stroke-dasharray="4"/>
+          <path d="M ${cx+30} 186 L ${cx+30} 195 L ${pB} 195 L ${pB} ${topY}" stroke="#64748b" stroke-width="2.5" fill="none" stroke-dasharray="4"/>
+          <circle cx="${pA}" cy="${topY}" r="5" fill="#ef4444" stroke="#fff" stroke-width="1.5"/>
+          <circle cx="${pB}" cy="${topY}" r="5" fill="#64748b" stroke="#fff" stroke-width="1.5"/>
         `;
       } else if (mMode === 'amp') {
-        let aVal = (iTotal * 1000).toFixed(2);
-        let lbl = 'แอมมิเตอร์กระแสรวม I_total';
-        let cx = 95;
-        if (mTarget === 'r2') { aVal = (i2 * 1000).toFixed(2); lbl = 'แอมมิเตอร์กิ่ง I_R2'; cx = 265; }
-        else if (mTarget === 'r3') { aVal = (i3 * 1000).toFixed(2); lbl = 'แอมมิเตอร์กิ่ง I_R3'; cx = 265; }
-
-        meterOverlayHtml = `
-          ${drawMeterDMM(cx, 195, 'amp', aVal, 'mA', lbl)}
-          <circle cx="${cx}" cy="50" r="4" fill="#38bdf8"/>
-          <path d="M ${cx} 167 L ${cx} 50" stroke="#38bdf8" stroke-width="2" stroke-dasharray="3"/>
-        `;
+        if (mTarget === 'r2') {
+          const aVal = (i2 * 1000).toFixed(2);
+          r2WireHtml = `
+            <line x1="${paraLeftX}" y1="${r2Y}" x2="280" y2="${r2Y}" stroke="#64748b" stroke-width="3"/>
+            <line x1="320" y1="${r2Y}" x2="${paraRightX}" y2="${r2Y}" stroke="#64748b" stroke-width="3"/>
+          `;
+          meterOverlayHtml = `
+            ${drawMeterDMM(350, 160, 'amp', aVal, 'mA', 'แอมมิเตอร์กิ่ง R2 (ขนานบน)')}
+            <circle cx="280" cy="${r2Y}" r="5" fill="#ef4444" stroke="#fff" stroke-width="1.5"/>
+            <circle cx="320" cy="${r2Y}" r="5" fill="#64748b" stroke="#fff" stroke-width="1.5"/>
+            <path d="M 320 186 L 280 186 L 280 ${r2Y}" stroke="#ef4444" stroke-width="2.5" fill="none"/>
+            <path d="M 380 186 L 320 186 L 320 ${r2Y}" stroke="#64748b" stroke-width="2.5" fill="none"/>
+            <text x="300" y="${r2Y-10}" fill="#38bdf8" font-size="8.5" font-weight="700">✂️ กิ่ง R2</text>
+          `;
+        } else if (mTarget === 'r3') {
+          const aVal = (i3 * 1000).toFixed(2);
+          r3WireHtml = `
+            <line x1="${paraLeftX}" y1="${r3Y}" x2="280" y2="${r3Y}" stroke="#64748b" stroke-width="3"/>
+            <line x1="320" y1="${r3Y}" x2="${paraRightX}" y2="${r3Y}" stroke="#64748b" stroke-width="3"/>
+          `;
+          meterOverlayHtml = `
+            ${drawMeterDMM(350, 160, 'amp', aVal, 'mA', 'แอมมิเตอร์กิ่ง R3 (ขนานล่าง)')}
+            <circle cx="280" cy="${r3Y}" r="5" fill="#ef4444" stroke="#fff" stroke-width="1.5"/>
+            <circle cx="320" cy="${r3Y}" r="5" fill="#64748b" stroke="#fff" stroke-width="1.5"/>
+            <path d="M 320 186 L 280 186 L 280 ${r3Y}" stroke="#ef4444" stroke-width="2.5" fill="none"/>
+            <path d="M 380 186 L 320 186 L 320 ${r3Y}" stroke="#64748b" stroke-width="2.5" fill="none"/>
+            <text x="300" y="${r3Y-10}" fill="#38bdf8" font-size="8.5" font-weight="700">✂️ กิ่ง R3</text>
+          `;
+        } else if (mTarget === 'r4') {
+          const aVal = (iTotal * 1000).toFixed(2);
+          topWireHtml = `
+            <line x1="${srcX}" y1="${topY}" x2="${paraLeftX}" y2="${topY}" stroke="#64748b" stroke-width="3.5"/>
+            <line x1="${paraRightX}" y1="${topY}" x2="490" y2="${topY}" stroke="#64748b" stroke-width="3.5"/>
+            <line x1="520" y1="${topY}" x2="${rightX}" y2="${topY}" stroke="#64748b" stroke-width="3.5"/>
+          `;
+          meterOverlayHtml = `
+            ${drawMeterDMM(520, 160, 'amp', aVal, 'mA', 'แอมมิเตอร์หลังผ่าน R4')}
+            <circle cx="490" cy="${topY}" r="5" fill="#ef4444" stroke="#fff" stroke-width="1.5"/>
+            <circle cx="520" cy="${topY}" r="5" fill="#64748b" stroke="#fff" stroke-width="1.5"/>
+            <path d="M 490 186 L 490 ${topY}" stroke="#ef4444" stroke-width="2.5" fill="none"/>
+            <path d="M 550 186 L 520 186 L 520 ${topY}" stroke="#64748b" stroke-width="2.5" fill="none"/>
+          `;
+        } else {
+          // total main wire before R1
+          const aVal = (iTotal * 1000).toFixed(2);
+          topWireHtml = `
+            <line x1="${srcX}" y1="${topY}" x2="90" y2="${topY}" stroke="#64748b" stroke-width="3.5"/>
+            <line x1="120" y1="${topY}" x2="${paraLeftX}" y2="${topY}" stroke="#64748b" stroke-width="3.5"/>
+            <line x1="${paraRightX}" y1="${topY}" x2="${rightX}" y2="${topY}" stroke="#64748b" stroke-width="3.5"/>
+          `;
+          meterOverlayHtml = `
+            ${drawMeterDMM(180, 160, 'amp', aVal, 'mA', 'แอมมิเตอร์กระแสรวม (สายหลัก)')}
+            <circle cx="90" cy="${topY}" r="5" fill="#ef4444" stroke="#fff" stroke-width="1.5"/>
+            <circle cx="120" cy="${topY}" r="5" fill="#64748b" stroke="#fff" stroke-width="1.5"/>
+            <path d="M 150 186 L 90 186 L 90 ${topY}" stroke="#ef4444" stroke-width="2.5" fill="none"/>
+            <path d="M 210 186 L 120 186 L 120 ${topY}" stroke="#64748b" stroke-width="2.5" fill="none"/>
+            <text x="105" y="${topY-10}" fill="#38bdf8" font-size="8.5" font-weight="700">✂️ สายหลัก</text>
+          `;
+        }
       } else if (mMode === 'watt') {
-        let pVal = (v1 * iTotal * 1000).toFixed(1);
-        let lbl = 'วัตต์มิเตอร์ (PR1)';
-        let cx = 142;
-        if (mTarget === 'r2') { pVal = (vp * i2 * 1000).toFixed(1); lbl = 'วัตต์มิเตอร์ (PR2)'; cx = 335; }
-        else if (mTarget === 'r3') { pVal = (vp * i3 * 1000).toFixed(1); lbl = 'วัตต์มิเตอร์ (PR3)'; cx = 335; }
-        else if (mTarget === 'r4') { pVal = (v4 * iTotal * 1000).toFixed(1); lbl = 'วัตต์มิเตอร์ (PR4)'; cx = 525; }
-        else if (mTarget === 'total') { pVal = (vs * iTotal * 1000).toFixed(1); lbl = 'วัตต์มิเตอร์รวม (P_total)'; cx = 335; }
+        let pVal = (v1 * iTotal * 1000).toFixed(1), lbl = 'วัตต์มิเตอร์ (PR1)', cx = 145;
+        if (mTarget === 'r2') { pVal = (vp * i2 * 1000).toFixed(1); lbl = 'วัตต์มิเตอร์ (PR2)'; cx = 350; }
+        else if (mTarget === 'r3') { pVal = (vp * i3 * 1000).toFixed(1); lbl = 'วัตต์มิเตอร์ (PR3)'; cx = 350; }
+        else if (mTarget === 'r4') { pVal = (v4 * iTotal * 1000).toFixed(1); lbl = 'วัตต์มิเตอร์ (PR4)'; cx = 555; }
+        else if (mTarget === 'total') { pVal = (vs * iTotal * 1000).toFixed(1); lbl = 'วัตต์มิเตอร์รวม (P_total)'; cx = 350; }
 
         meterOverlayHtml = `
-          ${drawMeterDMM(cx, 195, 'watt', pVal, 'mW', lbl)}
+          ${drawMeterDMM(cx, 160, 'watt', pVal, 'mW', lbl)}
         `;
       } else if (mMode === 'ohm') {
-        let rVal = (r1 >= 1000) ? (r1/1000).toFixed(2) : r1.toFixed(1);
-        let rUnit = (r1 >= 1000) ? 'kΩ' : 'Ω';
-        let lbl = 'โอห์มมิเตอร์ (R1)';
-        let cx = 142;
-        if (mTarget === 'r23') { rVal = (rp >= 1000) ? (rp/1000).toFixed(2) : rp.toFixed(1); rUnit = (rp >= 1000) ? 'kΩ' : 'Ω'; lbl = 'โอห์มมิเตอร์ (R2//R3)'; cx = 335; }
-        else if (mTarget === 'r4') { rVal = (r4 >= 1000) ? (r4/1000).toFixed(2) : r4.toFixed(1); rUnit = (r4 >= 1000) ? 'kΩ' : 'Ω'; lbl = 'โอห์มมิเตอร์ (R4)'; cx = 525; }
+        let rVal = (r1 >= 1000) ? (r1/1000).toFixed(2) : r1.toFixed(1), rUnit = (r1 >= 1000) ? 'kΩ' : 'Ω', lbl = 'โอห์มมิเตอร์ (R1)', cx = 145;
+        if (mTarget === 'r23') { rVal = (rp >= 1000) ? (rp/1000).toFixed(2) : rp.toFixed(1); rUnit = (rp >= 1000) ? 'kΩ' : 'Ω'; lbl = 'โอห์มมิเตอร์ (R2//R3)'; cx = 350; }
+        else if (mTarget === 'r4') { rVal = (r4 >= 1000) ? (r4/1000).toFixed(2) : r4.toFixed(1); rUnit = (r4 >= 1000) ? 'kΩ' : 'Ω'; lbl = 'โอห์มมิเตอร์ (R4)'; cx = 555; }
         else if (mTarget === 'total') {
           const rTot = r1 + rp + r4;
           rVal = (rTot >= 1000) ? (rTot/1000).toFixed(2) : rTot.toFixed(1);
           rUnit = (rTot >= 1000) ? 'kΩ' : 'Ω';
           lbl = 'โอห์มมิเตอร์ (R_total รวมผสม)';
-          cx = 335;
+          cx = 350;
         }
 
         meterOverlayHtml = `
-          ${drawMeterDMM(cx, 195, 'ohm', rVal, rUnit, lbl)}
-          <path d="M ${cx-25} 222 L ${cx-40} 222 L ${cx-40} 50" stroke="#10b981" stroke-width="2" fill="none" stroke-dasharray="3"/>
-          <path d="M ${cx+25} 222 L ${cx+40} 222 L ${cx+40} 50" stroke="#64748b" stroke-width="2" fill="none" stroke-dasharray="3"/>
-          <circle cx="${cx-40}" cy="50" r="4" fill="#10b981"/>
-          <circle cx="${cx+40}" cy="50" r="4" fill="#64748b"/>
+          ${drawMeterDMM(cx, 160, 'ohm', rVal, rUnit, lbl)}
         `;
       }
 
       svg.innerHTML = `
         <!-- Main Wire Loop -->
-        <line x1="60" y1="50" x2="210" y2="50" stroke="#64748b" stroke-width="3.5"/>
-        <line x1="460" y1="50" x2="610" y2="50" stroke="#64748b" stroke-width="3.5"/>
-        <line x1="610" y1="50" x2="610" y2="220" stroke="#64748b" stroke-width="3.5"/>
-        <line x1="610" y1="220" x2="60" y2="220" stroke="#64748b" stroke-width="3.5" stroke-dasharray="${isOhmMode ? '6' : '0'}"/>
-        <line x1="60" y1="220" x2="60" y2="50" stroke="#64748b" stroke-width="3.5"/>
+        ${topWireHtml}
+        <line x1="${rightX}" y1="${topY}" x2="${rightX}" y2="${botY}" stroke="#64748b" stroke-width="3.5"/>
+        <line x1="${rightX}" y1="${botY}" x2="${srcX}" y2="${botY}" stroke="#64748b" stroke-width="3.5" stroke-dasharray="${isOhmMode ? '6' : '0'}"/>
+        <line x1="${srcX}" y1="${botY}" x2="${srcX}" y2="${topY}" stroke="#64748b" stroke-width="3.5"/>
 
         <!-- Source or Power Disconnected -->
         ${isOhmMode ? `
-          <rect x="35" y="115" width="50" height="50" rx="8" fill="#1e293b" stroke="#f43f5e" stroke-width="2"/>
-          <text x="60" y="138" fill="#f43f5e" font-size="11" font-weight="800" text-anchor="middle">ปลดไฟ</text>
-          <text x="60" y="153" fill="#94a3b8" font-size="9" font-weight="700" text-anchor="middle">OFF</text>
+          <rect x="35" y="105" width="50" height="55" rx="8" fill="#1e293b" stroke="#f43f5e" stroke-width="2"/>
+          <text x="60" y="128" fill="#f43f5e" font-size="11" font-weight="800" text-anchor="middle">ปลดไฟ</text>
+          <text x="60" y="145" fill="#94a3b8" font-size="9" font-weight="700" text-anchor="middle">OFF</text>
         ` : `
-          <circle cx="60" cy="135" r="22" fill="#0f172a" stroke="#38bdf8" stroke-width="3"/>
-          <text x="60" y="130" fill="#38bdf8" font-size="13" font-weight="700" text-anchor="middle">+</text>
-          <text x="60" y="146" fill="#94a3b8" font-size="13" font-weight="700" text-anchor="middle">−</text>
+          <circle cx="${srcX}" cy="135" r="23" fill="#0f172a" stroke="#38bdf8" stroke-width="3"/>
+          <text x="${srcX}" y="130" fill="#38bdf8" font-size="13" font-weight="700" text-anchor="middle">+</text>
+          <text x="${srcX}" y="146" fill="#94a3b8" font-size="13" font-weight="700" text-anchor="middle">−</text>
         `}
 
         <!-- R1 (Series Front) -->
-        <rect x="110" y="38" width="65" height="24" rx="4" fill="#8fa9c4" stroke="#ffffff" stroke-width="1.5"/>
-        <text x="142" y="30" fill="#f8fafc" font-size="10" font-weight="700" text-anchor="middle">R1: ${formatOhms(r1)}</text>
+        <rect x="${r1X-32}" y="${topY-12}" width="64" height="24" rx="4" fill="#8fa9c4" stroke="#ffffff" stroke-width="1.5"/>
+        <text x="${r1X}" y="${topY-18}" fill="#f8fafc" font-size="10" font-weight="700" text-anchor="middle">R1: ${formatOhms(r1)}</text>
 
         <!-- Parallel Block in Middle -->
-        <line x1="210" y1="50" x2="245" y2="50" stroke="#64748b" stroke-width="3"/>
-        <line x1="245" y1="22" x2="245" y2="78" stroke="#64748b" stroke-width="3"/>
-        
-        <!-- Top Branch R2 -->
-        <line x1="245" y1="22" x2="425" y2="22" stroke="#64748b" stroke-width="3"/>
-        <rect x="300" y="10" width="68" height="24" rx="4" fill="#8fa9c4" stroke="#38bdf8" stroke-width="1.5"/>
-        <text x="334" y="46" fill="#38bdf8" font-size="9.5" font-weight="700" text-anchor="middle">R2: ${formatOhms(r2)} (I2=${(i2*1000).toFixed(1)}mA)</text>
+        <line x1="${paraLeftX}" y1="${r2Y}" x2="${paraLeftX}" y2="${r3Y}" stroke="#64748b" stroke-width="3"/>
+        ${r2WireHtml}
+        ${r3WireHtml}
+        <line x1="${paraRightX}" y1="${r2Y}" x2="${paraRightX}" y2="${r3Y}" stroke="#64748b" stroke-width="3"/>
 
-        <!-- Bottom Branch R3 -->
-        <line x1="245" y1="78" x2="425" y2="78" stroke="#64748b" stroke-width="3"/>
-        <rect x="300" y="66" width="68" height="24" rx="4" fill="#8fa9c4" stroke="#38bdf8" stroke-width="1.5"/>
-        <text x="334" y="102" fill="#38bdf8" font-size="9.5" font-weight="700" text-anchor="middle">R3: ${formatOhms(r3)} (I3=${(i3*1000).toFixed(1)}mA)</text>
+        <!-- R2 (Parallel Top) -->
+        <rect x="320" y="${r2Y-11}" width="60" height="22" rx="4" fill="#8fa9c4" stroke="#38bdf8" stroke-width="1.5"/>
+        <text x="350" y="${r2Y-15}" fill="#38bdf8" font-size="9.5" font-weight="700" text-anchor="middle">R2: ${formatOhms(r2)} (${(i2*1000).toFixed(1)}mA)</text>
 
-        <line x1="425" y1="22" x2="425" y2="78" stroke="#64748b" stroke-width="3"/>
-        <line x1="425" y1="50" x2="460" y2="50" stroke="#64748b" stroke-width="3"/>
+        <!-- R3 (Parallel Bottom) -->
+        <rect x="320" y="${r3Y-11}" width="60" height="22" rx="4" fill="#8fa9c4" stroke="#38bdf8" stroke-width="1.5"/>
+        <text x="350" y="${r3Y+24}" fill="#38bdf8" font-size="9.5" font-weight="700" text-anchor="middle">R3: ${formatOhms(r3)} (${(i3*1000).toFixed(1)}mA)</text>
 
         <!-- R4 (Series Back) -->
-        <rect x="495" y="38" width="65" height="24" rx="4" fill="#8fa9c4" stroke="#ffffff" stroke-width="1.5"/>
-        <text x="527" y="30" fill="#f8fafc" font-size="10" font-weight="700" text-anchor="middle">R4: ${formatOhms(r4)}</text>
+        <rect x="${r4X-32}" y="${topY-12}" width="64" height="24" rx="4" fill="#8fa9c4" stroke="#ffffff" stroke-width="1.5"/>
+        <text x="${r4X}" y="${topY-18}" fill="#f8fafc" font-size="10" font-weight="700" text-anchor="middle">R4: ${formatOhms(r4)}</text>
 
         <!-- Meter Overlay -->
         ${meterOverlayHtml}
@@ -2911,71 +3071,88 @@
       let meterDisplay = '';
 
       if (dMeterMode === 'volt') {
-        meterDisplay = drawMeterDMM(530, 135, 'volt', vout.toFixed(2), 'V', 'โวลต์มิเตอร์วัด Vout (ขนาน)');
+        meterDisplay = `
+          ${drawMeterDMM(550, 135, 'volt', vout.toFixed(2), 'V', 'โวลต์มิเตอร์วัด Vout (ขนาน)')}
+          <path d="M 480 135 L 300 135" stroke="#ef4444" stroke-width="2" fill="none" stroke-dasharray="3"/>
+          <path d="M 520 176 L 480 230" stroke="#64748b" stroke-width="2" fill="none" stroke-dasharray="3"/>
+          <circle cx="300" cy="135" r="5" fill="#ef4444"/>
+          <circle cx="480" cy="230" r="5" fill="#64748b"/>
+        `;
       } else if (dMeterMode === 'amp') {
         const iLoad = hasLoad ? (vout / rl * 1000).toFixed(2) : '0.00';
-        meterDisplay = drawMeterDMM(530, 135, 'amp', iLoad, 'mA', 'แอมมิเตอร์วัดกระแสโหลด I_L');
+        meterDisplay = `
+          ${drawMeterDMM(550, 135, 'amp', iLoad, 'mA', 'แอมมิเตอร์วัดกระแสโหลด I_L')}
+          <circle cx="300" cy="135" r="5" fill="#ef4444"/>
+          <circle cx="410" cy="135" r="5" fill="#64748b"/>
+          <path d="M 480 135 L 300 135" stroke="#ef4444" stroke-width="2" fill="none"/>
+          <path d="M 520 176 L 410 135" stroke="#64748b" stroke-width="2" fill="none"/>
+          <text x="355" y="125" fill="#38bdf8" font-size="8.5" font-weight="700" text-anchor="middle">✂️ ตัดสายเข้าโหลด</text>
+        `;
       } else if (dMeterMode === 'watt') {
         const pLoad = hasLoad ? ((vout * vout) / rl * 1000).toFixed(2) : '0.00';
-        meterDisplay = drawMeterDMM(530, 135, 'watt', pLoad, 'mW', 'วัตต์มิเตอร์วัดเพาเวอร์โหลด');
+        meterDisplay = `
+          ${drawMeterDMM(550, 135, 'watt', pLoad, 'mW', 'วัตต์มิเตอร์วัดเพาเวอร์โหลด')}
+        `;
       }
 
       svg.innerHTML = `
         <!-- Main Rails -->
-        <line x1="80" y1="30" x2="300" y2="30" stroke="#64748b" stroke-width="4"/>
-        <line x1="80" y1="220" x2="480" y2="220" stroke="#64748b" stroke-width="4"/>
+        <line x1="80" y1="40" x2="300" y2="40" stroke="#64748b" stroke-width="4"/>
+        <line x1="80" y1="230" x2="480" y2="230" stroke="#64748b" stroke-width="4"/>
 
         <!-- Source -->
-        <line x1="80" y1="30" x2="80" y2="220" stroke="#64748b" stroke-width="4"/>
-        <circle cx="80" cy="125" r="22" fill="#0f172a" stroke="#38bdf8" stroke-width="3"/>
-        <text x="80" y="120" fill="#38bdf8" font-size="13" font-weight="700" text-anchor="middle">+</text>
-        <text x="80" y="136" fill="#94a3b8" font-size="13" font-weight="700" text-anchor="middle">−</text>
-        <text x="45" y="130" fill="#38bdf8" font-size="11" font-weight="700">Vin ${vin}V</text>
+        <line x1="80" y1="40" x2="80" y2="230" stroke="#64748b" stroke-width="4"/>
+        <circle cx="80" cy="135" r="22" fill="#0f172a" stroke="#38bdf8" stroke-width="3"/>
+        <text x="80" y="130" fill="#38bdf8" font-size="13" font-weight="700" text-anchor="middle">+</text>
+        <text x="80" y="146" fill="#94a3b8" font-size="13" font-weight="700" text-anchor="middle">−</text>
+        <text x="45" y="140" fill="#38bdf8" font-size="11" font-weight="700">Vin ${vin}V</text>
 
         <!-- Divider Branch (R1, R2) -->
-        <line x1="300" y1="30" x2="300" y2="220" stroke="#64748b" stroke-width="4"/>
+        <line x1="300" y1="40" x2="300" y2="230" stroke="#64748b" stroke-width="4"/>
         
         <!-- R1 (Top) -->
-        <rect x="288" y="55" width="24" height="50" rx="4" fill="#8fa9c4" stroke="#ffffff" stroke-width="1.5"/>
-        <text x="275" y="85" fill="#f8fafc" font-size="11" font-weight="700" text-anchor="end">R1: ${formatOhms(r1)}</text>
+        <rect x="288" y="60" width="24" height="50" rx="4" fill="#8fa9c4" stroke="#ffffff" stroke-width="1.5"/>
+        <text x="275" y="90" fill="#f8fafc" font-size="11" font-weight="700" text-anchor="end">R1: ${formatOhms(r1)}</text>
 
         <!-- Center Node (Vout) -->
-        <circle cx="300" cy="125" r="6" fill="#10b981"/>
-        <line x1="300" y1="125" x2="480" y2="125" stroke="#10b981" stroke-width="3" stroke-dasharray="4"/>
+        <circle cx="300" cy="135" r="6" fill="#10b981"/>
+        ${dMeterMode === 'amp' && hasLoad ? `
+          <line x1="410" y1="135" x2="480" y2="135" stroke="#10b981" stroke-width="3" stroke-dasharray="4"/>
+        ` : `
+          <line x1="300" y1="135" x2="480" y2="135" stroke="#10b981" stroke-width="3" stroke-dasharray="4"/>
+        `}
 
         <!-- R2 (Bottom) -->
-        <rect x="288" y="145" width="24" height="50" rx="4" fill="#8fa9c4" stroke="#ffffff" stroke-width="1.5"/>
-        <text x="275" y="175" fill="#f8fafc" font-size="11" font-weight="700" text-anchor="end">R2: ${formatOhms(r2)}</text>
+        <rect x="288" y="155" width="24" height="50" rx="4" fill="#8fa9c4" stroke="#ffffff" stroke-width="1.5"/>
+        <text x="275" y="185" fill="#f8fafc" font-size="11" font-weight="700" text-anchor="end">R2: ${formatOhms(r2)}</text>
 
         <!-- Load Resistor Branch (RL) -->
         ${hasLoad ? `
-          <line x1="410" y1="125" x2="410" y2="220" stroke="#64748b" stroke-width="4"/>
-          <rect x="398" y="150" width="24" height="50" rx="4" fill="#8fa9c4" stroke="#f59e0b" stroke-width="1.5"/>
-          <text x="430" y="180" fill="#f59e0b" font-size="11" font-weight="700">RL: ${formatOhms(rl)}</text>
+          <line x1="410" y1="135" x2="410" y2="230" stroke="#64748b" stroke-width="4"/>
+          <rect x="398" y="160" width="24" height="50" rx="4" fill="#8fa9c4" stroke="#f59e0b" stroke-width="1.5"/>
+          <text x="430" y="190" fill="#f59e0b" font-size="11" font-weight="700">RL: ${formatOhms(rl)}</text>
         ` : ''}
 
         <!-- Meter Display and Probes -->
         ${meterDisplay}
-        <path d="M 465 135 L 300 125" stroke="#ef4444" stroke-width="2" fill="none" stroke-dasharray="3"/>
-        <path d="M 500 170 L 480 220" stroke="#64748b" stroke-width="2" fill="none" stroke-dasharray="3"/>
       `;
     }
 
     function drawPotentiometerSVG(vin, potTotal, potWiper, vout, dMeterMode) {
       const svg = document.getElementById('divider-live-svg');
-      const wiperY = 180 - (potWiper / 100) * 110;
+      const wiperY = 180 - (potWiper / 100) * 100;
       svg.innerHTML = `
         <line x1="100" y1="40" x2="280" y2="40" stroke="#64748b" stroke-width="4"/>
-        <line x1="100" y1="200" x2="480" y2="200" stroke="#64748b" stroke-width="4"/>
-        <line x1="100" y1="40" x2="100" y2="200" stroke="#64748b" stroke-width="4"/>
+        <line x1="100" y1="210" x2="480" y2="210" stroke="#64748b" stroke-width="4"/>
+        <line x1="100" y1="40" x2="100" y2="210" stroke="#64748b" stroke-width="4"/>
 
-        <circle cx="100" cy="120" r="22" fill="#0f172a" stroke="#38bdf8" stroke-width="3"/>
-        <text x="100" y="125" fill="#38bdf8" font-size="11" font-weight="700" text-anchor="middle">Vin ${vin}V</text>
+        <circle cx="100" cy="125" r="22" fill="#0f172a" stroke="#38bdf8" stroke-width="3"/>
+        <text x="100" y="130" fill="#38bdf8" font-size="11" font-weight="700" text-anchor="middle">Vin ${vin}V</text>
 
         <!-- Potentiometer Resistor Element -->
         <line x1="280" y1="40" x2="280" y2="70" stroke="#64748b" stroke-width="4"/>
         <rect x="268" y="70" width="24" height="110" rx="4" fill="#8fa9c4" stroke="#ffffff" stroke-width="2"/>
-        <line x1="280" y1="180" x2="280" y2="200" stroke="#64748b" stroke-width="4"/>
+        <line x1="280" y1="180" x2="280" y2="210" stroke="#64748b" stroke-width="4"/>
         <text x="245" y="130" fill="#f8fafc" font-size="11" font-weight="700" text-anchor="end">Pot: ${formatOhms(potTotal)}</text>
 
         <!-- Wiper (Arrow Contact) -->
@@ -2983,15 +3160,12 @@
         <line x1="330" y1="${wiperY}" x2="480" y2="${wiperY}" stroke="#38bdf8" stroke-width="3" stroke-dasharray="4"/>
 
         <!-- Meter Chassis Overlay -->
-        ${drawMeterDMM(530, 135, 'volt', vout.toFixed(2), 'V', 'โวลต์มิเตอร์วัดขา Wiper')}
-        <path d="M 465 135 L 330 ${wiperY}" stroke="#ef4444" stroke-width="2" fill="none" stroke-dasharray="3"/>
-        <path d="M 500 170 L 480 200" stroke="#64748b" stroke-width="2" fill="none" stroke-dasharray="3"/>
+        ${drawMeterDMM(550, 135, 'volt', vout.toFixed(2), 'V', 'โวลต์มิเตอร์วัดขา Wiper')}
+        <path d="M 480 135 L 330 ${wiperY}" stroke="#ef4444" stroke-width="2" fill="none" stroke-dasharray="3"/>
+        <path d="M 520 176 L 480 210" stroke="#64748b" stroke-width="2" fill="none" stroke-dasharray="3"/>
       `;
     }
 
-    /* ================================================================= */
-    /* 6. TAB 4: OHMMETER, TOLERANCE & POWER RATING ENGINE               */
-    /* ================================================================= */
     function onPowerSimulationChange() {
       const pRating = parseFloat(document.getElementById('power-resistor-rating').value) || 0.25;
       const v = parseFloat(document.getElementById('power-v-input').value) || 5;
@@ -3071,7 +3245,7 @@
           "ง. ต่อสายขั้วบวกเข้ากับกราวด์เสมอ"
         ],
         correct: 0,
-        explain: "โวลต์มิเตอร์มีความต้านทานภายในสูงมาก ($R_{in} \approx \infty$) ต้องต่อแบบขนาน (Parallel) คร่อมจุดที่ต้องการวัดแรงดันตกคร่อมโดยไม่ต้องตัดวงจร"
+        explain: "โวลต์มิเตอร์มีความต้านทานภายในสูงมาก ($R_{in} \\approx \\infty$) ต้องต่อแบบขนาน (Parallel) คร่อมจุดที่ต้องการวัดแรงดันตกคร่อมโดยไม่ต้องตัดวงจร"
       },
       {
         id: 2,
@@ -3083,7 +3257,7 @@
           "ง. แรงดันในวงจรจะเพิ่มขึ้นสองเท่า"
         ],
         correct: 1,
-        explain: "แอมมิเตอร์มีความต้านทานภายในต่ำมาก ($R_{in} \approx 0$) เพื่อไม่ให้ต้านกระแส หากนำไปต่อขนานจะทำหน้าที่เสมือนสายไฟช็อตข้ามขั้ว เกิดกระแสไหลมหาศาลจนฟิวส์ขาดหรือมิเตอร์พัง"
+        explain: "แอมมิเตอร์มีความต้านทานภายในต่ำมาก ($R_{in} \\approx 0$) เพื่อไม่ให้ต้านกระแส หากนำไปต่อขนานจะทำหน้าที่เสมือนสายไฟช็อตข้ามขั้ว เกิดกระแสไหลมหาศาลจนฟิวส์ขาดหรือมิเตอร์พัง"
       },
       {
         id: 3,
@@ -3107,7 +3281,7 @@
           "ง. ปลดไฟออกจากวงจรแล้ววัดค่าวัตต์"
         ],
         correct: 2,
-        explain: "กำลังไฟฟ้า $P = V \times I$ ดังนั้นวัตต์มิเตอร์จึงต้องรับสัญญาณทั้งกระแสที่ไหลผ่าน (อนุกรม) และแรงดันตกคร่อม (ขนาน) มาประมวลผลพร้อมกัน"
+        explain: "กำลังไฟฟ้า $P = V \\times I$ ดังนั้นวัตต์มิเตอร์จึงต้องรับสัญญาณทั้งกระแสที่ไหลผ่าน (อนุกรม) และแรงดันตกคร่อม (ขนาน) มาประมวลผลพร้อมกัน"
       },
       {
         id: 5,
@@ -3401,10 +3575,10 @@
 
       const gasUrl = document.getElementById('gas-url') ? document.getElementById('gas-url').value.trim() : '';
       let syncMsg = gasUrl 
-        ? '\n\n☁️ ส่งข้อมูลไปยัง Google Apps Script Web App เรียบร้อยแล้ว!' 
-        : '\n\n💡 บันทึกในเบราว์เซอร์สำเร็จ (หากต้องการบันทึกลงชีต ให้กรอก Google Apps Script Web App URL)';
+        ? '\\n\\n☁️ ส่งข้อมูลไปยัง Google Apps Script Web App เรียบร้อยแล้ว!' 
+        : '\\n\\n💡 บันทึกในเบราว์เซอร์สำเร็จ (หากต้องการบันทึกลงชีต ให้กรอก Google Apps Script Web App URL)';
       
-      alert(`✅ บันทึกผลสำเร็จ!\n\n📋 กิจกรรม: ${activity}\n📊 ผลลัพธ์: ${result}${syncMsg}`);
+      alert(`✅ บันทึกผลสำเร็จ!\\n\\n📋 กิจกรรม: ${activity}\\n📊 ผลลัพธ์: ${result}${syncMsg}`);
     }
 
     function renderHistoryTable() {
@@ -3433,11 +3607,11 @@
         alert('ยังไม่มีข้อมูลสำหรับส่งออก');
         return;
       }
-      let csv = 'Timestamp,Activity,Result,Student,Note\n';
+      let csv = 'Timestamp,Activity,Result,Student,Note\\n';
       state.history.forEach(h => {
-        csv += `"${h.timestamp}","${h.activity}","${h.result}","${h.student}","${h.note || ''}"\n`;
+        csv += `"${h.timestamp}","${h.activity}","${h.result}","${h.student}","${h.note || ''}"\\n`;
       });
-      const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+      const blob = new Blob(['\\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
