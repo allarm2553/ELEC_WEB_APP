@@ -1467,11 +1467,11 @@ function drawMultiplierSchematic() {
     drawCapH(mulSchemCtx, 88, 200, midY, 'C1 (Vm)');
     dotNode(mulSchemCtx, 200, midY);
 
-    // Diode D1 vertical to GND (pointing up)
+    // Diode D1 vertical to GND (pointing up: Cathode at midY, Anode at gndY)
     drawDiodeV(mulSchemCtx, 200, gndY, midY, false, 'D1');
     dotNode(mulSchemCtx, 200, gndY);
 
-    // Diode D2 horizontal to node B
+    // Diode D2 horizontal to node B (Cathode at 360)
     drawDiodeH(mulSchemCtx, 200, 360, midY, true, 'D2');
     dotNode(mulSchemCtx, 360, midY);
 
@@ -1486,7 +1486,7 @@ function drawMultiplierSchematic() {
 
   } else if (type === 'full_doubler') {
     // 2. Full-Wave Voltage Doubler (Delon Circuit)
-    // AC Source
+    // AC Source on left
     drawAcSrc(mulSchemCtx, 70, midY, 18, 'V_in (AC)', vm);
     
     // Top terminal of AC goes to middle split node
@@ -1524,33 +1524,32 @@ function drawMultiplierSchematic() {
     wire(mulSchemCtx, 65, midY + 18, 65, gndY); gndSymbol(mulSchemCtx, 65, gndY);
     wire(mulSchemCtx, 65, gndY, 160, gndY);
 
-    // C1 on middle rail
+    // C1 on middle rail (from AC to Node 1)
     drawCapH(mulSchemCtx, 83, 160, midY, 'C1 (Vm)');
     dotNode(mulSchemCtx, 160, midY);
 
-    // D1 vertical to GND (pointing up)
+    // D1 vertical to GND (pointing UP: Cathode at 160,140, Anode at 160,220)
     drawDiodeV(mulSchemCtx, 160, gndY, midY, false, 'D1');
     dotNode(mulSchemCtx, 160, gndY);
 
-    // D2 diagonal from (160, midY) to (290, topY)
-    drawDiodeDiag(mulSchemCtx, 160, midY, 290, topY, true, 'D2');
-    dotNode(mulSchemCtx, 290, topY);
+    // D2 diagonal UP-RIGHT: (160, midY) -> (280, topY)
+    drawDiodeDiag(mulSchemCtx, 160, midY, 280, topY, true, 'D2');
+    dotNode(mulSchemCtx, 280, topY);
 
-    // C2 on top rail from 290 to 420
-    drawCapH(mulSchemCtx, 290, 420, topY, 'C2 (2·Vm)');
-    dotNode(mulSchemCtx, 420, topY);
+    // C2 on top rail from 280 to 400
+    drawCapH(mulSchemCtx, 280, 400, topY, 'C2 (2·Vm)');
+    dotNode(mulSchemCtx, 400, topY);
 
-    // D3 diagonal from (420, topY) to (290, gndY)
-    drawDiodeDiag(mulSchemCtx, 420, topY, 290, gndY, false, 'D3');
-    dotNode(mulSchemCtx, 290, gndY);
+    // D3 diagonal DOWN-RIGHT: (280, topY) -> (400, gndY)
+    drawDiodeDiag(mulSchemCtx, 280, topY, 400, gndY, true, 'D3');
+    dotNode(mulSchemCtx, 400, gndY);
 
-    // C3 on bottom rail from 160 to 420
-    drawCapH(mulSchemCtx, 160, 420, gndY, 'C3 (2·Vm)');
-    dotNode(mulSchemCtx, 420, gndY);
+    // C3 on bottom rail from 160 to 400
+    drawCapH(mulSchemCtx, 160, 400, gndY, 'C3 (2·Vm)');
 
-    // Output taken across bottom node to top node (3·Vm)
-    wire(mulSchemCtx, 420, topY, 560, topY);
-    wire(mulSchemCtx, 420, gndY, 560, gndY);
+    // Output taken across GND and Top Node (3·Vm)
+    wire(mulSchemCtx, 400, topY, 560, topY);
+    wire(mulSchemCtx, 400, gndY, 560, gndY);
     dotNode(mulSchemCtx, 560, topY, `+V_out = ${(3*vm-2.1).toFixed(1)}V (3·Vm)`, 'top');
     dotNode(mulSchemCtx, 560, gndY, 'GND (0V)', 'bottom');
 
@@ -1564,38 +1563,37 @@ function drawMultiplierSchematic() {
     drawCapH(mulSchemCtx, 77, 150, midY, 'C1 (Vm)');
     dotNode(mulSchemCtx, 150, midY);
 
-    // D1
+    // D1 vertical
     drawDiodeV(mulSchemCtx, 150, gndY, midY, false, 'D1');
     dotNode(mulSchemCtx, 150, gndY);
 
-    // D2
+    // D2 diagonal UP-RIGHT: (150, midY) -> (260, topY)
     drawDiodeDiag(mulSchemCtx, 150, midY, 260, topY, true, 'D2');
     dotNode(mulSchemCtx, 260, topY);
 
-    // C2 (2·Vm) on top rail
+    // C2 (2·Vm) on top rail from 260 to 370
     drawCapH(mulSchemCtx, 260, 370, topY, 'C2 (2·Vm)');
     dotNode(mulSchemCtx, 370, topY);
 
-    // D3
-    drawDiodeDiag(mulSchemCtx, 370, topY, 260, gndY, false, 'D3');
-    dotNode(mulSchemCtx, 260, gndY);
-
-    // C3 (2·Vm) on bottom rail
-    drawCapH(mulSchemCtx, 150, 370, gndY, 'C3 (2·Vm)');
+    // D3 diagonal DOWN-RIGHT: (260, topY) -> (370, gndY)
+    drawDiodeDiag(mulSchemCtx, 260, topY, 370, gndY, true, 'D3');
     dotNode(mulSchemCtx, 370, gndY);
 
-    // D4
+    // C3 (2·Vm) on bottom rail from 150 to 370
+    drawCapH(mulSchemCtx, 150, 370, gndY, 'C3 (2·Vm)');
+
+    // D4 diagonal UP-RIGHT: (370, gndY) -> (480, topY)
     drawDiodeDiag(mulSchemCtx, 370, gndY, 480, topY, true, 'D4');
     dotNode(mulSchemCtx, 480, topY);
 
-    // C4 (2·Vm) on top rail
-    drawCapH(mulSchemCtx, 480, 560, topY, 'C4 (2·Vm)');
+    // C4 (2·Vm) on top rail from 370 to 480
+    drawCapH(mulSchemCtx, 370, 480, topY, 'C4 (2·Vm)');
 
     // Output taken across C2 + C4 on top rail (4·Vm)
-    wire(mulSchemCtx, 560, topY, 610, topY);
-    wire(mulSchemCtx, 370, gndY, 610, gndY);
-    dotNode(mulSchemCtx, 610, topY, `+V_out = ${(4*vm-2.8).toFixed(1)}V (4·Vm)`, 'top');
-    dotNode(mulSchemCtx, 610, gndY, 'GND (0V)', 'bottom');
+    wire(mulSchemCtx, 480, topY, 580, topY);
+    wire(mulSchemCtx, 370, gndY, 580, gndY);
+    dotNode(mulSchemCtx, 580, topY, `+V_out = ${(4*vm-2.8).toFixed(1)}V (4·Vm)`, 'top');
+    dotNode(mulSchemCtx, 580, gndY, 'GND (0V)', 'bottom');
   }
 }
 
