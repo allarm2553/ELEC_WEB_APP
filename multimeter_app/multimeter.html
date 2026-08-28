@@ -174,35 +174,36 @@
       position: relative;
     }
 
-    /* Rotary knob container - Enlarged to 200px to prevent overlapping labels */
+        /* Rotary knob container - 250px with ample space for 4 corner badges and numbers */
     .rotary-knob-wrapper {
       position: relative;
-      width: 236px;
-      height: 236px;
-      background: radial-gradient(circle, #1a202c 30%, #0d1117 75%);
+      width: 250px;
+      height: 250px;
+      background: radial-gradient(circle, #1a202c 30%, #0d1117 80%);
       border-radius: 50%;
       border: 3px solid #2d3748;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.6), inset 0 0 15px rgba(0,0,0,0.8);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.7), inset 0 0 15px rgba(0,0,0,0.9);
       margin-bottom: 0.75rem;
+      user-select: none;
     }
 
-    /* Dial knob - enlarged */
+    /* Dial knob - compact 90px diameter so numbers never collide */
     .rotary-knob-dial {
       position: absolute;
       top: 50%;
       left: 50%;
-      width: 124px;
-      height: 124px;
+      width: 90px;
+      height: 90px;
       background: linear-gradient(135deg, #374151, #111827);
       border-radius: 50%;
       border: 3px solid #4b5563;
-      margin-top: -62px;
-      margin-left: -62px;
+      margin-top: -45px;
+      margin-left: -45px;
       cursor: pointer;
-      box-shadow: inset 0 2px 5px rgba(255,255,255,0.25), 0 6px 12px rgba(0,0,0,0.6);
+      box-shadow: inset 0 2px 4px rgba(255,255,255,0.25), 0 6px 14px rgba(0,0,0,0.6);
       transform: rotate(0deg);
       transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      z-index: 5;
+      z-index: 10;
     }
 
     /* Dial pointer bar shape */
@@ -211,12 +212,12 @@
       position: absolute;
       top: 4px;
       left: 50%;
-      width: 8px;
-      height: 50px;
+      width: 6px;
+      height: 36px;
       background: #ffffff;
       border-radius: 2px;
       transform: translateX(-50%);
-      box-shadow: 0 0 5px rgba(255,255,255,0.5);
+      box-shadow: 0 0 6px rgba(255,255,255,0.7);
     }
 
     /* Dial range options text layout around knob */
@@ -232,86 +233,31 @@
     .dial-text {
       position: absolute;
       font-family: var(--font-mono);
-      font-size: 0.65rem;
+      font-size: 0.72rem;
       font-weight: 700;
       transform: translate(-50%, -50%);
       color: var(--text-muted);
       cursor: pointer;
       pointer-events: all;
+      padding: 2px 4px;
+      border-radius: 4px;
+      transition: all 0.15s ease;
+      z-index: 8;
     }
 
     .dial-text:hover {
       color: #ffffff;
+      background: rgba(255,255,255,0.1);
+      transform: translate(-50%, -50%) scale(1.15);
     }
 
     .dial-text.active {
       color: #ffffff !important;
-      text-shadow: 0 0 8px rgba(255,255,255,0.8);
-      font-size: 0.75rem;
-      font-weight: 800;
-    }
-
-    
-    /* Dial Sector Section Titles (DCV, ACV, Ω, DCA) */
-    .dial-section-badge {
-      position: absolute;
-      font-family: var(--font-brand);
-      font-size: 0.72rem;
-      font-weight: 800;
-      letter-spacing: 0.5px;
-      padding: 0.15rem 0.4rem;
+      text-shadow: 0 0 10px rgba(255,255,255,0.9);
+      font-size: 0.82rem;
+      font-weight: 900;
+      background: rgba(255,255,255,0.15);
       border-radius: 4px;
-      transform: translate(-50%, -50%);
-      pointer-events: none;
-      z-index: 2;
-      text-transform: uppercase;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.5);
-    }
-    .dial-section-badge.dcv {
-      background: rgba(59, 130, 246, 0.2);
-      color: #60a5fa;
-      border: 1px solid rgba(59, 130, 246, 0.4);
-    }
-    .dial-section-badge.acv {
-      background: rgba(239, 68, 68, 0.2);
-      color: #f87171;
-      border: 1px solid rgba(239, 68, 68, 0.4);
-    }
-    .dial-section-badge.ohms {
-      background: rgba(16, 185, 129, 0.2);
-      color: #34d399;
-      border: 1px solid rgba(16, 185, 129, 0.4);
-    }
-    .dial-section-badge.dca {
-      background: rgba(245, 158, 11, 0.2);
-      color: #fbbf24;
-      border: 1px solid rgba(245, 158, 11, 0.4);
-    }
-
-    /* Active Selected Range Banner */
-    .active-range-info-card {
-      width: 100%;
-      background: rgba(15, 23, 42, 0.85);
-      border: 1px solid var(--card-border);
-      border-radius: 8px;
-      padding: 0.45rem 0.6rem;
-      text-align: center;
-      margin-top: 0.25rem;
-    }
-    .active-range-type-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.35rem;
-      font-size: 0.72rem;
-      font-weight: 700;
-      padding: 0.2rem 0.5rem;
-      border-radius: 6px;
-      margin-bottom: 0.2rem;
-    }
-    .active-range-desc {
-      font-size: 0.7rem;
-      color: var(--text-secondary);
-      line-height: 1.3;
     }
 
     /* Colorized sections */
@@ -319,6 +265,77 @@
     .dial-text.acv { color: #f87171; }
     .dial-text.ohms { color: #34d399; }
     .dial-text.dca { color: #fbbf24; }
+
+    /* Corner Quadrant Section Badges (DCV, ACV, OHMS, DCA) positioned at 4 outer corners */
+    .dial-corner-badge {
+      position: absolute;
+      font-family: var(--font-brand);
+      font-size: 0.68rem;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      padding: 0.2rem 0.45rem;
+      border-radius: 6px;
+      pointer-events: none;
+      z-index: 6;
+      text-transform: uppercase;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.6);
+      white-space: nowrap;
+    }
+    .dial-corner-badge.acv {
+      top: 14px;
+      left: 14px;
+      background: rgba(239, 68, 68, 0.25);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.5);
+    }
+    .dial-corner-badge.ohms {
+      top: 14px;
+      right: 14px;
+      background: rgba(16, 185, 129, 0.25);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.5);
+    }
+    .dial-corner-badge.dcv {
+      bottom: 14px;
+      left: 14px;
+      background: rgba(59, 130, 246, 0.25);
+      color: #60a5fa;
+      border: 1px solid rgba(59, 130, 246, 0.5);
+    }
+    .dial-corner-badge.dca {
+      bottom: 14px;
+      right: 14px;
+      background: rgba(245, 158, 11, 0.25);
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.5);
+    }
+
+    /* Active Selected Range Banner */
+    .active-range-info-card {
+      width: 100%;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 0.5rem 0.75rem;
+      text-align: center;
+      margin-top: 0.25rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    }
+    .active-range-type-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 0.25rem 0.6rem;
+      border-radius: 6px;
+      margin-bottom: 0.25rem;
+    }
+    .active-range-desc {
+      font-size: 0.72rem;
+      color: var(--text-secondary);
+      line-height: 1.4;
+    }
 
     /* Ohm adjustment system */
     .ohm-adj-container {
@@ -866,40 +883,32 @@
       }
     }
 
-    // Section Definitions for the 4 Measurement Quadrants
-    const DIAL_SECTIONS = [
-      { id: 'dcv', title: 'DC V (V⎓)', color: 'dcv', angle: -108, badgeClass: 'dcv' },
-      { id: 'acv', title: 'AC V (V~)', color: 'acv', angle: -24, badgeClass: 'acv' },
-      { id: 'ohms', title: 'Ω (OHMS)', color: 'ohms', angle: 50, badgeClass: 'ohms' },
-      { id: 'dca', title: 'DC mA (DCA)', color: 'dca', angle: 125, badgeClass: 'dca' }
-    ];
-
-    // Dynamic rendering of rotary switch text labels around the circle
+        // Dynamic rendering of rotary switch text labels and 4 corner badges
     function renderRotaryLabels() {
       const overlay = document.getElementById('dial-labels');
       overlay.innerHTML = '';
       
-      // Enlarged layout sizes for 236x236 wrapper box
-      const radius = 95; // radius of numbers
-      const sectionRadius = 72; // radius of section headers
-      const center = 118; // center of 236x236 wrapper box
+      // 1. Render 4 Corner Quadrant Badges (ACV, OHMS, DCV, DCA)
+      const cornerBadges = [
+        { type: 'acv', text: '🔴 AC V (V~)', className: 'dial-corner-badge acv' },
+        { type: 'ohms', text: '🟢 Ω (OHMS)', className: 'dial-corner-badge ohms' },
+        { type: 'dcv', text: '🔵 DC V (V⎓)', className: 'dial-corner-badge dcv' },
+        { type: 'dca', text: '🟡 DC mA (DCA)', className: 'dial-corner-badge dca' }
+      ];
 
-      // 1. Render Quadrant Section Header Badges (DCV, ACV, Ω, DCA)
-      DIAL_SECTIONS.forEach(sec => {
-        const rad = ((sec.angle - 90) * Math.PI) / 180;
-        const x = center + sectionRadius * Math.cos(rad);
-        const y = center + sectionRadius * Math.sin(rad);
-
-        const badge = document.createElement('div');
-        badge.className = `dial-section-badge ${sec.badgeClass}`;
-        badge.innerText = sec.title;
-        badge.style.left = `${x}px`;
-        badge.style.top = `${y}px`;
-        overlay.appendChild(badge);
+      cornerBadges.forEach(b => {
+        const el = document.createElement('div');
+        el.className = b.className;
+        el.innerText = b.text;
+        overlay.appendChild(el);
       });
 
-      // 2. Render Numerical Range Options
+      // 2. Render Numerical Range Options at radius = 70px (Between 45px knob and 100px corner badges)
+      const radius = 72; // radius of range numbers
+      const center = 125; // center of 250x250 wrapper box
+
       DIAL_RANGES.forEach((range, idx) => {
+        // Angle in radians
         const rad = ((range.angle - 90) * Math.PI) / 180;
         const x = center + radius * Math.cos(rad);
         const y = center + radius * Math.sin(rad);
@@ -918,7 +927,7 @@
       });
       
       // Let dial click rotate clockwise/counter
-      document.getElementById('rotary-knob').addEventListener('click', rotateDialNext);
+      document.getElementById('rotary-knob').onclick = rotateDialNext;
     }
 
     function rotateDialNext() {
