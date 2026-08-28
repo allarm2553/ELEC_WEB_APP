@@ -473,7 +473,7 @@ input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.15); }
   <div class="pill-group">
     <button class="pill-btn active" onclick="selectMultiplierType('half_doubler', this)"><i class="fa-solid fa-bolt"></i> 1. Half-Wave Voltage Doubler (ทวี 2 เท่าครึ่งคลื่น)</button>
     <button class="pill-btn" onclick="selectMultiplierType('full_doubler', this)"><i class="fa-solid fa-bolt-lightning"></i> 2. Full-Wave Voltage Doubler (ทวี 2 เท่าเต็มคลื่น)</button>
-    <button class="pill-btn" onclick="selectMultiplierType('tripler', this)"><i class="fa-solid fa-tower-broadcast"></i> 3. Voltage Tripler (ทวี 3 เท่า: 3·Vm)</button>
+    <button class="pill-btn" onclick="selectMultiplierType('tripler', this)"><i class="fa-solid fa-layer-group"></i> 3. Voltage Tripler (ทวี 3 เท่า: 3·Vm)</button>
     <button class="pill-btn" onclick="selectMultiplierType('quadrupler', this)"><i class="fa-solid fa-radiation"></i> 4. Voltage Quadrupler (ทวี 4 เท่า: 4·Vm)</button>
   </div>
 
@@ -1030,6 +1030,75 @@ function drawDiodeV(ctx, x, y1, y2, pointDown=true, lbl='D1') {
   ctx.font = 'bold 10px JetBrains Mono'; ctx.fillStyle = '#38bdf8';
   ctx.fillText(lbl, x + 14, my + 4);
 }
+
+
+function drawDiodeH(ctx, x1, x2, y, pointRight = true, lbl = 'D1') {
+  const mx = (x1 + x2) / 2, segW = 12;
+  wire(ctx, x1, y, mx - segW, y, '#64748b');
+  wire(ctx, mx + segW, y, x2, y, '#64748b');
+  ctx.fillStyle = '#06b6d4'; ctx.strokeStyle = '#06b6d4'; ctx.lineWidth = 2;
+  ctx.beginPath();
+  if (pointRight) {
+    ctx.moveTo(mx - segW, y - 9); ctx.lineTo(mx - segW, y + 9); ctx.lineTo(mx + segW, y);
+    ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(mx + segW, y - 9); ctx.lineTo(mx + segW, y + 9); ctx.stroke();
+  } else {
+    ctx.moveTo(mx + segW, y - 9); ctx.lineTo(mx + segW, y + 9); ctx.lineTo(mx - segW, y);
+    ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(mx - segW, y - 9); ctx.lineTo(mx - segW, y + 9); ctx.stroke();
+  }
+  ctx.font = 'bold 10px JetBrains Mono'; ctx.fillStyle = '#38bdf8'; ctx.textAlign = 'center';
+  ctx.fillText(lbl, mx, y - 13);
+  ctx.textAlign = 'left';
+}
+
+function drawCapV(ctx, x, y1, y2, lbl = 'C') {
+  const my = (y1 + y2) / 2;
+  wire(ctx, x, y1, x, my - 4, '#64748b');
+  wire(ctx, x, my + 4, x, y2, '#64748b');
+  ctx.strokeStyle = '#06b6d4'; ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.moveTo(x - 12, my - 4); ctx.lineTo(x + 12, my - 4); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x - 12, my + 4); ctx.lineTo(x + 12, my + 4); ctx.stroke();
+  ctx.fillStyle = '#06b6d4'; ctx.font = 'bold 10px Sarabun'; ctx.textAlign = 'left';
+  ctx.fillText(lbl, x + 16, my + 3);
+}
+
+function drawDiodeDiag(ctx, x1, y1, x2, y2, pointTo2 = true, lbl = 'D') {
+  const mx = (x1 + x2) / 2, my = (y1 + y2) / 2;
+  const angle = Math.atan2(y2 - y1, x2 - x1);
+  const len = Math.hypot(x2 - x1, y2 - y1);
+  const seg = 12;
+
+  ctx.save();
+  ctx.translate(mx, my);
+  ctx.rotate(angle);
+
+  // Wire before & after
+  ctx.strokeStyle = '#64748b'; ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(-len/2, 0); ctx.lineTo(-seg, 0);
+  ctx.moveTo(seg, 0); ctx.lineTo(len/2, 0);
+  ctx.stroke();
+
+  // Diode
+  ctx.fillStyle = '#06b6d4'; ctx.strokeStyle = '#06b6d4'; ctx.lineWidth = 2;
+  ctx.beginPath();
+  if (pointTo2) {
+    ctx.moveTo(-seg, -8); ctx.lineTo(-seg, 8); ctx.lineTo(seg, 0);
+    ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(seg, -8); ctx.lineTo(seg, 8); ctx.stroke();
+  } else {
+    ctx.moveTo(seg, -8); ctx.lineTo(seg, 8); ctx.lineTo(-seg, 0);
+    ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(-seg, -8); ctx.lineTo(-seg, 8); ctx.stroke();
+  }
+  ctx.restore();
+
+  // Label
+  ctx.font = 'bold 10px JetBrains Mono'; ctx.fillStyle = '#38bdf8'; ctx.textAlign = 'center';
+  ctx.fillText(lbl, mx - 12, my - 8);
+  ctx.textAlign = 'left';
+}
 function drawDcBattery(ctx, x, y1, y2, posUp=true, lbl='V_bias') {
   const my = (y1 + y2) / 2;
   wire(ctx, x, y1, x, my - 6, '#475569');
@@ -1383,90 +1452,150 @@ function drawMultiplierSchematic() {
   const type = state.multiplier.type;
   const vm = state.multiplier.vm;
 
-  // Source AC
-  drawAcSrc(mulSchemCtx, 70, 135, 18, 'V_in (AC)', vm);
-  wire(mulSchemCtx, 70, 153, 70, 225); gndSymbol(mulSchemCtx, 70, 225);
-  wire(mulSchemCtx, 88, 135, 140, 135);
+  const gndY = 220;
+  const midY = 140;
+  const topY = 60;
 
   if (type === 'half_doubler') {
-    // Half-Wave Doubler Ladder
-    drawCapH(mulSchemCtx, 140, 230, 135, 'C1 (Vm)');
-    dotNode(mulSchemCtx, 230, 135);
+    // 1. Half-Wave Voltage Doubler
+    // AC Source on left
+    drawAcSrc(mulSchemCtx, 70, midY, 18, 'V_in (AC)', vm);
+    wire(mulSchemCtx, 70, midY + 18, 70, gndY); gndSymbol(mulSchemCtx, 70, gndY);
+    wire(mulSchemCtx, 70, gndY, 560, gndY); // common GND rail
 
-    // D1 pointing down to GND
-    drawDiodeV(mulSchemCtx, 230, 135, 225, true, 'D1');
-    gndSymbol(mulSchemCtx, 230, 225);
+    // Series C1 on middle rail
+    drawCapH(mulSchemCtx, 88, 200, midY, 'C1 (Vm)');
+    dotNode(mulSchemCtx, 200, midY);
 
-    // D2 pointing right
-    wire(mulSchemCtx, 230, 135, 340, 135);
-    drawDiodeV(mulSchemCtx, 340, 135, 80, false, 'D2');
-    dotNode(mulSchemCtx, 340, 80);
+    // Diode D1 vertical to GND (pointing up)
+    drawDiodeV(mulSchemCtx, 200, gndY, midY, false, 'D1');
+    dotNode(mulSchemCtx, 200, gndY);
 
-    // C2 to GND
-    drawCapH(mulSchemCtx, 340, 480, 80, 'C2 (2·Vm)');
-    wire(mulSchemCtx, 480, 80, 560, 80);
-    wire(mulSchemCtx, 560, 80, 560, 225);
-    gndSymbol(mulSchemCtx, 560, 225);
-    dotNode(mulSchemCtx, 560, 80, `V_out = ${(2*vm-1.4).toFixed(1)}V (2·Vm)`, 'top');
+    // Diode D2 horizontal to node B
+    drawDiodeH(mulSchemCtx, 200, 360, midY, true, 'D2');
+    dotNode(mulSchemCtx, 360, midY);
+
+    // Capacitor C2 vertical to GND
+    drawCapV(mulSchemCtx, 360, midY, gndY, 'C2 (2·Vm)');
+    dotNode(mulSchemCtx, 360, gndY);
+
+    // Output Wire
+    wire(mulSchemCtx, 360, midY, 560, midY);
+    dotNode(mulSchemCtx, 560, midY, `+V_out = ${(2*vm-1.4).toFixed(1)}V (2·Vm)`, 'top');
+    dotNode(mulSchemCtx, 560, gndY, '-V_out (GND / 0V)', 'bottom');
 
   } else if (type === 'full_doubler') {
-    // Full-Wave Doubler
-    wire(mulSchemCtx, 140, 135, 230, 135);
-    dotNode(mulSchemCtx, 230, 135);
+    // 2. Full-Wave Voltage Doubler (Delon Circuit)
+    // AC Source
+    drawAcSrc(mulSchemCtx, 70, midY, 18, 'V_in (AC)', vm);
+    
+    // Top terminal of AC goes to middle split node
+    wire(mulSchemCtx, 88, midY, 180, midY);
+    dotNode(mulSchemCtx, 180, midY);
 
-    // Upper branch: D1 + C1
-    wire(mulSchemCtx, 230, 135, 230, 75);
-    wire(mulSchemCtx, 230, 75, 300, 75);
-    drawDiodeV(mulSchemCtx, 300, 75, 75, true, 'D1');
-    wire(mulSchemCtx, 300, 75, 370, 75);
-    drawCapH(mulSchemCtx, 370, 470, 75, 'C1 (+Vm)');
-    wire(mulSchemCtx, 470, 75, 470, 135);
-    dotNode(mulSchemCtx, 470, 135, 'Center GND', 'right');
-    gndSymbol(mulSchemCtx, 470, 135);
+    // Bottom terminal of AC goes to Center Common GND
+    wire(mulSchemCtx, 70, midY + 18, 70, gndY);
+    wire(mulSchemCtx, 70, gndY, 340, gndY);
+    wire(mulSchemCtx, 340, gndY, 340, midY);
+    dotNode(mulSchemCtx, 340, midY, 'Center GND', 'bottom');
+    gndSymbol(mulSchemCtx, 340, midY + 14);
 
-    // Lower branch: D2 + C2
-    wire(mulSchemCtx, 230, 135, 230, 195);
-    wire(mulSchemCtx, 230, 195, 300, 195);
-    drawDiodeV(mulSchemCtx, 300, 195, 195, false, 'D2');
-    wire(mulSchemCtx, 300, 195, 370, 195);
-    drawCapH(mulSchemCtx, 370, 470, 195, 'C2 (+Vm)');
-    wire(mulSchemCtx, 470, 195, 470, 135);
+    // Upper branch: split up to y=65 -> D1 (pointing right) -> C1 down to Center GND
+    wire(mulSchemCtx, 180, midY, 180, 65);
+    drawDiodeH(mulSchemCtx, 180, 340, 65, true, 'D1');
+    dotNode(mulSchemCtx, 340, 65);
+    drawCapV(mulSchemCtx, 340, 65, midY, 'C1 (+Vm)');
 
-    // Output between Top of C1 and Bottom of C2
-    wire(mulSchemCtx, 370, 75, 560, 75);
-    wire(mulSchemCtx, 370, 195, 560, 195);
-    dotNode(mulSchemCtx, 560, 75, '+V_out (2·Vm)', 'top');
-    dotNode(mulSchemCtx, 560, 195, '-V_out (0V)', 'bottom');
+    // Lower branch: split down to y=215 -> D2 (pointing left) -> C2 up to Center GND
+    wire(mulSchemCtx, 180, midY, 180, 215);
+    drawDiodeH(mulSchemCtx, 340, 180, 215, true, 'D2');
+    dotNode(mulSchemCtx, 340, 215);
+    drawCapV(mulSchemCtx, 340, midY, 215, 'C2 (+Vm)');
 
-  } else if (type === 'tripler' || type === 'quadrupler') {
-    // Multi-stage Cockcroft-Walton Cascade Ladder
-    drawCapH(mulSchemCtx, 140, 230, 135, 'C1');
-    dotNode(mulSchemCtx, 230, 135);
-    drawDiodeV(mulSchemCtx, 230, 135, 225, true, 'D1');
-    gndSymbol(mulSchemCtx, 230, 225);
+    // Output terminals across top (+Vm) and bottom (-Vm)
+    wire(mulSchemCtx, 340, 65, 540, 65);
+    wire(mulSchemCtx, 340, 215, 540, 215);
+    dotNode(mulSchemCtx, 540, 65, `+V_out = +${(vm-0.7).toFixed(1)}V`, 'top');
+    dotNode(mulSchemCtx, 540, 215, `-V_out = -${(vm-0.7).toFixed(1)}V (Total = ${(2*vm-1.4).toFixed(1)}V)`, 'bottom');
 
-    // Stage 2
-    wire(mulSchemCtx, 230, 135, 310, 80);
-    drawDiodeV(mulSchemCtx, 310, 80, 80, false, 'D2');
-    drawCapH(mulSchemCtx, 310, 420, 80, 'C2 (2·Vm)');
-    dotNode(mulSchemCtx, 420, 80);
+  } else if (type === 'tripler') {
+    // 3. Voltage Tripler (3·Vm) Cockcroft-Walton
+    drawAcSrc(mulSchemCtx, 65, midY, 18, 'V_in (AC)', vm);
+    wire(mulSchemCtx, 65, midY + 18, 65, gndY); gndSymbol(mulSchemCtx, 65, gndY);
+    wire(mulSchemCtx, 65, gndY, 160, gndY);
 
-    // Stage 3
-    wire(mulSchemCtx, 420, 80, 460, 135);
-    drawDiodeV(mulSchemCtx, 460, 135, 135, true, 'D3');
-    drawCapH(mulSchemCtx, 230, 460, 225, 'C3 (2·Vm)');
-    dotNode(mulSchemCtx, 460, 225);
+    // C1 on middle rail
+    drawCapH(mulSchemCtx, 83, 160, midY, 'C1 (Vm)');
+    dotNode(mulSchemCtx, 160, midY);
 
-    if (type === 'tripler') {
-      wire(mulSchemCtx, 420, 80, 560, 80);
-      dotNode(mulSchemCtx, 560, 80, `V_out = ${(3*vm-2.1).toFixed(1)}V (3·Vm)`, 'top');
-    } else {
-      // Stage 4
-      wire(mulSchemCtx, 460, 225, 520, 80);
-      drawDiodeV(mulSchemCtx, 520, 80, 80, false, 'D4');
-      drawCapH(mulSchemCtx, 420, 560, 80, 'C4 (2·Vm)');
-      dotNode(mulSchemCtx, 560, 80, `V_out = ${(4*vm-2.8).toFixed(1)}V (4·Vm)`, 'top');
-    }
+    // D1 vertical to GND (pointing up)
+    drawDiodeV(mulSchemCtx, 160, gndY, midY, false, 'D1');
+    dotNode(mulSchemCtx, 160, gndY);
+
+    // D2 diagonal from (160, midY) to (290, topY)
+    drawDiodeDiag(mulSchemCtx, 160, midY, 290, topY, true, 'D2');
+    dotNode(mulSchemCtx, 290, topY);
+
+    // C2 on top rail from 290 to 420
+    drawCapH(mulSchemCtx, 290, 420, topY, 'C2 (2·Vm)');
+    dotNode(mulSchemCtx, 420, topY);
+
+    // D3 diagonal from (420, topY) to (290, gndY)
+    drawDiodeDiag(mulSchemCtx, 420, topY, 290, gndY, false, 'D3');
+    dotNode(mulSchemCtx, 290, gndY);
+
+    // C3 on bottom rail from 160 to 420
+    drawCapH(mulSchemCtx, 160, 420, gndY, 'C3 (2·Vm)');
+    dotNode(mulSchemCtx, 420, gndY);
+
+    // Output taken across bottom node to top node (3·Vm)
+    wire(mulSchemCtx, 420, topY, 560, topY);
+    wire(mulSchemCtx, 420, gndY, 560, gndY);
+    dotNode(mulSchemCtx, 560, topY, `+V_out = ${(3*vm-2.1).toFixed(1)}V (3·Vm)`, 'top');
+    dotNode(mulSchemCtx, 560, gndY, 'GND (0V)', 'bottom');
+
+  } else if (type === 'quadrupler') {
+    // 4. Voltage Quadrupler (4·Vm) Cockcroft-Walton
+    drawAcSrc(mulSchemCtx, 60, midY, 17, 'V_in', vm);
+    wire(mulSchemCtx, 60, midY + 17, 60, gndY); gndSymbol(mulSchemCtx, 60, gndY);
+    wire(mulSchemCtx, 60, gndY, 150, gndY);
+
+    // C1 (Vm)
+    drawCapH(mulSchemCtx, 77, 150, midY, 'C1 (Vm)');
+    dotNode(mulSchemCtx, 150, midY);
+
+    // D1
+    drawDiodeV(mulSchemCtx, 150, gndY, midY, false, 'D1');
+    dotNode(mulSchemCtx, 150, gndY);
+
+    // D2
+    drawDiodeDiag(mulSchemCtx, 150, midY, 260, topY, true, 'D2');
+    dotNode(mulSchemCtx, 260, topY);
+
+    // C2 (2·Vm) on top rail
+    drawCapH(mulSchemCtx, 260, 370, topY, 'C2 (2·Vm)');
+    dotNode(mulSchemCtx, 370, topY);
+
+    // D3
+    drawDiodeDiag(mulSchemCtx, 370, topY, 260, gndY, false, 'D3');
+    dotNode(mulSchemCtx, 260, gndY);
+
+    // C3 (2·Vm) on bottom rail
+    drawCapH(mulSchemCtx, 150, 370, gndY, 'C3 (2·Vm)');
+    dotNode(mulSchemCtx, 370, gndY);
+
+    // D4
+    drawDiodeDiag(mulSchemCtx, 370, gndY, 480, topY, true, 'D4');
+    dotNode(mulSchemCtx, 480, topY);
+
+    // C4 (2·Vm) on top rail
+    drawCapH(mulSchemCtx, 480, 560, topY, 'C4 (2·Vm)');
+
+    // Output taken across C2 + C4 on top rail (4·Vm)
+    wire(mulSchemCtx, 560, topY, 610, topY);
+    wire(mulSchemCtx, 370, gndY, 610, gndY);
+    dotNode(mulSchemCtx, 610, topY, `+V_out = ${(4*vm-2.8).toFixed(1)}V (4·Vm)`, 'top');
+    dotNode(mulSchemCtx, 610, gndY, 'GND (0V)', 'bottom');
   }
 }
 
