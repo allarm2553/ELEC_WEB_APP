@@ -1235,7 +1235,7 @@
         <div class="card-title" style="border-bottom:1px solid var(--card-border);padding-bottom:0.75rem;margin-bottom:1rem;">
           <div class="card-title-text"><i class="fa-solid fa-book-open"></i> พจนานุกรมและความหมายของพารามิเตอร์ไดโอด (Diode Parameters &amp; Datasheet Glossary)</div>
           <span class="badge" style="background:rgba(6,182,212,0.15);color:var(--accent-primary);border:1px solid rgba(6,182,212,0.3);font-family:var(--font-mono);font-size:0.75rem;padding:0.25rem 0.6rem;border-radius:4px;">
-            9 Parameters &bull; Standard Semiconductor Physical Models
+            13 Parameters &bull; Standard Semiconductor Physical Models (k, q, T, VF, IS, VT, n, rd, RDC, PIV, trr, Cj, Pmax)
           </span>
         </div>
 
@@ -1252,6 +1252,90 @@
 
         <!-- Parameter Cards Grid -->
         <div class="param-grid" id="diode-param-grid">
+          <!-- k (Boltzmann Constant) -->
+          <div class="param-card" data-category="ac_params" data-keywords="k boltzmann constant ค่าคงที่โบลต์ซมันน์ thermal energy vt shockley 1.381e-23">
+            <div class="param-card-header">
+              <div>
+                <div class="param-symbol">k</div>
+                <div class="param-title">Boltzmann's Constant (ค่าคงที่ของโบลต์ซมันน์)</div>
+              </div>
+              <span class="param-badge ac">PHYSICS CONSTANT</span>
+            </div>
+            <div class="param-formula">k = 1.380649 &times; 10<sup>&minus;23</sup> J/K = 8.617 &times; 10<sup>&minus;5</sup> eV/K</div>
+            <div class="param-desc">
+              ค่าคงที่พื้นฐานทางฟิสิกส์ที่เชื่อมโยงระหว่าง <strong>พลังงานจลน์ความร้อน (Thermal Energy)</strong> กับ <strong>อุณหภูมิสัมบูรณ์ (T ในหน่วยเคลวิน)</strong> โดยค่า k&middot;T คือพลังงานความร้อนที่กระตุ้นให้อนุภาคพาหะข้ามรอยต่อ PN
+            </div>
+            <div class="param-specs">
+              <div class="param-spec-item">ค่าคงที่ (SI): <strong>1.381 &times; 10<sup>&minus;23</sup> J/K</strong></div>
+              <div class="param-spec-item">ค่าในหน่วย eV: <strong>8.617 &times; 10<sup>&minus;5</sup> eV/K</strong></div>
+              <div class="param-spec-item">พลังงานที่ 25°C: <strong>k&middot;T &approx; 0.0257 eV</strong></div>
+              <div class="param-spec-item">บทบาท: <strong>กำหนดค่า Thermal Voltage (V<sub>T</sub>)</strong></div>
+            </div>
+          </div>
+
+          <!-- q (Elementary Charge) -->
+          <div class="param-card" data-category="ac_params" data-keywords="q e elementary charge electron charge ประจุไฟฟ้าอิเล็กตรอน คูลอมบ์ 1.602e-19 vt shockley">
+            <div class="param-card-header">
+              <div>
+                <div class="param-symbol">q / e</div>
+                <div class="param-title">Elementary Charge (ประจุไฟฟ้ามูลฐานของอิเล็กตรอน)</div>
+              </div>
+              <span class="param-badge ac">PHYSICS CONSTANT</span>
+            </div>
+            <div class="param-formula">q = 1.602176 &times; 10<sup>&minus;19</sup> C (คูลอมบ์)</div>
+            <div class="param-desc">
+              ขนาดของประจุไฟฟ้าของ <strong>อิเล็กตรอน 1 ตัว</strong> ทำหน้าที่แปลงพลังงานจลน์ความร้อนในหน่วยจูล (Joule) ให้กลายเป็นระดับศักย์ไฟฟ้าหรือ <strong>แรงดันไฟฟ้าในหน่วยโวลต์ (Volt = J/C)</strong>
+            </div>
+            <div class="param-specs">
+              <div class="param-spec-item">ค่าคงที่ (SI): <strong>1.602 &times; 10<sup>&minus;19</sup> C</strong></div>
+              <div class="param-spec-item">ความสัมพันธ์พลังงาน: <strong>1 eV = 1.602 &times; 10<sup>&minus;19</sup> J</strong></div>
+              <div class="param-spec-item">สมการหลัก: <strong>V<sub>T</sub> = (k &times; T) / q</strong></div>
+              <div class="param-spec-item">หน่วยผลลัพธ์: <strong>J / C = โวลต์ (V)</strong></div>
+            </div>
+          </div>
+
+          <!-- T (Junction Temperature) -->
+          <div class="param-card" data-category="dc_params" data-keywords="t tj junction temperature อุณหภูมิรอยต่อ เคลวิน kelvin celsius thermal drift 25c">
+            <div class="param-card-header">
+              <div>
+                <div class="param-symbol">T / T<sub>J</sub></div>
+                <div class="param-title">Junction Temperature (อุณหภูมิรอยต่อสารกึ่งตัวนำ)</div>
+              </div>
+              <span class="param-badge dc">THERMAL PARAM</span>
+            </div>
+            <div class="param-formula">T (Kelvin) = T (°C) + 273.15 &nbsp;&bull;&nbsp; T<sub>J</sub> = T<sub>A</sub> + (P<sub>D</sub> &times; &theta;<sub>JA</sub>)</div>
+            <div class="param-desc">
+              อุณหภูมิที่เกิดขึ้นจริง ณ รอยต่อ PN ซึ่งเกิดจากอุณหภูมิแวดล้อมรวมกับความร้อนที่เกิดจากกำลังไฟฟ้าสูญเสีย (P<sub>D</sub>) ส่งผลให้อัตราการสร้างพาหะอิสระเพิ่มขึ้น และแรงดันกั้นลดลง &minus;2 mV/°C
+            </div>
+            <div class="param-specs">
+              <div class="param-spec-item">อุณหภูมิห้องมาตรฐาน: <strong>25°C = 298.15 K</strong></div>
+              <div class="param-spec-item">ผลต่อ V<sub>D</sub> (Knee): <strong>ลดลง &minus;2.0 mV / °C</strong></div>
+              <div class="param-spec-item">ผลต่อ I<sub>S</sub> (Leakage): <strong>เพิ่ม 2 เท่าทุก +10°C</strong></div>
+              <div class="param-spec-item">พิกัดสูงสุด T<sub>J(max)</sub>: <strong>150°C – 175°C (Silicon)</strong></div>
+            </div>
+          </div>
+
+          <!-- P_D(max) / I_F(max) (Maximum Ratings) -->
+          <div class="param-card" data-category="limits" data-keywords="pd ifmax power dissipation forward current พิกัดกำลังวัตต์ กระแสตรงสูงสุด datasheet max rating">
+            <div class="param-card-header">
+              <div>
+                <div class="param-symbol">P<sub>D(max)</sub> &bull; I<sub>F(max)</sub></div>
+                <div class="param-title">Maximum Power &amp; Forward Current Ratings (พิกัดกำลังสูญเสียและกระแสสูงสุด)</div>
+              </div>
+              <span class="param-badge limit">MAX RATINGS</span>
+            </div>
+            <div class="param-formula">P<sub>D</sub> = V<sub>D</sub> &times; I<sub>D</sub> &le; P<sub>D(max)</sub> &nbsp;&bull;&nbsp; I<sub>D(avg)</sub> &le; I<sub>F(max)</sub></div>
+            <div class="param-desc">
+              ขีดจำกัดสูงสุดในการทำงานอย่างปลอดภัย (SOA) เพื่อป้องกันไม่ให้อุณหภูมิที่รอยต่อ P-N สูงเกินขีดจำกัดจนสารกึ่งตัวนำละลายหรือชำรุดเสียหายถาวร
+            </div>
+            <div class="param-specs">
+              <div class="param-spec-item">1N4007 (I<sub>F(avg)</sub>): <strong>1.0 A (P<sub>D</sub> &approx; 1.0–1.2 W)</strong></div>
+              <div class="param-spec-item">1N4148 (I<sub>F(avg)</sub>): <strong>200 mA (P<sub>D</sub> &approx; 500 mW)</strong></div>
+              <div class="param-spec-item">1N5408 (High Current): <strong>3.0 A</strong></div>
+              <div class="param-spec-item">Thermal Derating: <strong>ลดพิกัดเมื่อ T &gt; 25°C</strong></div>
+            </div>
+          </div>
+
 
           <!-- 1. V_F / V_gamma -->
           <div class="param-card" data-category="dc_params" data-keywords="vf vgamma forward voltage knee voltage barrier potential แรงดันไบอัสตรง แรงดันกั้น 0.7v 0.3v">
@@ -3151,10 +3235,14 @@
       const calcBox = document.getElementById('iv-calc-details');
       if (calcBox) {
         calcBox.innerHTML = `
-          <div style="margin-bottom:0.5rem;padding:0.4rem 0.6rem;background:rgba(6,182,212,0.06);border-left:3px solid var(--accent-primary);border-radius:0 4px 4px 0;">
-            <strong style="color:#38bdf8;">ขั้นตอนที่ 1: คำนวณ Thermal Voltage (V<sub>T</sub>) ที่อุณหภูมิ T = ${T_C}°C (${T_K.toFixed(1)} K)</strong><br>
-            <span style="font-family:var(--font-mono);color:#e2e8f0;">
-              V<sub>T</sub> = (k &times; T) / q = (1.381 &times; 10<sup>-23</sup> &times; ${T_K.toFixed(1)}) / (1.602 &times; 10<sup>-19</sup>) = <strong>${Vt_mV.toFixed(2)} mV</strong> (0.0${Math.round(Vt_mV*10)} V)
+          <div style="margin-bottom:0.5rem;padding:0.5rem 0.75rem;background:rgba(6,182,212,0.08);border-left:3px solid var(--accent-primary);border-radius:0 6px 6px 0;">
+            <strong style="color:#38bdf8;"><i class="fa-solid fa-calculator"></i> ขั้นตอนที่ 1: คำนวณ Thermal Voltage (V<sub>T</sub>) ที่อุณหภูมิ T = ${T_C}°C (${T_K.toFixed(1)} K)</strong><br>
+            <span style="font-family:var(--font-mono);color:#e2e8f0;display:block;margin-top:0.25rem;line-height:1.65;">
+              สูตร: <strong>V<sub>T</sub> = (k &times; T) / q</strong><br>
+              &bull; <strong>k</strong> (Boltzmann's Constant) = <strong>1.381 &times; 10<sup>-23</sup> J/K</strong> (ค่าคงที่โบลต์ซมันน์ - พลังงานความร้อนเฉลี่ย)<br>
+              &bull; <strong>T</strong> (Junction Temp) = ${T_C}°C + 273.15 = <strong>${T_K.toFixed(1)} K</strong> (อุณหภูมิสัมบูรณ์รอยต่อในหน่วยเคลวิน)<br>
+              &bull; <strong>q</strong> (Elementary Charge) = <strong>1.602 &times; 10<sup>-19</sup> C</strong> (ประจุไฟฟ้ามูลฐานของอิเล็กตรอน 1 ตัว)<br>
+              &rarr; V<sub>T</sub> = (1.381 &times; 10<sup>-23</sup> &times; ${T_K.toFixed(1)}) / (1.602 &times; 10<sup>-19</sup>) = <strong>${Vt_mV.toFixed(2)} mV</strong> (0.0${Math.round(Vt_mV*10)} V)
             </span>
           </div>
 
