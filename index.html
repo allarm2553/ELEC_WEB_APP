@@ -848,13 +848,13 @@
   <footer>
     <div class="footer-links">
       <a href="https://github.com/allarm2553/ELEC_WEB_APP" target="_blank"><i class="fa-brands fa-github"></i> GitHub Repository</a>
-      <a href="/resistor/"><i class="fa-solid fa-palette"></i> Resistor Lab</a>
-      <a href="/multimeter/"><i class="fa-solid fa-gauge"></i> Multimeter</a>
-      <a href="/oscilloscope/"><i class="fa-solid fa-chart-line"></i> Scope</a>
-      <a href="/diode/"><i class="fa-solid fa-bolt"></i> Diode</a>
-      <a href="/bjt/"><i class="fa-solid fa-microchip"></i> BJT</a>
-      <a href="/fet/"><i class="fa-solid fa-plug"></i> FET</a>
-      <a href="/opamp/"><i class="fa-solid fa-shapes"></i> Op-Amp</a>
+      <a href="resistor-sheet-app/"><i class="fa-solid fa-palette"></i> Resistor Lab</a>
+      <a href="multimeter_app/"><i class="fa-solid fa-gauge"></i> Multimeter</a>
+      <a href="osc_apps/"><i class="fa-solid fa-chart-line"></i> Scope</a>
+      <a href="diode_app/"><i class="fa-solid fa-bolt"></i> Diode</a>
+      <a href="bjt_app/"><i class="fa-solid fa-microchip"></i> BJT</a>
+      <a href="fet_apps/"><i class="fa-solid fa-plug"></i> FET</a>
+      <a href="opamp/"><i class="fa-solid fa-shapes"></i> Op-Amp</a>
     </div>
     <p>สื่อการสอนและห้องปฏิบัติการวิศวกรรมอิเล็กทรอนิกส์เสมือนจริง (Interactive Web-Based Electronics Engineering Labs)</p>
     <p style="margin-top:0.35rem;font-size:0.78rem;color:var(--text-dim);">Vanilla JavaScript (ES6+) • HTML5 Canvas Vector Simulator • Web Audio API • Google Apps Script Integration</p>
@@ -869,7 +869,7 @@
         enTitle: 'Resistor Color Code & DC Circuits',
         category: 'instruments',
         categoryLabel: 'เครื่องมือ & RLC',
-        path: '/resistor/',
+        path: 'resistor-sheet-app/',
         directFile: 'resistor-sheet-app/index.html',
         port: '3001',
         icon: 'fa-solid fa-palette',
@@ -883,7 +883,7 @@
         enTitle: 'Multimeter Simulator Lab',
         category: 'instruments',
         categoryLabel: 'เครื่องมือ & RLC',
-        path: '/multimeter/',
+        path: 'multimeter_app/',
         directFile: 'multimeter_app/multimeter.html',
         port: '3002',
         icon: 'fa-solid fa-gauge-high',
@@ -897,7 +897,7 @@
         enTitle: 'Dual-Trace Oscilloscope Simulator',
         category: 'instruments',
         categoryLabel: 'เครื่องมือ & RLC',
-        path: '/oscilloscope/',
+        path: 'osc_apps/',
         directFile: 'osc_apps/oscilloscope.html',
         port: '3000',
         icon: 'fa-solid fa-chart-line',
@@ -911,7 +911,7 @@
         enTitle: 'Diode Characteristics & Rectifiers',
         category: 'semiconductors',
         categoryLabel: 'สารกึ่งตัวนำ',
-        path: '/diode/',
+        path: 'diode_app/',
         directFile: 'diode_app/index.html',
         port: '3003',
         icon: 'fa-solid fa-bolt',
@@ -925,7 +925,7 @@
         enTitle: 'BJT Transistor & DC Biasing Lab',
         category: 'semiconductors',
         categoryLabel: 'สารกึ่งตัวนำ',
-        path: '/bjt/',
+        path: 'bjt_app/',
         directFile: 'bjt_app/index.html',
         port: '3004',
         icon: 'fa-solid fa-microchip',
@@ -939,7 +939,7 @@
         enTitle: 'FET & MOSFET Transistor Lab',
         category: 'semiconductors',
         categoryLabel: 'สารกึ่งตัวนำ',
-        path: '/fet/',
+        path: 'fet_apps/',
         directFile: 'fet_apps/index.html',
         port: '3007',
         icon: 'fa-solid fa-plug',
@@ -953,7 +953,7 @@
         enTitle: 'BJT Small-Signal AC Models',
         category: 'amplifiers',
         categoryLabel: 'วงจรขยายไฟสลับ',
-        path: '/bjt-ac/',
+        path: 'bjt_small_signal_app/',
         directFile: 'bjt_small_signal_app/index.html',
         port: '3006',
         icon: 'fa-solid fa-radio',
@@ -967,7 +967,7 @@
         enTitle: 'FET Small-Signal AC Models',
         category: 'amplifiers',
         categoryLabel: 'วงจรขยายไฟสลับ',
-        path: '/fet-ac/',
+        path: 'fet_small_signal/',
         directFile: 'fet_small_signal/index.html',
         port: '3005',
         icon: 'fa-solid fa-wave-square',
@@ -981,7 +981,7 @@
         enTitle: 'Diode Applications & Wave Shaping',
         category: 'opamp',
         categoryLabel: 'แปรรูปคลื่น & ไอซี',
-        path: '/diode-app/',
+        path: 'diode_application/',
         directFile: 'diode_application/index.html',
         port: '3008',
         icon: 'fa-solid fa-scissors',
@@ -995,7 +995,7 @@
         enTitle: 'Operational Amplifier Learning Lab',
         category: 'opamp',
         categoryLabel: 'แปรรูปคลื่น & ไอซี',
-        path: '/opamp/',
+        path: 'opamp/',
         directFile: 'opamp/index.html',
         port: '3009',
         icon: 'fa-solid fa-shapes',
@@ -1045,8 +1045,7 @@
         });
 
         // Determine destination URLs
-        const isHosted = window.location.protocol.startsWith('http');
-        const appUrl = isHosted ? app.path : app.directFile;
+        const appUrl = app.path;
 
         html += `
           <div class="app-card">
@@ -1099,8 +1098,7 @@
       const app = APPS_DATA.find(a => a.id === appId);
       if (!app) return;
 
-      const isHosted = window.location.protocol.startsWith('http');
-      const appUrl = isHosted ? app.path : app.directFile;
+      const appUrl = app.path;
 
       document.getElementById('modal-app-title').innerHTML = `<i class="${app.icon}"></i> ${app.title} (Port ${app.port})`;
       document.getElementById('modal-external-link').href = appUrl;

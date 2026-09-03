@@ -6,16 +6,28 @@ const PORT = process.env.PORT || 8080;
 
 // Sub-path routing mapping for all 10 Electronics Learning Apps
 const ROUTE_MAP = [
+  // Direct folder routes
+  { prefix: '/resistor-sheet-app', dir: 'resistor-sheet-app', defaultFile: 'index.html' },
+  { prefix: '/multimeter_app', dir: 'multimeter_app', defaultFile: 'index.html' },
+  { prefix: '/osc_apps', dir: 'osc_apps', defaultFile: 'index.html' },
+  { prefix: '/diode_app', dir: 'diode_app', defaultFile: 'index.html' },
+  { prefix: '/bjt_app', dir: 'bjt_app', defaultFile: 'index.html' },
+  { prefix: '/fet_apps', dir: 'fet_apps', defaultFile: 'index.html' },
+  { prefix: '/bjt_small_signal_app', dir: 'bjt_small_signal_app', defaultFile: 'index.html' },
+  { prefix: '/fet_small_signal', dir: 'fet_small_signal', defaultFile: 'index.html' },
+  { prefix: '/diode_application', dir: 'diode_application', defaultFile: 'index.html' },
+  { prefix: '/opamp', dir: 'opamp', defaultFile: 'index.html' },
+
+  // Friendly aliases
   { prefix: '/resistor', dir: 'resistor-sheet-app', defaultFile: 'index.html' },
-  { prefix: '/multimeter', dir: 'multimeter_app', defaultFile: 'multimeter.html' },
-  { prefix: '/oscilloscope', dir: 'osc_apps', defaultFile: 'oscilloscope.html' },
+  { prefix: '/multimeter', dir: 'multimeter_app', defaultFile: 'index.html' },
+  { prefix: '/oscilloscope', dir: 'osc_apps', defaultFile: 'index.html' },
   { prefix: '/diode-app', dir: 'diode_application', defaultFile: 'index.html' },
   { prefix: '/diode', dir: 'diode_app', defaultFile: 'index.html' },
   { prefix: '/bjt-ac', dir: 'bjt_small_signal_app', defaultFile: 'index.html' },
   { prefix: '/bjt', dir: 'bjt_app', defaultFile: 'index.html' },
   { prefix: '/fet-ac', dir: 'fet_small_signal', defaultFile: 'index.html' },
-  { prefix: '/fet', dir: 'fet_apps', defaultFile: 'index.html' },
-  { prefix: '/opamp', dir: 'opamp', defaultFile: 'index.html' }
+  { prefix: '/fet', dir: 'fet_apps', defaultFile: 'index.html' }
 ];
 
 const MIME_TYPES = {
@@ -68,7 +80,6 @@ const server = http.createServer((req, res) => {
 });
 
 function serveStaticFile(filePath, res) {
-  // Security check: ensure path is within __dirname
   const safePath = path.resolve(filePath);
   if (!safePath.startsWith(__dirname)) {
     res.writeHead(403, { 'Content-Type': 'text/plain; charset=utf-8' });
@@ -77,7 +88,7 @@ function serveStaticFile(filePath, res) {
   }
 
   fs.stat(safePath, (err, stats) => {
-    if (err || !stats.isFile()) {
+    if (err) {
       res.writeHead(404, { 'Content-Type': 'text/html; charset=utf-8' });
       res.end(`
         <!DOCTYPE html>
@@ -106,6 +117,13 @@ function serveStaticFile(filePath, res) {
       return;
     }
 
+    if (stats.isDirectory()) {
+      // Serve index.html inside directory
+      const indexPath = path.join(safePath, 'index.html');
+      serveStaticFile(indexPath, res);
+      return;
+    }
+
     const ext = path.extname(safePath).toLowerCase();
     const contentType = MIME_TYPES[ext] || 'application/octet-stream';
 
@@ -124,16 +142,4 @@ server.listen(PORT, () => {
   console.log('  🚀 Electronics Web Learning Lab — Unified Master Portal');
   console.log(`  🌐 Master Dashboard URL : http://localhost:${PORT}/`);
   console.log('================================================================');
-  console.log('  📚 Available Apps (Sub-paths & Dedicated Ports):');
-  console.log(`  1.  Resistor & DC Circuits   -> http://localhost:${PORT}/resistor/     (Port 3001)`);
-  console.log(`  2.  Multimeter Simulator     -> http://localhost:${PORT}/multimeter/   (Port 3002)`);
-  console.log(`  3.  Oscilloscope Simulator   -> http://localhost:${PORT}/oscilloscope/ (Port 3000)`);
-  console.log(`  4.  Diode Basics & Rectifier -> http://localhost:${PORT}/diode/        (Port 3003)`);
-  console.log(`  5.  BJT Transistor & DC Bias -> http://localhost:${PORT}/bjt/          (Port 3004)`);
-  console.log(`  6.  FET & MOSFET Learning    -> http://localhost:${PORT}/fet/          (Port 3007)`);
-  console.log(`  7.  BJT Small-Signal AC      -> http://localhost:${PORT}/bjt-ac/       (Port 3006)`);
-  console.log(`  8.  FET Small-Signal AC      -> http://localhost:${PORT}/fet-ac/       (Port 3005)`);
-  console.log(`  9.  Diode Applications       -> http://localhost:${PORT}/diode-app/    (Port 3008)`);
-  console.log(`  10. Op-Amp Interactive Lab   -> http://localhost:${PORT}/opamp/        (Port 3009)`);
-  console.log('================================================================\n');
 });
