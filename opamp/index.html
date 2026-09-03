@@ -2043,8 +2043,8 @@ function onProcChange() {
     document.getElementById('proc-step-math-box').innerHTML = 
       `<strong style="color:var(--accent-primary);"><i class="fa-solid fa-calculator"></i> การทำงานของวงจรเปรียบเทียบแรงดัน (Comparator Logic):</strong><br>` +
       `• เนื่องจาก Op-Amp ทำงานในสถานะเปิดวงรอบ (Open-Loop A<sub>OL</sub> ≈ 10<sup>5</sup>)<br>` +
-      `• เมื่อ V<sub>in</sub> (${state.proc.vin.toFixed(2)}V) > V_${ref} (${state.proc.vref.toFixed(2)}V) → V<sub>out</sub> = +V<sub>sat</sub> = <strong>+13.5V</strong><br>` +
-      `• เมื่อ V<sub>in</sub> < V_${ref} → V<sub>out</sub> = -V<sub>sat</sub> = <strong>-13.5V</strong>`;
+      `• เมื่อ V<sub>in</sub> (${state.proc.vin.toFixed(2)}V) > V<sub>ref</sub> (${state.proc.vref.toFixed(2)}V) → V<sub>out</sub> = +V<sub>sat</sub> = <strong>+13.5V</strong><br>` +
+      `• เมื่อ V<sub>in</sub> < V<sub>ref</sub> → V<sub>out</sub> = -V<sub>sat</sub> = <strong>-13.5V</strong>`;
 
   } else if (circ === 'schmitt') {
     const sVin = document.getElementById('slider-proc-vin');
@@ -2075,9 +2075,9 @@ function onProcChange() {
 
     document.getElementById('proc-step-math-box').innerHTML = 
       `<strong style="color:var(--accent-primary);"><i class="fa-solid fa-calculator"></i> การคำนวณชมิตต์ทริกเกอร์ (Schmitt Trigger Hysteresis):</strong><br>` +
-      `1. <strong>อัตราส่วนป้อนกลับบวก (Positive Feedback Factor):</strong> \beta = R_1 / (R_1 + R_2) = ${state.proc.r1_k}/(${state.proc.r1_k}+${state.proc.r2_k}) = <strong>${beta.toFixed(3)}</strong><br>` +
-      `2. <strong>จุดเปลี่ยนสถานะบน (Upper Trigger Point):</strong> V<sub>UT</sub> = +\beta · V<sub>sat</sub> = +(${beta.toFixed(3)} × 13.5V) = <strong style="color:#34d399;">+${v_ut.toFixed(2)} V</strong><br>` +
-      `3. <strong>จุดเปลี่ยนสถานะล่าง (Lower Trigger Point):</strong> V<sub>LT</sub> = -\beta · V<sub>sat</sub> = -(${beta.toFixed(3)} × 13.5V) = <strong style="color:#fb7185;">${v_lt.toFixed(2)} V</strong><br>` +
+      `1. <strong>อัตราส่วนป้อนกลับบวก (Positive Feedback Factor):</strong> β = R_1 / (R_1 + R_2) = ${state.proc.r1_k}/(${state.proc.r1_k}+${state.proc.r2_k}) = <strong>${beta.toFixed(3)}</strong><br>` +
+      `2. <strong>จุดเปลี่ยนสถานะบน (Upper Trigger Point):</strong> V<sub>UT</sub> = +β · V<sub>sat</sub> = +(${beta.toFixed(3)} × 13.5V) = <strong style="color:#34d399;">+${v_ut.toFixed(2)} V</strong><br>` +
+      `3. <strong>จุดเปลี่ยนสถานะล่าง (Lower Trigger Point):</strong> V<sub>LT</sub> = -β · V<sub>sat</sub> = -(${beta.toFixed(3)} × 13.5V) = <strong style="color:#fb7185;">${v_lt.toFixed(2)} V</strong><br>` +
       `4. <strong>ช่วงกักสัญญาณรบกวน (Hysteresis Voltage Width):</strong> V_H = V<sub>UT</sub> − V<sub>LT</sub> = <strong>${v_h.toFixed(2)} V</strong> (กำจัดปัญหาการสั่นกระเพื่อม Noise Chatter)`;
 
   } else if (circ === 'integrator' || circ === 'differentiator' || circ === 'active_filter') {
@@ -2119,7 +2119,6 @@ function drawProcSchematicCanvas() {
   procCtx.fillStyle = '#050b14'; procCtx.fillRect(0, 0, W, H);
 
   const circ = state.proc.circuit;
-  const cx = 350, cy = 140;
 
   // Grid
   procCtx.strokeStyle = 'rgba(56, 189, 248, 0.08)'; procCtx.lineWidth = 1;
@@ -2143,12 +2142,24 @@ function drawProcSchematicCanvas() {
     procCtx.fillText('V_in', W - 50, midY - 6);
     procCtx.fillText('V_out', midX + 6, 40);
 
+    // Saturation dashed lines
+    procCtx.setLineDash([3, 3]); procCtx.strokeStyle = 'rgba(251, 191, 36, 0.4)';
+    procCtx.beginPath();
+    procCtx.moveTo(60, midY - 70); procCtx.lineTo(W - 60, midY - 70);
+    procCtx.moveTo(60, midY + 70); procCtx.lineTo(W - 60, midY + 70);
+    procCtx.stroke();
+    procCtx.setLineDash([]);
+    procCtx.fillStyle = '#fbbf24'; procCtx.font = '9px JetBrains Mono';
+    procCtx.fillText('+V_sat (+13.5V)', 65, midY - 74);
+    procCtx.fillText('−V_sat (−13.5V)', 65, midY + 82);
+
     // Vref vertical dashed line
     const vrefX = midX + (state.proc.vref / 10.0) * 180;
     procCtx.setLineDash([4, 4]); procCtx.strokeStyle = '#f59e0b';
     procCtx.beginPath(); procCtx.moveTo(vrefX, 30); procCtx.lineTo(vrefX, H - 30); procCtx.stroke();
     procCtx.setLineDash([]);
-    procCtx.fillStyle = '#f59e0b'; procCtx.fillText(`V_ref (${state.proc.vref.toFixed(1)}V)`, vrefX + 6, 55);
+    procCtx.fillStyle = '#f59e0b'; procCtx.font = 'bold 9px JetBrains Mono';
+    procCtx.fillText(`V_ref (${state.proc.vref.toFixed(1)}V)`, vrefX + 6, 55);
 
     // Comparator S-Curve
     procCtx.strokeStyle = '#06b6d4'; procCtx.lineWidth = 3.5;
@@ -2197,7 +2208,7 @@ function drawProcSchematicCanvas() {
     procCtx.font = 'bold 9px JetBrains Mono'; procCtx.fillStyle = '#34d399';
     procCtx.fillText(`V_UT (+${v_ut.toFixed(2)}V)`, utX + 4, 45);
     procCtx.fillStyle = '#fb7185';
-    procCtx.fillText(`V_LT ({(-v_ut).toFixed(2)}V)`, ltX - 75, 45);
+    procCtx.fillText(`V_LT (${(-v_ut).toFixed(2)}V)`, ltX - 75, 45);
 
     // Hysteresis Rectangle Path
     procCtx.strokeStyle = '#c084fc'; procCtx.lineWidth = 3;
@@ -2216,10 +2227,110 @@ function drawProcSchematicCanvas() {
     drawArrow(procCtx, (ltX + utX)/2 - 10, midY - 70, (ltX + utX)/2 + 20, midY - 70, '#c084fc', 8);
     drawArrow(procCtx, (ltX + utX)/2 + 20, midY + 70, (ltX + utX)/2 - 10, midY + 70, '#c084fc', 8);
 
-  } else {
-    // Waveform simulation for Integrator / Filter
-    procCtx.font = 'bold 11px JetBrains Mono'; procCtx.fillStyle = '#38bdf8';
-    procCtx.fillText('Active Signal Response Waveform (Frequency Domain)', 40, 45);
+  } else if (circ === 'integrator' || circ === 'differentiator') {
+    // Waveform simulation for Integrator / Differentiator
+    const midY1 = 80, midY2 = 190;
+    
+    // Grids / Centerlines
+    procCtx.strokeStyle = 'rgba(148, 163, 184, 0.2)'; procCtx.lineWidth = 1;
+    procCtx.beginPath();
+    procCtx.moveTo(60, midY1); procCtx.lineTo(W - 60, midY1);
+    procCtx.moveTo(60, midY2); procCtx.lineTo(W - 60, midY2);
+    procCtx.stroke();
+
+    // Labels
+    procCtx.font = 'bold 10px JetBrains Mono';
+    procCtx.fillStyle = '#fbbf24';
+    procCtx.fillText(`CH1: V_in (${circ === 'integrator' ? 'Square Wave' : 'Triangle Wave'})`, 60, 35);
+    procCtx.fillStyle = '#38bdf8';
+    procCtx.fillText(`CH2: V_out (${circ === 'integrator' ? 'Integrated Triangle Wave' : 'Differentiated Square Pulses'})`, 60, 145);
+
+    const cycles = 3;
+    const plotW = W - 140;
+
+    // Draw Input Wave
+    procCtx.strokeStyle = '#fbbf24'; procCtx.lineWidth = 2.5;
+    procCtx.beginPath();
+    for (let i = 0; i <= plotW; i++) {
+      const t = (i / plotW) * cycles * 2 * Math.PI;
+      let v1 = 0;
+      if (circ === 'integrator') v1 = Math.sin(t) >= 0 ? 30 : -30;
+      else v1 = (2 * 30 / Math.PI) * Math.asin(Math.sin(t));
+      const px = 70 + i, py = midY1 - v1;
+      if (i === 0) procCtx.moveTo(px, py); else procCtx.lineTo(px, py);
+    }
+    procCtx.stroke();
+
+    // Draw Output Wave
+    procCtx.strokeStyle = '#38bdf8'; procCtx.lineWidth = 2.5;
+    procCtx.beginPath();
+    for (let i = 0; i <= plotW; i++) {
+      const t = (i / plotW) * cycles * 2 * Math.PI;
+      let v2 = 0;
+      if (circ === 'integrator') {
+        // Integral of square wave is inverted triangle wave
+        v2 = - (2 * 30 / Math.PI) * Math.asin(Math.sin(t));
+      } else {
+        // Derivative of triangle wave is inverted square wave
+        v2 = Math.sin(t) >= 0 ? -30 : 30;
+      }
+      const px = 70 + i, py = midY2 - v2;
+      if (i === 0) procCtx.moveTo(px, py); else procCtx.lineTo(px, py);
+    }
+    procCtx.stroke();
+
+  } else if (circ === 'active_filter') {
+    // Bode Plot for Active Low-Pass Filter
+    const ox = 90, oy = 210, gw = W - 160, gh = 160;
+    
+    // Axes
+    procCtx.strokeStyle = '#475569'; procCtx.lineWidth = 1.5;
+    procCtx.beginPath();
+    procCtx.moveTo(ox, oy); procCtx.lineTo(ox + gw, oy); // X: Frequency (log scale)
+    procCtx.moveTo(ox, oy); procCtx.lineTo(ox, oy - gh); // Y: Gain (dB)
+    procCtx.stroke();
+
+    procCtx.font = 'bold 9px JetBrains Mono'; procCtx.fillStyle = '#94a3b8';
+    procCtx.fillText('Gain (dB)', ox - 50, oy - gh + 10);
+    procCtx.fillText('Frequency f (Hz, Log Scale)', ox + gw - 120, oy + 25);
+
+    // 0 dB line
+    procCtx.fillStyle = '#34d399'; procCtx.fillText('0 dB', ox - 35, oy - gh + 30);
+    // -3 dB line
+    const y3db = (oy - gh + 30) + (gh * 0.15);
+    procCtx.fillStyle = '#fbbf24'; procCtx.fillText('−3 dB', ox - 35, y3db + 4);
+
+    procCtx.setLineDash([3, 3]); procCtx.strokeStyle = 'rgba(251, 191, 36, 0.4)';
+    procCtx.beginPath();
+    procCtx.moveTo(ox, y3db); procCtx.lineTo(ox + gw, y3db);
+    procCtx.stroke();
+    procCtx.setLineDash([]);
+
+    // Cutoff frequency fc
+    const sFreq = document.getElementById('slider-proc-freq');
+    const sR1 = document.getElementById('slider-proc-r1');
+    const sC = document.getElementById('slider-proc-c');
+    const r_k = sR1 ? parseFloat(sR1.value) : 10.0;
+    const c_uF = sC ? parseFloat(sC.value) : 0.01;
+    const fc = 1 / (2 * Math.PI * (r_k * 1000) * (c_uF * 1e-6));
+
+    const fcX = ox + gw * 0.5;
+    procCtx.setLineDash([4, 4]); procCtx.strokeStyle = '#06b6d4';
+    procCtx.beginPath(); procCtx.moveTo(fcX, oy - gh); procCtx.lineTo(fcX, oy); procCtx.stroke();
+    procCtx.setLineDash([]);
+    procCtx.fillStyle = '#06b6d4'; procCtx.fillText(`f_c = ${fc.toFixed(1)} Hz`, fcX - 35, oy + 15);
+
+    // Bode Magnitude Curve (Low-Pass: Flat 0dB then rolls off at -20dB/dec)
+    procCtx.strokeStyle = '#38bdf8'; procCtx.lineWidth = 3;
+    procCtx.beginPath();
+    procCtx.moveTo(ox, oy - gh + 30);
+    procCtx.lineTo(fcX - 25, oy - gh + 30);
+    procCtx.quadraticCurveTo(fcX, y3db, fcX + 35, y3db + 25);
+    procCtx.lineTo(ox + gw, oy);
+    procCtx.stroke();
+
+    procCtx.fillStyle = '#fb7185'; procCtx.font = 'bold 10px JetBrains Mono';
+    procCtx.fillText('Roll-off: −20 dB/decade (−6 dB/octave)', fcX + 45, y3db + 50);
   }
 }
 
