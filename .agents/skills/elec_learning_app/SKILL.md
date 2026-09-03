@@ -1,17 +1,17 @@
 ---
 name: elec_learning_app
-description: Comprehensive guidelines, design systems, physical semiconductor models, mathematical simulation engines, and deployment standards for building interactive Electronics Web Learning Labs (Diode, BJT, JFET, MOSFET, Op-Amp, Small-Signal, Clippers, Clampers, Multipliers, Multimeter, Oscilloscope, Resistor) with Dark Glassmorphism, HTML5 Canvas physics, Dual-Trace Oscilloscope, Master Unified Portal, and Google Sheets integration.
+description: Comprehensive guidelines, design systems, physical semiconductor models, mathematical simulation engines, schematic vector standards, and deployment rules for building interactive Electronics Web Learning Labs (Resistor, Multimeter, Oscilloscope, Diode, BJT, JFET, MOSFET, BJT AC, FET AC, Diode Applications, Op-Amp) with Dark Glassmorphism, HTML5 Canvas physics, Master Unified Portal, and Google Sheets integration.
 ---
 
-# Electronics Web Learning Lab & Virtual Simulator Skill Guide
+# คู่มือและมาตรฐานการพัฒนาสื่อการสอนและห้องปฏิบัติการอิเล็กทรอนิกส์เสมือนจริง (Electronics Web Learning Lab Standard)
 
-คู่มือและมาตรฐานการพัฒนาแอปพลิเคชันเว็บเพื่อการเรียนรู้วิชาอิเล็กทรอนิกส์ (Electronics Web Learning Lab) ในรูปแบบ Interactive Single-Page Application (SPA) พร้อมหน้า **Master Dashboard Portal** รวมศูนย์, ห้องทดลองเสมือนจริง, การคำนวณสดทีละขั้นตอน (Live Step-by-Step Math Solvers), ฟิสิกส์สารกึ่งตัวนำบน HTML5 Canvas, ออสซิลโลสโคป 2 แชนแนล, และระบบบันทึกผลการเรียนรู้ผ่าน Google Sheets
+เอกสารมาตรฐานสถาปัตยกรรมและการพัฒนาแอปพลิเคชันเว็บเพื่อการเรียนรู้วิชาอิเล็กทรอนิกส์ (Electronics Web Learning Lab) ในรูปแบบ Interactive Single-Page Application (SPA) พร้อมหน้า **Master Dashboard Portal** รวมศูนย์, ห้องทดลองเสมือนจริง, การคำนวณสดทีละขั้นตอน (Live Step-by-Step Math Solvers), ฟิสิกส์สารกึ่งตัวนำบน HTML5 Canvas, ออสซิลโลสโคป 2 แชนแนล, และระบบบันทึกผลการเรียนรู้ผ่าน Google Sheets
 
 ---
 
-## 1. สถาปัตยกรรมระบบรวมศูนย์ (Master Portal & App Architecture)
+## 1. สถาปัตยกรรมระบบรวมศูนย์ (Master Portal & App Directory Structure)
 
-ระบบประกอบด้วยหน้า **Master Dashboard Portal (`index.html`)** ที่ Root Directory ควบคู่กับ **Master Unified HTTP Server (`server.js`)** บนพอร์ต **8080** ซึ่งทำหน้าที่เป็น Single Entry Point ให้ผู้เรียนสามารถเข้าถึง 10 แอปพลิเคชันการเรียนรู้ได้ผ่าน Sub-paths โดยไม่ต้องเปิดแยกทีละเซิร์ฟเวอร์:
+ระบบประกอบด้วยหน้า **Master Dashboard Portal (`index.html`)** ที่ Root Directory ควบคู่กับ **Master Unified HTTP Server (`server.js`)** บนพอร์ต **8080** ซึ่งทำหน้าที่เป็น Single Entry Point และรองรับการเผยแพร่บน **GitHub Pages** ได้ 100%:
 
 ```
 d:\ELEC_WEB_APP\
@@ -34,7 +34,7 @@ d:\ELEC_WEB_APP\
 
 ---
 
-## 2. พอร์ตและเส้นทางเข้าถึงแอปพลิเคชัน (Port & Route Mapping)
+## 2. พอร์ตและเส้นทางเข้าถึงแอปพลิเคชัน (Port & Route Standards)
 
 | ลำดับ | แอปพลิเคชัน | โฟลเดอร์ | Master Route (Port 8080) | Standalone Port | หมวดหมู่ |
 | :---: | :--- | :--- | :--- | :---: | :--- |
@@ -52,15 +52,31 @@ d:\ELEC_WEB_APP\
 
 ---
 
-## 3. กฎเหล็กทางเทคนิคในการพัฒนา (Core Architectural Rules)
+## 3. กฎเหล็กทางเทคนิคและสถาปัตยกรรม (Core Architectural Rules)
 
-1. **ห้ามใช้ Raw LaTeX ใน HTML/JS Strings:**
-   - ใช้ **Unicode Symbols** (`≈`, `·`, `×`, `≥`, `≤`, `±`, `−`, `Ω`, `μ`, `°`, `β`, `α`, `∥`, `⚡`, `🟢`, `🔴`) ร่วมกับแท็ก HTML (`<sub>`, `<sup>`, `<strong>`) เสมอ
-2. **Template Literals Interpolation:**
-   - ตรวจสอบเครื่องหมาย `$` หน้าวงเล็บปีกกาเสมอ เช่น `${av.toFixed(2)}`, `${vout.toFixed(2)}` ป้องกันการแสดงผลข้อความดิบ `{...}`
-3. **Sub-Path Relative Link Handling:**
-   - ใน `server.js` เมื่อมีการเรียก Sub-path ที่ไม่มี Trailing Slash (เช่น `/diode`) ต้องทำ HTTP 302 Redirect ไปยัง `/diode/` เพื่อให้เบราว์เซอร์โหลด Assets สัมพัทธ์ได้อย่างถูกต้อง
-4. **Self-Contained Execution:**
-   - แต่ละแอปพลิเคชันสามารถเปิดใช้งานได้ทั้งแบบ Direct File Protocol (`file:///...`), Dedicated Standalone Server (Port 3000–3009), และผ่าน Master Unified Server (Port 8080)
-5. **การ Export ไฟล์ CSV ภาษาไทย:**
-   - ต้องขึ้นต้นด้วย UTF-8 BOM เสมอ: `new Blob([String.fromCharCode(0xFEFF) + csvContent], { type: 'text/csv;charset=utf-8;' })`
+### 1. ความเข้ากันได้กับ GitHub Pages (GitHub Pages Relative Links Rule):
+- **ห้ามใช้ Absolute Paths ที่ขึ้นต้นด้วย `/` เดี่ยวๆ ในหน้า Master Dashboard** (เช่น `/resistor/` จะตัดชื่อ Repository ออกจนเกิดข้อผิดพลาด 404 บน `https://<user>.github.io/<repo>/`)
+- **ต้องใช้ Relative Directory Path เสมอ:** เช่น `resistor-sheet-app/`, `diode_app/`, `bjt_app/` เพื่อให้ทำงานได้ทั้งบน GitHub Pages, Local Node.js Server, และ Direct File Protocol (`file:///...`)
+- ทุกโฟลเดอร์แอปต้องมีไฟล์ `index.html` อยู่เสมอ
+
+### 2. ไวยากรณ์ Regular Expression ใน JavaScript:
+- ใน JS RegExp Literals **ห้ามใส่ Backslash ซ้อนกัน** เช่น `/^\d{3}$/` ผิด ให้ใช้ `/^\d{3}$/` เท่านั้น (เนื่องจาก `\` จะทำให้มองหาอักษรแบ็กสแลชตัวจริง)
+
+### 3. การวาดสัญลักษณ์วงจรมาตรฐาน IEEE/IEC (Schematic Vector Standards):
+- **BJT Standard:**
+  - แผ่น Base หนาแนวตั้ง (`lineWidth = 3.5px`, ปลายมน) เชื่อมต่อกับสายขั้ว B ทางซ้าย
+  - ขา Collector เอียงทแยงขึ้นบนขวา ขา Emitter เอียงทแยงลงล่างขวา
+  - หัวลูกศรบน Emitter: **NPN ชี้พุ่งออก ($\searrow$)**, **PNP ชี้พุ่งเข้า ($
+warrow$)**
+  - ตัวถังวงกลมโปร่งแสงบาง (`lineWidth = 1.8px`) ไม่ใช้สีทึบตัน
+  - ป้ายกำกับขั้ว B (เหลือง), C (ฟ้า), E (เขียว/ส้ม) แยกตำแหน่งชัดเจน
+- **Canvas Padding & Layout Safety:**
+  - จัดองค์ประกอบใน Canvas ให้มีระยะขอบปลอดภัยอย่างน้อย $40	ext{--}50	ext{ px}$ ทางด้านขวา ป้องกันไม่ให้ปลายสายหรือตัวอักษรล้นขอบ Canvas (Canvas Overflow)
+
+### 4. การจัดการข้อความสูตรและคณิตศาสตร์:
+- **ห้ามใช้ Raw LaTeX Escape Artifacts ใน HTML/JS Strings**
+- ใช้ **Unicode Characters** (`≈`, `·`, `×`, `≥`, `≤`, `±`, `−`, `Ω`, `μ`, `°`, `β`, `α`, `∥`, `⚡`, `🟢`, `🔴`) ร่วมกับ HTML Tags (`<sub>`, `<sup>`, `<strong>`) เสมอ
+- ตรวจสอบ Template Literals ทุกจุดต้องมี `$` นำหน้า เช่น `${vout.toFixed(2)}`
+
+### 5. การส่งออกไฟล์ CSV ภาษาไทย (UTF-8 BOM):
+- ต้องขึ้นต้นด้วยรหัส Byte Order Mark: `new Blob([String.fromCharCode(0xFEFF) + csvContent], { type: 'text/csv;charset=utf-8;' })`
