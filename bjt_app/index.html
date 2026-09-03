@@ -1404,7 +1404,7 @@ function drawPhysicsCanvas(t) {
   const vce = state.physics.vce;
   const m = BJT_MODELS[state.physics.model] || BJT_MODELS['2N2222'];
 
-  const E_s = 28, E_e = 185, B_s = 185, B_e = 250, C_s = 250, C_e = 425;
+  const E_s = 24, E_e = 160, B_s = 160, B_e = 215, C_s = 215, C_e = 365;
   const topY = 55, botY = 235;
 
   // 1. Region Background Fills
@@ -1463,9 +1463,9 @@ function drawPhysicsCanvas(t) {
 
   // Collector Terminal Lead (Right)
   physCtx.strokeStyle = '#06b6d4'; physCtx.lineWidth = 3;
-  physCtx.beginPath(); physCtx.moveTo(C_e, midY); physCtx.lineTo(465, midY); physCtx.stroke();
+  physCtx.beginPath(); physCtx.moveTo(C_e, midY); physCtx.lineTo(395, midY); physCtx.stroke();
   physCtx.fillStyle = '#06b6d4'; physCtx.font = 'bold 13px JetBrains Mono'; physCtx.textAlign = 'left';
-  physCtx.fillText('C', 468, midY + 4);
+  physCtx.fillText('C', 398, midY + 4);
 
   // 6. Dynamic Particles Movement
   const isFlowing = ib > 0 && vce > 0.15;
@@ -1538,18 +1538,18 @@ function drawPhysicsCanvas(t) {
     physCtx.fillText(`I_B = ${ib} μA`, baseCenter_x + 10, 36);
   }
 
-  // 8. Collector Current Arrow & Label (Positioned cleanly with no overlap)
+  // 8. Collector Current Arrow & Label (Nicely placed between blocks and symbol)
   if (ib > 0) {
     const ic_mA = (ib * m.beta) / 1000;
     physCtx.strokeStyle = '#06b6d4'; physCtx.lineWidth = 2.5;
-    physCtx.beginPath(); physCtx.moveTo(480, botY - 20); physCtx.lineTo(480, topY + 20); physCtx.stroke();
-    drawArrow(physCtx, 480, botY - 20, 480, topY + 20, '#06b6d4');
+    physCtx.beginPath(); physCtx.moveTo(438, botY - 20); physCtx.lineTo(438, topY + 20); physCtx.stroke();
+    drawArrow(physCtx, 438, botY - 20, 438, topY + 20, '#06b6d4');
     physCtx.fillStyle = '#06b6d4'; physCtx.font = 'bold 10px JetBrains Mono'; physCtx.textAlign = 'center';
-    physCtx.fillText(`I_C = ${ic_mA.toFixed(1)} mA`, 480, topY + 10);
+    physCtx.fillText(`I_C = ${ic_mA.toFixed(1)} mA`, 438, topY + 10);
   }
 
-  // 9. Standard BJT Schematic Symbol on the right
-  drawBJTSymbol(physCtx, 595, midY, isNPN, ib > 0);
+  // 9. Standard BJT Schematic Symbol on the right (Cleanly positioned with ample margin)
+  drawBJTSymbol(physCtx, 535, midY, isNPN, ib > 0);
   physCtx.textAlign = 'left';
 }
 
