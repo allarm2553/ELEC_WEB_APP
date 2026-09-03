@@ -2636,24 +2636,142 @@ function drawLabSchematicMonitor() {
   labSchemCtx.clearRect(0, 0, W, H);
   labSchemCtx.fillStyle = '#050b14'; labSchemCtx.fillRect(0, 0, W, H);
 
-  const cx = W / 2, cy = H / 2;
-  // Compact OpAmp
+  // Background subtle grid
+  labSchemCtx.strokeStyle = 'rgba(56, 189, 248, 0.05)'; labSchemCtx.lineWidth = 1;
+  for (let x = 20; x < W; x += 30) {
+    labSchemCtx.beginPath(); labSchemCtx.moveTo(x, 10); labSchemCtx.lineTo(x, H - 10); labSchemCtx.stroke();
+  }
+
+  const cx = W / 2 + 20, cy = H / 2;
+  const circ = state.lab.circuit;
+  const r1_k = state.lab.r1_k;
+  const rf_k = state.lab.rf_k;
+
+  // Draw Center Op-Amp Triangle
   labSchemCtx.beginPath();
-  labSchemCtx.moveTo(cx - 35, cy - 30);
-  labSchemCtx.lineTo(cx - 35, cy + 30);
-  labSchemCtx.lineTo(cx + 35, cy);
+  labSchemCtx.moveTo(cx - 45, cy - 40);
+  labSchemCtx.lineTo(cx - 45, cy + 40);
+  labSchemCtx.lineTo(cx + 45, cy);
   labSchemCtx.closePath();
   labSchemCtx.fillStyle = '#1e293b'; labSchemCtx.fill();
-  labSchemCtx.strokeStyle = '#38bdf8'; labSchemCtx.lineWidth = 2; labSchemCtx.stroke();
+  labSchemCtx.strokeStyle = '#38bdf8'; labSchemCtx.lineWidth = 2.2; labSchemCtx.stroke();
 
-  labSchemCtx.font = 'bold 12px JetBrains Mono';
-  labSchemCtx.fillStyle = '#fb7185'; labSchemCtx.fillText('−', cx - 28, cy - 10);
-  labSchemCtx.fillStyle = '#34d399'; labSchemCtx.fillText('+', cx - 28, cy + 20);
+  // Minus and Plus signs
+  labSchemCtx.font = 'bold 14px JetBrains Mono';
+  labSchemCtx.fillStyle = '#fb7185'; labSchemCtx.fillText('−', cx - 36, cy - 15);
+  labSchemCtx.fillStyle = '#34d399'; labSchemCtx.fillText('+', cx - 36, cy + 25);
 
-  // CH1 & CH2 Probe Nodes
-  dotNode(labSchemCtx, 120, cy - 15, 'CH1 (V_in)', 'top');
-  dotNode(labSchemCtx, cx + 160, cy, 'CH2 (V_out)', 'top');
-  wire(labSchemCtx, cx + 35, cy, cx + 160, cy, '#38bdf8', 2);
+  // Power rails (+VCC / -VEE)
+  labSchemCtx.strokeStyle = '#f97316'; labSchemCtx.lineWidth = 1.5;
+  labSchemCtx.beginPath(); labSchemCtx.moveTo(cx, cy - 40); labSchemCtx.lineTo(cx, cy - 20); labSchemCtx.stroke();
+  labSchemCtx.fillStyle = '#f97316'; labSchemCtx.font = 'bold 9px JetBrains Mono'; labSchemCtx.textAlign = 'center';
+  labSchemCtx.fillText(`+${state.lab.vcc.toFixed(0)}V`, cx, cy - 24);
+
+  labSchemCtx.strokeStyle = '#6366f1'; labSchemCtx.lineWidth = 1.5;
+  labSchemCtx.beginPath(); labSchemCtx.moveTo(cx, cy + 40); labSchemCtx.lineTo(cx, cy + 20); labSchemCtx.stroke();
+  labSchemCtx.fillStyle = '#818cf8';
+  labSchemCtx.fillText(`−${state.lab.vcc.toFixed(0)}V`, cx, cy + 34);
+
+  // Output Lead and CH2 Probe
+  wire(labSchemCtx, cx + 45, cy, cx + 120, cy, '#38bdf8', 2.5);
+  dotNode(labSchemCtx, cx + 120, cy, 'CH2 (V_out)', 'right');
+
+  if (circ === 'inverting') {
+    // CH1 probe -> R1 -> V- (cy - 20)
+    wire(labSchemCtx, 70, cy - 20, 110, cy - 20);
+    dotNode(labSchemCtx, 70, cy - 20, 'CH1 (V_in)', 'left');
+    drawResistorH(labSchemCtx, 110, 180, cy - 20, 'R_1', `${r1_k.toFixed(1)}k`);
+    wire(labSchemCtx, 180, cy - 20, cx - 45, cy - 20);
+    dotNode(labSchemCtx, 180, cy - 20, 'V_− (0V)', 'top');
+
+    // Feedback Resistor Rf Loop
+    wire(labSchemCtx, 180, cy - 20, 180, cy - 65);
+    drawResistorH(labSchemCtx, 180, cx + 80, cy - 65, 'R_f', `${rf_k.toFixed(1)}k`);
+    wire(labSchemCtx, cx + 80, cy - 65, cx + 80, cy);
+    dotNode(labSchemCtx, cx + 80, cy);
+
+    // Non-Inverting (+) directly to Ground
+    wire(labSchemCtx, cx - 45, cy + 20, cx - 75, cy + 20);
+    wire(labSchemCtx, cx - 75, cy + 20, cx - 75, cy + 50);
+    gndSymbol(labSchemCtx, cx - 75, cy + 50);
+
+  } else if (circ === 'non_inverting') {
+    // CH1 probe -> (+) terminal (cy + 20)
+    wire(labSchemCtx, 70, cy + 20, cx - 45, cy + 20);
+    dotNode(labSchemCtx, 70, cy + 20, 'CH1 (V_in)', 'left');
+
+    // Inverting (-) terminal from Ground through R1
+    wire(labSchemCtx, 180, cy - 20, cx - 45, cy - 20);
+    wire(labSchemCtx, 180, cy - 20, 180, cy + 20);
+    drawResistorV(labSchemCtx, 180, cy + 20, cy + 65, 'R_1', `${r1_k.toFixed(1)}k`, 'left');
+    gndSymbol(labSchemCtx, 180, cy + 65);
+    dotNode(labSchemCtx, 180, cy - 20, 'V_−', 'top');
+
+    // Feedback Resistor Rf Loop
+    wire(labSchemCtx, 180, cy - 20, 180, cy - 65);
+    drawResistorH(labSchemCtx, 180, cx + 80, cy - 65, 'R_f', `${rf_k.toFixed(1)}k`);
+    wire(labSchemCtx, cx + 80, cy - 65, cx + 80, cy);
+    dotNode(labSchemCtx, cx + 80, cy);
+
+  } else if (circ === 'buffer') {
+    // CH1 probe -> (+) terminal (cy + 20)
+    wire(labSchemCtx, 70, cy + 20, cx - 45, cy + 20);
+    dotNode(labSchemCtx, 70, cy + 20, 'CH1 (V_in)', 'left');
+
+    // Direct Feedback Wire (Rf = 0)
+    wire(labSchemCtx, cx - 45, cy - 20, cx - 70, cy - 20);
+    wire(labSchemCtx, cx - 70, cy - 20, cx - 70, cy - 60);
+    wire(labSchemCtx, cx - 70, cy - 60, cx + 80, cy - 60);
+    wire(labSchemCtx, cx + 80, cy - 60, cx + 80, cy);
+    dotNode(labSchemCtx, cx + 80, cy);
+
+    labSchemCtx.font = 'bold 10px JetBrains Mono'; labSchemCtx.fillStyle = '#34d399'; labSchemCtx.textAlign = 'center';
+    labSchemCtx.fillText('Direct Buffer Feedback (A_v = 1.00)', cx + 5, cy - 66);
+
+  } else if (circ === 'integrator' || circ === 'differentiator') {
+    // CH1 probe -> R1 or C -> V-
+    wire(labSchemCtx, 70, cy - 20, 110, cy - 20);
+    dotNode(labSchemCtx, 70, cy - 20, 'CH1 (V_in)', 'left');
+
+    if (circ === 'integrator') {
+      drawResistorH(labSchemCtx, 110, 180, cy - 20, 'R', `${r1_k.toFixed(1)}k`);
+    } else {
+      // Capacitor symbol in place of resistor
+      wire(labSchemCtx, 110, cy - 20, 140, cy - 20);
+      wire(labSchemCtx, 150, cy - 20, 180, cy - 20);
+      labSchemCtx.strokeStyle = '#38bdf8'; labSchemCtx.lineWidth = 2.5;
+      labSchemCtx.beginPath(); labSchemCtx.moveTo(140, cy - 32); labSchemCtx.lineTo(140, cy - 8); labSchemCtx.stroke();
+      labSchemCtx.beginPath(); labSchemCtx.moveTo(150, cy - 32); labSchemCtx.lineTo(150, cy - 8); labSchemCtx.stroke();
+      labSchemCtx.fillStyle = '#38bdf8'; labSchemCtx.font = 'bold 10px JetBrains Mono'; labSchemCtx.textAlign = 'center';
+      labSchemCtx.fillText('C 0.1μF', 145, cy - 36);
+    }
+
+    wire(labSchemCtx, 180, cy - 20, cx - 45, cy - 20);
+    dotNode(labSchemCtx, 180, cy - 20, 'V_− (0V)', 'top');
+
+    // Feedback Loop (Capacitor for Integrator / Resistor for Differentiator)
+    wire(labSchemCtx, 180, cy - 20, 180, cy - 65);
+    if (circ === 'integrator') {
+      const mx = (180 + cx + 80) / 2;
+      wire(labSchemCtx, 180, cy - 65, mx - 6, cy - 65);
+      wire(labSchemCtx, mx + 6, cy - 65, cx + 80, cy - 65);
+      labSchemCtx.strokeStyle = '#38bdf8'; labSchemCtx.lineWidth = 2.5;
+      labSchemCtx.beginPath(); labSchemCtx.moveTo(mx - 6, cy - 77); labSchemCtx.lineTo(mx - 6, cy - 53); labSchemCtx.stroke();
+      labSchemCtx.beginPath(); labSchemCtx.moveTo(mx + 6, cy - 77); labSchemCtx.lineTo(mx + 6, cy - 53); labSchemCtx.stroke();
+      labSchemCtx.fillStyle = '#38bdf8'; labSchemCtx.font = 'bold 10px JetBrains Mono'; labSchemCtx.textAlign = 'center';
+      labSchemCtx.fillText('C 0.1μF', mx, cy - 81);
+    } else {
+      drawResistorH(labSchemCtx, 180, cx + 80, cy - 65, 'R_f', `${rf_k.toFixed(1)}k`);
+    }
+
+    wire(labSchemCtx, cx + 80, cy - 65, cx + 80, cy);
+    dotNode(labSchemCtx, cx + 80, cy);
+
+    // Non-Inverting (+) directly to Ground
+    wire(labSchemCtx, cx - 45, cy + 20, cx - 75, cy + 20);
+    wire(labSchemCtx, cx - 75, cy + 20, cx - 75, cy + 50);
+    gndSymbol(labSchemCtx, cx - 75, cy + 50);
+  }
 }
 
 function drawDualTraceScope() {
@@ -2698,8 +2816,8 @@ function drawDualTraceScope() {
   const ch1Scale = state.lab.autoScale ? Math.max(1.0, vin_pk * 1.5) : 2.0;
   const ch2Scale = state.lab.autoScale ? Math.max(2.0, Math.abs(av) * vin_pk * 1.3) : 10.0;
 
-  document.getElementById('scope-ch1-scale').textContent = `{(ch1Scale/3).toFixed(1)}V/div`;
-  document.getElementById('scope-ch2-scale').textContent = `{(ch2Scale/3).toFixed(1)}V/div`;
+  document.getElementById('scope-ch1-scale').textContent = `${(ch1Scale/3).toFixed(1)} V/div`;
+  document.getElementById('scope-ch2-scale').textContent = `${(ch2Scale/3).toFixed(1)} V/div`;
 
   const scaleY1 = (H * 0.42) / ch1Scale;
   const scaleY2 = (H * 0.42) / ch2Scale;
