@@ -1462,7 +1462,7 @@ function selectIcPackage(icKey, btn) {
   // Render Pins Table
   let tableHtml = `<table class="datasheet-table"><thead><tr><th>ขา (Pin)</th><th>ชื่อขั้ว</th><th>คำอธิบายการทำงาน</th></tr></thead><tbody>`;
   data.pins.forEach(p => {
-    tableHtml += `<tr><td style="font-family:var(--font-mono);font-weight:700;color:var(--accent-primary);">Pin {p.no}</td><td style="font-weight:700;color:#f8fafc;">{p.name}</td><td>{p.desc}</td></tr>`;
+    tableHtml += `<tr><td style="font-family:var(--font-mono);font-weight:700;color:var(--accent-primary);">Pin ${p.no}</td><td style="font-weight:700;color:#f8fafc;">${p.name}</td><td>${p.desc}</td></tr>`;
   });
   tableHtml += `</tbody></table>`;
   document.getElementById('ic-pins-table-container').innerHTML = tableHtml;
@@ -2587,23 +2587,23 @@ function renderQuiz() {
   let html = '';
   OPAMP_QUIZ_QUESTIONS.forEach((q, idx) => {
     html += `
-      <div class="quiz-question-card" id="quiz-card-{idx}">
-        <div class="quiz-q-title">{q.q}</div>
+      <div class="quiz-question-card" id="quiz-card-${idx}">
+        <div class="quiz-q-title">${q.q}</div>
         <div class="quiz-options">
     `;
     q.options.forEach((opt, optIdx) => {
       const isChecked = state.quiz.answers[idx] === optIdx ? 'checked' : '';
       html += `
-        <label class="quiz-option-label" id="label-q{idx}-opt{optIdx}">
-          <input type="radio" name="quiz-q-{idx}" value="{optIdx}" {isChecked} onchange="selectQuizOption({idx}, {optIdx})">
-          <span>{opt}</span>
+        <label class="quiz-option-label" id="label-q${idx}-opt${optIdx}">
+          <input type="radio" name="quiz-q-${idx}" value="${optIdx}" ${isChecked} onchange="selectQuizOption(${idx}, ${optIdx})">
+          <span>${opt}</span>
         </label>
       `;
     });
     html += `
         </div>
-        <div class="quiz-explanation" id="quiz-exp-{idx}">
-          <strong>คำอธิบาย:</strong> {q.exp}
+        <div class="quiz-explanation" id="quiz-exp-${idx}">
+          <strong>คำอธิบาย:</strong> ${q.exp}
         </div>
       </div>
     `;
@@ -2640,7 +2640,7 @@ function submitQuiz() {
 
   const badge = document.getElementById('quiz-score-badge');
   if (badge) {
-    badge.textContent = `คะแนน: {score} / {OPAMP_QUIZ_QUESTIONS.length} ({(score/OPAMP_QUIZ_QUESTIONS.length*100).toFixed(0)}%)`;
+    badge.textContent = `คะแนน: ${score} / ${OPAMP_QUIZ_QUESTIONS.length} (${(score/OPAMP_QUIZ_QUESTIONS.length*100).toFixed(0)}%)`;
   }
 
   // Record history
@@ -2650,14 +2650,14 @@ function submitQuiz() {
     timestamp: timeStr,
     student: name,
     activity: 'แบบทดสอบ Op-Amp',
-    score: `{score}/{OPAMP_QUIZ_QUESTIONS.length}`
+    score: `${score}/${OPAMP_QUIZ_QUESTIONS.length}`
   });
   renderHistory();
 
   if (score >= 8) playSound('success');
   else playSound('buzzer');
 
-  alert(`คุณทำแบบทดสอบได้ {score} จาก {OPAMP_QUIZ_QUESTIONS.length} คะแนน ({(score/OPAMP_QUIZ_QUESTIONS.length*100).toFixed(0)}%)`);
+  alert(`คุณทำแบบทดสอบได้ ${score} จาก ${OPAMP_QUIZ_QUESTIONS.length} คะแนน (${(score/OPAMP_QUIZ_QUESTIONS.length*100).toFixed(0)}%)`);
 }
 
 function resetQuiz() {
@@ -2677,7 +2677,7 @@ function renderHistory() {
   }
   let html = '';
   state.history.forEach(item => {
-    html += `<tr><td>{item.timestamp}</td><td>{item.student}</td><td>{item.activity}</td><td style="color:var(--accent-primary);font-weight:700;">{item.score}</td></tr>`;
+    html += `<tr><td>${item.timestamp}</td><td>${item.student}</td><td>${item.activity}</td><td style="color:var(--accent-primary);font-weight:700;">${item.score}</td></tr>`;
   });
   tbody.innerHTML = html;
 }
@@ -2689,13 +2689,13 @@ function exportQuizCSV() {
   }
   let csv = 'Timestamp,Student,Activity,Score\n';
   state.history.forEach(r => {
-    csv += `"{r.timestamp}","{r.student}","{r.activity}","{r.score}"\n`;
+    csv += `"${r.timestamp}","${r.student}","${r.activity}","${r.score}"\n`;
   });
   const blob = new Blob([String.fromCharCode(0xFEFF) + csv], { type: 'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `opamp_quiz_history_{Date.now()}.csv`;
+  a.download = `opamp_quiz_history_${Date.now()}.csv`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
@@ -2712,8 +2712,8 @@ async function saveToSheets() {
     student: document.getElementById('student-name').value.trim() || 'นักศึกษา',
     class: document.getElementById('student-class').value.trim() || '',
     activity: 'Op-Amp Interactive Lab Quiz',
-    result: `{state.quiz.score}/{OPAMP_QUIZ_QUESTIONS.length}`,
-    note: `คะแนน {(state.quiz.score/OPAMP_QUIZ_QUESTIONS.length*100).toFixed(0)}%`
+    result: `${state.quiz.score}/${OPAMP_QUIZ_QUESTIONS.length}`,
+    note: `คะแนน ${(state.quiz.score/OPAMP_QUIZ_QUESTIONS.length*100).toFixed(0)}%`
   };
   try {
     await fetch(url, {
