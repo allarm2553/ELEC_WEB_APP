@@ -1852,6 +1852,126 @@ function drawAmpSchematicCanvas() {
   ampCtx.fillStyle = '#050b14'; ampCtx.fillRect(0, 0, W, H);
 
   const circ = state.amp.circuit;
+
+  // Grid background
+  ampCtx.strokeStyle = 'rgba(56, 189, 248, 0.05)'; ampCtx.lineWidth = 1;
+  for (let x = 20; x < W; x += 30) {
+    ampCtx.beginPath(); ampCtx.moveTo(x, 10); ampCtx.lineTo(x, H - 10); ampCtx.stroke();
+  }
+  for (let y = 10; y < H; y += 30) {
+    ampCtx.beginPath(); ampCtx.moveTo(20, y); ampCtx.lineTo(W - 20, y); ampCtx.stroke();
+  }
+
+  if (circ === 'instrumentation') {
+    // =========================================================
+    // 3 OP-AMPS INSTRUMENTATION AMPLIFIER SCHEMATIC
+    // =========================================================
+    const a1x = 220, a1y = 70;  // Input Op-Amp 1 (Top)
+    const a2x = 220, a2y = 200; // Input Op-Amp 2 (Bottom)
+    const a3x = 480, a3y = 135; // Output Differential Op-Amp (Right)
+
+    // Helper: Draw OpAmp
+    function drawSubOpAmp(ox, oy, w = 60, h = 50) {
+      ampCtx.beginPath();
+      ampCtx.moveTo(ox - w/2, oy - h/2);
+      ampCtx.lineTo(ox - w/2, oy + h/2);
+      ampCtx.lineTo(ox + w/2, oy);
+      ampCtx.closePath();
+      ampCtx.fillStyle = 'rgba(15, 23, 42, 0.95)'; ampCtx.fill();
+      ampCtx.strokeStyle = '#38bdf8'; ampCtx.lineWidth = 2; ampCtx.stroke();
+    }
+
+    // 1. Draw OpAmp A1 (Top Buffer/Gain Stage)
+    drawSubOpAmp(a1x, a1y);
+    ampCtx.font = 'bold 12px JetBrains Mono';
+    ampCtx.fillStyle = '#34d399'; ampCtx.fillText('+', a1x - 24, a1y - 8);
+    ampCtx.fillStyle = '#fb7185'; ampCtx.fillText('−', a1x - 24, a1y + 16);
+    ampCtx.fillStyle = '#64748b'; ampCtx.font = 'bold 9px JetBrains Mono'; ampCtx.fillText('A1', a1x - 5, a1y + 3);
+
+    // 2. Draw OpAmp A2 (Bottom Buffer/Gain Stage)
+    drawSubOpAmp(a2x, a2y);
+    ampCtx.font = 'bold 12px JetBrains Mono';
+    ampCtx.fillStyle = '#fb7185'; ampCtx.fillText('−', a2x - 24, a2y - 8);
+    ampCtx.fillStyle = '#34d399'; ampCtx.fillText('+', a2x - 24, a2y + 16);
+    ampCtx.fillStyle = '#64748b'; ampCtx.font = 'bold 9px JetBrains Mono'; ampCtx.fillText('A2', a2x - 5, a2y + 3);
+
+    // 3. Draw OpAmp A3 (Differential Stage)
+    drawSubOpAmp(a3x, a3y, 70, 60);
+    ampCtx.font = 'bold 14px JetBrains Mono';
+    ampCtx.fillStyle = '#fb7185'; ampCtx.fillText('−', a3x - 28, a3y - 12);
+    ampCtx.fillStyle = '#34d399'; ampCtx.fillText('+', a3x - 28, a3y + 20);
+    ampCtx.fillStyle = '#64748b'; ampCtx.font = 'bold 9px JetBrains Mono'; ampCtx.fillText('A3', a3x - 5, a3y + 3);
+
+    // Inputs to A1 and A2
+    const dVin = state.amp.dvin_mv;
+    const v1 = (dVin / 2000.0);
+    const v2 = - (dVin / 2000.0);
+
+    wire(ampCtx, 40, a1y - 12, a1x - 30, a1y - 12);
+    dotNode(ampCtx, 40, a1y - 12, `+V_in (${(dVin/2).toFixed(1)}mV)`, 'left');
+
+    wire(ampCtx, 40, a2y + 12, a2x - 30, a2y + 12);
+    dotNode(ampCtx, 40, a2y + 12, `−V_in (${(-dVin/2).toFixed(1)}mV)`, 'left');
+
+    // Gain Resistor RG between inverting inputs
+    const rgX = a1x - 45;
+    wire(ampCtx, a1x - 30, a1y + 12, rgX, a1y + 12);
+    wire(ampCtx, a2x - 30, a2y - 12, rgX, a2y - 12);
+    drawResistorV(ampCtx, rgX, a1y + 12, a2y - 12, 'R_G', `${state.amp.rg_k.toFixed(2)}kΩ`, 'left');
+
+    // Feedback Resistors R1 for A1 and A2
+    // A1 feedback
+    wire(ampCtx, a1x - 30, a1y + 12, a1x - 30, a1y + 35);
+    wire(ampCtx, a1x - 30, a1y + 35, a1x + 40, a1y + 35);
+    drawResistorH(ampCtx, a1x - 30, a1x + 40, a1y + 35, 'R_1', '25.0kΩ');
+    wire(ampCtx, a1x + 40, a1y + 35, a1x + 40, a1y);
+    wire(ampCtx, a1x + 30, a1y, a1x + 40, a1y);
+    dotNode(ampCtx, a1x + 40, a1y);
+
+    // A2 feedback
+    wire(ampCtx, a2x - 30, a2y - 12, a2x - 30, a2y - 35);
+    wire(ampCtx, a2x - 30, a2y - 35, a2x + 40, a2y - 35);
+    drawResistorH(ampCtx, a2x - 30, a2x + 40, a2y - 35, 'R_1', '25.0kΩ');
+    wire(ampCtx, a2x + 40, a2y - 35, a2x + 40, a2y);
+    wire(ampCtx, a2x + 30, a2y, a2x + 40, a2y);
+    dotNode(ampCtx, a2x + 40, a2y);
+
+    // Connections from A1/A2 outputs to A3 inputs through R2
+    wire(ampCtx, a1x + 40, a1y, 320, a1y);
+    wire(ampCtx, 320, a1y, 320, a3y - 15);
+    drawResistorH(ampCtx, 320, 420, a3y - 15, 'R_2', '10.0kΩ');
+    wire(ampCtx, 420, a3y - 15, a3x - 35, a3y - 15);
+    dotNode(ampCtx, 420, a3y - 15);
+
+    wire(ampCtx, a2x + 40, a2y, 320, a2y);
+    wire(ampCtx, 320, a2y, 320, a3y + 15);
+    drawResistorH(ampCtx, 320, 420, a3y + 15, 'R_2', '10.0kΩ');
+    wire(ampCtx, 420, a3y + 15, a3x - 35, a3y + 15);
+    dotNode(ampCtx, 420, a3y + 15);
+
+    // Feedback R3 on A3 (Inverting to Output)
+    wire(ampCtx, 420, a3y - 15, 420, a3y - 50);
+    drawResistorH(ampCtx, 420, a3x + 55, a3y - 50, 'R_3', '10.0kΩ');
+    wire(ampCtx, a3x + 55, a3y - 50, a3x + 55, a3y);
+    dotNode(ampCtx, a3x + 55, a3y);
+
+    // Reference R3 on A3 (Non-Inverting to Ground)
+    wire(ampCtx, 420, a3y + 15, 420, a3y + 50);
+    drawResistorH(ampCtx, 420, 420, a3y + 50, 'R_3', '10.0kΩ');
+    drawResistorV(ampCtx, 420, a3y + 15, a3y + 65, 'R_3', '10.0kΩ', 'right');
+    gndSymbol(ampCtx, 420, a3y + 65);
+
+    // Output Lead & Label
+    const vout_str = document.getElementById('amp-vout-val') ? document.getElementById('amp-vout-val').textContent.split(' ')[0] : '2.55';
+    wire(ampCtx, a3x + 35, a3y, W - 60, a3y, '#38bdf8', 2.5);
+    dotNode(ampCtx, W - 60, a3y, `V_out (${vout_str}V)`, 'right');
+
+    return;
+  }
+
+  // =========================================================
+  // STANDARD SINGLE OP-AMP SCHEMATICS
+  // =========================================================
   const cx = 350, cy = 140;
 
   // Draw Central Op-Amp Triangle
@@ -1877,8 +1997,9 @@ function drawAmpSchematicCanvas() {
   ampCtx.fillText('−15V', cx, cy + 64);
 
   // Output lead & Label
+  const vout_str = document.getElementById('amp-vout-val') ? document.getElementById('amp-vout-val').textContent.split(' ')[0] : '0.00';
   wire(ampCtx, cx + 50, cy, cx + 180, cy, '#38bdf8', 2.5);
-  dotNode(ampCtx, cx + 180, cy, `V_out (${document.getElementById('amp-vout-val').textContent.split(' ')[0]}V)`, 'right');
+  dotNode(ampCtx, cx + 180, cy, `V_out (${vout_str}V)`, 'right');
 
   if (circ === 'inverting') {
     // Inverting Input branch
@@ -1933,6 +2054,81 @@ function drawAmpSchematicCanvas() {
 
     ampCtx.font = 'bold 11px JetBrains Mono'; ampCtx.fillStyle = '#34d399'; ampCtx.textAlign = 'center';
     ampCtx.fillText('Direct Feedback Wire (R_f = 0)', cx + 15, cy - 82);
+
+    // Inverting terminal wire
+    wire(ampCtx, cx - 55, cy - 25, cx - 80, cy - 25);
+
+  } else if (circ === 'summing') {
+    // =========================================================
+    // SUMMING AMPLIFIER (INVERTING SUMMER) SCHEMATIC
+    // =========================================================
+    const v1 = state.amp.v1, v2 = state.amp.v2, rf = state.amp.rf_k;
+    const sumNodeX = 230, sumNodeY = cy - 25;
+
+    // V1 Branch (Top Input)
+    wire(ampCtx, 60, cy - 65, 110, cy - 65);
+    drawResistorH(ampCtx, 110, 190, cy - 65, 'R_1', '10.0kΩ');
+    wire(ampCtx, 190, cy - 65, sumNodeX, cy - 65);
+    wire(ampCtx, sumNodeX, cy - 65, sumNodeX, sumNodeY);
+    dotNode(ampCtx, 60, cy - 65, `V_1 (${v1.toFixed(2)}V)`, 'left');
+
+    // V2 Branch (Bottom Input)
+    wire(ampCtx, 60, cy + 15, 110, cy + 15);
+    drawResistorH(ampCtx, 110, 190, cy + 15, 'R_2', '10.0kΩ');
+    wire(ampCtx, 190, cy + 15, sumNodeX, cy + 15);
+    wire(ampCtx, sumNodeX, cy + 15, sumNodeX, sumNodeY);
+    dotNode(ampCtx, 60, cy + 15, `V_2 (${v2.toFixed(2)}V)`, 'left');
+
+    // Summing Virtual Ground Node
+    wire(ampCtx, sumNodeX, sumNodeY, cx - 55, cy - 25);
+    dotNode(ampCtx, sumNodeX, sumNodeY, 'V_− (0V Virtual Gnd)', 'top');
+
+    // Feedback Resistor Rf Loop
+    wire(ampCtx, sumNodeX, sumNodeY, sumNodeX, cy - 105);
+    drawResistorH(ampCtx, sumNodeX, cx + 110, cy - 105, 'R_f', `${rf.toFixed(1)}kΩ`);
+    wire(ampCtx, cx + 110, cy - 105, cx + 110, cy);
+    dotNode(ampCtx, cx + 110, cy);
+
+    // Non-Inverting (+) directly to Ground
+    wire(ampCtx, cx - 55, cy + 25, cx - 95, cy + 25);
+    wire(ampCtx, cx - 95, cy + 25, cx - 95, cy + 65);
+    gndSymbol(ampCtx, cx - 95, cy + 65);
+
+  } else if (circ === 'difference') {
+    // =========================================================
+    // DIFFERENCE / DIFFERENTIAL AMPLIFIER SCHEMATIC
+    // =========================================================
+    const v1 = state.amp.v1, v2 = state.amp.v2, ratio = state.amp.ratio;
+    const invNodeX = 230, invNodeY = cy - 25;
+    const nonInvNodeX = 230, nonInvNodeY = cy + 25;
+
+    // 1. Inverting Branch (V1 -> R1 -> V-)
+    wire(ampCtx, 60, cy - 45, 110, cy - 45);
+    drawResistorH(ampCtx, 110, 190, cy - 45, 'R_1', '10.0kΩ');
+    wire(ampCtx, 190, cy - 45, invNodeX, cy - 45);
+    wire(ampCtx, invNodeX, cy - 45, invNodeX, invNodeY);
+    wire(ampCtx, invNodeX, invNodeY, cx - 55, cy - 25);
+    dotNode(ampCtx, 60, cy - 45, `V_1 (${v1.toFixed(2)}V)`, 'left');
+    dotNode(ampCtx, invNodeX, invNodeY, 'V_−', 'top');
+
+    // Inverting Feedback (Rf to Vout)
+    wire(ampCtx, invNodeX, invNodeY, invNodeX, cy - 95);
+    drawResistorH(ampCtx, invNodeX, cx + 110, cy - 95, 'R_f', `${(10.0 * ratio).toFixed(1)}kΩ`);
+    wire(ampCtx, cx + 110, cy - 95, cx + 110, cy);
+    dotNode(ampCtx, cx + 110, cy);
+
+    // 2. Non-Inverting Branch (V2 -> R2 -> V+ and R3 -> Ground)
+    wire(ampCtx, 60, cy + 45, 110, cy + 45);
+    drawResistorH(ampCtx, 110, 190, cy + 45, 'R_2', '10.0kΩ');
+    wire(ampCtx, 190, cy + 45, nonInvNodeX, cy + 45);
+    wire(ampCtx, nonInvNodeX, cy + 45, nonInvNodeX, nonInvNodeY);
+    wire(ampCtx, nonInvNodeX, nonInvNodeY, cx - 55, cy + 25);
+    dotNode(ampCtx, 60, cy + 45, `V_2 (${v2.toFixed(2)}V)`, 'left');
+    dotNode(ampCtx, nonInvNodeX, nonInvNodeY, 'V_+', 'bottom');
+
+    // R3 (or Rg) to Ground
+    drawResistorV(ampCtx, nonInvNodeX, cy + 45, cy + 95, 'R_3', `${(10.0 * ratio).toFixed(1)}kΩ`, 'left');
+    gndSymbol(ampCtx, nonInvNodeX, cy + 95);
   }
 }
 
