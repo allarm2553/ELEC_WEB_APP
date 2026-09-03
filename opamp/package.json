@@ -1,0 +1,21 @@
+{
+  "name": "opamp-learning-app",
+  "version": "1.0.0",
+  "description": "Operational Amplifier (Op-Amp) Interactive Learning Lab with Google Sheets Integration",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [
+    "opamp",
+    "operational-amplifier",
+    "741",
+    "lm358",
+    "inverting-amplifier",
+    "non-inverting",
+    "electronics",
+    "simulator"
+  ],
+  "author": "Antigravity",
+  "license": "MIT"
+}

@@ -1,0 +1,2842 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>แอปการเรียนรู้ออปแอมป์ — Op-Amp Interactive Learning Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --bg-dark: #050b14;
+      --bg-card: rgba(15, 23, 42, 0.75);
+      --bg-card-hover: rgba(30, 41, 59, 0.85);
+      --border-glass: rgba(56, 189, 248, 0.18);
+      --border-glass-strong: rgba(56, 189, 248, 0.4);
+      --accent-primary: #38bdf8;
+      --accent-secondary: #818cf8;
+      --accent-purple: #c084fc;
+      --accent-cyan: #06b6d4;
+      --accent-green: #34d399;
+      --accent-amber: #fbbf24;
+      --accent-rose: #fb7185;
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --font-sans: 'Inter', 'Sarabun', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --shadow-glow: 0 0 24px rgba(56, 189, 248, 0.15);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--bg-dark);
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(56, 189, 248, 0.08) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(192, 132, 252, 0.06) 0px, transparent 50%),
+        radial-gradient(at 50% 50%, rgba(6, 182, 212, 0.04) 0px, transparent 50%);
+      background-attachment: fixed;
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top Navigation Header */
+    header {
+      background: rgba(11, 19, 43, 0.85);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border-glass);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      padding: 0.75rem 1.5rem;
+    }
+
+    .header-container {
+      max-width: 1440px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+
+    .brand-icon {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, #0284c7, #818cf8);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.35rem;
+      color: #ffffff;
+      box-shadow: 0 0 16px rgba(56, 189, 248, 0.4);
+    }
+
+    .brand-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .brand-badge {
+      font-size: 0.7rem;
+      font-family: var(--font-mono);
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--accent-primary);
+      border: 1px solid var(--border-glass);
+      padding: 0.15rem 0.45rem;
+      border-radius: 6px;
+    }
+
+    .brand-subtitle {
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+    }
+
+    .nav-tabs {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      background: rgba(15, 23, 42, 0.8);
+      padding: 0.3rem;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-glass);
+      overflow-x: auto;
+    }
+
+    .nav-tab {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 0.45rem 0.95rem;
+      border-radius: var(--radius-md);
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .nav-tab:hover {
+      color: var(--text-primary);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .nav-tab.active {
+      color: #ffffff;
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.25), rgba(129, 140, 248, 0.25));
+      border: 1px solid var(--border-glass-strong);
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.2);
+    }
+
+    .audio-toggle {
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid var(--border-glass);
+      color: var(--accent-primary);
+      padding: 0.45rem 0.75rem;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+    }
+    .audio-toggle:hover { background: rgba(56, 189, 248, 0.15); }
+
+    /* Main Container & Layout */
+    main {
+      flex: 1;
+      max-width: 1440px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 1.25rem;
+    }
+
+    .tab-content {
+      display: none;
+      animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .tab-content.active { display: block; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .grid-2col {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 1.25rem;
+    }
+
+    @media (max-width: 1024px) {
+      .grid-2col { grid-template-columns: 1fr; }
+    }
+
+    /* Glass Cards */
+    .glass-card {
+      background: var(--bg-card);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+      margin-bottom: 1.25rem;
+    }
+
+    .card-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+      padding-bottom: 0.65rem;
+      border-bottom: 1px solid var(--border-glass);
+    }
+
+    .card-title-text {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .card-title-text i { color: var(--accent-primary); }
+
+    .status-badge {
+      font-size: 0.72rem;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+    .status-badge.inverting { background: rgba(244, 63, 94, 0.15); color: #fb7185; border-color: rgba(244, 63, 94, 0.3); }
+    .status-badge.non-inverting { background: rgba(56, 189, 248, 0.15); color: #38bdf8; border-color: rgba(56, 189, 248, 0.3); }
+    .status-badge.linear { background: rgba(16, 185, 129, 0.15); color: #34d399; border-color: rgba(16, 185, 129, 0.3); }
+    .status-badge.saturation { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border-color: rgba(245, 158, 11, 0.3); }
+
+    /* Pill Navigation for Sub-modules */
+    .pill-group {
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+      margin-bottom: 1rem;
+    }
+
+    .pill-btn {
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid var(--border-glass);
+      color: var(--text-secondary);
+      padding: 0.45rem 0.85rem;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .pill-btn:hover { color: var(--text-primary); border-color: var(--accent-primary); }
+    .pill-btn.active {
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.25), rgba(129, 140, 248, 0.25));
+      color: #ffffff;
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.25);
+    }
+
+    /* Canvas Containers */
+    .canvas-card-wrapper {
+      background: #050b14;
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      margin-bottom: 1rem;
+      position: relative;
+    }
+
+    .canvas-header-bar {
+      background: rgba(15, 23, 42, 0.95);
+      border-bottom: 1px solid var(--border-glass);
+      padding: 0.45rem 0.85rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    /* Control Sliders & Inputs */
+    .control-group {
+      margin-bottom: 0.85rem;
+    }
+
+    .control-label-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.25rem;
+      font-size: 0.82rem;
+    }
+
+    .control-label-title {
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    .control-value-badge {
+      font-family: var(--font-mono);
+      font-weight: 700;
+      color: var(--accent-primary);
+      background: rgba(56, 189, 248, 0.1);
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.8rem;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      height: 6px;
+      background: #1e293b;
+      border-radius: 3px;
+      outline: none;
+      -webkit-appearance: none;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--accent-primary);
+      cursor: pointer;
+      box-shadow: 0 0 8px var(--accent-primary);
+      transition: transform 0.1s;
+    }
+    input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+    }
+
+    select, input[type="text"], input[type="url"], input[type="number"] {
+      width: 100%;
+      background: #0f172a;
+      border: 1px solid var(--border-glass);
+      color: var(--text-primary);
+      padding: 0.55rem 0.85rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.85rem;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    select:focus, input:focus {
+      border-color: var(--accent-primary);
+    }
+
+    /* Readout Value Grid */
+    .readout-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 0.65rem;
+      margin-top: 0.85rem;
+      margin-bottom: 0.85rem;
+    }
+
+    .readout-card {
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-sm);
+      padding: 0.65rem 0.85rem;
+      text-align: center;
+    }
+    .readout-card.cyan { border-color: rgba(6, 182, 212, 0.35); }
+    .readout-card.purple { border-color: rgba(192, 132, 252, 0.35); }
+    .readout-card.green { border-color: rgba(52, 211, 153, 0.35); }
+    .readout-card.amber { border-color: rgba(251, 191, 36, 0.35); }
+    .readout-card.rose { border-color: rgba(251, 113, 133, 0.35); }
+
+    .readout-title {
+      font-size: 0.7rem;
+      color: var(--text-secondary);
+      font-weight: 500;
+      margin-bottom: 0.15rem;
+    }
+
+    .readout-val {
+      font-family: var(--font-mono);
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--accent-primary);
+    }
+    .readout-val .unit {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      font-weight: 400;
+      margin-left: 0.15rem;
+    }
+
+    /* Theory & Calculation Box */
+    .theory-box {
+      background: rgba(15, 23, 42, 0.8);
+      border-left: 3px solid var(--accent-primary);
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      padding: 0.75rem 1rem;
+      font-size: 0.82rem;
+      line-height: 1.55;
+      color: var(--text-primary);
+      margin-top: 0.75rem;
+    }
+    .theory-box.amber { border-left-color: var(--accent-amber); background: rgba(245, 158, 11, 0.06); }
+    .theory-box.green { border-left-color: var(--accent-green); background: rgba(16, 185, 129, 0.06); }
+    .theory-box.purple { border-left-color: var(--accent-purple); background: rgba(168, 85, 247, 0.06); }
+
+    /* Tables */
+    .datasheet-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.78rem;
+      margin-top: 0.5rem;
+    }
+    .datasheet-table th, .datasheet-table td {
+      padding: 0.55rem 0.75rem;
+      border: 1px solid rgba(56, 189, 248, 0.12);
+      text-align: left;
+    }
+    .datasheet-table th {
+      background: rgba(30, 41, 59, 0.85);
+      color: var(--accent-primary);
+      font-weight: 600;
+    }
+    .datasheet-table tr:nth-child(even) {
+      background: rgba(15, 23, 42, 0.4);
+    }
+    .datasheet-table tr:hover {
+      background: rgba(56, 189, 248, 0.06);
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 0.55rem 1.15rem;
+      border-radius: var(--radius-md);
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #0284c7, #6366f1);
+      color: #ffffff;
+      box-shadow: 0 0 14px rgba(2, 132, 199, 0.35);
+    }
+    .btn-primary:hover {
+      box-shadow: 0 0 20px rgba(2, 132, 199, 0.6);
+      transform: translateY(-1px);
+    }
+    .btn-secondary {
+      background: rgba(30, 41, 59, 0.8);
+      border: 1px solid var(--border-glass);
+      color: var(--text-primary);
+    }
+    .btn-secondary:hover {
+      background: rgba(51, 65, 85, 0.9);
+      border-color: var(--accent-primary);
+    }
+    .btn-sm { padding: 0.3rem 0.65rem; font-size: 0.75rem; }
+
+    /* Quiz styling */
+    .quiz-question-card {
+      background: rgba(15, 23, 42, 0.65);
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-md);
+      padding: 1rem;
+      margin-bottom: 0.95rem;
+    }
+    .quiz-q-title {
+      font-weight: 600;
+      font-size: 0.9rem;
+      margin-bottom: 0.65rem;
+      color: var(--text-primary);
+    }
+    .quiz-options {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0.45rem;
+    }
+    .quiz-option-label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 0.75rem;
+      background: rgba(30, 41, 59, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      font-size: 0.82rem;
+      transition: all 0.15s;
+    }
+    .quiz-option-label:hover {
+      background: rgba(56, 189, 248, 0.1);
+      border-color: rgba(56, 189, 248, 0.3);
+    }
+    .quiz-option-label.correct {
+      background: rgba(16, 185, 129, 0.2);
+      border-color: #10b981;
+      color: #34d399;
+      font-weight: 600;
+    }
+    .quiz-option-label.incorrect {
+      background: rgba(244, 63, 94, 0.2);
+      border-color: #f43f5e;
+      color: #fb7185;
+    }
+    .quiz-explanation {
+      margin-top: 0.5rem;
+      padding: 0.5rem 0.75rem;
+      background: rgba(6, 182, 212, 0.08);
+      border-left: 2px solid var(--accent-cyan);
+      border-radius: 4px;
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      display: none;
+    }
+
+    /* Footer */
+    footer {
+      background: rgba(11, 19, 43, 0.9);
+      border-top: 1px solid var(--border-glass);
+      padding: 1rem 1.5rem;
+      text-align: center;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-top: auto;
+    }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="header-container">
+    <div class="brand-group">
+      <div class="brand-icon"><i class="fa-solid fa-microchip"></i></div>
+      <div>
+        <div class="brand-title">
+          <span>แอปการเรียนรู้ออปแอมป์</span>
+          <span class="brand-badge">Op-Amp Lab</span>
+        </div>
+        <div class="brand-subtitle">Operational Amplifier Circuit Analysis, Pinouts &amp; Dual-Trace Simulator</div>
+      </div>
+    </div>
+
+    <nav class="nav-tabs">
+      <button class="nav-tab active" id="nav-tab-structure" onclick="switchMainTab('tab-structure')">
+        <i class="fa-solid fa-shapes"></i> 1. โครงสร้าง &amp; สัญลักษณ์
+      </button>
+      <button class="nav-tab" id="nav-tab-amplifiers" onclick="switchMainTab('tab-amplifiers')">
+        <i class="fa-solid fa-bolt"></i> 2. วงจรขยายพื้นฐาน
+      </button>
+      <button class="nav-tab" id="nav-tab-processors" onclick="switchMainTab('tab-processors')">
+        <i class="fa-solid fa-wave-square"></i> 3. วงจรเปรียบเทียบ &amp; ประมวลผล
+      </button>
+      <button class="nav-tab" id="nav-tab-lab" onclick="switchMainTab('tab-lab')">
+        <i class="fa-solid fa-flask-vial"></i> 4. ห้องทดลองเสมือน &amp; Scope
+      </button>
+      <button class="nav-tab" id="nav-tab-quiz" onclick="switchMainTab('tab-quiz')">
+        <i class="fa-solid fa-clipboard-check"></i> 5. แบบทดสอบ &amp; Sheets
+      </button>
+    </nav>
+
+    <button class="audio-toggle" onclick="toggleAudio()" title="เปิด/ปิดเสียงเอฟเฟกต์">
+      <i class="fa-solid fa-volume-high" id="audio-icon"></i>
+    </button>
+  </div>
+</header>
+
+<!-- MAIN CONTENT -->
+<main>
+
+<!-- ================================================================= -->
+<!-- TAB 1: STRUCTURE, SYMBOL & IC MODELS                              -->
+<!-- ================================================================= -->
+<section id="tab-structure" class="tab-content active">
+  <div class="pill-group">
+    <button class="pill-btn active" id="subtab-btn-ideal" onclick="switchStructSubTab('ideal', this)">
+      <i class="fa-solid fa-scale-balanced"></i> 1. คุณลักษณะอุดมคติ vs ของจริง &amp; Virtual Ground
+    </button>
+    <button class="pill-btn" id="subtab-btn-pinouts" onclick="switchStructSubTab('pinouts', this)">
+      <i class="fa-solid fa-microchip"></i> 2. แกลเลอรีสัญลักษณ์ &amp; ผังขาไอซีจริง (741, LM358, TL082, NE5532, OP07, LM324)
+    </button>
+  </div>
+
+  <!-- SUBVIEW 1.1: IDEAL VS REAL & VIRTUAL GROUND -->
+  <div id="subview-ideal-model">
+    <div class="grid-2col">
+      <div class="glass-card">
+        <div class="card-title">
+          <div class="card-title-text"><i class="fa-solid fa-diagram-project"></i> โครงสร้างและแบบจำลองสมมูลของ Op-Amp</div>
+          <span class="status-badge linear" id="struct-badge">Open-Loop A_OL = 100,000</span>
+        </div>
+        <div class="canvas-card-wrapper">
+          <div class="canvas-header-bar">
+            <span style="color:var(--accent-primary);">Op-Amp Equivalent Circuit &amp; Transfer Curve</span>
+            <span style="font-family:var(--font-mono);font-size:0.75rem;color:var(--text-muted);">Vector Canvas</span>
+          </div>
+          <canvas id="canvas-opamp-model" width="660" height="270"></canvas>
+        </div>
+        <div class="theory-box" id="struct-theory-box">
+          <strong>มโนทัศน์สำคัญ: มโนภาพเสมือนลัดวงจรและเสมือนกราวด์ (Virtual Short &amp; Virtual Ground):</strong><br>
+          • <strong>Virtual Short (ลัดวงจรเสมือน):</strong> เมื่อต่อแบบป้อนกลับลบ (Negative Feedback) อัตราขยายเปิดมหาศาล ($A_{OL} pprox 10^5$) จะบีบให้ความต่างศักย์ $V_d = V_+ − V_- pprox 0	ext{V}$ ทำให้ $V_- pprox V_+$ เสมอ<br>
+          • <strong>Virtual Ground (เสมือนกราวด์):</strong> ในวงจรขยายกลับเฟสที่ต่อ $V_+ = 0	ext{V}$ (ลงกราวด์) ขั้วลบ $V_-$ จะมีศักย์เท่ากับ $0	ext{V}$ ไปด้วยโดยอัตโนมัติ<br>
+          • <strong>Input Current $I_{in} pprox 0$:</strong> เนื่องจาก $Z_{in} pprox \infty$ ทำให้ไม่มีกระแสไหลเข้าขั้วอินพุตของ Op-Amp ($I_+ = I_- = 0	ext{ A}$)
+        </div>
+      </div>
+
+      <div class="glass-card">
+        <div class="card-title">
+          <div class="card-title-text"><i class="fa-solid fa-table"></i> เปรียบเทียบคุณลักษณะ Op-Amp อุดมคติ vs ของจริง</div>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="datasheet-table">
+            <thead>
+              <tr>
+                <th>พารามิเตอร์</th>
+                <th>อุดมคติ (Ideal)</th>
+                <th>ของจริง (Practical 741)</th>
+                <th>ผลต่อการทำงาน</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Open-Loop Gain ($A_{OL}$)</strong></td>
+                <td style="color:#34d399;font-weight:700;">$\infty$ (อนันต์)</td>
+                <td style="color:#38bdf8;">$10^5 - 10^6$ ($106	ext{ dB}$)</td>
+                <td>อัตราขยายวงจรถูกกำหนดโดยตัวต้านทานภายนอกเท่านั้น</td>
+              </tr>
+              <tr>
+                <td><strong>Input Impedance ($Z_{in}$)</strong></td>
+                <td style="color:#34d399;font-weight:700;">$\infty$ (อนันต์)</td>
+                <td style="color:#38bdf8;">$2	ext{ M}\Omega$ (FET $10^{12}\Omega$)</td>
+                <td>ไม่ดึงโหลดจากแหล่งจ่ายสัญญาณอินพุต ($I_{in} pprox 0$)</td>
+              </tr>
+              <tr>
+                <td><strong>Output Impedance ($Z_{out}$)</strong></td>
+                <td style="color:#34d399;font-weight:700;">$0\ \Omega$</td>
+                <td style="color:#38bdf8;">$75\ \Omega$</td>
+                <td>จ่ายแรงดันคงที่ไม่ตกเมื่อต่อโหลดภายนอก</td>
+              </tr>
+              <tr>
+                <td><strong>Bandwidth (BW)</strong></td>
+                <td style="color:#34d399;font-weight:700;">$\infty$ (อนันต์)</td>
+                <td style="color:#38bdf8;">$1.0	ext{ MHz}$ (GBW Product)</td>
+                <td>Gain $	imes$ BW มีค่าคงที่ อัตราขยายสูงแบนด์วิดท์จะแคบลง</td>
+              </tr>
+              <tr>
+                <td><strong>Slew Rate (SR)</strong></td>
+                <td style="color:#34d399;font-weight:700;">$\infty$ (ทันทีทันใด)</td>
+                <td style="color:#fbbf24;">$0.5\ 	ext{V}/\mu	ext{s}$ (TL082: $13	ext{V}/\mu	ext{s}$)</td>
+                <td>ความเร็วสูงสุดในการเปลี่ยนระดับแรงดันเอาต์พุต ($dV/dt$)</td>
+              </tr>
+              <tr>
+                <td><strong>CMRR (Common Mode)</strong></td>
+                <td style="color:#34d399;font-weight:700;">$\infty$</td>
+                <td style="color:#38bdf8;">$90	ext{ dB}$ ($30,000$ เท่า)</td>
+                <td>หักล้างสัญญาณรบกวนร่วม (Common-mode Noise) ได้ดีเยี่ยม</td>
+              </tr>
+              <tr>
+                <td><strong>Input Offset Voltage ($V_{OS}$)</strong></td>
+                <td style="color:#34d399;font-weight:700;">$0	ext{ V}$</td>
+                <td style="color:#fb7185;">$1 - 5	ext{ mV}$ (OP07: $75\mu	ext{V}$)</td>
+                <td>ความต่างแรงดันอินพุตที่ทำให้เอาต์พุตเท่ากับศูนย์</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUBVIEW 1.2: SCHEMATIC SYMBOLS & PINOUTS GALLERY -->
+  <div id="subview-pinouts-gallery" style="display:none;">
+    <div class="pill-group">
+      <button class="pill-btn active" id="btn-ic-741" onclick="selectIcPackage('741', this)"><i class="fa-solid fa-microchip"></i> μA741 (Single)</button>
+      <button class="pill-btn" id="btn-ic-lm358" onclick="selectIcPackage('lm358', this)"><i class="fa-solid fa-microchip"></i> LM358 (Dual Single-Supply)</button>
+      <button class="pill-btn" id="btn-ic-tl082" onclick="selectIcPackage('tl082', this)"><i class="fa-solid fa-bolt"></i> TL082 / TL072 (Dual JFET Hi-Fi)</button>
+      <button class="pill-btn" id="btn-ic-ne5532" onclick="selectIcPackage('ne5532', this)"><i class="fa-solid fa-headphones"></i> NE5532 (Dual Low Noise Audio)</button>
+      <button class="pill-btn" id="btn-ic-op07" onclick="selectIcPackage('op07', this)"><i class="fa-solid fa-crosshairs"></i> OP07 (Ultra Precision)</button>
+      <button class="pill-btn" id="btn-ic-lm324" onclick="selectIcPackage('lm324', this)"><i class="fa-solid fa-layer-group"></i> LM324 (Quad DIP-14)</button>
+    </div>
+
+    <div class="grid-2col">
+      <div class="glass-card">
+        <div class="card-title">
+          <div class="card-title-text"><i class="fa-solid fa-diagram-project"></i> <span id="ic-card-title">ผังขาไอซีจริงและสัญลักษณ์ภายใน (IC Package &amp; Pinout)</span></div>
+          <span class="status-badge linear" id="ic-badge">DIP-8 Package</span>
+        </div>
+        <div class="canvas-card-wrapper">
+          <div class="canvas-header-bar">
+            <span style="color:var(--accent-primary);" id="ic-canvas-header">DIP Package Pinout &amp; Internal Schematic</span>
+            <span style="font-family:var(--font-mono);font-size:0.75rem;color:var(--text-muted);">Interactive Vector</span>
+          </div>
+          <canvas id="canvas-ic-pinout" width="660" height="300"></canvas>
+        </div>
+        <div class="theory-box" id="ic-detail-explanation">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <div class="glass-card">
+        <div class="card-title">
+          <div class="card-title-text"><i class="fa-solid fa-list-check"></i> หน้าที่ของขาใช้งานและสเปกสำคัญ</div>
+        </div>
+        <div id="ic-pins-table-container">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================================= -->
+<!-- TAB 2: FUNDAMENTAL AMPLIFIER CIRCUITS & LIVE MATH                 -->
+<!-- ================================================================= -->
+<section id="tab-amplifiers" class="tab-content">
+  <div class="pill-group">
+    <button class="pill-btn active" id="btn-amp-inv" onclick="selectAmpCircuit('inverting', this)">
+      <i class="fa-solid fa-rotate"></i> 1. วงจรขยายกลับเฟส (Inverting)
+    </button>
+    <button class="pill-btn" id="btn-amp-noninv" onclick="selectAmpCircuit('non_inverting', this)">
+      <i class="fa-solid fa-bolt"></i> 2. วงจรขยายไม่กลับเฟส (Non-Inverting)
+    </button>
+    <button class="pill-btn" id="btn-amp-buffer" onclick="selectAmpCircuit('buffer', this)">
+      <i class="fa-solid fa-shield-halved"></i> 3. วงจรตามแรงดัน (Voltage Follower)
+    </button>
+    <button class="pill-btn" id="btn-amp-sum" onclick="selectAmpCircuit('summing', this)">
+      <i class="fa-solid fa-plus"></i> 4. วงจรรวมสัญญาณ (Summing Amp)
+    </button>
+    <button class="pill-btn" id="btn-amp-diff" onclick="selectAmpCircuit('difference', this)">
+      <i class="fa-solid fa-minus"></i> 5. วงจรลบแรงดัน (Difference Amp)
+    </button>
+    <button class="pill-btn" id="btn-amp-inst" onclick="selectAmpCircuit('instrumentation', this)">
+      <i class="fa-solid fa-tower-broadcast"></i> 6. วงจรเครื่องมือวัด (Instrumentation Amp)
+    </button>
+  </div>
+
+  <div class="grid-2col">
+    <!-- Left: Circuit Schematic & Mathematical Derivations -->
+    <div class="glass-card">
+      <div class="card-title">
+        <div class="card-title-text"><i class="fa-solid fa-diagram-project"></i> <span id="amp-circuit-title">วงจรขยายกลับเฟส (Inverting Amplifier)</span></div>
+        <span class="status-badge inverting" id="amp-phase-badge">กลับเฟส 180°</span>
+      </div>
+      <div class="canvas-card-wrapper">
+        <div class="canvas-header-bar">
+          <span style="color:var(--accent-primary);" id="amp-schematic-header">Interactive Schematic Diagram</span>
+          <span style="font-family:var(--font-mono);font-size:0.75rem;color:var(--text-muted);">Vector Canvas</span>
+        </div>
+        <canvas id="canvas-amp-schematic" width="660" height="280"></canvas>
+      </div>
+      <div class="theory-box" id="amp-step-math-box">
+        <!-- Live step-by-step math solver -->
+      </div>
+    </div>
+
+    <!-- Right: Interactive Sliders & Live Readouts -->
+    <div class="glass-card">
+      <div class="card-title">
+        <div class="card-title-text"><i class="fa-solid fa-sliders"></i> ปรับแต่งพารามิเตอร์วงจร &amp; จุดต่อ</div>
+      </div>
+      
+      <div id="amp-controls-container">
+        <!-- Injected via JS based on selected circuit -->
+      </div>
+
+      <div class="readout-grid">
+        <div class="readout-card cyan"><div class="readout-title">อัตราขยายแรงดัน A<sub>v</sub></div><div class="readout-val" id="amp-av-val">-10.00 <span class="unit">V/V</span></div></div>
+        <div class="readout-card green"><div class="readout-title">แรงดันเอาต์พุต V<sub>out</sub></div><div class="readout-val" id="amp-vout-val">-5.00 <span class="unit">V</span></div></div>
+        <div class="readout-card amber"><div class="readout-title">อิมพีแดนซ์อินพุต Z<sub>in</sub></div><div class="readout-val" id="amp-zin-val">10.0 <span class="unit">kΩ</span></div></div>
+        <div class="readout-card purple"><div class="readout-title">กระแสป้อนกลับ I<sub>f</sub></div><div class="readout-val" id="amp-if-val">0.05 <span class="unit">mA</span></div></div>
+      </div>
+
+      <div class="theory-box purple" id="amp-quick-rules">
+        <strong>สรุปหลักการออกแบบและข้อควรจำ:</strong><br>
+        • <strong>อัตราขยายแรงดัน:</strong> ถูกกำหนดด้วยอัตราส่วนความต้านทาน $R_f / R_1$ ไม่ขึ้นกับพารามิเตอร์ภายในของตัวถัง Op-Amp<br>
+        • <strong>ขีดจำกัดแรงดันไฟเลี้ยง ($\pm V_{sat}$):</strong> แรงดันเอาต์พุต $V_{out}$ จะถูกจำกัดไว้ไม่เกิน $pprox V_{CC} − 1.5	ext{V}$ หากขยายเกินจะเกิดอาการขลิบยอดคลื่น (Clipping Distortion)
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================================= -->
+<!-- TAB 3: COMPARATORS & SIGNAL PROCESSORS                            -->
+<!-- ================================================================= -->
+<section id="tab-processors" class="tab-content">
+  <div class="pill-group">
+    <button class="pill-btn active" id="btn-proc-comp" onclick="selectProcCircuit('comparator', this)">
+      <i class="fa-solid fa-scale-unbalanced"></i> 1. วงจรเปรียบเทียบแรงดัน (Comparator)
+    </button>
+    <button class="pill-btn" id="btn-proc-schmitt" onclick="selectProcCircuit('schmitt', this)">
+      <i class="fa-solid fa-wave-square"></i> 2. ชมิตต์ทริกเกอร์ (Schmitt Trigger Hysteresis)
+    </button>
+    <button class="pill-btn" id="btn-proc-integrator" onclick="selectProcCircuit('integrator', this)">
+      <i class="fa-solid fa-bezier-curve"></i> 3. วงจรอินทิเกรต (Integrator)
+    </button>
+    <button class="pill-btn" id="btn-proc-differentiator" onclick="selectProcCircuit('differentiator', this)">
+      <i class="fa-solid fa-chart-line"></i> 4. วงจรดิฟเฟอเรนชิเอต (Differentiator)
+    </button>
+    <button class="pill-btn" id="btn-proc-filter" onclick="selectProcCircuit('active_filter', this)">
+      <i class="fa-solid fa-filter"></i> 5. วงจรกรองแอกทีฟ (Active Low/High Pass)
+    </button>
+  </div>
+
+  <div class="grid-2col">
+    <div class="glass-card">
+      <div class="card-title">
+        <div class="card-title-text"><i class="fa-solid fa-diagram-project"></i> <span id="proc-circuit-title">วงจรเปรียบเทียบแรงดัน (Voltage Comparator)</span></div>
+        <span class="status-badge saturation" id="proc-state-badge">Output: +13.5V (+V_sat)</span>
+      </div>
+      <div class="canvas-card-wrapper">
+        <div class="canvas-header-bar">
+          <span style="color:var(--accent-primary);" id="proc-schematic-header">Signal Waveform &amp; Transfer Characteristic</span>
+          <span style="font-family:var(--font-mono);font-size:0.75rem;color:var(--text-muted);">Vector Scope</span>
+        </div>
+        <canvas id="canvas-proc-schematic" width="660" height="280"></canvas>
+      </div>
+      <div class="theory-box" id="proc-step-math-box">
+        <!-- Live math description -->
+      </div>
+    </div>
+
+    <div class="glass-card">
+      <div class="card-title">
+        <div class="card-title-text"><i class="fa-solid fa-sliders"></i> ควบคุมแรงดันและพารามิเตอร์สัญญาณ</div>
+      </div>
+      
+      <div id="proc-controls-container">
+        <!-- Controls -->
+      </div>
+
+      <div class="readout-grid">
+        <div class="readout-card cyan"><div class="readout-title" id="proc-r1-title">แรงดันเปรียบเทียบ V<sub>ref</sub></div><div class="readout-val" id="proc-r1-val">2.50 <span class="unit">V</span></div></div>
+        <div class="readout-card green"><div class="readout-title" id="proc-r2-title">เอาต์พุต V<sub>out</sub></div><div class="readout-val" id="proc-r2-val">+13.5 <span class="unit">V</span></div></div>
+        <div class="readout-card amber"><div class="readout-title" id="proc-r3-title">Upper Threshold V<sub>UT</sub></div><div class="readout-val" id="proc-r3-val">+3.00 <span class="unit">V</span></div></div>
+        <div class="readout-card rose"><div class="readout-title" id="proc-r4-title">Lower Threshold V<sub>LT</sub></div><div class="readout-val" id="proc-r4-val">-3.00 <span class="unit">V</span></div></div>
+      </div>
+
+      <div class="theory-box green" id="proc-extra-theory">
+        <!-- Extra tips -->
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================================= -->
+<!-- TAB 4: VIRTUAL LAB & DUAL-TRACE OSCILLOSCOPE                      -->
+<!-- ================================================================= -->
+<section id="tab-lab" class="tab-content">
+  <div class="grid-2col">
+    <!-- Left: Dual-Trace Oscilloscope & Schematic Display -->
+    <div class="glass-card">
+      <div class="card-title">
+        <div class="card-title-text"><i class="fa-solid fa-tv"></i> ออสซิลโลสโคป 2 แชนแนล (Dual-Trace Oscilloscope)</div>
+        <div style="display:flex;gap:0.4rem;align-items:center;">
+          <button class="btn btn-secondary btn-sm" id="btn-lab-pause" onclick="toggleLabPause()"><i class="fa-solid fa-pause"></i> หยุดชั่วคราว</button>
+          <span class="status-badge linear" id="lab-clipping-badge">ทำงานปกติ (No Clipping)</span>
+        </div>
+      </div>
+      
+      <div class="canvas-card-wrapper">
+        <div class="canvas-header-bar">
+          <div style="display:flex;gap:1rem;align-items:center;">
+            <span style="color:#fbbf24;font-family:var(--font-mono);font-size:0.75rem;">● CH1 (V_in): <span id="scope-ch1-scale">1.0V/div</span></span>
+            <span style="color:#38bdf8;font-family:var(--font-mono);font-size:0.75rem;">● CH2 (V_out): <span id="scope-ch2-scale">5.0V/div</span></span>
+          </div>
+          <label style="display:flex;align-items:center;gap:0.35rem;cursor:pointer;">
+            <input type="checkbox" id="chk-autoscale" checked onchange="onLabScaleChange()">
+            <span style="font-size:0.72rem;color:var(--accent-primary);">Auto-Scale</span>
+          </label>
+        </div>
+        <canvas id="canvas-lab-scope" width="660" height="230"></canvas>
+      </div>
+
+      <!-- Live Virtual Schematic in Lab -->
+      <div class="canvas-card-wrapper" style="margin-bottom:0;">
+        <div class="canvas-header-bar">
+          <span style="color:var(--accent-primary);" id="lab-circuit-name">วงจรขยายกลับเฟส Inverting Amplifier (Live Test Circuit)</span>
+          <span style="font-family:var(--font-mono);font-size:0.75rem;color:var(--text-muted);">Schematic Monitor</span>
+        </div>
+        <canvas id="canvas-lab-schematic" width="660" height="150"></canvas>
+      </div>
+    </div>
+
+    <!-- Right: Lab Signal Generator & Circuit Controls -->
+    <div class="glass-card">
+      <div class="card-title">
+        <div class="card-title-text"><i class="fa-solid fa-sliders"></i> เครื่องกำเนิดสัญญาณ &amp; ค่าอุปกรณ์</div>
+      </div>
+
+      <div class="control-group">
+        <div class="control-label-row">
+          <span class="control-label-title">เลือกวงจรที่ต้องการทดสอบ</span>
+        </div>
+        <select id="select-lab-circuit" onchange="onLabCircuitSelect()">
+          <option value="inverting">1. Inverting Amplifier (ขยายกลับเฟส 180°)</option>
+          <option value="non_inverting">2. Non-Inverting Amplifier (ขยายไม่กลับเฟส 0°)</option>
+          <option value="buffer">3. Voltage Follower / Buffer</option>
+          <option value="integrator">4. Integrator (อินทิเกรต Square → Triangle)</option>
+          <option value="differentiator">5. Differentiator (ดิฟ Triangle → Square)</option>
+        </select>
+      </div>
+
+      <div class="control-group">
+        <div class="control-label-row">
+          <span class="control-label-title">รูปคลื่นสัญญาณอินพุต (Waveform)</span>
+        </div>
+        <div class="pill-group" style="margin-bottom:0.35rem;">
+          <button class="pill-btn active" id="btn-wave-sine" onclick="setLabWaveform('sine', this)"><i class="fa-solid fa-water"></i> Sine</button>
+          <button class="pill-btn" id="btn-wave-square" onclick="setLabWaveform('square', this)"><i class="fa-solid fa-chart-simple"></i> Square</button>
+          <button class="pill-btn" id="btn-wave-triangle" onclick="setLabWaveform('triangle', this)"><i class="fa-solid fa-play" style="transform:rotate(-90deg);"></i> Triangle</button>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <div class="control-label-row">
+          <span class="control-label-title">แรงดันอินพุต V<sub>in</sub> Peak</span>
+          <span class="control-value-badge" id="lab-vin-badge">1.00 Vp</span>
+        </div>
+        <input type="range" id="slider-lab-vin" min="0.1" max="5.0" step="0.05" value="1.0" oninput="onLabParamChange()">
+      </div>
+
+      <div class="control-group">
+        <div class="control-label-row">
+          <span class="control-label-title">ความถี่สัญญาณอินพุต (Frequency)</span>
+          <span class="control-value-badge" id="lab-freq-badge">1000 Hz</span>
+        </div>
+        <input type="range" id="slider-lab-freq" min="100" max="5000" step="50" value="1000" oninput="onLabParamChange()">
+      </div>
+
+      <div class="control-group">
+        <div class="control-label-row">
+          <span class="control-label-title">ตัวต้านทานอินพุต R<sub>1</sub></span>
+          <span class="control-value-badge" id="lab-r1-badge">10.0 kΩ</span>
+        </div>
+        <input type="range" id="slider-lab-r1" min="1.0" max="100.0" step="1.0" value="10.0" oninput="onLabParamChange()">
+      </div>
+
+      <div class="control-group">
+        <div class="control-label-row">
+          <span class="control-label-title">ตัวต้านทานป้อนกลับ R<sub>f</sub></span>
+          <span class="control-value-badge" id="lab-rf-badge">50.0 kΩ</span>
+        </div>
+        <input type="range" id="slider-lab-rf" min="1.0" max="200.0" step="1.0" value="50.0" oninput="onLabParamChange()">
+      </div>
+
+      <div class="control-group">
+        <div class="control-label-row">
+          <span class="control-label-title">แรงดันไฟเลี้ยงคู่ (Dual Supply $\pm V_{CC}$)</span>
+          <span class="control-value-badge" id="lab-vcc-badge">±15.0 V</span>
+        </div>
+        <input type="range" id="slider-lab-vcc" min="5.0" max="18.0" step="0.5" value="15.0" oninput="onLabParamChange()">
+      </div>
+
+      <div class="readout-grid">
+        <div class="readout-card cyan"><div class="readout-title">V<sub>out</sub> Peak วัดได้</div><div class="readout-val" id="lab-vout-pk-val">5.00 <span class="unit">V</span></div></div>
+        <div class="readout-card green"><div class="readout-title">Voltage Gain A<sub>v</sub></div><div class="readout-val" id="lab-gain-val">-5.00 <span class="unit">V/V</span></div></div>
+        <div class="readout-card amber"><div class="readout-title">แรงดันอิ่มตัว $\pm V_{sat}$</div><div class="readout-val" id="lab-vsat-val">±13.5 <span class="unit">V</span></div></div>
+        <div class="readout-card purple"><div class="readout-title">เฟสสัญญาณ (Phase)</div><div class="readout-val" id="lab-phase-val">180°</div></div>
+      </div>
+
+      <div class="theory-box amber" id="lab-clipping-notice">
+        <strong>คำแนะนำการทดลอง:</strong> ลองปรับ $V_{in}$ หรือ $R_f$ ให้สูงขึ้นจน $A_v \cdot V_{in} > V_{sat}$ จะสังเกตเห็นยอดคลื่น $V_{out}$ ถูกขลิบตัดตรง (Clipping) ที่ระดับ $\pm 13.5	ext{V}$ ทันที
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================================= -->
+<!-- TAB 5: QUIZ & GOOGLE SHEETS INTEGRATION                           -->
+<!-- ================================================================= -->
+<section id="tab-quiz" class="tab-content">
+  <div class="grid-2col">
+    <div class="glass-card">
+      <div class="card-title">
+        <div class="card-title-text"><i class="fa-solid fa-circle-question"></i> แบบทดสอบความรู้ออปแอมป์ (12 ข้อ)</div>
+        <div style="display:flex;gap:0.45rem;align-items:center;">
+          <span class="status-badge linear" id="quiz-score-badge">คะแนน: 0 / 12</span>
+          <button class="btn btn-secondary btn-sm" onclick="resetQuiz()"><i class="fa-solid fa-rotate"></i> เริ่มใหม่</button>
+        </div>
+      </div>
+      
+      <div id="quiz-container">
+        <!-- Rendered by JS -->
+      </div>
+
+      <div style="display:flex;gap:0.75rem;flex-wrap:wrap;margin-top:1.25rem;">
+        <button class="btn btn-primary" onclick="submitQuiz()"><i class="fa-solid fa-paper-plane"></i> ตรวจคำตอบ</button>
+        <button class="btn btn-secondary" onclick="exportQuizCSV()"><i class="fa-solid fa-file-csv"></i> Export CSV</button>
+        <button class="btn btn-secondary" onclick="saveToSheets()"><i class="fa-brands fa-google"></i> บันทึก Google Sheets</button>
+      </div>
+    </div>
+
+    <div class="glass-card">
+      <div class="card-title">
+        <div class="card-title-text"><i class="fa-solid fa-clock-rotate-left"></i> ข้อมูลผู้เรียนและประวัติการส่งคะแนน</div>
+      </div>
+      
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-bottom:1.1rem;">
+        <div>
+          <label style="font-size:0.82rem;color:var(--text-secondary);display:block;margin-bottom:0.35rem;">ชื่อ-นามสกุล ผู้เรียน:</label>
+          <input type="text" id="student-name" placeholder="เช่น นายสมศักดิ์ วงจรงาม">
+        </div>
+        <div>
+          <label style="font-size:0.82rem;color:var(--text-secondary);display:block;margin-bottom:0.35rem;">ระดับชั้น / กลุ่ม:</label>
+          <input type="text" id="student-class" placeholder="เช่น ปวช.2 ช่างอิเล็กทรอนิกส์">
+        </div>
+      </div>
+
+      <div style="margin-bottom:1.1rem;">
+        <label style="font-size:0.82rem;color:var(--text-secondary);display:block;margin-bottom:0.35rem;">Google Apps Script Web App URL:</label>
+        <input type="url" id="gas-url" placeholder="https://script.google.com/macros/s/.../exec" style="font-family:var(--font-mono);font-size:0.78rem;">
+      </div>
+
+      <div style="font-size:0.85rem;font-weight:600;color:var(--text-secondary);margin-bottom:0.55rem;">
+        <i class="fa-solid fa-list-check"></i> ประวัติการส่งคะแนนในเซสชัน:
+      </div>
+      <div style="overflow-y:auto;max-height:340px;border-radius:var(--radius-sm);border:1px solid var(--border-glass);">
+        <table class="datasheet-table">
+          <thead>
+            <tr><th>วัน-เวลา</th><th>ชื่อผู้เรียน</th><th>กิจกรรม</th><th>คะแนน</th></tr>
+          </thead>
+          <tbody id="history-table-body">
+            <tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:1.5rem;">ยังไม่มีประวัติการส่งคะแนน</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- FOOTER -->
+<footer>
+  <div style="max-width:1440px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;">
+    <div>แอปการเรียนรู้ออปแอมป์ (Op-Amp Interactive Learning Lab) — สื่อการสอนสาขาวิชาช่างอิเล็กทรอนิกส์</div>
+    <div style="font-family:var(--font-mono);color:var(--accent-primary);">Port 3009 • HTML5 Canvas • Web Audio API</div>
+  </div>
+</footer>
+
+<!-- JAVASCRIPT LOGIC -->
+<script>
+/* ================================================================= */
+/* 1. GLOBAL STATE                                                   */
+/* ================================================================= */
+const state = {
+  activeTab: 'tab-structure',
+  structSubTab: 'ideal',
+  audioEnabled: true,
+  selectedIc: '741',
+  amp: {
+    circuit: 'inverting',
+    r1_k: 10.0,
+    rf_k: 100.0,
+    r2_k: 10.0,
+    r3_k: 10.0,
+    rg_k: 5.0,
+    vin: 0.5,
+    vin1: 1.0,
+    vin2: 2.0,
+    vin3: 0.5,
+    vcc: 15.0,
+    vee: -15.0
+  },
+  proc: {
+    circuit: 'comparator',
+    vref: 2.5,
+    vin: 3.5,
+    r1_k: 10.0,
+    r2_k: 100.0,
+    c_uF: 0.1,
+    freq: 1000,
+    type: 'inverting'
+  },
+  lab: {
+    circuit: 'inverting',
+    waveform: 'sine',
+    vin_peak: 1.0,
+    freq: 1000,
+    r1_k: 10.0,
+    rf_k: 50.0,
+    vcc: 15.0,
+    isPaused: false,
+    autoScale: true,
+    time: 0
+  },
+  quiz: {
+    submitted: false,
+    score: 0,
+    answers: {}
+  },
+  history: []
+};
+
+/* ================================================================= */
+/* 2. AUDIO SYNTHESIZER (WEB AUDIO API)                              */
+/* ================================================================= */
+let audioCtx = null;
+function getAudioCtx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  return audioCtx;
+}
+
+function playSound(type) {
+  if (!state.audioEnabled) return;
+  try {
+    const ctx = getAudioCtx(), now = ctx.currentTime;
+    const osc = ctx.createOscillator(), gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    if (type === 'click') {
+      osc.type = 'sine'; osc.frequency.setValueAtTime(600, now); osc.frequency.exponentialRampToValueAtTime(200, now + 0.04);
+      gain.gain.setValueAtTime(0.1, now); gain.gain.exponentialRampToValueAtTime(0.001, now + 0.045);
+      osc.start(now); osc.stop(now + 0.05);
+    } else if (type === 'buzzer') {
+      osc.type = 'sawtooth'; osc.frequency.setValueAtTime(180, now);
+      gain.gain.setValueAtTime(0.08, now); gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+      osc.start(now); osc.stop(now + 0.35);
+    } else if (type === 'success') {
+      osc.type = 'sine'; osc.frequency.setValueAtTime(440, now); osc.frequency.setValueAtTime(660, now + 0.08); osc.frequency.setValueAtTime(880, now + 0.16);
+      gain.gain.setValueAtTime(0.12, now); gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+      osc.start(now); osc.stop(now + 0.3);
+    }
+  } catch(e) {}
+}
+
+function toggleAudio() {
+  state.audioEnabled = !state.audioEnabled;
+  document.getElementById('audio-icon').className = state.audioEnabled ? 'fa-solid fa-volume-high' : 'fa-solid fa-volume-xmark';
+}
+
+/* ================================================================= */
+/* 3. NAVIGATION TAB CONTROLLER                                      */
+/* ================================================================= */
+function switchMainTab(tabId) {
+  state.activeTab = tabId;
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
+  
+  const target = document.getElementById(tabId);
+  const navBtn = document.getElementById('nav-' + tabId);
+  if (target) target.classList.add('active');
+  if (navBtn) navBtn.classList.add('active');
+
+  playSound('click');
+
+  if (tabId === 'tab-structure') {
+    if (state.structSubTab === 'ideal') drawOpAmpModelCanvas();
+    else drawIcPinoutCanvas();
+  } else if (tabId === 'tab-amplifiers') {
+    onAmpChange();
+  } else if (tabId === 'tab-processors') {
+    onProcChange();
+  } else if (tabId === 'tab-lab') {
+    onLabParamChange();
+  } else if (tabId === 'tab-quiz') {
+    renderQuiz();
+  }
+}
+
+function switchStructSubTab(subTab, btn) {
+  state.structSubTab = subTab;
+  document.querySelectorAll('#tab-structure .pill-btn').forEach(b => {
+    if (b.id && b.id.startsWith('subtab-btn-')) b.classList.remove('active');
+  });
+  if (btn) btn.classList.add('active');
+
+  const vIdeal = document.getElementById('subview-ideal-model');
+  const vPinouts = document.getElementById('subview-pinouts-gallery');
+
+  if (subTab === 'ideal') {
+    if (vIdeal) vIdeal.style.display = 'block';
+    if (vPinouts) vPinouts.style.display = 'none';
+    drawOpAmpModelCanvas();
+  } else {
+    if (vIdeal) vIdeal.style.display = 'none';
+    if (vPinouts) vPinouts.style.display = 'block';
+    selectIcPackage(state.selectedIc || '741');
+  }
+  playSound('click');
+}
+
+/* ================================================================= */
+/* 4. MODULE 1 — STRUCTURE, SYMBOL & IC PINOUT INSPECTOR             */
+/* ================================================================= */
+const opampModelCanvas = document.getElementById('canvas-opamp-model');
+const opampModelCtx = opampModelCanvas.getContext('2d');
+const icPinoutCanvas = document.getElementById('canvas-ic-pinout');
+const icPinoutCtx = icPinoutCanvas.getContext('2d');
+
+function drawOpAmpModelCanvas() {
+  const W = opampModelCanvas.width, H = opampModelCanvas.height;
+  opampModelCtx.clearRect(0, 0, W, H);
+  opampModelCtx.fillStyle = '#050b14'; opampModelCtx.fillRect(0, 0, W, H);
+
+  // Left: Op-Amp Symbol & Equivalent Circuit (X: 30 to 350)
+  const ox = 190, oy = 135;
+
+  // Background Box
+  opampModelCtx.strokeStyle = 'rgba(56, 189, 248, 0.2)';
+  opampModelCtx.lineWidth = 1;
+  opampModelCtx.strokeRect(30, 25, 300, 220);
+
+  opampModelCtx.fillStyle = 'rgba(56, 189, 248, 0.03)';
+  opampModelCtx.fillRect(30, 25, 300, 220);
+
+  // Op-Amp Triangle
+  opampModelCtx.beginPath();
+  opampModelCtx.moveTo(ox - 70, oy - 65);
+  opampModelCtx.lineTo(ox - 70, oy + 65);
+  opampModelCtx.lineTo(ox + 65, oy);
+  opampModelCtx.closePath();
+  opampModelCtx.fillStyle = 'rgba(15, 23, 42, 0.85)';
+  opampModelCtx.fill();
+  opampModelCtx.strokeStyle = '#38bdf8';
+  opampModelCtx.lineWidth = 2.5;
+  opampModelCtx.stroke();
+
+  // Inverting Input (-) Lead
+  opampModelCtx.strokeStyle = '#fb7185'; opampModelCtx.lineWidth = 2;
+  opampModelCtx.beginPath(); opampModelCtx.moveTo(40, oy - 35); opampModelCtx.lineTo(ox - 70, oy - 35); opampModelCtx.stroke();
+  dotNode(opampModelCtx, 40, oy - 35, 'Inverting (−)', 'top');
+
+  // Non-Inverting Input (+) Lead
+  opampModelCtx.strokeStyle = '#34d399'; opampModelCtx.lineWidth = 2;
+  opampModelCtx.beginPath(); opampModelCtx.moveTo(40, oy + 35); opampModelCtx.lineTo(ox - 70, oy + 35); opampModelCtx.stroke();
+  dotNode(opampModelCtx, 40, oy + 35, 'Non-Inverting (+)', 'bottom');
+
+  // Input Resistance Zin inside
+  opampModelCtx.strokeStyle = '#f59e0b'; opampModelCtx.lineWidth = 1.5;
+  drawResistorV(opampModelCtx, ox - 45, oy - 35, oy + 35, 'Z_in', '≈ ∞', 'left');
+
+  // Output Lead
+  opampModelCtx.strokeStyle = '#38bdf8'; opampModelCtx.lineWidth = 2;
+  opampModelCtx.beginPath(); opampModelCtx.moveTo(ox + 65, oy); opampModelCtx.lineTo(310, oy); opampModelCtx.stroke();
+  dotNode(opampModelCtx, 310, oy, 'Output (V_out)', 'right');
+
+  // Power rails (+Vcc / -Vee)
+  opampModelCtx.strokeStyle = '#f97316'; opampModelCtx.lineWidth = 2;
+  opampModelCtx.beginPath(); opampModelCtx.moveTo(ox, oy - 36); opampModelCtx.lineTo(ox, 40); opampModelCtx.stroke();
+  opampModelCtx.fillStyle = '#f97316'; opampModelCtx.font = 'bold 9px JetBrains Mono'; opampModelCtx.textAlign = 'center';
+  opampModelCtx.fillText('+V_CC (+15V)', ox, 34);
+
+  opampModelCtx.strokeStyle = '#6366f1'; opampModelCtx.lineWidth = 2;
+  opampModelCtx.beginPath(); opampModelCtx.moveTo(ox, oy + 36); opampModelCtx.lineTo(ox, 230); opampModelCtx.stroke();
+  opampModelCtx.fillStyle = '#818cf8';
+  opampModelCtx.fillText('−V_EE (−15V)', ox, 242);
+
+  // Minus and Plus signs inside
+  opampModelCtx.font = 'bold 16px JetBrains Mono';
+  opampModelCtx.fillStyle = '#fb7185'; opampModelCtx.fillText('−', ox - 58, oy - 29);
+  opampModelCtx.fillStyle = '#34d399'; opampModelCtx.fillText('+', ox - 58, oy + 41);
+
+  // Right: Voltage Transfer Characteristic Graph (X: 370 to 630)
+  const gx = 500, gy = 135, gw = 220, gh = 180;
+  
+  opampModelCtx.strokeStyle = 'rgba(56, 189, 248, 0.12)';
+  opampModelCtx.strokeRect(360, 25, 270, 220);
+
+  // Axes
+  opampModelCtx.strokeStyle = '#475569'; opampModelCtx.lineWidth = 1.5;
+  opampModelCtx.beginPath();
+  opampModelCtx.moveTo(380, gy); opampModelCtx.lineTo(610, gy); // X: V_d = V_+ - V_-
+  opampModelCtx.moveTo(gx, 40); opampModelCtx.lineTo(gx, 230); // Y: V_out
+  opampModelCtx.stroke();
+
+  // Axis Labels
+  opampModelCtx.font = 'bold 9px JetBrains Mono'; opampModelCtx.fillStyle = '#94a3b8';
+  opampModelCtx.textAlign = 'right'; opampModelCtx.fillText('V_d (V+ − V−)', 610, gy - 6);
+  opampModelCtx.textAlign = 'left'; opampModelCtx.fillText('V_out', gx + 6, 48);
+
+  // Saturation rails
+  opampModelCtx.setLineDash([3, 3]); opampModelCtx.strokeStyle = 'rgba(251, 191, 36, 0.5)';
+  opampModelCtx.beginPath();
+  opampModelCtx.moveTo(380, gy - 70); opampModelCtx.lineTo(610, gy - 70);
+  opampModelCtx.moveTo(380, gy + 70); opampModelCtx.lineTo(610, gy + 70);
+  opampModelCtx.stroke();
+  opampModelCtx.setLineDash([]);
+
+  opampModelCtx.fillStyle = '#fbbf24'; opampModelCtx.font = '9px JetBrains Mono';
+  opampModelCtx.fillText('+V_sat (+13.5V)', 385, gy - 74);
+  opampModelCtx.fillText('−V_sat (−13.5V)', 385, gy + 82);
+
+  // Open-Loop S-Curve (Virtually Vertical Slope)
+  opampModelCtx.strokeStyle = '#06b6d4'; opampModelCtx.lineWidth = 3;
+  opampModelCtx.beginPath();
+  opampModelCtx.moveTo(390, gy + 70);
+  opampModelCtx.lineTo(gx - 8, gy + 70);
+  opampModelCtx.lineTo(gx + 8, gy - 70);
+  opampModelCtx.lineTo(600, gy - 70);
+  opampModelCtx.stroke();
+
+  opampModelCtx.fillStyle = '#38bdf8'; opampModelCtx.font = 'bold 9px Sarabun';
+  opampModelCtx.fillText('ย่านทำงานเชิงเส้น (Linear Region) แคบมาก ±15μV', gx - 110, 220);
+}
+
+const IC_MODELS_DATA = {
+  '741': {
+    title: 'ผังขาไอซี μA741 (Single General-Purpose Operational Amplifier)',
+    badge: 'DIP-8 Single Op-Amp',
+    type: 'dip8',
+    opCount: 1,
+    desc: '<strong>คุณลักษณะของไอซี 741 (มาตรฐานคลาสสิก):</strong><br>' +
+          '• เป็นออปแอมป์ 1 ตัวในตัวถัง 8 ขา (DIP-8) มีขดวงจรปรับแต่งค่าแรงดันชดเชย (Offset Null) ที่ขา 1 และ 5<br>' +
+          '• <strong>แรงดันไฟเลี้ยง:</strong> แนะนำไฟคู่ $\pm 15\text{V}$ (ทำงานได้ $\pm 5\text{V}$ ถึง $\pm 18\text{V}$)<br>' +
+          '• <strong>คุณสมบัติ:</strong> มีวงจรป้องกันการลัดวงจรเอาต์พุตในตัว, แบนด์วิดท์ $1.0\text{ MHz}$, Slew Rate $0.5\text{ V}/\mu\text{s}$',
+    pins: [
+      { no: 1, name: 'OFFSET NULL', desc: 'ปรับสมดุลแรงดันออฟเซ็ต (ต่อ Pot 10kΩ กับขา 4)' },
+      { no: 2, name: 'INVERTING (−)', desc: 'ขั้วอินพุตกลับเฟส (Inverting Input)' },
+      { no: 3, name: 'NON-INVERTING (+)', desc: 'ขั้วอินพุตไม่กลับเฟส (Non-Inverting Input)' },
+      { no: 4, name: 'V− / V_EE', desc: 'ขั้วไฟเลี้ยงลบ (ปกติ −15V)' },
+      { no: 5, name: 'OFFSET NULL', desc: 'ปรับสมดุลแรงดันออฟเซ็ต' },
+      { no: 6, name: 'OUTPUT', desc: 'ขั้วแรงดันเอาต์พุต' },
+      { no: 7, name: 'V+ / V_CC', desc: 'ขั้วไฟเลี้ยงบวก (ปกติ +15V)' },
+      { no: 8, name: 'NC', desc: 'ไม่ต่อใช้งาน (No Connection)' }
+    ]
+  },
+  'lm358': {
+    title: 'ผังขาไอซี LM358 (Dual Low-Power Single-Supply Op-Amp)',
+    badge: 'DIP-8 Dual Op-Amp',
+    type: 'dip8',
+    opCount: 2,
+    desc: '<strong>คุณลักษณะของไอซี LM358 (ไฟเดี่ยว Single Supply):</strong><br>' +
+          '• บรรจุ Op-Amp 2 ตัวอิสระในตัวถัง DIP-8<br>' +
+          '• <strong>จุดเด่นพิเศษ:</strong> สามารถทำงานด้วย <strong>แหล่งจ่ายไฟเดี่ยว (Single Supply +3V ถึง +32V)</strong> หรือไฟคู่ $\pm 1.5\text{V}$ ถึง $\pm 16\text{V}$<br>' +
+          '• อินพุตสามารถรับแรงดันต่ำลงไปได้ถึงระดับกราวด์ ($0\text{V}$) จึงเป็นที่นิยมมากในงานไมโครคอนโทรลเลอร์ (Arduino, ESP32)',
+    pins: [
+      { no: 1, name: '1OUT', desc: 'เอาต์พุต Op-Amp ชุดที่ 1' },
+      { no: 2, name: '1IN−', desc: 'อินพุตกลับเฟส ชุดที่ 1' },
+      { no: 3, name: '1IN+', desc: 'อินพุตไม่กลับเฟส ชุดที่ 1' },
+      { no: 4, name: 'GND / V−', desc: 'กราวด์ (ไฟเดี่ยว) หรือไฟลบ V−' },
+      { no: 5, name: '2IN+', desc: 'อินพุตไม่กลับเฟส ชุดที่ 2' },
+      { no: 6, name: '2IN−', desc: 'อินพุตกลับเฟส ชุดที่ 2' },
+      { no: 7, name: '2OUT', desc: 'เอาต์พุต Op-Amp ชุดที่ 2' },
+      { no: 8, name: 'V+ / V_CC', desc: 'ขั้วไฟเลี้ยงบวก (+3V ถึง +32V)' }
+    ]
+  },
+  'tl082': {
+    title: 'ผังขาไอซี TL082 / TL072 (Dual JFET-Input High-Speed Op-Amp)',
+    badge: 'DIP-8 Dual JFET',
+    type: 'dip8',
+    opCount: 2,
+    desc: '<strong>คุณลักษณะของไอซี TL082 / TL072 (ภาคอินพุต JFET):</strong><br>' +
+          '• มีทรานซิสเตอร์ JFET คุณภาพสูงที่ภาคอินพุต ทำให้อิมพีแดนซ์อินพุตสูงมากระดับ <strong>$10^{12}\ \Omega$ ($1\text{ T}\Omega$)</strong><br>' +
+          '• <strong>Slew Rate สูงมาก $13\ \text{V}/\mu\text{s}$</strong> (เร็วกว่า 741 ถึง 26 เท่า!)<br>' +
+          '• เหมาะสำหรับวงจรปรีแอมป์เครื่องเสียง Hi-Fi, วงจรกรอง Active Filter ความถี่สูง, และวงจรขยายเซนเซอร์ความต้านทานสูง',
+    pins: [
+      { no: 1, name: '1OUT', desc: 'เอาต์พุต Op-Amp ชุดที่ 1' },
+      { no: 2, name: '1IN−', desc: 'อินพุตกลับเฟส JFET ชุดที่ 1' },
+      { no: 3, name: '1IN+', desc: 'อินพุตไม่กลับเฟส JFET ชุดที่ 1' },
+      { no: 4, name: 'V−', desc: 'ขั้วไฟเลี้ยงลบ (−15V)' },
+      { no: 5, name: '2IN+', desc: 'อินพุตไม่กลับเฟส JFET ชุดที่ 2' },
+      { no: 6, name: '2IN−', desc: 'อินพุตกลับเฟส JFET ชุดที่ 2' },
+      { no: 7, name: '2OUT', desc: 'เอาต์พุต Op-Amp ชุดที่ 2' },
+      { no: 8, name: 'V+', desc: 'ขั้วไฟเลี้ยงบวก (+15V)' }
+    ]
+  },
+  'ne5532': {
+    title: 'ผังขาไอซี NE5532 (Dual Ultra-Low Noise High-Drive Audio Op-Amp)',
+    badge: 'DIP-8 Audio King',
+    type: 'dip8',
+    opCount: 2,
+    desc: '<strong>คุณลักษณะของไอซี NE5532 (ราชาปรีแอมป์เครื่องเสียง):</strong><br>' +
+          '• สัญญาณรบกวนต่ำพิเศษ (Ultra-Low Noise $5\text{ nV}/\sqrt{\text{Hz}}$)<br>' +
+          '• <strong>ความสามารถในการขับโหลดสูง (High Drive Capability):</strong> ขับโหลด $600\ \Omega$ ที่แรงดันเอาต์พุต $10\text{ V}_{RMS}$ ได้สบาย<br>' +
+          '• แบนด์วิดท์กว้าง $10\text{ MHz}$ และ Slew Rate $9\ \text{V}/\mu\text{s}$ นิยมใช้ในมิกเซอร์และสตูดิโอเสียงระดับมืออาชีพ',
+    pins: [
+      { no: 1, name: '1OUT', desc: 'เอาต์พุตเสียง ชุดที่ 1' },
+      { no: 2, name: '1IN−', desc: 'อินพุตกลับเฟส ชุดที่ 1' },
+      { no: 3, name: '1IN+', desc: 'อินพุตไม่กลับเฟส ชุดที่ 1' },
+      { no: 4, name: 'V−', desc: 'ขั้วไฟเลี้ยงลบ' },
+      { no: 5, name: '2IN+', desc: 'อินพุตไม่กลับเฟส ชุดที่ 2' },
+      { no: 6, name: '2IN−', desc: 'อินพุตกลับเฟส ชุดที่ 2' },
+      { no: 7, name: '2OUT', desc: 'เอาต์พุตเสียง ชุดที่ 2' },
+      { no: 8, name: 'V+', desc: 'ขั้วไฟเลี้ยงบวก' }
+    ]
+  },
+  'op07': {
+    title: 'ผังขาไอซี OP07 (Ultra-Low Offset Precision Op-Amp)',
+    badge: 'DIP-8 Precision',
+    type: 'dip8',
+    opCount: 1,
+    desc: '<strong>คุณลักษณะของไอซี OP07 (เกรดเครื่องมือวัดความแม่นยำสูง):</strong><br>' +
+          '• แรงดันออฟเซ็ตอินพุตต่ำพิเศษ <strong>$V_{OS} \le 75\ \mu\text{V}$</strong><br>' +
+          '• อัตราเลื่อนลอยตามอุณหภูมิต่ำมาก (Offset Drift $1.3\ \mu\text{V}/^\circ\text{C}$)<br>' +
+          '• ค่า CMRR สูงลิ่ว $120\text{ dB}$ ($1,000,000$ เท่า) นิยมใช้ขยายสัญญาณเทอร์โมคัปเปิล, โหลดเซลล์, และอุปกรณ์ทางการแพทย์',
+    pins: [
+      { no: 1, name: 'V_OS TRIM', desc: 'ปรับแต่งแรงดันออฟเซ็ต (Trim 1)' },
+      { no: 2, name: 'INVERTING (−)', desc: 'อินพุตกลับเฟสแม่นยำสูง' },
+      { no: 3, name: 'NON-INVERTING (+)', desc: 'อินพุตไม่กลับเฟสแม่นยำสูง' },
+      { no: 4, name: 'V−', desc: 'ขั้วไฟเลี้ยงลบ' },
+      { no: 5, name: 'NC', desc: 'ไม่ต่อใช้งาน' },
+      { no: 6, name: 'OUTPUT', desc: 'เอาต์พุตแม่นยำสูง' },
+      { no: 7, name: 'V+', desc: 'ขั้วไฟเลี้ยงบวก' },
+      { no: 8, name: 'V_OS TRIM', desc: 'ปรับแต่งแรงดันออฟเซ็ต (Trim 2)' }
+    ]
+  },
+  'lm324': {
+    title: 'ผังขาไอซี LM324 (Quad Low-Power Single-Supply Op-Amp)',
+    badge: 'DIP-14 Quad Op-Amp',
+    type: 'dip14',
+    opCount: 4,
+    desc: '<strong>คุณลักษณะของไอซี LM324 (ออปแอมป์ 4 ตัวในตัวถัง 14 ขา):</strong><br>' +
+          '• บรรจุ Op-Amp ถึง 4 ชุดในตัวถัง DIP-14 แสนประหยัดพื้นที่บนแผ่นปริ้นท์<br>' +
+          '• ใช้ไฟเดี่ยว $+3\text{V}$ ถึง $+32\text{V}$ ได้เช่นเดียวกับ LM358<br>' +
+          '• เหมาะมากสำหรับทำวงจรเปรียบเทียบหลายแชนแนล (Multi-Channel Comparators), วงจรไฟวิ่ง, และ Active Filter แบบ 4-Pole',
+    pins: [
+      { no: 1, name: '1OUT', desc: 'เอาต์พุต Op-Amp 1' },
+      { no: 2, name: '1IN−', desc: 'อินพุตกลับเฟส Op-Amp 1' },
+      { no: 3, name: '1IN+', desc: 'อินพุตไม่กลับเฟส Op-Amp 1' },
+      { no: 4, name: 'V+', desc: 'ขั้วไฟเลี้ยงบวก (+V_CC)' },
+      { no: 5, name: '2IN+', desc: 'อินพุตไม่กลับเฟส Op-Amp 2' },
+      { no: 6, name: '2IN−', desc: 'อินพุตกลับเฟส Op-Amp 2' },
+      { no: 7, name: '2OUT', desc: 'เอาต์พุต Op-Amp 2' },
+      { no: 8, name: '3OUT', desc: 'เอาต์พุต Op-Amp 3' },
+      { no: 9, name: '3IN−', desc: 'อินพุตกลับเฟส Op-Amp 3' },
+      { no: 10, name: '3IN+', desc: 'อินพุตไม่กลับเฟส Op-Amp 3' },
+      { no: 11, name: 'GND / V−', desc: 'กราวด์ หรือไฟเลี้ยงลบ' },
+      { no: 12, name: '4IN+', desc: 'อินพุตไม่กลับเฟส Op-Amp 4' },
+      { no: 13, name: '4IN−', desc: 'อินพุตกลับเฟส Op-Amp 4' },
+      { no: 14, name: '4OUT', desc: 'เอาต์พุต Op-Amp 4' }
+    ]
+  }
+};
+
+function selectIcPackage(icKey, btn) {
+  state.selectedIc = icKey;
+  document.querySelectorAll('#subview-pinouts-gallery .pill-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  else {
+    const b = document.getElementById('btn-ic-' + icKey);
+    if (b) b.classList.add('active');
+  }
+
+  const data = IC_MODELS_DATA[icKey] || IC_MODELS_DATA['741'];
+  document.getElementById('ic-card-title').textContent = data.title;
+  document.getElementById('ic-badge').textContent = data.badge;
+  document.getElementById('ic-detail-explanation').innerHTML = data.desc;
+
+  // Render Pins Table
+  let tableHtml = `<table class="datasheet-table"><thead><tr><th>ขา (Pin)</th><th>ชื่อขั้ว</th><th>คำอธิบายการทำงาน</th></tr></thead><tbody>`;
+  data.pins.forEach(p => {
+    tableHtml += `<tr><td style="font-family:var(--font-mono);font-weight:700;color:var(--accent-primary);">Pin ${p.no}</td><td style="font-weight:700;color:#f8fafc;">${p.name}</td><td>${p.desc}</td></tr>`;
+  });
+  tableHtml += `</tbody></table>`;
+  document.getElementById('ic-pins-table-container').innerHTML = tableHtml;
+
+  drawIcPinoutCanvas();
+}
+
+function drawIcPinoutCanvas() {
+  const W = icPinoutCanvas.width, H = icPinoutCanvas.height;
+  icPinoutCtx.clearRect(0, 0, W, H);
+  icPinoutCtx.fillStyle = '#050b14'; icPinoutCtx.fillRect(0, 0, W, H);
+
+  const icKey = state.selectedIc || '741';
+  const data = IC_MODELS_DATA[icKey] || IC_MODELS_DATA['741'];
+  const isDip14 = (data.type === 'dip14');
+
+  // Draw DIP Package Body in Center
+  const cx = W / 2, cy = H / 2;
+  const icW = isDip14 ? 260 : 200;
+  const icH = 140;
+  const leftX = cx - icW / 2, topY = cy - icH / 2;
+
+  // IC Body Shadow & Fill
+  icPinoutCtx.shadowColor = 'rgba(0, 0, 0, 0.6)'; icPinoutCtx.shadowBlur = 16;
+  icPinoutCtx.fillStyle = '#1e293b';
+  icPinoutCtx.fillRect(leftX, topY, icW, icH);
+  icPinoutCtx.shadowBlur = 0;
+
+  icPinoutCtx.strokeStyle = '#475569'; icPinoutCtx.lineWidth = 2;
+  icPinoutCtx.strokeRect(leftX, topY, icW, icH);
+
+  // Top Index Notch (รอยบากบอกหัวไอซี)
+  icPinoutCtx.fillStyle = '#0f172a';
+  icPinoutCtx.beginPath();
+  icPinoutCtx.arc(cx, topY, 14, 0, Math.PI);
+  icPinoutCtx.fill();
+  icPinoutCtx.strokeStyle = '#475569'; icPinoutCtx.stroke();
+
+  // Pin 1 Indicator Dot
+  icPinoutCtx.fillStyle = '#64748b';
+  icPinoutCtx.beginPath();
+  icPinoutCtx.arc(leftX + 22, topY + 22, 5, 0, Math.PI * 2);
+  icPinoutCtx.fill();
+
+  // IC Text Part Number
+  icPinoutCtx.font = 'bold 15px JetBrains Mono';
+  icPinoutCtx.fillStyle = '#38bdf8';
+  icPinoutCtx.textAlign = 'center';
+  const modelText = icKey === '741' ? 'LM741CN' : icKey.toUpperCase();
+  icPinoutCtx.fillText(modelText, cx, cy - 10);
+  icPinoutCtx.font = '10px JetBrains Mono';
+  icPinoutCtx.fillStyle = '#94a3b8';
+  icPinoutCtx.fillText(data.badge, cx, cy + 12);
+
+  // Draw Metallic Pins
+  const numPinsSide = isDip14 ? 7 : 4;
+  const pinSpacing = (icW - 40) / (numPinsSide - 1);
+
+  // Bottom Pins (1 to numPinsSide)
+  for (let i = 0; i < numPinsSide; i++) {
+    const px = leftX + 20 + i * pinSpacing;
+    const pinNum = i + 1;
+    const pData = data.pins.find(p => p.no === pinNum) || { name: `Pin ${pinNum}` };
+
+    // Metal Pin Lead
+    icPinoutCtx.fillStyle = '#94a3b8';
+    icPinoutCtx.fillRect(px - 6, topY + icH, 12, 22);
+    icPinoutCtx.strokeStyle = '#cbd5e1'; icPinoutCtx.strokeRect(px - 6, topY + icH, 12, 22);
+
+    // Pin Number
+    icPinoutCtx.font = 'bold 11px JetBrains Mono';
+    icPinoutCtx.fillStyle = '#ffffff';
+    icPinoutCtx.textAlign = 'center';
+    icPinoutCtx.fillText(pinNum, px, topY + icH - 8);
+
+    // Pin Function Label
+    icPinoutCtx.font = 'bold 9px JetBrains Mono';
+    icPinoutCtx.fillStyle = '#38bdf8';
+    icPinoutCtx.fillText(pData.name, px, topY + icH + 34);
+  }
+
+  // Top Pins (numPinsSide*2 down to numPinsSide+1)
+  for (let i = 0; i < numPinsSide; i++) {
+    const px = leftX + 20 + i * pinSpacing;
+    const pinNum = (numPinsSide * 2) - i;
+    const pData = data.pins.find(p => p.no === pinNum) || { name: `Pin ${pinNum}` };
+
+    // Metal Pin Lead
+    icPinoutCtx.fillStyle = '#94a3b8';
+    icPinoutCtx.fillRect(px - 6, topY - 22, 12, 22);
+    icPinoutCtx.strokeStyle = '#cbd5e1'; icPinoutCtx.strokeRect(px - 6, topY - 22, 12, 22);
+
+    // Pin Number
+    icPinoutCtx.font = 'bold 11px JetBrains Mono';
+    icPinoutCtx.fillStyle = '#ffffff';
+    icPinoutCtx.textAlign = 'center';
+    icPinoutCtx.fillText(pinNum, px, topY + 16);
+
+    // Pin Function Label
+    icPinoutCtx.font = 'bold 9px JetBrains Mono';
+    icPinoutCtx.fillStyle = '#38bdf8';
+    icPinoutCtx.fillText(pData.name, px, topY - 28);
+  }
+}
+
+/* ================================================================= */
+/* 5. MODULE 2 — FUNDAMENTAL AMPLIFIER CIRCUITS                      */
+/* ================================================================= */
+const ampCanvas = document.getElementById('canvas-amp-schematic');
+const ampCtx = ampCanvas.getContext('2d');
+
+function selectAmpCircuit(circKey, btn) {
+  state.amp.circuit = circKey;
+  document.querySelectorAll('#tab-amplifiers .pill-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+
+  const titles = {
+    inverting: 'วงจรขยายกลับเฟส (Inverting Amplifier)',
+    non_inverting: 'วงจรขยายไม่กลับเฟส (Non-Inverting Amplifier)',
+    buffer: 'วงจรตามแรงดัน (Voltage Follower / Unity-Gain Buffer)',
+    summing: 'วงจรรวมสัญญาณ (Summing Amplifier Inverting)',
+    difference: 'วงจรลบแรงดันและหักล้าง (Difference / Differential Amplifier)',
+    instrumentation: 'วงจรขยายเครื่องมือวัด (Instrumentation Amplifier 3 Op-Amps)'
+  };
+
+  document.getElementById('amp-circuit-title').textContent = titles[circKey] || 'วงจรขยาย Op-Amp';
+
+  // Render Controls for Selected Circuit
+  renderAmpControls(circKey);
+  onAmpChange();
+  playSound('click');
+}
+
+function renderAmpControls(circKey) {
+  const container = document.getElementById('amp-controls-container');
+  if (!container) return;
+
+  let html = '';
+  if (circKey === 'inverting' || circKey === 'non_inverting') {
+    html = `
+      <div class="control-group">
+        <div class="control-label-row">
+          <span class="control-label-title">แรงดันอินพุต V<sub>in</sub></span>
+          <span class="control-value-badge" id="ctrl-amp-vin-badge">0.50 V</span>
+        </div>
+        <input type="range" id="slider-amp-vin" min="-3.0" max="3.0" step="0.1" value="0.5" oninput="onAmpChange()">
+      </div>
+      <div class="control-group">
+        <div class="control-label-row">
+          <span class="control-label-title">ตัวต้านทานอินพุต R<sub>1</sub></span>
+          <span class="control-value-badge" id="ctrl-amp-r1-badge">10.0 kΩ</span>
+        </div>
+        <input type="range" id="slider-amp-r1" min="1.0" max="50.0" step="1.0" value="10.0" oninput="onAmpChange()">
+      </div>
+      <div class="control-group">
+        <div class="control-label-row">
+          <span class="control-label-title">ตัวต้านทานป้อนกลับ R<sub>f</sub></span>
+          <span class="control-value-badge" id="ctrl-amp-rf-badge">100.0 kΩ</span>
+        </div>
+        <input type="range" id="slider-amp-rf" min="1.0" max="250.0" step="2.0" value="100.0" oninput="onAmpChange()">
+      </div>
+    `;
+  } else if (circKey === 'buffer') {
+    html = `
+      <div class="control-group">
+        <div class="control-label-row">
+          <span class="control-label-title">แรงดันอินพุต V<sub>in</sub></span>
+          <span class="control-value-badge" id="ctrl-amp-vin-badge">3.50 V</span>
+        </div>
+        <input type="range" id="slider-amp-vin" min="-12.0" max="12.0" step="0.2" value="3.5" oninput="onAmpChange()">
+      </div>
+      <div class="theory-box green">
+        <strong>คุณลักษณะ Buffer:</strong> $R_f = 0\ \Omega$ (ลัดวงจรขั้วลบเข้า Output โดยตรง) ทำให้อัตราขยาย $A_v = 1.00$ แรงดันเอาต์พุตตามอินพุตทุกประการ ($V_{out} = V_{in}$)
+      </div>
+    `;
+  } else if (circKey === 'summing') {
+    html = `
+      <div class="control-group">
+        <div class="control-label-row"><span class="control-label-title">แรงดัน V<sub>1</sub></span><span class="control-value-badge" id="ctrl-amp-v1-badge">1.00 V</span></div>
+        <input type="range" id="slider-amp-v1" min="-5.0" max="5.0" step="0.2" value="1.0" oninput="onAmpChange()">
+      </div>
+      <div class="control-group">
+        <div class="control-label-row"><span class="control-label-title">แรงดัน V<sub>2</sub></span><span class="control-value-badge" id="ctrl-amp-v2-badge">2.00 V</span></div>
+        <input type="range" id="slider-amp-v2" min="-5.0" max="5.0" step="0.2" value="2.0" oninput="onAmpChange()">
+      </div>
+      <div class="control-group">
+        <div class="control-label-row"><span class="control-label-title">ตัวต้านทาน R<sub>f</sub></span><span class="control-value-badge" id="ctrl-amp-rf-badge">10.0 kΩ</span></div>
+        <input type="range" id="slider-amp-rf" min="1.0" max="50.0" step="1.0" value="10.0" oninput="onAmpChange()">
+      </div>
+    `;
+  } else if (circKey === 'difference') {
+    html = `
+      <div class="control-group">
+        <div class="control-label-row"><span class="control-label-title">แรงดันขั้วบวก V<sub>2</sub> (Non-Inv)</span><span class="control-value-badge" id="ctrl-amp-v2-badge">3.00 V</span></div>
+        <input type="range" id="slider-amp-v2" min="-5.0" max="5.0" step="0.2" value="3.0" oninput="onAmpChange()">
+      </div>
+      <div class="control-group">
+        <div class="control-label-row"><span class="control-label-title">แรงดันขั้วลบ V<sub>1</sub> (Inv)</span><span class="control-value-badge" id="ctrl-amp-v1-badge">1.00 V</span></div>
+        <input type="range" id="slider-amp-v1" min="-5.0" max="5.0" step="0.2" value="1.0" oninput="onAmpChange()">
+      </div>
+      <div class="control-group">
+        <div class="control-label-row"><span class="control-label-title">อัตราส่วน R<sub>f</sub> / R<sub>1</sub> (Gain)</span><span class="control-value-badge" id="ctrl-amp-gain-badge">2.00x</span></div>
+        <input type="range" id="slider-amp-diffgain" min="0.5" max="10.0" step="0.5" value="2.0" oninput="onAmpChange()">
+      </div>
+    `;
+  } else if (circKey === 'instrumentation') {
+    html = `
+      <div class="control-group">
+        <div class="control-label-row"><span class="control-label-title">ความต่างแรงดันอินพุต ΔV<sub>in</sub> (V₂ − V₁)</span><span class="control-value-badge" id="ctrl-amp-vin-badge">50.0 mV</span></div>
+        <input type="range" id="slider-amp-dvin" min="5" max="200" step="5" value="50" oninput="onAmpChange()">
+      </div>
+      <div class="control-group">
+        <div class="control-label-row"><span class="control-label-title">ตัวต้านทานปรับเกน R<sub>G</sub></span><span class="control-value-badge" id="ctrl-amp-rg-badge">1.00 kΩ</span></div>
+        <input type="range" id="slider-amp-rg" min="0.2" max="10.0" step="0.2" value="1.0" oninput="onAmpChange()">
+      </div>
+    `;
+  }
+  container.innerHTML = html;
+}
+
+function onAmpChange() {
+  const circ = state.amp.circuit;
+  const vsat = state.amp.vcc - 1.5;
+
+  let av = 1.0, vout = 0.0, zin_str = '10.0 kΩ', if_str = '0.05 mA', phase_str = '0°';
+  let mathHtml = '';
+
+  if (circ === 'inverting') {
+    const sVin = document.getElementById('slider-amp-vin');
+    const sR1 = document.getElementById('slider-amp-r1');
+    const sRf = document.getElementById('slider-amp-rf');
+    if (sVin) state.amp.vin = parseFloat(sVin.value);
+    if (sR1) state.amp.r1_k = parseFloat(sR1.value);
+    if (sRf) state.amp.rf_k = parseFloat(sRf.value);
+
+    document.getElementById('ctrl-amp-vin-badge').textContent = state.amp.vin.toFixed(2) + ' V';
+    document.getElementById('ctrl-amp-r1-badge').textContent = state.amp.r1_k.toFixed(1) + ' kΩ';
+    document.getElementById('ctrl-amp-rf-badge').textContent = state.amp.rf_k.toFixed(1) + ' kΩ';
+
+    av = - (state.amp.rf_k / state.amp.r1_k);
+    const vout_ideal = av * state.amp.vin;
+    const isClipped = Math.abs(vout_ideal) > vsat;
+    vout = isClipped ? (vout_ideal > 0 ? vsat : -vsat) : vout_ideal;
+
+    const i_in_mA = state.amp.vin / state.amp.r1_k;
+    zin_str = state.amp.r1_k.toFixed(1) + ' kΩ';
+    if_str = Math.abs(i_in_mA).toFixed(3) + ' mA';
+    phase_str = 'กลับเฟส 180°';
+
+    mathHtml = 
+      `<strong style="color:var(--accent-primary);"><i class="fa-solid fa-calculator"></i> ขั้นตอนและสมการคำนวณวงจรขยายกลับเฟส (Inverting Math):</strong><br>` +
+      `1. <strong>มโนภาพเสมือนกราวด์ (Virtual Ground):</strong> ขั้วบวกต่อกราวด์ ($V_+ = 0\text{V}$) $\implies V_- \approx 0\text{V}$<br>` +
+      `2. <strong>กระแสไหลผ่าน R<sub>1</sub>:</strong> I<sub>in</sub> = (V<sub>in</sub> − V<sub>−</sub>) / R<sub>1</sub> = (${state.amp.vin.toFixed(2)}V − 0) / ${state.amp.r1_k.toFixed(1)}kΩ = <strong>${i_in_mA.toFixed(3)} mA</strong><br>` +
+      `3. <strong>กระแสไหลผ่าน R<sub>f</sub> (I<sub>in</sub> = I<sub>f</sub> เพราะ I<sub>−</sub> = 0):</strong><br>` +
+      `&nbsp;&nbsp;V<sub>out</sub> = V<sub>−</sub> − (I<sub>f</sub> · R<sub>f</sub>) = 0 − (${i_in_mA.toFixed(3)} mA × ${state.amp.rf_k.toFixed(1)} kΩ) = <strong>${vout_ideal.toFixed(2)} V</strong><br>` +
+      `4. <strong>อัตราขยายแรงดัน (Voltage Gain):</strong> A<sub>v</sub> = −R<sub>f</sub> / R<sub>1</sub> = −(${state.amp.rf_k.toFixed(1)} / ${state.amp.r1_k.toFixed(1)}) = <strong style="color:#fb7185;">${av.toFixed(2)}</strong> (${isClipped ? '⚠️ ตัดยอดคลื่นที่ ±' + vsat.toFixed(1) + 'V' : 'ย่านเชิงเส้น'})`;
+
+  } else if (circ === 'non_inverting') {
+    const sVin = document.getElementById('slider-amp-vin');
+    const sR1 = document.getElementById('slider-amp-r1');
+    const sRf = document.getElementById('slider-amp-rf');
+    if (sVin) state.amp.vin = parseFloat(sVin.value);
+    if (sR1) state.amp.r1_k = parseFloat(sR1.value);
+    if (sRf) state.amp.rf_k = parseFloat(sRf.value);
+
+    document.getElementById('ctrl-amp-vin-badge').textContent = state.amp.vin.toFixed(2) + ' V';
+    document.getElementById('ctrl-amp-r1-badge').textContent = state.amp.r1_k.toFixed(1) + ' kΩ';
+    document.getElementById('ctrl-amp-rf-badge').textContent = state.amp.rf_k.toFixed(1) + ' kΩ';
+
+    av = 1 + (state.amp.rf_k / state.amp.r1_k);
+    const vout_ideal = av * state.amp.vin;
+    const isClipped = Math.abs(vout_ideal) > vsat;
+    vout = isClipped ? (vout_ideal > 0 ? vsat : -vsat) : vout_ideal;
+
+    zin_str = '≈ ∞ (สูงมาก)';
+    if_str = (Math.abs(vout) / (state.amp.r1_k + state.amp.rf_k)).toFixed(3) + ' mA';
+    phase_str = 'ตรงเฟส 0° (ไม่กลับเฟส)';
+
+    mathHtml = 
+      `<strong style="color:var(--accent-primary);"><i class="fa-solid fa-calculator"></i> ขั้นตอนการคำนวณวงจรขยายไม่กลับเฟส (Non-Inverting Math):</strong><br>` +
+      `1. <strong>มโนภาพเสมือนลัดวงจร (Virtual Short):</strong> $V_+ = V_{in} = ${state.amp.vin.toFixed(2)}\text{V} \implies V_- = V_{in} = ${state.amp.vin.toFixed(2)}\text{V}$<br>` +
+      `2. <strong>วงจรแบ่งแรงดันป้อนกลับ (Feedback Divider):</strong> V<sub>−</sub> = V<sub>out</sub> · [R<sub>1</sub> / (R<sub>1</sub> + R<sub>f</sub>)]<br>` +
+      `3. <strong>จัดรูปสมการหา V<sub>out</sub>:</strong> V<sub>out</sub> = (1 + R<sub>f</sub> / R<sub>1</sub>) · V<sub>in</sub> = [1 + (${state.amp.rf_k.toFixed(1)} / ${state.amp.r1_k.toFixed(1)})] × ${state.amp.vin.toFixed(2)}V = <strong>${vout_ideal.toFixed(2)} V</strong><br>` +
+      `4. <strong>อัตราขยายแรงดัน:</strong> A<sub>v</sub> = 1 + R<sub>f</sub> / R<sub>1</sub> = <strong style="color:#34d399;">+${av.toFixed(2)}</strong> (ตรงเฟส 0°)`;
+
+  } else if (circ === 'buffer') {
+    const sVin = document.getElementById('slider-amp-vin');
+    if (sVin) state.amp.vin = parseFloat(sVin.value);
+    document.getElementById('ctrl-amp-vin-badge').textContent = state.amp.vin.toFixed(2) + ' V';
+
+    av = 1.0;
+    vout = state.amp.vin;
+    zin_str = '≈ ∞ (10¹² Ω)';
+    if_str = '0.00 mA';
+    phase_str = 'ตรงเฟส 0°';
+
+    mathHtml = 
+      `<strong style="color:var(--accent-primary);"><i class="fa-solid fa-calculator"></i> วงจรตามแรงดัน (Voltage Follower / Unity Buffer):</strong><br>` +
+      `• <strong>อัตราขยายแรงดันคงที่:</strong> A<sub>v</sub> = 1.00 เสมอ ($V_{out} = V_{in} = ${vout.toFixed(2)}\text{V}$)<br>` +
+      `• <strong>การประยุกต์ใช้งาน:</strong> เป็นวงจรกันชน (Buffer) สำหรับแปลงอิมพีแดนซ์สูงมาก $\rightarrow$ ต่ำมาก ป้องกันการดึงโหลดจากเซนเซอร์`;
+
+  } else if (circ === 'summing') {
+    const sV1 = document.getElementById('slider-amp-v1');
+    const sV2 = document.getElementById('slider-amp-v2');
+    const sRf = document.getElementById('slider-amp-rf');
+    if (sV1) state.amp.vin1 = parseFloat(sV1.value);
+    if (sV2) state.amp.vin2 = parseFloat(sV2.value);
+    if (sRf) state.amp.rf_k = parseFloat(sRf.value);
+
+    document.getElementById('ctrl-amp-v1-badge').textContent = state.amp.vin1.toFixed(2) + ' V';
+    document.getElementById('ctrl-amp-v2-badge').textContent = state.amp.vin2.toFixed(2) + ' V';
+    document.getElementById('ctrl-amp-rf-badge').textContent = state.amp.rf_k.toFixed(1) + ' kΩ';
+
+    const r1 = 10.0, r2 = 10.0;
+    const vout_ideal = - state.amp.rf_k * ((state.amp.vin1 / r1) + (state.amp.vin2 / r2));
+    vout = Math.max(-vsat, Math.min(vsat, vout_ideal));
+    av = vout_ideal / (state.amp.vin1 + state.amp.vin2 || 1);
+    zin_str = '10.0 kΩ / ช่อง';
+    if_str = (Math.abs(vout) / state.amp.rf_k).toFixed(3) + ' mA';
+    phase_str = 'รวมกลับเฟส 180°';
+
+    mathHtml = 
+      `<strong style="color:var(--accent-primary);"><i class="fa-solid fa-calculator"></i> สมการวงจรรวมสัญญาณ (Inverting Summing Amplifier):</strong><br>` +
+      `• <strong>สมการรวมกระแสโหนดเสมือนกราวด์:</strong> I<sub>f</sub> = I<sub>1</sub> + I<sub>2</sub> = (V<sub>1</sub>/R<sub>1</sub>) + (V<sub>2</sub>/R<sub>2</sub>)<br>` +
+      `• <strong>แรงดันเอาต์พุต:</strong> V<sub>out</sub> = −R<sub>f</sub> · [(V<sub>1</sub>/R<sub>1</sub>) + (V<sub>2</sub>/R<sub>2</sub>)] = −${state.amp.rf_k.toFixed(1)}kΩ × [(${state.amp.vin1.toFixed(2)}/10k) + (${state.amp.vin2.toFixed(2)}/10k)] = <strong style="color:#fb7185;">${vout.toFixed(2)} V</strong>`;
+
+  } else if (circ === 'difference') {
+    const sV1 = document.getElementById('slider-amp-v1');
+    const sV2 = document.getElementById('slider-amp-v2');
+    const sGain = document.getElementById('slider-amp-diffgain');
+    if (sV1) state.amp.vin1 = parseFloat(sV1.value);
+    if (sV2) state.amp.vin2 = parseFloat(sV2.value);
+    const diffGain = sGain ? parseFloat(sGain.value) : 2.0;
+
+    document.getElementById('ctrl-amp-v1-badge').textContent = state.amp.vin1.toFixed(2) + ' V (Inv)';
+    document.getElementById('ctrl-amp-v2-badge').textContent = state.amp.vin2.toFixed(2) + ' V (Non-Inv)';
+    document.getElementById('ctrl-amp-gain-badge').textContent = diffGain.toFixed(2) + 'x';
+
+    av = diffGain;
+    const vout_ideal = diffGain * (state.amp.vin2 - state.amp.vin1);
+    vout = Math.max(-vsat, Math.min(vsat, vout_ideal));
+    zin_str = '20.0 kΩ';
+    if_str = '—';
+    phase_str = 'ผลต่าง V₂ − V₁';
+
+    mathHtml = 
+      `<strong style="color:var(--accent-primary);"><i class="fa-solid fa-calculator"></i> สมการวงจรลบแรงดัน (Difference Amplifier Math):</strong><br>` +
+      `• เมื่อใช้อัตราส่วนตัวต้านทานสมดุล ($R_f/R_1 = R_2/R_3 = ${diffGain.toFixed(2)}$)<br>` +
+      `• <strong>แรงดันเอาต์พุต:</strong> V<sub>out</sub> = (R<sub>f</sub> / R<sub>1</sub>) · (V<sub>2</sub> − V<sub>1</sub>) = ${diffGain.toFixed(2)} × (${state.amp.vin2.toFixed(2)}V − ${state.amp.vin1.toFixed(2)}V) = <strong style="color:#38bdf8;">${vout.toFixed(2)} V</strong>`;
+
+  } else if (circ === 'instrumentation') {
+    const sDvin = document.getElementById('slider-amp-dvin');
+    const sRg = document.getElementById('slider-amp-rg');
+    const dvin_mV = sDvin ? parseFloat(sDvin.value) : 50.0;
+    const rg_k = sRg ? parseFloat(sRg.value) : 1.0;
+
+    document.getElementById('ctrl-amp-vin-badge').textContent = dvin_mV.toFixed(1) + ' mV';
+    document.getElementById('ctrl-amp-rg-badge').textContent = rg_k.toFixed(2) + ' kΩ';
+
+    const r1 = 25.0; // 25k inside
+    av = (1 + (2 * r1 / rg_k));
+    const vout_ideal = (av * (dvin_mV / 1000.0));
+    vout = Math.max(-vsat, Math.min(vsat, vout_ideal));
+    zin_str = '10¹² Ω (JFET Buffers)';
+    if_str = '—';
+    phase_str = 'High CMRR Diff';
+
+    mathHtml = 
+      `<strong style="color:var(--accent-primary);"><i class="fa-solid fa-calculator"></i> วงจรขยายเครื่องมือวัด 3 Op-Amps (Instrumentation Amplifier):</strong><br>` +
+      `• <strong>เกนภาคหน้า (Buffer Stage):</strong> A<sub>v1</sub> = 1 + (2 · R<sub>1</sub> / R<sub>G</sub>) = 1 + (2 × 25k / ${rg_k.toFixed(2)}k) = <strong>${av.toFixed(1)} เท่า</strong><br>` +
+      `• <strong>แรงดันเอาต์พุต:</strong> V<sub>out</sub> = A<sub>v</sub> · ΔV<sub>in</sub> = ${av.toFixed(1)} × ${dvin_mV.toFixed(1)} mV = <strong style="color:#34d399;">${vout.toFixed(2)} V</strong>`;
+  }
+
+  document.getElementById('amp-av-val').innerHTML = `${av.toFixed(2)} <span class="unit">V/V</span>`;
+  document.getElementById('amp-vout-val').innerHTML = `${vout.toFixed(2)} <span class="unit">V</span>`;
+  document.getElementById('amp-zin-val').innerHTML = `${zin_str}`;
+  document.getElementById('amp-if-val').innerHTML = `${if_str}`;
+  document.getElementById('amp-phase-badge').textContent = phase_str;
+  document.getElementById('amp-step-math-box').innerHTML = mathHtml;
+
+  drawAmpSchematicCanvas();
+}
+
+function drawAmpSchematicCanvas() {
+  const W = ampCanvas.width, H = ampCanvas.height;
+  ampCtx.clearRect(0, 0, W, H);
+  ampCtx.fillStyle = '#050b14'; ampCtx.fillRect(0, 0, W, H);
+
+  const circ = state.amp.circuit;
+  const cx = 350, cy = 140;
+
+  // Draw Central Op-Amp Triangle
+  ampCtx.beginPath();
+  ampCtx.moveTo(cx - 55, cy - 50);
+  ampCtx.lineTo(cx - 55, cy + 50);
+  ampCtx.lineTo(cx + 50, cy);
+  ampCtx.closePath();
+  ampCtx.fillStyle = 'rgba(15, 23, 42, 0.9)';
+  ampCtx.fill();
+  ampCtx.strokeStyle = '#38bdf8'; ampCtx.lineWidth = 2.5; ampCtx.stroke();
+
+  // Minus and Plus marks
+  ampCtx.font = 'bold 15px JetBrains Mono';
+  ampCtx.fillStyle = '#fb7185'; ampCtx.fillText('−', cx - 45, cy - 20);
+  ampCtx.fillStyle = '#34d399'; ampCtx.fillText('+', cx - 45, cy + 30);
+
+  // Power rails
+  vddRail(ampCtx, cx, cy - 50, 15);
+  wire(ampCtx, cx, cy - 50, cx, cy - 30, '#f97316', 2);
+  wire(ampCtx, cx, cy + 50, cx, cy + 30, '#6366f1', 2);
+  ampCtx.fillStyle = '#818cf8'; ampCtx.font = 'bold 10px JetBrains Mono'; ampCtx.textAlign = 'center';
+  ampCtx.fillText('−15V', cx, cy + 64);
+
+  // Output lead & Label
+  wire(ampCtx, cx + 50, cy, cx + 180, cy, '#38bdf8', 2.5);
+  dotNode(ampCtx, cx + 180, cy, `V_out (${document.getElementById('amp-vout-val').textContent.split(' ')[0]}V)`, 'right');
+
+  if (circ === 'inverting') {
+    // Inverting Input branch
+    wire(ampCtx, 80, cy - 25, 130, cy - 25);
+    drawResistorH(ampCtx, 130, 230, cy - 25, 'R_1', `${state.amp.r1_k.toFixed(1)}kΩ`);
+    wire(ampCtx, 230, cy - 25, cx - 55, cy - 25);
+    dotNode(ampCtx, 230, cy - 25, 'V_− (0V)', 'top');
+
+    // Input Source Dot
+    dotNode(ampCtx, 80, cy - 25, `V_in (${state.amp.vin.toFixed(2)}V)`, 'left');
+
+    // Feedback Resistor Rf Loop
+    wire(ampCtx, 230, cy - 25, 230, cy - 85);
+    drawResistorH(ampCtx, 230, cx + 110, cy - 85, 'R_f', `${state.amp.rf_k.toFixed(1)}kΩ`);
+    wire(ampCtx, cx + 110, cy - 85, cx + 110, cy);
+    dotNode(ampCtx, cx + 110, cy);
+
+    // Non-Inverting (+) directly to Ground
+    wire(ampCtx, cx - 55, cy + 25, cx - 95, cy + 25);
+    wire(ampCtx, cx - 95, cy + 25, cx - 95, cy + 65);
+    gndSymbol(ampCtx, cx - 95, cy + 65);
+
+  } else if (circ === 'non_inverting') {
+    // Non-Inverting (+) from Vin
+    wire(ampCtx, 80, cy + 25, cx - 55, cy + 25);
+    dotNode(ampCtx, 80, cy + 25, `V_in (${state.amp.vin.toFixed(2)}V)`, 'left');
+
+    // Inverting (−) from Ground through R1
+    wire(ampCtx, 230, cy - 25, cx - 55, cy - 25);
+    wire(ampCtx, 230, cy - 25, 230, cy + 25);
+    drawResistorV(ampCtx, 230, cy + 25, cy + 85, 'R_1', `${state.amp.r1_k.toFixed(1)}kΩ`, 'left');
+    gndSymbol(ampCtx, 230, cy + 85);
+    dotNode(ampCtx, 230, cy - 25, `V_− (${state.amp.vin.toFixed(2)}V)`, 'top');
+
+    // Feedback Rf Loop
+    wire(ampCtx, 230, cy - 25, 230, cy - 85);
+    drawResistorH(ampCtx, 230, cx + 110, cy - 85, 'R_f', `${state.amp.rf_k.toFixed(1)}kΩ`);
+    wire(ampCtx, cx + 110, cy - 85, cx + 110, cy);
+    dotNode(ampCtx, cx + 110, cy);
+
+  } else if (circ === 'buffer') {
+    // Non-Inverting (+) from Vin
+    wire(ampCtx, 80, cy + 25, cx - 55, cy + 25);
+    dotNode(ampCtx, 80, cy + 25, `V_in (${state.amp.vin.toFixed(2)}V)`, 'left');
+
+    // Direct Feedback Wire (Rf = 0)
+    wire(ampCtx, cx - 55, cy - 25, cx - 80, cy - 25);
+    wire(ampCtx, cx - 80, cy - 25, cx - 80, cy - 75);
+    wire(ampCtx, cx - 80, cy - 75, cx + 110, cy - 75);
+    wire(ampCtx, cx + 110, cy - 75, cx + 110, cy);
+    dotNode(ampCtx, cx + 110, cy);
+
+    ampCtx.font = 'bold 11px JetBrains Mono'; ampCtx.fillStyle = '#34d399'; ampCtx.textAlign = 'center';
+    ampCtx.fillText('Direct Feedback Wire (R_f = 0)', cx + 15, cy - 82);
+  }
+}
+
+/* ================================================================= */
+/* 6. MODULE 3 — COMPARATORS & SIGNAL PROCESSORS                     */
+/* ================================================================= */
+const procCanvas = document.getElementById('canvas-proc-schematic');
+const procCtx = procCanvas.getContext('2d');
+
+function selectProcCircuit(circKey, btn) {
+  state.proc.circuit = circKey;
+  document.querySelectorAll('#tab-processors .pill-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+
+  const titles = {
+    comparator: 'วงจรเปรียบเทียบแรงดัน (Voltage Comparator)',
+    schmitt: 'วงจรชมิตต์ทริกเกอร์ (Schmitt Trigger with Hysteresis)',
+    integrator: 'วงจรอินทิเกรต (Integrator — แปลง Square เป็น Triangle)',
+    differentiator: 'วงจรดิฟเฟอเรนชิเอต (Differentiator — แปลง Triangle เป็น Square)',
+    active_filter: 'วงจรกรองแอกทีฟความถี่ต่ำผ่าน (Active Low-Pass Filter)'
+  };
+  document.getElementById('proc-circuit-title').textContent = titles[circKey] || 'วงจรประมวลผลสัญญาณ';
+
+  renderProcControls(circKey);
+  onProcChange();
+  playSound('click');
+}
+
+function renderProcControls(circKey) {
+  const container = document.getElementById('proc-controls-container');
+  if (!container) return;
+
+  let html = '';
+  if (circKey === 'comparator') {
+    html = `
+      <div class="control-group">
+        <div class="control-label-row"><span class="control-label-title">แรงดันอินพุต V<sub>in</sub></span><span class="control-value-badge" id="ctrl-proc-vin-badge">3.50 V</span></div>
+        <input type="range" id="slider-proc-vin" min="-10.0" max="10.0" step="0.2" value="3.5" oninput="onProcChange()">
+      </div>
+      <div class="control-group">
+        <div class="control-label-row"><span class="control-label-title">แรงดันอ้างอิง V<sub>ref</sub></span><span class="control-value-badge" id="ctrl-proc-vref-badge">2.50 V</span></div>
+        <input type="range" id="slider-proc-vref" min="-8.0" max="8.0" step="0.2" value="2.5" oninput="onProcChange()">
+      </div>
+    `;
+  } else if (circKey === 'schmitt') {
+    html = `
+      <div class="control-group">
+        <div class="control-label-row"><span class="control-label-title">แรงดันอินพุต V<sub>in</sub></span><span class="control-value-badge" id="ctrl-proc-vin-badge">2.00 V</span></div>
+        <input type="range" id="slider-proc-vin" min="-8.0" max="8.0" step="0.2" value="2.0" oninput="onProcChange()">
+      </div>
+      <div class="control-group">
+        <div class="control-label-row"><span class="control-label-title">ตัวต้านทาน R<sub>1</sub> (Ground)</span><span class="control-value-badge" id="ctrl-proc-r1-badge">10.0 kΩ</span></div>
+        <input type="range" id="slider-proc-r1" min="1.0" max="50.0" step="1.0" value="10.0" oninput="onProcChange()">
+      </div>
+      <div class="control-group">
+        <div class="control-label-row"><span class="control-label-title">ตัวต้านทานป้อนกลับบวก R<sub>2</sub></span><span class="control-value-badge" id="ctrl-proc-r2-badge">40.0 kΩ</span></div>
+        <input type="range" id="slider-proc-r2" min="10.0" max="200.0" step="5.0" value="40.0" oninput="onProcChange()">
+      </div>
+    `;
+  } else if (circKey === 'integrator' || circKey === 'differentiator' || circKey === 'active_filter') {
+    html = `
+      <div class="control-group">
+        <div class="control-label-row"><span class="control-label-title">ความถี่สัญญาณอินพุต f (Hz)</span><span class="control-value-badge" id="ctrl-proc-freq-badge">1000 Hz</span></div>
+        <input type="range" id="slider-proc-freq" min="100" max="10000" step="100" value="1000" oninput="onProcChange()">
+      </div>
+      <div class="control-group">
+        <div class="control-label-row"><span class="control-label-title">ตัวต้านทาน R</span><span class="control-value-badge" id="ctrl-proc-r1-badge">10.0 kΩ</span></div>
+        <input type="range" id="slider-proc-r1" min="1.0" max="100.0" step="1.0" value="10.0" oninput="onProcChange()">
+      </div>
+      <div class="control-group">
+        <div class="control-label-row"><span class="control-label-title">ตัวเก็บประจุ C (μF)</span><span class="control-value-badge" id="ctrl-proc-c-badge">0.010 μF</span></div>
+        <input type="range" id="slider-proc-c" min="0.001" max="0.1" step="0.002" value="0.01" oninput="onProcChange()">
+      </div>
+    `;
+  }
+  container.innerHTML = html;
+}
+
+function onProcChange() {
+  const circ = state.proc.circuit;
+  const vsat = 13.5;
+
+  if (circ === 'comparator') {
+    const sVin = document.getElementById('slider-proc-vin');
+    const sVref = document.getElementById('slider-proc-vref');
+    if (sVin) state.proc.vin = parseFloat(sVin.value);
+    if (sVref) state.proc.vref = parseFloat(sVref.value);
+
+    document.getElementById('ctrl-proc-vin-badge').textContent = state.proc.vin.toFixed(2) + ' V';
+    document.getElementById('ctrl-proc-vref-badge').textContent = state.proc.vref.toFixed(2) + ' V';
+
+    // Non-Inverting Comparator: V+ = Vin, V- = Vref
+    const isHigh = state.proc.vin > state.proc.vref;
+    const vout = isHigh ? vsat : -vsat;
+
+    document.getElementById('proc-r1-title').textContent = 'แรงดันอ้างอิง V_ref';
+    document.getElementById('proc-r1-val').innerHTML = `${state.proc.vref.toFixed(2)} <span class="unit">V</span>`;
+    document.getElementById('proc-r2-title').textContent = 'แรงดันเอาต์พุต V_out';
+    document.getElementById('proc-r2-val').innerHTML = `${vout > 0 ? '+' : ''}${vout.toFixed(1)} <span class="unit">V</span>`;
+    document.getElementById('proc-r3-title').textContent = 'สภาวะเปรียบเทียบ';
+    document.getElementById('proc-r3-val').innerHTML = isHigh ? '<span style="color:#34d399;">V_in > V_ref</span>' : '<span style="color:#fb7185;">V_in < V_ref</span>';
+    document.getElementById('proc-r4-title').textContent = 'สถานะเอาต์พุต';
+    document.getElementById('proc-r4-val').innerHTML = isHigh ? '+V_sat' : '−V_sat';
+
+    document.getElementById('proc-state-badge').className = isHigh ? 'status-badge linear' : 'status-badge saturation';
+    document.getElementById('proc-state-badge').textContent = `Output: ${vout > 0 ? '+' : ''}${vout.toFixed(1)}V (${isHigh ? '+V_sat' : '−V_sat'})`;
+
+    document.getElementById('proc-step-math-box').innerHTML = 
+      `<strong style="color:var(--accent-primary);"><i class="fa-solid fa-calculator"></i> การทำงานของวงจรเปรียบเทียบแรงดัน (Comparator Logic):</strong><br>` +
+      `• เนื่องจาก Op-Amp ทำงานในสถานะเปิดวงรอบ (Open-Loop $A_{OL} \approx 10^5$)<br>` +
+      `• เมื่อ $V_{in} (${state.proc.vin.toFixed(2)}\text{V}) > V_{ref} (${state.proc.vref.toFixed(2)}\text{V}) \implies V_{out} = +V_{sat} = <strong>+13.5\text{V}</strong>$<br>` +
+      `• เมื่อ $V_{in} < V_{ref} \implies V_{out} = -V_{sat} = <strong>-13.5\text{V}</strong>$`;
+
+  } else if (circ === 'schmitt') {
+    const sVin = document.getElementById('slider-proc-vin');
+    const sR1 = document.getElementById('slider-proc-r1');
+    const sR2 = document.getElementById('slider-proc-r2');
+    if (sVin) state.proc.vin = parseFloat(sVin.value);
+    if (sR1) state.proc.r1_k = parseFloat(sR1.value);
+    if (sR2) state.proc.r2_k = parseFloat(sR2.value);
+
+    document.getElementById('ctrl-proc-vin-badge').textContent = state.proc.vin.toFixed(2) + ' V';
+    document.getElementById('ctrl-proc-r1-badge').textContent = state.proc.r1_k.toFixed(1) + ' kΩ';
+    document.getElementById('ctrl-proc-r2-badge').textContent = state.proc.r2_k.toFixed(1) + ' kΩ';
+
+    // Inverting Schmitt Trigger: V_UT = + (R1 / (R1+R2)) * Vsat
+    const beta = state.proc.r1_k / (state.proc.r1_k + state.proc.r2_k);
+    const v_ut = beta * vsat;
+    const v_lt = - beta * vsat;
+    const v_h = v_ut - v_lt;
+
+    document.getElementById('proc-r1-title').textContent = 'Upper Threshold V_UT';
+    document.getElementById('proc-r1-val').innerHTML = `+${v_ut.toFixed(2)} <span class="unit">V</span>`;
+    document.getElementById('proc-r2-title').textContent = 'Lower Threshold V_LT';
+    document.getElementById('proc-r2-val').innerHTML = `${v_lt.toFixed(2)} <span class="unit">V</span>`;
+    document.getElementById('proc-r3-title').textContent = 'ฮีสเตอรีซิส (Hysteresis)';
+    document.getElementById('proc-r3-val').innerHTML = `${v_h.toFixed(2)} <span class="unit">V</span>`;
+    document.getElementById('proc-r4-title').textContent = 'อัตราส่วน β (R1/R1+R2)';
+    document.getElementById('proc-r4-val').innerHTML = `${beta.toFixed(3)}`;
+
+    document.getElementById('proc-step-math-box').innerHTML = 
+      `<strong style="color:var(--accent-primary);"><i class="fa-solid fa-calculator"></i> การคำนวณชมิตต์ทริกเกอร์ (Schmitt Trigger Hysteresis):</strong><br>` +
+      `1. <strong>อัตราส่วนป้อนกลับบวก (Positive Feedback Factor):</strong> $\beta = R_1 / (R_1 + R_2) = ${state.proc.r1_k}/(${state.proc.r1_k}+${state.proc.r2_k}) = <strong>${beta.toFixed(3)}</strong>$<br>` +
+      `2. <strong>จุดเปลี่ยนสถานะบน (Upper Trigger Point):</strong> $V_{UT} = +\beta · V_{sat} = +(${beta.toFixed(3)} × 13.5\text{V}) = <strong style="color:#34d399;">+${v_ut.toFixed(2)} V</strong>$<br>` +
+      `3. <strong>จุดเปลี่ยนสถานะล่าง (Lower Trigger Point):</strong> $V_{LT} = -\beta · V_{sat} = -(${beta.toFixed(3)} × 13.5\text{V}) = <strong style="color:#fb7185;">${v_lt.toFixed(2)} V</strong>$<br>` +
+      `4. <strong>ช่วงกักสัญญาณรบกวน (Hysteresis Voltage Width):</strong> $V_H = V_{UT} − V_{LT} = <strong>${v_h.toFixed(2)} V</strong>$ (กำจัดปัญหาการสั่นกระเพื่อม Noise Chatter)`;
+
+  } else if (circ === 'integrator' || circ === 'differentiator' || circ === 'active_filter') {
+    const sFreq = document.getElementById('slider-proc-freq');
+    const sR1 = document.getElementById('slider-proc-r1');
+    const sC = document.getElementById('slider-proc-c');
+    const freq = sFreq ? parseFloat(sFreq.value) : 1000;
+    const r_k = sR1 ? parseFloat(sR1.value) : 10.0;
+    const c_uF = sC ? parseFloat(sC.value) : 0.01;
+
+    document.getElementById('ctrl-proc-freq-badge').textContent = freq + ' Hz';
+    document.getElementById('ctrl-proc-r1-badge').textContent = r_k.toFixed(1) + ' kΩ';
+    document.getElementById('ctrl-proc-c-badge').textContent = c_uF.toFixed(3) + ' μF';
+
+    // Cutoff frequency fc = 1 / (2 * pi * R * C)
+    const fc = 1 / (2 * Math.PI * (r_k * 1000) * (c_uF * 1e-6));
+
+    document.getElementById('proc-r1-title').textContent = 'ความถี่สัญญาณ f';
+    document.getElementById('proc-r1-val').innerHTML = `${freq} <span class="unit">Hz</span>`;
+    document.getElementById('proc-r2-title').textContent = 'ความถี่คัตออฟ f_c';
+    document.getElementById('proc-r2-val').innerHTML = `${fc.toFixed(1)} <span class="unit">Hz</span>`;
+    document.getElementById('proc-r3-title').textContent = 'ค่าเวลา Time Constant τ';
+    document.getElementById('proc-r3-val').innerHTML = `${(r_k * c_uF).toFixed(2)} <span class="unit">ms</span>`;
+    document.getElementById('proc-r4-title').textContent = 'Gain Roll-off';
+    document.getElementById('proc-r4-val').innerHTML = '-20 dB/dec';
+
+    document.getElementById('proc-step-math-box').innerHTML = 
+      `<strong style="color:var(--accent-primary);"><i class="fa-solid fa-calculator"></i> การคำนวณความถี่และวงจรกรองแอกทีฟ (Active Filter Math):</strong><br>` +
+      `• <strong>ความถี่ตัด (Cutoff Frequency):</strong> $f_c = \frac{1}{2\pi R C} = \frac{1}{2\pi \times (${r_k}\text{k}) \times (${c_uF}\mu\text{F})} = <strong style="color:#34d399;">${fc.toFixed(1)} Hz</strong>$<br>` +
+      `• ที่ความถี่ $f = f_c$ อัตราขยายจะลดลงเหลือ $0.707$ เท่า ($-3\text{ dB}$) และเฟสเลื่อน $45^\circ$`;
+  }
+
+  drawProcSchematicCanvas();
+}
+
+function drawProcSchematicCanvas() {
+  const W = procCanvas.width, H = procCanvas.height;
+  procCtx.clearRect(0, 0, W, H);
+  procCtx.fillStyle = '#050b14'; procCtx.fillRect(0, 0, W, H);
+
+  const circ = state.proc.circuit;
+  const cx = 350, cy = 140;
+
+  // Grid
+  procCtx.strokeStyle = 'rgba(56, 189, 248, 0.08)'; procCtx.lineWidth = 1;
+  for (let x = 30; x <= W - 30; x += 40) {
+    procCtx.beginPath(); procCtx.moveTo(x, 20); procCtx.lineTo(x, H - 20); procCtx.stroke();
+  }
+  for (let y = 20; y <= H - 20; y += 40) {
+    procCtx.beginPath(); procCtx.moveTo(30, y); procCtx.lineTo(W - 30, y); procCtx.stroke();
+  }
+
+  if (circ === 'comparator') {
+    // Transfer Curve of Comparator
+    const midX = W / 2, midY = H / 2;
+    procCtx.strokeStyle = '#475569'; procCtx.lineWidth = 1.5;
+    procCtx.beginPath();
+    procCtx.moveTo(60, midY); procCtx.lineTo(W - 60, midY); // X: Vin
+    procCtx.moveTo(midX, 30); procCtx.lineTo(midX, H - 30); // Y: Vout
+    procCtx.stroke();
+
+    procCtx.fillStyle = '#94a3b8'; procCtx.font = 'bold 10px JetBrains Mono';
+    procCtx.fillText('V_in', W - 50, midY - 6);
+    procCtx.fillText('V_out', midX + 6, 40);
+
+    // Vref vertical dashed line
+    const vrefX = midX + (state.proc.vref / 10.0) * 180;
+    procCtx.setLineDash([4, 4]); procCtx.strokeStyle = '#f59e0b';
+    procCtx.beginPath(); procCtx.moveTo(vrefX, 30); procCtx.lineTo(vrefX, H - 30); procCtx.stroke();
+    procCtx.setLineDash([]);
+    procCtx.fillStyle = '#f59e0b'; procCtx.fillText(`V_ref (${state.proc.vref.toFixed(1)}V)`, vrefX + 6, 55);
+
+    // Comparator S-Curve
+    procCtx.strokeStyle = '#06b6d4'; procCtx.lineWidth = 3.5;
+    procCtx.beginPath();
+    procCtx.moveTo(80, midY + 70);
+    procCtx.lineTo(vrefX, midY + 70);
+    procCtx.lineTo(vrefX, midY - 70);
+    procCtx.lineTo(W - 80, midY - 70);
+    procCtx.stroke();
+
+    // Current Vin Operating Point
+    const vinX = midX + (state.proc.vin / 10.0) * 180;
+    const voutY = state.proc.vin > state.proc.vref ? midY - 70 : midY + 70;
+
+    procCtx.shadowColor = '#34d399'; procCtx.shadowBlur = 12;
+    procCtx.beginPath(); procCtx.arc(vinX, voutY, 7, 0, Math.PI * 2);
+    procCtx.fillStyle = '#34d399'; procCtx.fill();
+    procCtx.shadowBlur = 0;
+    procCtx.strokeStyle = '#ffffff'; procCtx.lineWidth = 2; procCtx.stroke();
+
+    procCtx.font = 'bold 11px JetBrains Mono'; procCtx.fillStyle = '#34d399';
+    procCtx.fillText(`Q (V_in=${state.proc.vin.toFixed(1)}V, V_out=${state.proc.vin > state.proc.vref ? '+13.5V' : '-13.5V'})`, vinX + 10, voutY - 8);
+
+  } else if (circ === 'schmitt') {
+    // Hysteresis Loop
+    const midX = W / 2, midY = H / 2;
+    const beta = state.proc.r1_k / (state.proc.r1_k + state.proc.r2_k);
+    const v_ut = beta * 13.5;
+    const utX = midX + (v_ut / 10.0) * 180;
+    const ltX = midX - (v_ut / 10.0) * 180;
+
+    procCtx.strokeStyle = '#475569'; procCtx.lineWidth = 1.5;
+    procCtx.beginPath();
+    procCtx.moveTo(60, midY); procCtx.lineTo(W - 60, midY);
+    procCtx.moveTo(midX, 30); procCtx.lineTo(midX, H - 30);
+    procCtx.stroke();
+
+    // Threshold Marks
+    procCtx.setLineDash([3, 3]); procCtx.strokeStyle = 'rgba(251, 113, 133, 0.4)';
+    procCtx.beginPath();
+    procCtx.moveTo(utX, 30); procCtx.lineTo(utX, H - 30);
+    procCtx.moveTo(ltX, 30); procCtx.lineTo(ltX, H - 30);
+    procCtx.stroke();
+    procCtx.setLineDash([]);
+
+    procCtx.font = 'bold 9px JetBrains Mono'; procCtx.fillStyle = '#34d399';
+    procCtx.fillText(`V_UT (+${v_ut.toFixed(2)}V)`, utX + 4, 45);
+    procCtx.fillStyle = '#fb7185';
+    procCtx.fillText(`V_LT (${(-v_ut).toFixed(2)}V)`, ltX - 75, 45);
+
+    // Hysteresis Rectangle Path
+    procCtx.strokeStyle = '#c084fc'; procCtx.lineWidth = 3;
+    procCtx.beginPath();
+    procCtx.moveTo(80, midY - 70);
+    procCtx.lineTo(utX, midY - 70);
+    procCtx.lineTo(utX, midY + 70);
+    procCtx.lineTo(W - 80, midY + 70);
+    procCtx.moveTo(W - 80, midY + 70);
+    procCtx.lineTo(ltX, midY + 70);
+    procCtx.lineTo(ltX, midY - 70);
+    procCtx.lineTo(80, midY - 70);
+    procCtx.stroke();
+
+    // Arrows on Loop
+    drawArrow(procCtx, (ltX + utX)/2 - 10, midY - 70, (ltX + utX)/2 + 20, midY - 70, '#c084fc', 8);
+    drawArrow(procCtx, (ltX + utX)/2 + 20, midY + 70, (ltX + utX)/2 - 10, midY + 70, '#c084fc', 8);
+
+  } else {
+    // Waveform simulation for Integrator / Filter
+    procCtx.font = 'bold 11px JetBrains Mono'; procCtx.fillStyle = '#38bdf8';
+    procCtx.fillText('Active Signal Response Waveform (Frequency Domain)', 40, 45);
+  }
+}
+
+/* ================================================================= */
+/* 7. MODULE 4 — DUAL-TRACE OSCILLOSCOPE SIMULATOR                   */
+/* ================================================================= */
+const labScopeCanvas = document.getElementById('canvas-lab-scope');
+const labScopeCtx = labScopeCanvas.getContext('2d');
+const labSchemCanvas = document.getElementById('canvas-lab-schematic');
+const labSchemCtx = labSchemCanvas.getContext('2d');
+
+function toggleLabPause() {
+  state.lab.isPaused = !state.lab.isPaused;
+  const btn = document.getElementById('btn-lab-pause');
+  if (btn) {
+    btn.innerHTML = state.lab.isPaused ? '<i class="fa-solid fa-play"></i> เล่นต่อ' : '<i class="fa-solid fa-pause"></i> หยุดชั่วคราว';
+  }
+  playSound('click');
+}
+
+function onLabScaleChange() {
+  state.lab.autoScale = document.getElementById('chk-autoscale').checked;
+}
+
+function setLabWaveform(wave, btn) {
+  state.lab.waveform = wave;
+  ['btn-wave-sine', 'btn-wave-square', 'btn-wave-triangle'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('active');
+  });
+  if (btn) btn.classList.add('active');
+  playSound('click');
+}
+
+function onLabCircuitSelect() {
+  state.lab.circuit = document.getElementById('select-lab-circuit').value;
+  const names = {
+    inverting: 'วงจรขยายกลับเฟส Inverting Amplifier (Live Test Circuit)',
+    non_inverting: 'วงจรขยายไม่กลับเฟส Non-Inverting Amplifier',
+    buffer: 'วงจรตามแรงดัน Voltage Follower / Buffer',
+    integrator: 'วงจรอินทิเกรต Integrator (Square → Triangle)',
+    differentiator: 'วงจรดิฟเฟอเรนชิเอต Differentiator (Triangle → Square)'
+  };
+  document.getElementById('lab-circuit-name').textContent = names[state.lab.circuit] || 'วงจรทดสอบ';
+  onLabParamChange();
+}
+
+function onLabParamChange() {
+  state.lab.vin_peak = parseFloat(document.getElementById('slider-lab-vin').value);
+  state.lab.freq = parseFloat(document.getElementById('slider-lab-freq').value);
+  state.lab.r1_k = parseFloat(document.getElementById('slider-lab-r1').value);
+  state.lab.rf_k = parseFloat(document.getElementById('slider-lab-rf').value);
+  state.lab.vcc = parseFloat(document.getElementById('slider-lab-vcc').value);
+
+  document.getElementById('lab-vin-badge').textContent = state.lab.vin_peak.toFixed(2) + ' Vp';
+  document.getElementById('lab-freq-badge').textContent = state.lab.freq + ' Hz';
+  document.getElementById('lab-r1-badge').textContent = state.lab.r1_k.toFixed(1) + ' kΩ';
+  document.getElementById('lab-rf-badge').textContent = state.lab.rf_k.toFixed(1) + ' kΩ';
+  document.getElementById('lab-vcc-badge').textContent = `±${state.lab.vcc.toFixed(1)} V`;
+
+  const vsat = state.lab.vcc - 1.5;
+  document.getElementById('lab-vsat-val').innerHTML = `±${vsat.toFixed(1)} <span class="unit">V</span>`;
+
+  let av = 1.0, phaseStr = '0°';
+  if (state.lab.circuit === 'inverting') {
+    av = - (state.lab.rf_k / state.lab.r1_k);
+    phaseStr = '180° (กลับเฟส)';
+  } else if (state.lab.circuit === 'non_inverting') {
+    av = 1 + (state.lab.rf_k / state.lab.r1_k);
+    phaseStr = '0° (ตรงเฟส)';
+  } else if (state.lab.circuit === 'buffer') {
+    av = 1.0;
+    phaseStr = '0°';
+  } else if (state.lab.circuit === 'integrator') {
+    av = - 1.0;
+    phaseStr = '90° Lagging';
+  } else if (state.lab.circuit === 'differentiator') {
+    av = - 1.0;
+    phaseStr = '90° Leading';
+  }
+
+  const vout_unclipped = Math.abs(av) * state.lab.vin_peak;
+  const isClipped = vout_unclipped > vsat;
+  const vout_pk = isClipped ? vsat : vout_unclipped;
+
+  document.getElementById('lab-gain-val').innerHTML = `${av.toFixed(2)} <span class="unit">V/V</span>`;
+  document.getElementById('lab-vout-pk-val').innerHTML = `${vout_pk.toFixed(2)} <span class="unit">V</span>`;
+  document.getElementById('lab-phase-val').textContent = phaseStr;
+
+  const clipBadge = document.getElementById('lab-clipping-badge');
+  if (isClipped) {
+    clipBadge.className = 'status-badge saturation';
+    clipBadge.innerHTML = '⚠️ เกิดการขลิบยอดคลื่น (Clipping)';
+  } else {
+    clipBadge.className = 'status-badge linear';
+    clipBadge.innerHTML = '✓ ทำงานปกติ (No Clipping)';
+  }
+
+  drawLabSchematicMonitor();
+}
+
+function drawLabSchematicMonitor() {
+  const W = labSchemCanvas.width, H = labSchemCanvas.height;
+  labSchemCtx.clearRect(0, 0, W, H);
+  labSchemCtx.fillStyle = '#050b14'; labSchemCtx.fillRect(0, 0, W, H);
+
+  const cx = W / 2, cy = H / 2;
+  // Compact OpAmp
+  labSchemCtx.beginPath();
+  labSchemCtx.moveTo(cx - 35, cy - 30);
+  labSchemCtx.lineTo(cx - 35, cy + 30);
+  labSchemCtx.lineTo(cx + 35, cy);
+  labSchemCtx.closePath();
+  labSchemCtx.fillStyle = '#1e293b'; labSchemCtx.fill();
+  labSchemCtx.strokeStyle = '#38bdf8'; labSchemCtx.lineWidth = 2; labSchemCtx.stroke();
+
+  labSchemCtx.font = 'bold 12px JetBrains Mono';
+  labSchemCtx.fillStyle = '#fb7185'; labSchemCtx.fillText('−', cx - 28, cy - 10);
+  labSchemCtx.fillStyle = '#34d399'; labSchemCtx.fillText('+', cx - 28, cy + 20);
+
+  // CH1 & CH2 Probe Nodes
+  dotNode(labSchemCtx, 120, cy - 15, 'CH1 (V_in)', 'top');
+  dotNode(labSchemCtx, cx + 160, cy, 'CH2 (V_out)', 'top');
+  wire(labSchemCtx, cx + 35, cy, cx + 160, cy, '#38bdf8', 2);
+}
+
+function drawDualTraceScope() {
+  const W = labScopeCanvas.width, H = labScopeCanvas.height;
+  labScopeCtx.clearRect(0, 0, W, H);
+  labScopeCtx.fillStyle = '#050b14'; labScopeCtx.fillRect(0, 0, W, H);
+
+  const midY = H / 2;
+
+  // Graticule Grid (10x8 divisions)
+  labScopeCtx.strokeStyle = 'rgba(56, 189, 248, 0.12)';
+  labScopeCtx.lineWidth = 1;
+  const numDivX = 10, numDivY = 6;
+  for (let i = 0; i <= numDivX; i++) {
+    const x = (W / numDivX) * i;
+    labScopeCtx.beginPath(); labScopeCtx.moveTo(x, 0); labScopeCtx.lineTo(x, H); labScopeCtx.stroke();
+  }
+  for (let j = 0; j <= numDivY; j++) {
+    const y = (H / numDivY) * j;
+    labScopeCtx.beginPath(); labScopeCtx.moveTo(0, y); labScopeCtx.lineTo(W, y); labScopeCtx.stroke();
+  }
+
+  // Center Axes
+  labScopeCtx.strokeStyle = 'rgba(56, 189, 248, 0.35)';
+  labScopeCtx.lineWidth = 1.5;
+  labScopeCtx.beginPath();
+  labScopeCtx.moveTo(0, midY); labScopeCtx.lineTo(W, midY);
+  labScopeCtx.moveTo(W / 2, 0); labScopeCtx.lineTo(W / 2, H);
+  labScopeCtx.stroke();
+
+  // Draw Waveforms
+  const circ = state.lab.circuit;
+  const wave = state.lab.waveform;
+  const vin_pk = state.lab.vin_peak;
+  const vsat = state.lab.vcc - 1.5;
+
+  let av = 1.0;
+  if (circ === 'inverting') av = - (state.lab.rf_k / state.lab.r1_k);
+  else if (circ === 'non_inverting') av = 1 + (state.lab.rf_k / state.lab.r1_k);
+  else if (circ === 'buffer') av = 1.0;
+
+  const ch1Scale = state.lab.autoScale ? Math.max(1.0, vin_pk * 1.5) : 2.0;
+  const ch2Scale = state.lab.autoScale ? Math.max(2.0, Math.abs(av) * vin_pk * 1.3) : 10.0;
+
+  document.getElementById('scope-ch1-scale').textContent = `${(ch1Scale/3).toFixed(1)}V/div`;
+  document.getElementById('scope-ch2-scale').textContent = `${(ch2Scale/3).toFixed(1)}V/div`;
+
+  const scaleY1 = (H * 0.42) / ch1Scale;
+  const scaleY2 = (H * 0.42) / ch2Scale;
+
+  // 1. Draw CH1 (Input - Yellow)
+  labScopeCtx.strokeStyle = '#fbbf24';
+  labScopeCtx.lineWidth = 2.5;
+  labScopeCtx.shadowColor = '#fbbf24'; labScopeCtx.shadowBlur = 8;
+  labScopeCtx.beginPath();
+  for (let x = 0; x < W; x++) {
+    const t = (x / W) * (4 * Math.PI) + state.lab.time;
+    let v1 = 0;
+    if (wave === 'sine') v1 = vin_pk * Math.sin(t);
+    else if (wave === 'square') v1 = vin_pk * (Math.sin(t) >= 0 ? 1 : -1);
+    else if (wave === 'triangle') v1 = vin_pk * (2 / Math.PI) * Math.asin(Math.sin(t));
+
+    const y = midY - v1 * scaleY1;
+    if (x === 0) labScopeCtx.moveTo(x, y); else labScopeCtx.lineTo(x, y);
+  }
+  labScopeCtx.stroke();
+  labScopeCtx.shadowBlur = 0;
+
+  // 2. Draw CH2 (Output - Cyan)
+  labScopeCtx.strokeStyle = '#38bdf8';
+  labScopeCtx.lineWidth = 2.5;
+  labScopeCtx.shadowColor = '#38bdf8'; labScopeCtx.shadowBlur = 8;
+  labScopeCtx.beginPath();
+  for (let x = 0; x < W; x++) {
+    const t = (x / W) * (4 * Math.PI) + state.lab.time;
+    let v1 = 0;
+    if (wave === 'sine') v1 = vin_pk * Math.sin(t);
+    else if (wave === 'square') v1 = vin_pk * (Math.sin(t) >= 0 ? 1 : -1);
+    else if (wave === 'triangle') v1 = vin_pk * (2 / Math.PI) * Math.asin(Math.sin(t));
+
+    let v2_ideal = 0;
+    if (circ === 'integrator') {
+      v2_ideal = - vin_pk * (2 / Math.PI) * Math.cos(t) * (state.lab.rf_k / state.lab.r1_k);
+    } else if (circ === 'differentiator') {
+      v2_ideal = - vin_pk * (Math.sin(t) >= 0 ? -1 : 1) * (state.lab.rf_k / state.lab.r1_k);
+    } else {
+      v2_ideal = av * v1;
+    }
+
+    // Saturation Clipping at ±Vsat
+    const v2 = Math.max(-vsat, Math.min(vsat, v2_ideal));
+    const y = midY - v2 * scaleY2;
+    if (x === 0) labScopeCtx.moveTo(x, y); else labScopeCtx.lineTo(x, y);
+  }
+  labScopeCtx.stroke();
+  labScopeCtx.shadowBlur = 0;
+}
+
+/* ================================================================= */
+/* 8. MODULE 5 — QUIZ & GOOGLE SHEETS INTEGRATION                    */
+/* ================================================================= */
+const OPAMP_QUIZ_QUESTIONS = [
+  {
+    q: '1. คุณลักษณะของออปแอมป์ (Op-Amp) ในอุดมคติ (Ideal Op-Amp) ข้อใดถูกต้องที่สุด?',
+    options: [
+      'A) อัตราขยายเปิด (Open-Loop Gain) เป็นอนันต์, Zin เป็นอนันต์, Zout เป็นศูนย์',
+      'B) อัตราขยายเปิด = 1, Zin = 0, Zout เป็นอนันต์',
+      'C) อัตราขยายเปิด = 100, Zin = 10 kΩ, Zout = 75 Ω',
+      'D) แบนด์วิดท์มีค่าจำกัดที่ 1 MHz, Slew Rate เป็นศูนย์'
+    ],
+    correct: 0,
+    exp: 'Op-Amp ในอุดมคติจะมี A_OL = ∞, Z_in = ∞ (ไม่ดึงกระแสอินพุต I_in = 0), Z_out = 0 Ω, แบนด์วิดท์ = ∞, และ CMRR = ∞'
+  },
+  {
+    q: '2. มโนภาพ "เสมือนกราวด์" (Virtual Ground) ในวงจรขยายกลับเฟส เกิดจากสาเหตุใด?',
+    options: [
+      'A) มีสายไฟต่อขั้วอินพุตลบลงดินโดยตรง',
+      'B) อัตราขยายเปิดที่สูงมหาศาลทำให้แรงดันตกคร่อมระหว่างขั้วบวกและลบ Vd ≈ 0V เมื่อขั้วบวกต่อกราวด์ ขั้วลบจึงมีศักย์ 0V ไปด้วย',
+      'C) ตัวต้านทานป้อนกลับ Rf ลัดวงจรลงกราวด์',
+      'D) แรงดันไฟเลี้ยงลบดึงศักย์ไฟฟ้าลงกราวด์'
+    ],
+    correct: 1,
+    exp: 'เนื่องจาก V_out = A_OL · (V+ − V−) เมื่อ A_OL มีค่าสูงมหาศาล ($10^5$) แรงดัน Vd = V+ − V− ต้องเข้าใกล้ 0V เสมอ เมื่อ V+ = 0V ขั้ว V− จึงมีศักย์เสมือนเป็นกราวด์ 0V'
+  },
+  {
+    q: '3. วงจรขยายกลับเฟสใช้ R1 = 10 kΩ และ Rf = 100 kΩ อัตราขยายแรงดัน (Av) มีค่าเท่าใด?',
+    options: [
+      'A) +10',
+      'B) −10',
+      'C) +11',
+      'D) −11'
+    ],
+    correct: 1,
+    exp: 'สมการวงจรขยายกลับเฟส: A_v = −R_f / R_1 = −(100 kΩ / 10 kΩ) = −10 (สัญญาณเอาต์พุตกลับเฟส 180°)'
+  },
+  {
+    q: '4. วงจรขยายไม่กลับเฟสใช้ R1 = 10 kΩ และ Rf = 100 kΩ อัตราขยายแรงดัน (Av) มีค่าเท่าใด?',
+    options: [
+      'A) +10',
+      'B) −10',
+      'C) +11',
+      'D) −11'
+    ],
+    correct: 2,
+    exp: 'สมการวงจรขยายไม่กลับเฟส: A_v = 1 + (R_f / R_1) = 1 + (100 kΩ / 10 kΩ) = 1 + 10 = +11 (สัญญาณตรงเฟส 0°)'
+  },
+  {
+    q: '5. วงจรตามแรงดัน (Voltage Follower / Unity-Gain Buffer) มีประโยชน์หลักอย่างไร?',
+    options: [
+      'A) เพิ่มอัตราขยายแรงดันให้สูงที่สุด',
+      'B) ใช้แปลงอิมพีแดนซ์สูงมากเป็นต่ำมาก ป้องกันการสูญเสียสัญญาณจากการดึงโหลด (Loading Effect)',
+      'C) ทำหน้าที่กลับเฟสสัญญาณ 180 องศา',
+      'D) ใช้กรองสัญญาณรบกวนความถี่สูง'
+    ],
+    correct: 1,
+    exp: 'Voltage Follower มี A_v = 1.00 มี Z_in สูงมาก (10¹² Ω) และ Z_out ต่ำมาก (< 1 Ω) จึงเหมาะอย่างยิ่งในการเป็น Buffer คั่นระหว่างวงจร'
+  },
+  {
+    q: '6. ไอซีออปแอมป์เบอร์ μA741 ตัวถัง DIP-8 ขาใดคือขั้วไฟเลี้ยงบวก (+V_CC) และขั้วเอาต์พุต?',
+    options: [
+      'A) ขา 7 คือ +V_CC, ขา 6 คือ Output',
+      'B) ขา 8 คือ +V_CC, ขา 1 คือ Output',
+      'C) ขา 4 คือ +V_CC, ขา 2 คือ Output',
+      'D) ขา 3 คือ +V_CC, ขา 6 คือ Output'
+    ],
+    correct: 0,
+    exp: 'ไอซี 741: ขา 2 คือ Inverting (−), ขา 3 คือ Non-Inv (+), ขา 4 คือ −V_EE, ขา 6 คือ Output, ขา 7 คือ +V_CC'
+  },
+  {
+    q: '7. ไอซี LM358 แตกต่างจาก 741 อย่างไร?',
+    options: [
+      'A) LM358 เป็นออปแอมป์ 2 ตัวในตัวถังเดียว และสามารถทำงานด้วยแหล่งจ่ายไฟเดี่ยว (Single Supply +3V ถึง +32V) ได้',
+      'B) LM358 มี 4 ขา',
+      'C) LM358 ขยายสัญญาณได้เฉพาะไฟสลับเท่านั้น',
+      'D) LM358 ไม่มีวงจรป้อนกลับ'
+    ],
+    correct: 0,
+    exp: 'LM358 เป็น Dual Op-Amp (2 ตัว) ที่ออกแบบมาเป็นพิเศษให้ทำงานด้วยไฟเลี้ยงเดี่ยวขั้วบวกกับกราวด์ได้ อินพุตลงได้ถึง 0V'
+  },
+  {
+    q: '8. พารามิเตอร์ Slew Rate (SR) ของ Op-Amp หมายถึงอะไร?',
+    options: [
+      'A) แรงดันอิ่มตัวสูงสุดของ Op-Amp',
+      'B) อัตราการเปลี่ยนแปลงแรงดันเอาต์พุตสูงสุดต่อหนึ่งหน่วยเวลา (dV/dt) มีหน่วยเป็น V/μs',
+      'C) กระแสไฟฟ้ารั่วไหลที่ขาอินพุต',
+      'D) อัตราการขยายสัญญาณร่วม CMRR'
+    ],
+    correct: 1,
+    exp: 'Slew Rate (SR) คือความเร็วสูงสุดที่ Op-Amp สามารถเปลี่ยนแรงดันเอาต์พุตได้ หากสัญญาณมีความถี่หรือแอมปลิจูดสูงเกิน Slew Rate คลื่นไซน์จะบิดเบี้ยวกลายเป็นคลื่นสามเหลี่ยม'
+  },
+  {
+    q: '9. วงจรชมิตต์ทริกเกอร์ (Schmitt Trigger) ใช้หลักการใดในการป้องกันสัญญาณรบกวน (Noise)?',
+    options: [
+      'A) ใช้การป้อนกลับบวก (Positive Feedback) สร้างช่วงแรงดันฮีสเตอรีซิส (Hysteresis Band: V_UT และ V_LT)',
+      'B) ใช้ตัวเก็บประจุต่อขนานกับโหลด',
+      'C) ตัดไฟเลี้ยง Op-Amp',
+      'D) ใช้การป้อนกลับลบแบบ Unity Gain'
+    ],
+    correct: 0,
+    exp: 'ชมิตต์ทริกเกอร์ใช้ Positive Feedback กำหนดจุดตัดแรงดัน 2 ระดับ ($V_{UT}$ และ $V_{LT}$) ทำให้สัญญาณรบกวนที่มีขนาดเล็กกว่า $V_H$ ไม่สามารถทำให้เอาต์พุตกระเพื่อมผิดพลาดได้'
+  },
+  {
+    q: '10. หากป้อนสัญญาณคลื่นสี่เหลี่ยม (Square Wave) เข้าสู่วงจรอินทิเกรตเตอร์ (Op-Amp Integrator) จะได้สัญญาณเอาต์พุตเป็นรูปคลื่นใด?',
+    options: [
+      'A) คลื่นไซน์ (Sine Wave)',
+      'B) คลื่นสามเหลี่ยม (Triangle Wave)',
+      'C) คลื่นสี่เหลี่ยมเหมือนเดิม',
+      'D) ไฟตรงคงที่ 0V'
+    ],
+    correct: 1,
+    exp: 'การอินทิเกรตค่าคงที่ (ระดับแรงดันของ Square Wave) จะได้เส้นลาดเอียงเชิงเส้น (Ramp) สลับขึ้นลง จึงเกิดเป็นคลื่นสามเหลี่ยม (Triangle Wave)'
+  },
+  {
+    q: '11. วงจรขยาย Instrumentation Amplifier ที่ใช้ Op-Amp 3 ตัว นิยมใช้ในงานใดมากที่สุด?',
+    options: [
+      'A) เครื่องขยายเสียงกำลังวัตต์สูง',
+      'B) การขยายสัญญาณแรงดันต่ำมากจากเซนเซอร์ (เช่น Strain Gauge / Thermocouple) ที่ต้องการตัดสัญญาณรบกวน CMRR สูงมาก',
+      'C) วงจรเรียงกระแสไฟฟ้ากระแสสลับ',
+      'D) วงจรกำเนิดความถี่สูง RF'
+    ],
+    correct: 1,
+    exp: 'Instrumentation Amp มีภาค Buffer อินพุตอิมพีแดนซ์สูงมากทั้งสองขั้ว และขยายผลต่างสัญญาณด้วย CMRR สูงลิ่ว เหมาะอย่างยิ่งกับระบบเครื่องมือวัดและเซนเซอร์'
+  },
+  {
+    q: '12. เมื่อป้อนสัญญาณเข้าวงจรขยาย Inverting จนกระทั่ง Av · Vin = 20V แต่ใช้ไฟเลี้ยง ±15V จะเกิดอะไรขึ้นที่เอาต์พุต?',
+    options: [
+      'A) เอาต์พุตจ่ายแรงดันออกมา 20V ตามปกติ',
+      'B) เอาต์พุตจะถูกขลิบยอดคลื่น (Saturation Clipping) อยู่ที่ระดับประมาณ ±13.5V ไม่สามารถเกินไฟเลี้ยงได้',
+      'C) Op-Amp จะเกิดการระเบิดทันที',
+      'D) สัญญาณจะเปลี่ยนเป็น 0V'
+    ],
+    correct: 1,
+    exp: 'แรงดันเอาต์พุตของ Op-Amp ถูกจำกัดโดยแรงดันไฟเลี้ยง $V_{sat} \approx V_{CC} − 1.5\text{V} = \pm 13.5\text{V}$ ทำให้เกิดการขลิบยอดคลื่น (Clipping Distortion)'
+  }
+];
+
+function renderQuiz() {
+  const container = document.getElementById('quiz-container');
+  if (!container) return;
+
+  let html = '';
+  OPAMP_QUIZ_QUESTIONS.forEach((q, idx) => {
+    html += `
+      <div class="quiz-question-card" id="quiz-card-${idx}">
+        <div class="quiz-q-title">${q.q}</div>
+        <div class="quiz-options">
+    `;
+    q.options.forEach((opt, optIdx) => {
+      const isChecked = state.quiz.answers[idx] === optIdx ? 'checked' : '';
+      html += `
+        <label class="quiz-option-label" id="label-q${idx}-opt${optIdx}">
+          <input type="radio" name="quiz-q-${idx}" value="${optIdx}" ${isChecked} onchange="selectQuizOption(${idx}, ${optIdx})">
+          <span>${opt}</span>
+        </label>
+      `;
+    });
+    html += `
+        </div>
+        <div class="quiz-explanation" id="quiz-exp-${idx}">
+          <strong>คำอธิบาย:</strong> ${q.exp}
+        </div>
+      </div>
+    `;
+  });
+  container.innerHTML = html;
+}
+
+function selectQuizOption(qIdx, optIdx) {
+  state.quiz.answers[qIdx] = optIdx;
+  playSound('click');
+}
+
+function submitQuiz() {
+  let score = 0;
+  OPAMP_QUIZ_QUESTIONS.forEach((q, idx) => {
+    const userAns = state.quiz.answers[idx];
+    const expEl = document.getElementById(`quiz-exp-${idx}`);
+    if (expEl) expEl.style.display = 'block';
+
+    q.options.forEach((opt, optIdx) => {
+      const lbl = document.getElementById(`label-q${idx}-opt${optIdx}`);
+      if (lbl) {
+        lbl.classList.remove('correct', 'incorrect');
+        if (optIdx === q.correct) lbl.classList.add('correct');
+        else if (userAns === optIdx && userAns !== q.correct) lbl.classList.add('incorrect');
+      }
+    });
+
+    if (userAns === q.correct) score++;
+  });
+
+  state.quiz.score = score;
+  state.quiz.submitted = true;
+
+  const badge = document.getElementById('quiz-score-badge');
+  if (badge) {
+    badge.textContent = `คะแนน: ${score} / ${OPAMP_QUIZ_QUESTIONS.length} (${(score/OPAMP_QUIZ_QUESTIONS.length*100).toFixed(0)}%)`;
+  }
+
+  // Record history
+  const name = document.getElementById('student-name').value.trim() || 'นักศึกษา';
+  const timeStr = new Date().toLocaleTimeString('th-TH');
+  state.history.unshift({
+    timestamp: timeStr,
+    student: name,
+    activity: 'แบบทดสอบ Op-Amp',
+    score: `${score}/${OPAMP_QUIZ_QUESTIONS.length}`
+  });
+  renderHistory();
+
+  if (score >= 8) playSound('success');
+  else playSound('buzzer');
+
+  alert(`คุณทำแบบทดสอบได้ ${score} จาก ${OPAMP_QUIZ_QUESTIONS.length} คะแนน (${(score/OPAMP_QUIZ_QUESTIONS.length*100).toFixed(0)}%)`);
+}
+
+function resetQuiz() {
+  state.quiz = { submitted: false, score: 0, answers: {} };
+  renderQuiz();
+  const badge = document.getElementById('quiz-score-badge');
+  if (badge) badge.textContent = 'คะแนน: 0 / 12';
+  playSound('click');
+}
+
+function renderHistory() {
+  const tbody = document.getElementById('history-table-body');
+  if (!tbody) return;
+  if (state.history.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:1.5rem;">ยังไม่มีประวัติการส่งคะแนน</td></tr>';
+    return;
+  }
+  let html = '';
+  state.history.forEach(item => {
+    html += `<tr><td>${item.timestamp}</td><td>${item.student}</td><td>${item.activity}</td><td style="color:var(--accent-primary);font-weight:700;">${item.score}</td></tr>`;
+  });
+  tbody.innerHTML = html;
+}
+
+function exportQuizCSV() {
+  if (state.history.length === 0) {
+    alert('ยังไม่มีข้อมูลประวัติคะแนนสำหรับ Export');
+    return;
+  }
+  let csv = 'Timestamp,Student,Activity,Score\n';
+  state.history.forEach(r => {
+    csv += `"${r.timestamp}","${r.student}","${r.activity}","${r.score}"\n`;
+  });
+  const blob = new Blob([String.fromCharCode(0xFEFF) + csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `opamp_quiz_history_${Date.now()}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+async function saveToSheets() {
+  const url = document.getElementById('gas-url').value.trim();
+  if (!url) {
+    alert('กรุณากรอก Google Apps Script Web App URL ก่อนครับ');
+    return;
+  }
+  const payload = {
+    student: document.getElementById('student-name').value.trim() || 'นักศึกษา',
+    class: document.getElementById('student-class').value.trim() || '',
+    activity: 'Op-Amp Interactive Lab Quiz',
+    result: `${state.quiz.score}/${OPAMP_QUIZ_QUESTIONS.length}`,
+    note: `คะแนน ${(state.quiz.score/OPAMP_QUIZ_QUESTIONS.length*100).toFixed(0)}%`
+  };
+  try {
+    await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload)
+    });
+    alert('บันทึกข้อมูลคะแนน Op-Amp ลง Google Sheets สำเร็จเรียบร้อยแล้ว!');
+  } catch(e) {
+    alert('ส่งข้อมูลไปยัง Google Apps Script แล้ว (ตรวจสอบในชีตได้เลย)');
+  }
+}
+
+/* ================================================================= */
+/* SCHEMATIC & VECTOR DRAWING HELPER FUNCTIONS                       */
+/* ================================================================= */
+function wire(ctx, x1, y1, x2, y2, col = '#475569', lw = 2) {
+  ctx.strokeStyle = col; ctx.lineWidth = lw;
+  ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+}
+
+function dotNode(ctx, x, y, label = '', side = 'top') {
+  ctx.beginPath(); ctx.arc(x, y, 4, 0, Math.PI * 2); ctx.fillStyle = '#ffffff'; ctx.fill();
+  if (label) {
+    ctx.font = 'bold 10px JetBrains Mono'; ctx.fillStyle = '#38bdf8';
+    if (side === 'top') { ctx.textAlign = 'center'; ctx.fillText(label, x, y - 8); }
+    else if (side === 'right') { ctx.textAlign = 'left'; ctx.fillText(label, x + 8, y + 3); }
+    else if (side === 'bottom') { ctx.textAlign = 'center'; ctx.fillText(label, x, y + 14); }
+    else { ctx.textAlign = 'right'; ctx.fillText(label, x - 8, y + 3); }
+    ctx.textAlign = 'left';
+  }
+}
+
+function drawArrow(ctx, fromX, fromY, toX, toY, color = '#38bdf8', headLen = 8) {
+  const angle = Math.atan2(toY - fromY, toX - fromX);
+  ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(fromX, fromY); ctx.lineTo(toX, toY); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(toX, toY);
+  ctx.lineTo(toX - headLen * Math.cos(angle - Math.PI / 6), toY - headLen * Math.sin(angle - Math.PI / 6));
+  ctx.lineTo(toX - headLen * Math.cos(angle + Math.PI / 6), toY - headLen * Math.sin(angle + Math.PI / 6));
+  ctx.closePath(); ctx.fill();
+}
+
+function gndSymbol(ctx, x, y) {
+  ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 2;
+  wire(ctx, x, y - 8, x, y);
+  for (let i = 0; i < 3; i++) {
+    const hw = 10 - i * 3.5, yy = y + i * 4;
+    ctx.beginPath(); ctx.moveTo(x - hw, yy); ctx.lineTo(x + hw, yy); ctx.stroke();
+  }
+}
+
+function vddRail(ctx, x, y, v) {
+  ctx.fillStyle = '#f97316'; ctx.font = 'bold 10px JetBrains Mono'; ctx.textAlign = 'center';
+  ctx.fillText(`+${v}V (V_CC)`, x, y - 6);
+  ctx.beginPath(); ctx.moveTo(x - 14, y); ctx.lineTo(x + 14, y);
+  ctx.strokeStyle = '#f97316'; ctx.lineWidth = 2.5; ctx.stroke();
+  ctx.textAlign = 'left';
+}
+
+function drawResistorH(ctx, x1, x2, y, lbl, val) {
+  const mx = (x1 + x2) / 2, segW = 14;
+  wire(ctx, x1, y, mx - segW, y, '#475569');
+  wire(ctx, mx + segW, y, x2, y, '#475569');
+  ctx.strokeStyle = '#f59e0b'; ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(mx - segW, y);
+  ctx.lineTo(mx - 10, y - 6); ctx.lineTo(mx - 5, y + 6);
+  ctx.lineTo(mx, y - 6);      ctx.lineTo(mx + 5, y + 6);
+  ctx.lineTo(mx + 10, y - 6); ctx.lineTo(mx + segW, y);
+  ctx.stroke();
+  ctx.font = 'bold 10px Sarabun'; ctx.textAlign = 'center';
+  ctx.fillStyle = '#94a3b8'; ctx.fillText(lbl, mx, y - 10);
+  ctx.fillStyle = '#f59e0b'; ctx.fillText(val, mx, y + 18);
+  ctx.textAlign = 'left';
+}
+
+function drawResistorV(ctx, x, y1, y2, lbl, val, labelSide = 'left') {
+  const my = (y1 + y2) / 2, segH = 14;
+  wire(ctx, x, y1, x, my - segH, '#475569');
+  wire(ctx, x, my + segH, x, y2, '#475569');
+  ctx.strokeStyle = '#f59e0b'; ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(x, my - segH);
+  ctx.lineTo(x - 6, my - 10); ctx.lineTo(x + 6, my - 5);
+  ctx.lineTo(x - 6, my);      ctx.lineTo(x + 6, my + 5);
+  ctx.lineTo(x - 6, my + 10); ctx.lineTo(x, my + segH);
+  ctx.stroke();
+  ctx.font = 'bold 10px Sarabun';
+  if (labelSide === 'left') {
+    ctx.textAlign = 'right'; ctx.fillStyle = '#94a3b8'; ctx.fillText(lbl, x - 10, my - 2);
+    ctx.fillStyle = '#f59e0b'; ctx.fillText(val, x - 10, my + 11);
+  } else {
+    ctx.textAlign = 'left'; ctx.fillStyle = '#94a3b8'; ctx.fillText(lbl, x + 10, my - 2);
+    ctx.fillStyle = '#f59e0b'; ctx.fillText(val, x + 10, my + 11);
+  }
+  ctx.textAlign = 'left';
+}
+
+/* ================================================================= */
+/* 9. MAIN ANIMATION LOOP & INITIALIZATION                           */
+/* ================================================================= */
+function mainLoop() {
+  if (!state.lab.isPaused) {
+    state.lab.time += 0.04;
+  }
+  if (state.activeTab === 'tab-lab') {
+    drawDualTraceScope();
+  }
+  requestAnimationFrame(mainLoop);
+}
+
+function init() {
+  drawOpAmpModelCanvas();
+  selectIcPackage('741');
+  selectAmpCircuit('inverting');
+  selectProcCircuit('comparator');
+  onLabParamChange();
+  renderQuiz();
+  mainLoop();
+}
+
+window.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
