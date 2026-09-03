@@ -2093,6 +2093,23 @@
       }
     }
 
+    
+    // EIA-96 Lookup Table
+    const EIA96_VALUES = {
+      '01': 100, '02': 102, '03': 105, '04': 107, '05': 110, '06': 113, '07': 115, '08': 118, '09': 121, '10': 124,
+      '11': 127, '12': 130, '13': 133, '14': 137, '15': 140, '16': 143, '17': 147, '18': 150, '19': 154, '20': 158,
+      '21': 162, '22': 165, '23': 169, '24': 174, '25': 178, '26': 182, '27': 187, '28': 191, '29': 196, '30': 200,
+      '31': 205, '32': 210, '33': 215, '34': 221, '35': 226, '36': 232, '37': 237, '38': 243, '39': 249, '40': 255,
+      '41': 261, '42': 267, '43': 274, '44': 280, '45': 287, '46': 294, '47': 301, '48': 309, '49': 316, '50': 324,
+      '51': 332, '52': 340, '53': 348, '54': 357, '55': 365, '56': 374, '57': 383, '58': 392, '59': 402, '60': 412,
+      '61': 422, '62': 432, '63': 442, '64': 453, '65': 464, '66': 475, '67': 487, '68': 499, '69': 511, '70': 523,
+      '71': 536, '72': 549, '73': 562, '74': 576, '75': 590, '76': 604, '77': 619, '78': 634, '79': 649, '80': 665,
+      '81': 681, '82': 698, '83': 715, '84': 732, '85': 750, '86': 768, '87': 787, '88': 806, '89': 825, '90': 845,
+      '91': 866, '92': 887, '93': 909, '94': 931, '95': 953, '96': 976
+    };
+    const EIA96_MULTIPLIERS = {
+      'Z': 0.001, 'Y': 0.01, 'R': 0.01, 'X': 0.1, 'S': 0.1, 'A': 1, 'B': 10, 'H': 10, 'C': 100, 'D': 1000, 'E': 10000, 'F': 100000
+    };
     function decodeSMDCode() {
       const code = document.getElementById('smd-code-input').value.trim().toUpperCase();
       const resBox = document.getElementById('smd-result-box');
@@ -2102,24 +2119,65 @@
       let explanation = '';
       let ohms = 0;
 
-      if (/^\\d{3}$/.test(code)) {
-        const d1 = parseInt(code[0]);
-        const d2 = parseInt(code[1]);
-        const exp = parseInt(code[2]);
-        ohms = (d1 * 10 + d2) * Math.pow(10, exp);
-        explanation = `<strong>รหัส 3 หลัก (Standard 5%):</strong> ตัวเลข ${d1}${d2} × 10<sup>${exp}</sup> = <strong>${formatOhms(ohms)}</strong>`;
-      } else if (/^\\d{4}$/.test(code)) {
-        const d1 = parseInt(code[0]);
-        const d2 = parseInt(code[1]);
-        const d3 = parseInt(code[2]);
-        const exp = parseInt(code[3]);
-        ohms = (d1 * 100 + d2 * 10 + d3) * Math.pow(10, exp);
-        explanation = `<strong>รหัส 4 หลัก (Precision 1%):</strong> ตัวเลข ${d1}${d2}${d3} × 10<sup>${exp}</sup> = <strong>${formatOhms(ohms)}</strong>`;
-      } else if (code.includes('R')) {
-        ohms = parseFloat(code.replace('R', '.'));
-        explanation = `<strong>รหัสจุดทศนิยม 'R':</strong> ${code} = <strong>${ohms} Ω</strong>`;
-      } else {
-        explanation = `<em>รูปแบบรหัสไม่ตรงกับมาตรฐาน 3 หลัก หรือ 4 หลัก (ลองใส่เช่น 103, 4702, 4R7)</em>`;
+      // 1. 3-digit EIA code (e.g. 103 -> 10k, 472 -> 4.7k, 000 -> 0 ohm jumper)
+      if (/^\d{3}$/.test(code)) {
+        if (code === '000') {
+          ohms = 0;
+          explanation = `<span style="color:#34d399;font-weight:700;">✓ รหัส 000 (0Ω Jumper Link):</span> ความต้านทาน <strong>0 Ω</strong> (ใช้เชื่อมต่อวงจรแบบข้ามสายบนแผ่น PCB)`;
+        } else {
+          const d1 = parseInt(code[0]);
+          const d2 = parseInt(code[1]);
+          const exp = parseInt(code[2]);
+          ohms = (d1 * 10 + d2) * Math.pow(10, exp);
+          explanation = `<span style="color:#38bdf8;font-weight:700;">✓ รหัส 3 หลัก (Standard ±5%):</span> ตัวเลข ${d1}${d2} × 10<sup>${exp}</sup> = <strong style="color:#34d399;font-size:1.05rem;">${formatOhms(ohms)}</strong> (±5%)`;
+        }
+      }
+      // 2. 4-digit EIA code (e.g. 4702 -> 47k, 1001 -> 1k)
+      else if (/^\d{4}$/.test(code)) {
+        if (code === '0000') {
+          ohms = 0;
+          explanation = `<span style="color:#34d399;font-weight:700;">✓ รหัส 0000 (0Ω Jumper):</span> ความต้านทาน <strong>0 Ω</strong>`;
+        } else {
+          const d1 = parseInt(code[0]);
+          const d2 = parseInt(code[1]);
+          const d3 = parseInt(code[2]);
+          const exp = parseInt(code[3]);
+          ohms = (d1 * 100 + d2 * 10 + d3) * Math.pow(10, exp);
+          explanation = `<span style="color:#38bdf8;font-weight:700;">✓ รหัส 4 หลัก (Precision ±1%):</span> ตัวเลข ${d1}${d2}${d3} × 10<sup>${exp}</sup> = <strong style="color:#34d399;font-size:1.05rem;">${formatOhms(ohms)}</strong> (±1%)`;
+        }
+      }
+      // 3. 'R' Decimal separator (e.g. 4R7 -> 4.7Ω, R22 -> 0.22Ω, 0R1 -> 0.1Ω, 1R0 -> 1.0Ω)
+      else if (/^(\d*R\d+|\d+R|R\d+)$/.test(code)) {
+        const numStr = code.replace('R', '.');
+        ohms = parseFloat(numStr);
+        explanation = `<span style="color:#38bdf8;font-weight:700;">✓ รหัสจุดทศนิยม 'R' (Decimal):</span> แทน R ด้วยจุดทศนิยม = <strong style="color:#34d399;font-size:1.05rem;">${ohms} Ω</strong>`;
+      }
+      // 4. 'K' or 'M' Decimal separator (e.g. 4K7 -> 4.7kΩ, 1M2 -> 1.2MΩ)
+      else if (/^(\d*K\d+|\d+K|K\d+)$/.test(code)) {
+        const numStr = code.replace('K', '.');
+        ohms = parseFloat(numStr) * 1000;
+        explanation = `<span style="color:#38bdf8;font-weight:700;">✓ รหัสจุดทศนิยม 'K' (kilo-ohm):</span> = <strong style="color:#34d399;font-size:1.05rem;">${formatOhms(ohms)}</strong>`;
+      }
+      else if (/^(\d*M\d+|\d+M|M\d+)$/.test(code)) {
+        const numStr = code.replace('M', '.');
+        ohms = parseFloat(numStr) * 1000000;
+        explanation = `<span style="color:#38bdf8;font-weight:700;">✓ รหัสจุดทศนิยม 'M' (mega-ohm):</span> = <strong style="color:#34d399;font-size:1.05rem;">${formatOhms(ohms)}</strong>`;
+      }
+      // 5. EIA-96 1% High Precision (e.g. 01C -> 10k, 01A -> 100Ω, 68A -> 4.99k)
+      else if (/^\d{2}[A-Z]$/.test(code)) {
+        const valCode = code.substring(0, 2);
+        const mulLetter = code[2];
+        const baseVal = EIA96_VALUES[valCode];
+        const mul = EIA96_MULTIPLIERS[mulLetter];
+        if (baseVal !== undefined && mul !== undefined) {
+          ohms = baseVal * mul;
+          explanation = `<span style="color:#c084fc;font-weight:700;">✓ รหัส EIA-96 (Precision ±1%):</span> รหัสคู่เลข [${valCode} = ${baseVal}] × ตัวคูณ [${mulLetter} = ×${mul}] = <strong style="color:#34d399;font-size:1.05rem;">${formatOhms(ohms)}</strong> (±1%)`;
+        } else {
+          explanation = `<span style="color:#fb7185;">⚠️ ไม่พบตัวคูณหรือรหัส EIA-96 '${code}' ในตารางมาตรฐาน</span>`;
+        }
+      }
+      else {
+        explanation = `<span style="color:#fb7185;">⚠️ รูปแบบรหัสไม่ตรงกับมาตรฐาน 3 หลัก, 4 หลัก, จุดทศนิยม R หรือ EIA-96 (ลองใส่เช่น 103, 4702, 4R7, 01C)</span>`;
       }
 
       resBox.innerHTML = explanation;
