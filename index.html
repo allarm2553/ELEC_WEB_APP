@@ -1,0 +1,1135 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ศูนย์รวมการเรียนรู้อิเล็กทรอนิกส์เสมือนจริง — Electronics Web Learning Portal</title>
+  
+  <!-- Google Fonts & Font Awesome 6 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&family=JetBrains+Mono:wght@400;600;700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    :root {
+      --bg-dark: #050b14;
+      --bg-surface: #0a1322;
+      --card-bg: rgba(15, 23, 42, 0.75);
+      --card-border: rgba(56, 189, 248, 0.15);
+      --accent-cyan: #06b6d4;
+      --accent-blue: #38bdf8;
+      --accent-indigo: #6366f1;
+      --accent-purple: #a855f7;
+      --accent-pink: #ec4899;
+      --accent-rose: #f43f5e;
+      --accent-amber: #f59e0b;
+      --accent-green: #10b981;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      --font-display: 'Chakra Petch', sans-serif;
+      --font-body: 'Sarabun', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--bg-dark);
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(56, 189, 248, 0.12) 0px, transparent 50%),
+        radial-gradient(at 100% 0%, rgba(168, 85, 247, 0.12) 0px, transparent 50%),
+        radial-gradient(at 50% 50%, rgba(6, 182, 212, 0.05) 0px, transparent 60%),
+        radial-gradient(at 0% 100%, rgba(99, 102, 241, 0.1) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.08) 0px, transparent 50%);
+      background-attachment: fixed;
+      color: var(--text-main);
+      font-family: var(--font-body);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      line-height: 1.6;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: var(--bg-dark); }
+    ::-webkit-scrollbar-thumb { background: rgba(56, 189, 248, 0.3); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--accent-blue); }
+
+    /* Top Navigation Header */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(16px);
+      background: rgba(10, 19, 34, 0.85);
+      border-bottom: 1px solid var(--card-border);
+      padding: 0.85rem 2rem;
+    }
+
+    .header-container {
+      max-width: 1440px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.5rem;
+    }
+
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .brand-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-indigo));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      color: #ffffff;
+      box-shadow: 0 0 16px rgba(6, 182, 212, 0.4);
+    }
+
+    .brand-title {
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      background: linear-gradient(135deg, #ffffff, var(--accent-blue));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .brand-subtitle {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      letter-spacing: 0.3px;
+    }
+
+    /* Header Search & Actions */
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .search-bar-wrap {
+      position: relative;
+      width: 280px;
+    }
+
+    .search-bar-wrap i {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-dim);
+      font-size: 0.85rem;
+    }
+
+    .search-input {
+      width: 100%;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid var(--card-border);
+      border-radius: 999px;
+      padding: 0.5rem 1rem 0.5rem 2.4rem;
+      color: var(--text-main);
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .search-input:focus {
+      border-color: var(--accent-blue);
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.25);
+    }
+
+    .portal-status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.35rem 0.75rem;
+      border-radius: 999px;
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: #34d399;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 8px #10b981;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.85); }
+    }
+
+    /* Main Container */
+    main {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 2rem;
+      flex: 1;
+      width: 100%;
+    }
+
+    /* Hero Section */
+    .hero-card {
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.85), rgba(30, 41, 59, 0.7));
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 2.5rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-card::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -20%;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(56, 189, 248, 0.15), transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.35rem 0.85rem;
+      border-radius: 999px;
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      color: var(--accent-blue);
+      font-family: var(--font-display);
+      font-size: 0.82rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+
+    .hero-title {
+      font-family: var(--font-display);
+      font-size: 2.25rem;
+      font-weight: 700;
+      line-height: 1.25;
+      margin-bottom: 0.75rem;
+      background: linear-gradient(135deg, #ffffff 30%, #7dd3fc 70%, #c084fc 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-desc {
+      color: var(--text-muted);
+      font-size: 1rem;
+      max-width: 820px;
+      margin-bottom: 1.75rem;
+    }
+
+    /* Stats Grid */
+    .hero-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+    }
+
+    .stat-box {
+      background: rgba(10, 19, 34, 0.6);
+      border: 1px solid rgba(56, 189, 248, 0.1);
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+      transition: all 0.2s;
+    }
+
+    .stat-box:hover {
+      border-color: var(--accent-blue);
+      transform: translateY(-2px);
+    }
+
+    .stat-num {
+      font-family: var(--font-mono);
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--accent-blue);
+    }
+
+    .stat-label {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    /* Category Filter Tabs */
+    .filter-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .filter-pills {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+      padding: 0.5rem 1rem;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .filter-btn:hover {
+      color: var(--text-main);
+      border-color: var(--accent-blue);
+    }
+
+    .filter-btn.active {
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.25), rgba(99, 102, 241, 0.25));
+      color: #ffffff;
+      border-color: var(--accent-blue);
+      box-shadow: 0 0 14px rgba(56, 189, 248, 0.2);
+    }
+
+    .view-count-text {
+      font-size: 0.85rem;
+      color: var(--text-dim);
+      font-family: var(--font-mono);
+    }
+
+    /* Application Cards Grid */
+    .apps-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 3rem;
+    }
+
+    .app-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    }
+
+    .app-card:hover {
+      border-color: var(--accent-blue);
+      transform: translateY(-4px);
+      box-shadow: 0 16px 36px rgba(6, 182, 212, 0.18);
+    }
+
+    .app-card-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .app-icon-wrap {
+      width: 52px;
+      height: 52px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      color: #ffffff;
+      flex-shrink: 0;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.3);
+    }
+
+    .app-meta {
+      flex: 1;
+    }
+
+    .app-cat-tag {
+      font-size: 0.72rem;
+      font-family: var(--font-mono);
+      font-weight: 600;
+      color: var(--accent-cyan);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .app-card-title {
+      font-family: var(--font-display);
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #ffffff;
+      line-height: 1.3;
+      margin: 0.15rem 0 0.25rem;
+    }
+
+    .app-port-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      padding: 0.15rem 0.5rem;
+      border-radius: 6px;
+      background: rgba(30, 41, 59, 0.8);
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--accent-blue);
+    }
+
+    .app-card-desc {
+      font-size: 0.86rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+      margin-bottom: 1rem;
+      flex: 1;
+    }
+
+    .app-features-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .feat-pill {
+      font-size: 0.74rem;
+      padding: 0.2rem 0.55rem;
+      border-radius: 6px;
+      background: rgba(30, 41, 59, 0.6);
+      color: var(--text-muted);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .app-card-actions {
+      display: flex;
+      gap: 0.6rem;
+      align-items: center;
+      padding-top: 1rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .btn-launch {
+      flex: 1;
+      background: linear-gradient(135deg, var(--accent-blue), var(--accent-indigo));
+      color: #ffffff;
+      font-family: var(--font-display);
+      font-size: 0.88rem;
+      font-weight: 700;
+      padding: 0.65rem 1rem;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .btn-launch:hover {
+      background: linear-gradient(135deg, #7dd3fc, #818cf8);
+      box-shadow: 0 0 16px rgba(56, 189, 248, 0.4);
+      transform: translateY(-1px);
+    }
+
+    .btn-icon-ext {
+      width: 38px;
+      height: 38px;
+      border-radius: 8px;
+      background: rgba(30, 41, 59, 0.8);
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-icon-ext:hover {
+      color: #ffffff;
+      border-color: var(--accent-blue);
+      background: rgba(56, 189, 248, 0.15);
+    }
+
+    /* Learning Roadmap Section */
+    .roadmap-section {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 2rem;
+      margin-bottom: 3rem;
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .section-title {
+      font-family: var(--font-display);
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 0.4rem;
+    }
+
+    .section-desc {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    .roadmap-timeline {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+      position: relative;
+    }
+
+    .roadmap-step {
+      background: rgba(10, 19, 34, 0.7);
+      border: 1px solid rgba(56, 189, 248, 0.12);
+      border-radius: 12px;
+      padding: 1.25rem;
+      position: relative;
+      transition: all 0.2s;
+    }
+
+    .roadmap-step:hover {
+      border-color: var(--accent-cyan);
+      transform: translateY(-2px);
+    }
+
+    .step-badge {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 0.15rem 0.5rem;
+      border-radius: 999px;
+      background: rgba(6, 182, 212, 0.15);
+      color: var(--accent-cyan);
+      margin-bottom: 0.5rem;
+    }
+
+    .step-title {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 0.4rem;
+    }
+
+    .step-desc {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      line-height: 1.45;
+    }
+
+    /* Modal Interactive Workspace (Embedded iFrame) */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 6, 23, 0.85);
+      backdrop-filter: blur(12px);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-container {
+      background: #0a1322;
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      width: 100%;
+      height: 100%;
+      max-width: 1560px;
+      max-height: 94vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.7);
+      overflow: hidden;
+    }
+
+    .modal-header {
+      padding: 0.85rem 1.5rem;
+      background: rgba(15, 23, 42, 0.95);
+      border-bottom: 1px solid var(--card-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .modal-title-group {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .modal-title {
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    .modal-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .modal-btn {
+      background: rgba(30, 41, 59, 0.8);
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+      padding: 0.4rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: all 0.2s;
+    }
+
+    .modal-btn:hover {
+      color: #ffffff;
+      border-color: var(--accent-blue);
+    }
+
+    .modal-btn.close {
+      background: rgba(244, 63, 94, 0.15);
+      border-color: rgba(244, 63, 94, 0.3);
+      color: #fb7185;
+    }
+
+    .modal-btn.close:hover {
+      background: #f43f5e;
+      color: #ffffff;
+    }
+
+    .modal-body {
+      flex: 1;
+      position: relative;
+      background: #050b14;
+    }
+
+    .modal-iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    /* Footer */
+    footer {
+      background: rgba(10, 19, 34, 0.95);
+      border-top: 1px solid var(--card-border);
+      padding: 2rem;
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 1.5rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .footer-links a {
+      color: var(--accent-blue);
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .footer-links a:hover {
+      color: #ffffff;
+      text-decoration: underline;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      header { padding: 0.75rem 1rem; }
+      main { padding: 1rem; }
+      .hero-card { padding: 1.5rem; }
+      .hero-title { font-size: 1.6rem; }
+      .apps-grid { grid-template-columns: 1fr; }
+      .search-bar-wrap { width: 100%; }
+      .header-actions { width: 100%; justify-content: space-between; }
+      .modal-overlay { padding: 0.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <div class="header-container">
+      <a href="/" class="brand-logo">
+        <div class="brand-icon"><i class="fa-solid fa-atom"></i></div>
+        <div>
+          <div class="brand-title">ELECTRONICS LEARNING PORTAL</div>
+          <div class="brand-subtitle">ศูนย์รวมห้องปฏิบัติการและแอปการเรียนรู้อิเล็กทรอนิกส์เสมือนจริง</div>
+        </div>
+      </a>
+
+      <div class="header-actions">
+        <div class="search-bar-wrap">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" id="app-search-input" class="search-input" placeholder="ค้นหาบทเรียน หรือวงจร..." oninput="filterApps()">
+        </div>
+
+        <div class="portal-status-badge">
+          <div class="status-dot"></div>
+          <span>10 Labs Active</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT -->
+  <main>
+
+    <!-- HERO SECTION -->
+    <div class="hero-card">
+      <div class="hero-badge"><i class="fa-solid fa-graduation-cap"></i> Interactive Virtual Engineering Labs</div>
+      <h1 class="hero-title">ห้องปฏิบัติการวิศวกรรมอิเล็กทรอนิกส์เสมือนจริง</h1>
+      <p class="hero-desc">
+        เรียนรู้และทดลองวงจรอิเล็กทรอนิกส์แบบโต้ตอบ (Interactive Simulations) ครอบคลุมฟิสิกส์สารกึ่งตัวนำ, การคำนวณสดทีละขั้นตอน, ผังขาอุปกรณ์จริง, ออสซิลโลสโคป 2 แชนแนล, และระบบบันทึกผลการเรียนรู้ผ่าน Google Sheets
+      </p>
+
+      <div class="hero-stats">
+        <div class="stat-box">
+          <div class="stat-num">10</div>
+          <div class="stat-label">ห้องทดลองเสมือนจริง (Labs)</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num">65+</div>
+          <div class="stat-label">วงจรจำลองสด (Circuits)</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num">8</div>
+          <div class="stat-label">ออสซิลโลสโคป 2 แชนแนล</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num">120+</div>
+          <div class="stat-label">ข้อสอบพร้อมเฉลยละเอียด</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FILTER & CATEGORIES -->
+    <div class="filter-bar">
+      <div class="filter-pills">
+        <button class="filter-btn active" onclick="setCategory('all', this)"><i class="fa-solid fa-layer-group"></i> ทั้งหมด (10)</button>
+        <button class="filter-btn" onclick="setCategory('instruments', this)"><i class="fa-solid fa-gauge-high"></i> เครื่องมือวัด &amp; RLC</button>
+        <button class="filter-btn" onclick="setCategory('semiconductors', this)"><i class="fa-solid fa-microchip"></i> สารกึ่งตัวนำ (Diode/BJT/FET)</button>
+        <button class="filter-btn" onclick="setCategory('amplifiers', this)"><i class="fa-solid fa-bolt"></i> วงจรขยายสัญญาณ (AC Small-Signal)</button>
+        <button class="filter-btn" onclick="setCategory('opamp', this)"><i class="fa-solid fa-wave-square"></i> วงจรแปลงรูปคลื่น &amp; Op-Amp</button>
+      </div>
+      <div class="view-count-text" id="view-count-badge">แสดง 10 จาก 10 แอปพลิเคชัน</div>
+    </div>
+
+    <!-- APPS GRID -->
+    <div class="apps-grid" id="apps-container">
+      <!-- Generated via JavaScript -->
+    </div>
+
+    <!-- CURRICULUM ROADMAP -->
+    <div class="roadmap-section">
+      <div class="section-header">
+        <h2 class="section-title"><i class="fa-solid fa-route" style="color:var(--accent-cyan);"></i> แผนผังเส้นทางการเรียนรู้อิเล็กทรอนิกส์ (Curriculum Roadmap)</h2>
+        <p class="section-desc">ลำดับขั้นตอนการศึกษาและฝึกฝนตั้งแต่พื้นฐานเครื่องมือวัดจนถึงวงจรแอนะล็อกขั้นสูง</p>
+      </div>
+
+      <div class="roadmap-timeline">
+        <div class="roadmap-step">
+          <span class="step-badge">STEP 1</span>
+          <div class="step-title">เครื่องมือวัด &amp; กฎของโอห์ม</div>
+          <p class="step-desc">ฝึกอ่านรหัสสีตัวต้านทาน 4-5 แถบสี, การใช้มัลติมิเตอร์เข็ม/ดิจิตอล, และการใช้งานออสซิลโลสโคปจับสัญญาณ</p>
+        </div>
+
+        <div class="roadmap-step">
+          <span class="step-badge">STEP 2</span>
+          <div class="step-title">ไดโอด &amp; วงจรเรียงกระแส</div>
+          <p class="step-desc">ฟิสิกส์รอยต่อ P-N, ตัวถังจริง, วงจร Rectifiers, ซีเนอร์คุมค่าแรงดัน, และวงจร Clippers / Clampers / Multipliers</p>
+        </div>
+
+        <div class="roadmap-step">
+          <span class="step-badge">STEP 3</span>
+          <div class="step-title">ทรานซิสเตอร์ BJT &amp; FET</div>
+          <p class="step-desc">โครงสร้าง NPN/PNP, N/P-JFET, MOSFET (D-MOSFET &amp; E-MOSFET), จุดทำงาน Q-point, DC Load Line และวงจรไบอัส</p>
+        </div>
+
+        <div class="roadmap-step">
+          <span class="step-badge">STEP 4</span>
+          <div class="step-title">วงจรขยายสัญญาณไฟสลับ</div>
+          <p class="step-desc">แบบจำลอง r_e และ h-Parameter สำหรับ BJT, แบบจำลอง gm · vgs สำหรับ FET, การคำนวณ Zin, Zout, Av และมุมเฟส</p>
+        </div>
+
+        <div class="roadmap-step">
+          <span class="step-badge">STEP 5</span>
+          <div class="step-title">ออปแอมป์ &amp; ประมวลผลสัญญาณ</div>
+          <p class="step-desc">วงจรขยายกลับเฟส, ไม่กลับเฟส, Buffer, Summing, Difference, Instrumentation, Comparator, Schmitt Trigger, Filter</p>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- MODAL INTERACTIVE WORKSPACE -->
+  <div class="modal-overlay" id="workspace-modal">
+    <div class="modal-container">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <i class="fa-solid fa-window-maximize" style="color:var(--accent-blue);"></i>
+          <div class="modal-title" id="modal-app-title">Interactive Workspace</div>
+        </div>
+        <div class="modal-controls">
+          <button class="modal-btn" onclick="reloadModalIframe()" title="รีโหลดแอป"><i class="fa-solid fa-rotate-right"></i> รีโหลด</button>
+          <a href="#" target="_blank" id="modal-external-link" class="modal-btn" title="เปิดในแท็บใหม่"><i class="fa-solid fa-arrow-up-right-from-square"></i> เปิดแท็บใหม่</a>
+          <button class="modal-btn close" onclick="closeWorkspaceModal()"><i class="fa-solid fa-xmark"></i> ปิดหน้าต่าง</button>
+        </div>
+      </div>
+      <div class="modal-body">
+        <iframe id="workspace-iframe" class="modal-iframe" src="about:blank"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-links">
+      <a href="https://github.com/allarm2553/ELEC_WEB_APP" target="_blank"><i class="fa-brands fa-github"></i> GitHub Repository</a>
+      <a href="/resistor/"><i class="fa-solid fa-palette"></i> Resistor Lab</a>
+      <a href="/multimeter/"><i class="fa-solid fa-gauge"></i> Multimeter</a>
+      <a href="/oscilloscope/"><i class="fa-solid fa-chart-line"></i> Scope</a>
+      <a href="/diode/"><i class="fa-solid fa-bolt"></i> Diode</a>
+      <a href="/bjt/"><i class="fa-solid fa-microchip"></i> BJT</a>
+      <a href="/fet/"><i class="fa-solid fa-plug"></i> FET</a>
+      <a href="/opamp/"><i class="fa-solid fa-shapes"></i> Op-Amp</a>
+    </div>
+    <p>สื่อการสอนและห้องปฏิบัติการวิศวกรรมอิเล็กทรอนิกส์เสมือนจริง (Interactive Web-Based Electronics Engineering Labs)</p>
+    <p style="margin-top:0.35rem;font-size:0.78rem;color:var(--text-dim);">Vanilla JavaScript (ES6+) • HTML5 Canvas Vector Simulator • Web Audio API • Google Apps Script Integration</p>
+  </footer>
+
+  <!-- SCRIPT -->
+  <script>
+    const APPS_DATA = [
+      {
+        id: 'resistor',
+        title: 'แอปคำนวณรหัสสีตัวต้านทาน & วงจรไฟตรง',
+        enTitle: 'Resistor Color Code & DC Circuits',
+        category: 'instruments',
+        categoryLabel: 'เครื่องมือ & RLC',
+        path: '/resistor/',
+        directFile: 'resistor-sheet-app/index.html',
+        port: '3001',
+        icon: 'fa-solid fa-palette',
+        gradient: 'linear-gradient(135deg, #ef4444, #f97316)',
+        desc: 'จำลองการอ่านแถบสีตัวต้านทาน 4 และ 5 แถบสี, การต่อวงจรตัวต้านทานแบบอนุกรม ขนาน และผสม พร้อมคำนวณกระแสและแรงดันตามกฎของโอห์ม',
+        features: ['4-5 Band Color Code', 'Series / Parallel / Bridge', "Ohm's Law Calculator", 'Google Sheets Log']
+      },
+      {
+        id: 'multimeter',
+        title: 'ห้องทดลองมัลติมิเตอร์เสมือนจริง',
+        enTitle: 'Multimeter Simulator Lab',
+        category: 'instruments',
+        categoryLabel: 'เครื่องมือ & RLC',
+        path: '/multimeter/',
+        directFile: 'multimeter_app/multimeter.html',
+        port: '3002',
+        icon: 'fa-solid fa-gauge-high',
+        gradient: 'linear-gradient(135deg, #f59e0b, #d97706)',
+        desc: 'จำลองการใช้งานมัลติมิเตอร์แบบเข็ม (Analog VOM) และแบบดิจิตอล (DMM) ฝึกการปรับย่านวัด DCV, ACV, DCA, และย่านวัดความต้านทาน Ω',
+        features: ['Analog Needle & DMM', 'Probe Measurement', 'Range Selector Knob', 'Zero-Ohm Adjustment']
+      },
+      {
+        id: 'oscilloscope',
+        title: 'แอปจำลองออสซิลโลสโคป 2 แชนแนล',
+        enTitle: 'Dual-Trace Oscilloscope Simulator',
+        category: 'instruments',
+        categoryLabel: 'เครื่องมือ & RLC',
+        path: '/oscilloscope/',
+        directFile: 'osc_apps/oscilloscope.html',
+        port: '3000',
+        icon: 'fa-solid fa-chart-line',
+        gradient: 'linear-gradient(135deg, #06b6d4, #0284c7)',
+        desc: 'ฝึกใช้งานออสซิลโลสโคปแบบสมบูรณ์: ปรับ Time/div, Volts/div, Trigger Level, การวัดคาบเวลา ความถี่ แรงดัน Vp-p และการสร้างรูปคลื่น Lissajous ศึกษาผลต่างเฟส',
+        features: ['Dual-Trace Waveforms', 'Trigger & Timebase', 'Lissajous X-Y Phase', 'Cursor Measurements']
+      },
+      {
+        id: 'diode',
+        title: 'แอปการเรียนรู้ไดโอด & วงจรเรียงกระแส',
+        enTitle: 'Diode Characteristics & Rectifiers',
+        category: 'semiconductors',
+        categoryLabel: 'สารกึ่งตัวนำ',
+        path: '/diode/',
+        directFile: 'diode_app/index.html',
+        port: '3003',
+        icon: 'fa-solid fa-bolt',
+        gradient: 'linear-gradient(135deg, #38bdf8, #2563eb)',
+        desc: 'ฟิสิกส์รอยต่อ P-N, กราฟลักษณะเฉพาะไดโอดซิลิกอนและเจอร์เมเนียม, แกลเลอรีตัวถังไดโอดจริง (DO-41, DO-35, SOD-123), วงจร Rectifiers และซีเนอร์ไดโอด',
+        features: ['PN Physics Simulation', 'Real Diode Packages', 'Half / Full / Bridge Rectifier', 'Zener Voltage Regulator']
+      },
+      {
+        id: 'bjt',
+        title: 'แอปการเรียนรู้ทรานซิสเตอร์ BJT',
+        enTitle: 'BJT Transistor & DC Biasing Lab',
+        category: 'semiconductors',
+        categoryLabel: 'สารกึ่งตัวนำ',
+        path: '/bjt/',
+        directFile: 'bjt_app/index.html',
+        port: '3004',
+        icon: 'fa-solid fa-microchip',
+        gradient: 'linear-gradient(135deg, #6366f1, #4f46e5)',
+        desc: 'โครงสร้างทางกายภาพ NPN/PNP, กราฟครอบครัวกระแส Ic vs Vce, เส้นโหลดไฟตรง DC Load Line & จุด Q-point, วงจรไบอัส 4 แบบหลัก, และ BJT Tester พร้อมผังขาจริง TO-92/TO-220',
+        features: ['Carrier Physics (e−/hole)', 'DC Load Line & Q-Point', '4 DC Bias Solvers', 'BJT Tester & Real Pinouts']
+      },
+      {
+        id: 'fet',
+        title: 'แอปการเรียนรู้เฟตและมอสเฟต (FET & MOSFET)',
+        enTitle: 'FET & MOSFET Transistor Lab',
+        category: 'semiconductors',
+        categoryLabel: 'สารกึ่งตัวนำ',
+        path: '/fet/',
+        directFile: 'fet_apps/index.html',
+        port: '3007',
+        icon: 'fa-solid fa-plug',
+        gradient: 'linear-gradient(135deg, #8b5cf6, #7c3aed)',
+        desc: 'ครอบคลุม N/P-JFET, N-Channel D-MOSFET (มี Built-in N-Channel ถาวร), และ N-Channel E-MOSFET, แกลเลอรีสัญลักษณ์ FET ทุกชนิด, สมการช็อกเลย์, วงจรไบอัส และ FET Tester',
+        features: ['JFET / D-MOS / E-MOS', 'Permanent N-Channel Physics', 'Shockley Transfer Curves', 'FET Bias Quadratic Solver']
+      },
+      {
+        id: 'bjt_ac',
+        title: 'แบบจำลองวงจรสมมูลไฟสลับ BJT (r_e & h-Param)',
+        enTitle: 'BJT Small-Signal AC Models',
+        category: 'amplifiers',
+        categoryLabel: 'วงจรขยายไฟสลับ',
+        path: '/bjt-ac/',
+        directFile: 'bjt_small_signal_app/index.html',
+        port: '3006',
+        icon: 'fa-solid fa-radio',
+        gradient: 'linear-gradient(135deg, #ec4899, #db2777)',
+        desc: 'วิเคราะห์วงจรขยายสัญญาณขนาดเล็กด้วยแบบจำลอง r_e Model และ Hybrid h-Parameter Two-Port Network เปรียบเทียบคุณสมบัติ CE (กลับเฟส 180°), CC (Emitter Follower), และ CB',
+        features: ['r_e Transistor Model', 'Hybrid h-Parameter 2-Port', 'CE / CC / CB Comparison', 'Live 180° Phase Scope']
+      },
+      {
+        id: 'fet_ac',
+        title: 'แบบจำลองวงจรขยายสัญญาณไฟสลับ FET (g_m · v_gs)',
+        enTitle: 'FET Small-Signal AC Models',
+        category: 'amplifiers',
+        categoryLabel: 'วงจรขยายไฟสลับ',
+        path: '/fet-ac/',
+        directFile: 'fet_small_signal/index.html',
+        port: '3005',
+        icon: 'fa-solid fa-wave-square',
+        gradient: 'linear-gradient(135deg, #10b981, #059669)',
+        desc: 'แบบจำลองไฟฟ้ากระแสสลับ FET ด้วยแหล่งจ่ายกระแส gm · vgs, วงจรขยาย Common-Source (CS), Common-Drain (CD), และ Common-Gate (CG), กราฟถ่ายโอน JFET & E-MOSFET',
+        features: ['gm · vgs Current Source Model', 'CS / CD / CG Amplifiers', 'JFET & E-MOSFET Curves', 'Dual-Trace AC Waveforms']
+      },
+      {
+        id: 'diode_app',
+        title: 'วงจรประยุกต์ไดโอด (Clippers, Clampers & Multipliers)',
+        enTitle: 'Diode Applications & Wave Shaping',
+        category: 'opamp',
+        categoryLabel: 'แปรรูปคลื่น & ไอซี',
+        path: '/diode-app/',
+        directFile: 'diode_application/index.html',
+        port: '3008',
+        icon: 'fa-solid fa-scissors',
+        gradient: 'linear-gradient(135deg, #f43f5e, #e11d48)',
+        desc: 'วงจรขลิบสัญญาณ (Series/Parallel/Biased Clippers), วงจรยกระดับสัญญาณ (Positive/Negative Clampers), และวงจรทวีแรงดันไฟตรงแบบคาสเคด (Voltage Multipliers 2x, 3x, 4x)',
+        features: ['Waveform Clippers', 'DC Level Clampers', 'Voltage Multipliers (2x-4x)', 'Diode Conduction Physics']
+      },
+      {
+        id: 'opamp',
+        title: 'แอปการเรียนรู้ออปแอมป์ (Op-Amp Interactive Lab)',
+        enTitle: 'Operational Amplifier Learning Lab',
+        category: 'opamp',
+        categoryLabel: 'แปรรูปคลื่น & ไอซี',
+        path: '/opamp/',
+        directFile: 'opamp/index.html',
+        port: '3009',
+        icon: 'fa-solid fa-shapes',
+        gradient: 'linear-gradient(135deg, #06b6d4, #6366f1)',
+        desc: 'โครงสร้าง Op-Amp อุดมคติ vs ของจริง, แกลเลอรีผังขาไอซีจริง (741, LM358, TL082, NE5532, OP07, LM324), 6 วงจรขยายพื้นฐาน, Comparator, Schmitt Trigger, Integrator, Scope',
+        features: ['Ideal vs Real 741 / LM358', 'Real IC Vector Pinouts', '6 Amplifier Schematics', 'Comparators & Active Filters']
+      }
+    ];
+
+    let currentCategory = 'all';
+    let searchQuery = '';
+
+    function renderApps() {
+      const container = document.getElementById('apps-container');
+      if (!container) return;
+
+      const filtered = APPS_DATA.filter(app => {
+        const matchCat = (currentCategory === 'all' || app.category === currentCategory);
+        const matchSearch = (
+          app.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          app.enTitle.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          app.desc.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          app.features.some(f => f.toLowerCase().includes(searchQuery.toLowerCase()))
+        );
+        return matchCat && matchSearch;
+      });
+
+      document.getElementById('view-count-badge').textContent = `แสดง ${filtered.length} จาก ${APPS_DATA.length} แอปพลิเคชัน`;
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div style="grid-column: 1 / -1; text-align: center; padding: 3rem; background: rgba(15,23,42,0.5); border-radius: 16px; border: 1px dashed var(--card-border);">
+            <i class="fa-solid fa-filter-circle-xmark" style="font-size: 2.5rem; color: var(--text-dim); margin-bottom: 1rem;"></i>
+            <h3 style="color: #ffffff; font-family: var(--font-display);">ไม่พบแอปพลิเคชันที่ตรงกับเงื่อนไขค้นหา</h3>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">ลองเปลี่ยนคำค้นหา หรือเลือกหมวดหมู่อื่นดูนะครับ</p>
+          </div>
+        `;
+        return;
+      }
+
+      let html = '';
+      filtered.forEach(app => {
+        // Build feature pills
+        let featsHtml = '';
+        app.features.forEach(feat => {
+          featsHtml += `<span class="feat-pill">${feat}</span>`;
+        });
+
+        // Determine destination URLs
+        const isHosted = window.location.protocol.startsWith('http');
+        const appUrl = isHosted ? app.path : app.directFile;
+
+        html += `
+          <div class="app-card">
+            <div class="app-card-header">
+              <div class="app-icon-wrap" style="background: ${app.gradient};">
+                <i class="${app.icon}"></i>
+              </div>
+              <div class="app-meta">
+                <div class="app-cat-tag">${app.categoryLabel}</div>
+                <h3 class="app-card-title">${app.title}</h3>
+                <span class="app-port-badge"><i class="fa-solid fa-network-wired"></i> Port ${app.port}</span>
+              </div>
+            </div>
+
+            <p class="app-card-desc">${app.desc}</p>
+
+            <div class="app-features-list">
+              ${featsHtml}
+            </div>
+
+            <div class="app-card-actions">
+              <button class="btn-launch" onclick="openWorkspaceModal('${app.id}')">
+                <i class="fa-solid fa-play"></i> เปิดแอปพลิเคชัน
+              </button>
+              <a href="${appUrl}" target="_blank" class="btn-icon-ext" title="เปิดในแท็บใหม่แยกต่างหาก">
+                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+              </a>
+            </div>
+          </div>
+        `;
+      });
+
+      container.innerHTML = html;
+    }
+
+    function setCategory(cat, btn) {
+      currentCategory = cat;
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+      renderApps();
+    }
+
+    function filterApps() {
+      searchQuery = document.getElementById('app-search-input').value.trim();
+      renderApps();
+    }
+
+    /* Modal Workspace Management */
+    function openWorkspaceModal(appId) {
+      const app = APPS_DATA.find(a => a.id === appId);
+      if (!app) return;
+
+      const isHosted = window.location.protocol.startsWith('http');
+      const appUrl = isHosted ? app.path : app.directFile;
+
+      document.getElementById('modal-app-title').innerHTML = `<i class="${app.icon}"></i> ${app.title} (Port ${app.port})`;
+      document.getElementById('modal-external-link').href = appUrl;
+      document.getElementById('workspace-iframe').src = appUrl;
+      document.getElementById('workspace-modal').classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeWorkspaceModal() {
+      document.getElementById('workspace-modal').classList.remove('active');
+      document.getElementById('workspace-iframe').src = 'about:blank';
+      document.body.style.overflow = '';
+    }
+
+    function reloadModalIframe() {
+      const iframe = document.getElementById('workspace-iframe');
+      if (iframe && iframe.src) {
+        iframe.src = iframe.src;
+      }
+    }
+
+    // Close modal on Escape key
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeWorkspaceModal();
+    });
+
+    window.addEventListener('DOMContentLoaded', () => {
+      renderApps();
+    });
+  </script>
+</body>
+</html>

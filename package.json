@@ -1,0 +1,24 @@
+{
+  "name": "elec-web-learning-portal",
+  "version": "2.0.0",
+  "description": "Electronics Web Learning Lab & Virtual Simulator Master Portal",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [
+    "electronics",
+    "simulator",
+    "virtual-lab",
+    "diode",
+    "bjt",
+    "fet",
+    "mosfet",
+    "opamp",
+    "oscilloscope",
+    "multimeter",
+    "education"
+  ],
+  "author": "Antigravity & allarm2553",
+  "license": "MIT"
+}
