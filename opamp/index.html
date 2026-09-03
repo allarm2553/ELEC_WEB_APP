@@ -1525,7 +1525,7 @@ function drawIcPinoutCanvas() {
   for (let i = 0; i < numPinsSide; i++) {
     const px = leftX + 20 + i * pinSpacing;
     const pinNum = i + 1;
-    const pData = data.pins.find(p => p.no === pinNum) || { name: `Pin {pinNum}` };
+    const pData = data.pins.find(p => p.no === pinNum) || { name: `Pin ${pinNum}` };
 
     // Metal Pin Lead
     icPinoutCtx.fillStyle = '#94a3b8';
@@ -1548,7 +1548,7 @@ function drawIcPinoutCanvas() {
   for (let i = 0; i < numPinsSide; i++) {
     const px = leftX + 20 + i * pinSpacing;
     const pinNum = (numPinsSide * 2) - i;
-    const pData = data.pins.find(p => p.no === pinNum) || { name: `Pin {pinNum}` };
+    const pData = data.pins.find(p => p.no === pinNum) || { name: `Pin ${pinNum}` };
 
     // Metal Pin Lead
     icPinoutCtx.fillStyle = '#94a3b8';
@@ -1714,11 +1714,11 @@ function onAmpChange() {
 
     mathHtml = 
       `<strong style="color:var(--accent-primary);"><i class="fa-solid fa-calculator"></i> ขั้นตอนและสมการคำนวณวงจรขยายกลับเฟส (Inverting Math):</strong><br>` +
-      `1. <strong>มโนภาพเสมือนกราวด์ (Virtual Ground):</strong> ขั้วบวกต่อกราวด์ (V<sub>+</sub> = 0V) \implies V_- ≈ 0V<br>` +
-      `2. <strong>กระแสไหลผ่าน R<sub>1</sub>:</strong> I<sub>in</sub> = (V<sub>in</sub> − V<sub>−</sub>) / R<sub>1</sub> = ({state.amp.vin.toFixed(2)}V − 0) / {state.amp.r1_k.toFixed(1)}kΩ = <strong>{i_in_mA.toFixed(3)} mA</strong><br>` +
+      `1. <strong>มโนภาพเสมือนกราวด์ (Virtual Ground):</strong> ขั้วบวกต่อกราวด์ (V<sub>+</sub> = 0V) → V_- ≈ 0V<br>` +
+      `2. <strong>กระแสไหลผ่าน R<sub>1</sub>:</strong> I<sub>in</sub> = (V<sub>in</sub> − V<sub>−</sub>) / R<sub>1</sub> = (${state.amp.vin.toFixed(2)}V − 0) / ${state.amp.r1_k.toFixed(1)}kΩ = <strong>${i_in_mA.toFixed(3)} mA</strong><br>` +
       `3. <strong>กระแสไหลผ่าน R<sub>f</sub> (I<sub>in</sub> = I<sub>f</sub> เพราะ I<sub>−</sub> = 0):</strong><br>` +
-      `&nbsp;&nbsp;V<sub>out</sub> = V<sub>−</sub> − (I<sub>f</sub> · R<sub>f</sub>) = 0 − ({i_in_mA.toFixed(3)} mA × {state.amp.rf_k.toFixed(1)} kΩ) = <strong>{vout_ideal.toFixed(2)} V</strong><br>` +
-      `4. <strong>อัตราขยายแรงดัน (Voltage Gain):</strong> A<sub>v</sub> = −R<sub>f</sub> / R<sub>1</sub> = −({state.amp.rf_k.toFixed(1)} / {state.amp.r1_k.toFixed(1)}) = <strong style="color:#fb7185;">{av.toFixed(2)}</strong> ({isClipped ? '⚠️ ตัดยอดคลื่นที่ ±' + vsat.toFixed(1) + 'V' : 'ย่านเชิงเส้น'})`;
+      `&nbsp;&nbsp;V<sub>out</sub> = V<sub>−</sub> − (I<sub>f</sub> · R<sub>f</sub>) = 0 − (${i_in_mA.toFixed(3)} mA × ${state.amp.rf_k.toFixed(1)} kΩ) = <strong>${vout_ideal.toFixed(2)} V</strong><br>` +
+      `4. <strong>อัตราขยายแรงดัน (Voltage Gain):</strong> A<sub>v</sub> = −R<sub>f</sub> / R<sub>1</sub> = −(${state.amp.rf_k.toFixed(1)} / ${state.amp.r1_k.toFixed(1)}) = <strong style="color:#fb7185;">${av.toFixed(2)}</strong> (${isClipped ? '⚠️ ตัดยอดคลื่นที่ ±' + vsat.toFixed(1) + 'V' : 'ย่านเชิงเส้น'})`;
 
   } else if (circ === 'non_inverting') {
     const sVin = document.getElementById('slider-amp-vin');
@@ -1743,10 +1743,10 @@ function onAmpChange() {
 
     mathHtml = 
       `<strong style="color:var(--accent-primary);"><i class="fa-solid fa-calculator"></i> ขั้นตอนการคำนวณวงจรขยายไม่กลับเฟส (Non-Inverting Math):</strong><br>` +
-      `1. <strong>มโนภาพเสมือนลัดวงจร (Virtual Short):</strong> V_+ = V_{in} = {state.amp.vin.toFixed(2)}V \implies V_- = V_{in} = {state.amp.vin.toFixed(2)}V<br>` +
+      `1. <strong>มโนภาพเสมือนลัดวงจร (Virtual Short):</strong> V_+ = V<sub>in</sub> = ${state.amp.vin.toFixed(2)}V → V_- = V<sub>in</sub> = ${state.amp.vin.toFixed(2)}V<br>` +
       `2. <strong>วงจรแบ่งแรงดันป้อนกลับ (Feedback Divider):</strong> V<sub>−</sub> = V<sub>out</sub> · [R<sub>1</sub> / (R<sub>1</sub> + R<sub>f</sub>)]<br>` +
-      `3. <strong>จัดรูปสมการหา V<sub>out</sub>:</strong> V<sub>out</sub> = (1 + R<sub>f</sub> / R<sub>1</sub>) · V<sub>in</sub> = [1 + ({state.amp.rf_k.toFixed(1)} / {state.amp.r1_k.toFixed(1)})] × {state.amp.vin.toFixed(2)}V = <strong>{vout_ideal.toFixed(2)} V</strong><br>` +
-      `4. <strong>อัตราขยายแรงดัน:</strong> A<sub>v</sub> = 1 + R<sub>f</sub> / R<sub>1</sub> = <strong style="color:#34d399;">+{av.toFixed(2)}</strong> (ตรงเฟส 0°)`;
+      `3. <strong>จัดรูปสมการหา V<sub>out</sub>:</strong> V<sub>out</sub> = (1 + R<sub>f</sub> / R<sub>1</sub>) · V<sub>in</sub> = [1 + (${state.amp.rf_k.toFixed(1)} / ${state.amp.r1_k.toFixed(1)})] × ${state.amp.vin.toFixed(2)}V = <strong>${vout_ideal.toFixed(2)} V</strong><br>` +
+      `4. <strong>อัตราขยายแรงดัน:</strong> A<sub>v</sub> = 1 + R<sub>f</sub> / R<sub>1</sub> = <strong style="color:#34d399;">+${av.toFixed(2)}</strong> (ตรงเฟส 0°)`;
 
   } else if (circ === 'buffer') {
     const sVin = document.getElementById('slider-amp-vin');
@@ -1761,7 +1761,7 @@ function onAmpChange() {
 
     mathHtml = 
       `<strong style="color:var(--accent-primary);"><i class="fa-solid fa-calculator"></i> วงจรตามแรงดัน (Voltage Follower / Unity Buffer):</strong><br>` +
-      `• <strong>อัตราขยายแรงดันคงที่:</strong> A<sub>v</sub> = 1.00 เสมอ (V_{out} = V_{in} = {vout.toFixed(2)}V)<br>` +
+      `• <strong>อัตราขยายแรงดันคงที่:</strong> A<sub>v</sub> = 1.00 เสมอ (V<sub>out</sub> = V<sub>in</sub> = ${vout.toFixed(2)}V)<br>` +
       `• <strong>การประยุกต์ใช้งาน:</strong> เป็นวงจรกันชน (Buffer) สำหรับแปลงอิมพีแดนซ์สูงมาก \rightarrow ต่ำมาก ป้องกันการดึงโหลดจากเซนเซอร์`;
 
   } else if (circ === 'summing') {
@@ -1787,7 +1787,7 @@ function onAmpChange() {
     mathHtml = 
       `<strong style="color:var(--accent-primary);"><i class="fa-solid fa-calculator"></i> สมการวงจรรวมสัญญาณ (Inverting Summing Amplifier):</strong><br>` +
       `• <strong>สมการรวมกระแสโหนดเสมือนกราวด์:</strong> I<sub>f</sub> = I<sub>1</sub> + I<sub>2</sub> = (V<sub>1</sub>/R<sub>1</sub>) + (V<sub>2</sub>/R<sub>2</sub>)<br>` +
-      `• <strong>แรงดันเอาต์พุต:</strong> V<sub>out</sub> = −R<sub>f</sub> · [(V<sub>1</sub>/R<sub>1</sub>) + (V<sub>2</sub>/R<sub>2</sub>)] = −{state.amp.rf_k.toFixed(1)}kΩ × [({state.amp.vin1.toFixed(2)}/10k) + ({state.amp.vin2.toFixed(2)}/10k)] = <strong style="color:#fb7185;">{vout.toFixed(2)} V</strong>`;
+      `• <strong>แรงดันเอาต์พุต:</strong> V<sub>out</sub> = −R<sub>f</sub> · [(V<sub>1</sub>/R<sub>1</sub>) + (V<sub>2</sub>/R<sub>2</sub>)] = −${state.amp.rf_k.toFixed(1)}kΩ × [(${state.amp.vin1.toFixed(2)}/10k) + (${state.amp.vin2.toFixed(2)}/10k)] = <strong style="color:#fb7185;">${vout.toFixed(2)} V</strong>`;
 
   } else if (circ === 'difference') {
     const sV1 = document.getElementById('slider-amp-v1');
@@ -1810,8 +1810,8 @@ function onAmpChange() {
 
     mathHtml = 
       `<strong style="color:var(--accent-primary);"><i class="fa-solid fa-calculator"></i> สมการวงจรลบแรงดัน (Difference Amplifier Math):</strong><br>` +
-      `• เมื่อใช้อัตราส่วนตัวต้านทานสมดุล (R<sub>f</sub>/R<sub>1</sub> = R<sub>2</sub>/R<sub>3</sub> = {diffGain.toFixed(2)})<br>` +
-      `• <strong>แรงดันเอาต์พุต:</strong> V<sub>out</sub> = (R<sub>f</sub> / R<sub>1</sub>) · (V<sub>2</sub> − V<sub>1</sub>) = {diffGain.toFixed(2)} × ({state.amp.vin2.toFixed(2)}V − {state.amp.vin1.toFixed(2)}V) = <strong style="color:#38bdf8;">{vout.toFixed(2)} V</strong>`;
+      `• เมื่อใช้อัตราส่วนตัวต้านทานสมดุล (R<sub>f</sub>/R<sub>1</sub> = R<sub>2</sub>/R<sub>3</sub> = ${diffGain.toFixed(2)})<br>` +
+      `• <strong>แรงดันเอาต์พุต:</strong> V<sub>out</sub> = (R<sub>f</sub> / R<sub>1</sub>) · (V<sub>2</sub> − V<sub>1</sub>) = ${diffGain.toFixed(2)} × (${state.amp.vin2.toFixed(2)}V − ${state.amp.vin1.toFixed(2)}V) = <strong style="color:#38bdf8;">${vout.toFixed(2)} V</strong>`;
 
   } else if (circ === 'instrumentation') {
     const sDvin = document.getElementById('slider-amp-dvin');
@@ -1832,14 +1832,14 @@ function onAmpChange() {
 
     mathHtml = 
       `<strong style="color:var(--accent-primary);"><i class="fa-solid fa-calculator"></i> วงจรขยายเครื่องมือวัด 3 Op-Amps (Instrumentation Amplifier):</strong><br>` +
-      `• <strong>เกนภาคหน้า (Buffer Stage):</strong> A<sub>v1</sub> = 1 + (2 · R<sub>1</sub> / R<sub>G</sub>) = 1 + (2 × 25k / {rg_k.toFixed(2)}k) = <strong>{av.toFixed(1)} เท่า</strong><br>` +
-      `• <strong>แรงดันเอาต์พุต:</strong> V<sub>out</sub> = A<sub>v</sub> · ΔV<sub>in</sub> = {av.toFixed(1)} × {dvin_mV.toFixed(1)} mV = <strong style="color:#34d399;">{vout.toFixed(2)} V</strong>`;
+      `• <strong>เกนภาคหน้า (Buffer Stage):</strong> A<sub>v1</sub> = 1 + (2 · R<sub>1</sub> / R<sub>G</sub>) = 1 + (2 × 25k / ${rg_k.toFixed(2)}k) = <strong>${av.toFixed(1)} เท่า</strong><br>` +
+      `• <strong>แรงดันเอาต์พุต:</strong> V<sub>out</sub> = A<sub>v</sub> · ΔV<sub>in</sub> = ${av.toFixed(1)} × ${dvin_mV.toFixed(1)} mV = <strong style="color:#34d399;">${vout.toFixed(2)} V</strong>`;
   }
 
-  document.getElementById('amp-av-val').innerHTML = `{av.toFixed(2)} <span class="unit">V/V</span>`;
-  document.getElementById('amp-vout-val').innerHTML = `{vout.toFixed(2)} <span class="unit">V</span>`;
-  document.getElementById('amp-zin-val').innerHTML = `{zin_str}`;
-  document.getElementById('amp-if-val').innerHTML = `{if_str}`;
+  document.getElementById('amp-av-val').innerHTML = `${av.toFixed(2)} <span class="unit">V/V</span>`;
+  document.getElementById('amp-vout-val').innerHTML = `${vout.toFixed(2)} <span class="unit">V</span>`;
+  document.getElementById('amp-zin-val').innerHTML = `${zin_str}`;
+  document.getElementById('amp-if-val').innerHTML = `${if_str}`;
   document.getElementById('amp-phase-badge').textContent = phase_str;
   document.getElementById('amp-step-math-box').innerHTML = mathHtml;
 
@@ -1878,21 +1878,21 @@ function drawAmpSchematicCanvas() {
 
   // Output lead & Label
   wire(ampCtx, cx + 50, cy, cx + 180, cy, '#38bdf8', 2.5);
-  dotNode(ampCtx, cx + 180, cy, `V_out ({document.getElementById('amp-vout-val').textContent.split(' ')[0]}V)`, 'right');
+  dotNode(ampCtx, cx + 180, cy, `V_out (${document.getElementById('amp-vout-val').textContent.split(' ')[0]}V)`, 'right');
 
   if (circ === 'inverting') {
     // Inverting Input branch
     wire(ampCtx, 80, cy - 25, 130, cy - 25);
-    drawResistorH(ampCtx, 130, 230, cy - 25, 'R_1', `{state.amp.r1_k.toFixed(1)}kΩ`);
+    drawResistorH(ampCtx, 130, 230, cy - 25, 'R_1', `${state.amp.r1_k.toFixed(1)}kΩ`);
     wire(ampCtx, 230, cy - 25, cx - 55, cy - 25);
     dotNode(ampCtx, 230, cy - 25, 'V_− (0V)', 'top');
 
     // Input Source Dot
-    dotNode(ampCtx, 80, cy - 25, `V_in ({state.amp.vin.toFixed(2)}V)`, 'left');
+    dotNode(ampCtx, 80, cy - 25, `V_in (${state.amp.vin.toFixed(2)}V)`, 'left');
 
     // Feedback Resistor Rf Loop
     wire(ampCtx, 230, cy - 25, 230, cy - 85);
-    drawResistorH(ampCtx, 230, cx + 110, cy - 85, 'R_f', `{state.amp.rf_k.toFixed(1)}kΩ`);
+    drawResistorH(ampCtx, 230, cx + 110, cy - 85, 'R_f', `${state.amp.rf_k.toFixed(1)}kΩ`);
     wire(ampCtx, cx + 110, cy - 85, cx + 110, cy);
     dotNode(ampCtx, cx + 110, cy);
 
@@ -1904,25 +1904,25 @@ function drawAmpSchematicCanvas() {
   } else if (circ === 'non_inverting') {
     // Non-Inverting (+) from Vin
     wire(ampCtx, 80, cy + 25, cx - 55, cy + 25);
-    dotNode(ampCtx, 80, cy + 25, `V_in ({state.amp.vin.toFixed(2)}V)`, 'left');
+    dotNode(ampCtx, 80, cy + 25, `V_in (${state.amp.vin.toFixed(2)}V)`, 'left');
 
     // Inverting (−) from Ground through R1
     wire(ampCtx, 230, cy - 25, cx - 55, cy - 25);
     wire(ampCtx, 230, cy - 25, 230, cy + 25);
-    drawResistorV(ampCtx, 230, cy + 25, cy + 85, 'R_1', `{state.amp.r1_k.toFixed(1)}kΩ`, 'left');
+    drawResistorV(ampCtx, 230, cy + 25, cy + 85, 'R_1', `${state.amp.r1_k.toFixed(1)}kΩ`, 'left');
     gndSymbol(ampCtx, 230, cy + 85);
-    dotNode(ampCtx, 230, cy - 25, `V_− ({state.amp.vin.toFixed(2)}V)`, 'top');
+    dotNode(ampCtx, 230, cy - 25, `V_− (${state.amp.vin.toFixed(2)}V)`, 'top');
 
     // Feedback Rf Loop
     wire(ampCtx, 230, cy - 25, 230, cy - 85);
-    drawResistorH(ampCtx, 230, cx + 110, cy - 85, 'R_f', `{state.amp.rf_k.toFixed(1)}kΩ`);
+    drawResistorH(ampCtx, 230, cx + 110, cy - 85, 'R_f', `${state.amp.rf_k.toFixed(1)}kΩ`);
     wire(ampCtx, cx + 110, cy - 85, cx + 110, cy);
     dotNode(ampCtx, cx + 110, cy);
 
   } else if (circ === 'buffer') {
     // Non-Inverting (+) from Vin
     wire(ampCtx, 80, cy + 25, cx - 55, cy + 25);
-    dotNode(ampCtx, 80, cy + 25, `V_in ({state.amp.vin.toFixed(2)}V)`, 'left');
+    dotNode(ampCtx, 80, cy + 25, `V_in (${state.amp.vin.toFixed(2)}V)`, 'left');
 
     // Direct Feedback Wire (Rf = 0)
     wire(ampCtx, cx - 55, cy - 25, cx - 80, cy - 25);
@@ -2029,22 +2029,22 @@ function onProcChange() {
     const vout = isHigh ? vsat : -vsat;
 
     document.getElementById('proc-r1-title').textContent = 'แรงดันอ้างอิง V_ref';
-    document.getElementById('proc-r1-val').innerHTML = `{state.proc.vref.toFixed(2)} <span class="unit">V</span>`;
+    document.getElementById('proc-r1-val').innerHTML = `${state.proc.vref.toFixed(2)} <span class="unit">V</span>`;
     document.getElementById('proc-r2-title').textContent = 'แรงดันเอาต์พุต V_out';
-    document.getElementById('proc-r2-val').innerHTML = `{vout > 0 ? '+' : ''}{vout.toFixed(1)} <span class="unit">V</span>`;
+    document.getElementById('proc-r2-val').innerHTML = `${vout > 0 ? '+' : ''}${vout.toFixed(1)} <span class="unit">V</span>`;
     document.getElementById('proc-r3-title').textContent = 'สภาวะเปรียบเทียบ';
     document.getElementById('proc-r3-val').innerHTML = isHigh ? '<span style="color:#34d399;">V_in > V_ref</span>' : '<span style="color:#fb7185;">V_in < V_ref</span>';
     document.getElementById('proc-r4-title').textContent = 'สถานะเอาต์พุต';
     document.getElementById('proc-r4-val').innerHTML = isHigh ? '+V_sat' : '−V_sat';
 
     document.getElementById('proc-state-badge').className = isHigh ? 'status-badge linear' : 'status-badge saturation';
-    document.getElementById('proc-state-badge').textContent = `Output: {vout > 0 ? '+' : ''}{vout.toFixed(1)}V ({isHigh ? '+V_sat' : '−V_sat'})`;
+    document.getElementById('proc-state-badge').textContent = `Output: ${vout > 0 ? '+' : ''}${vout.toFixed(1)}V (${isHigh ? '+V_sat' : '−V_sat'})`;
 
     document.getElementById('proc-step-math-box').innerHTML = 
       `<strong style="color:var(--accent-primary);"><i class="fa-solid fa-calculator"></i> การทำงานของวงจรเปรียบเทียบแรงดัน (Comparator Logic):</strong><br>` +
       `• เนื่องจาก Op-Amp ทำงานในสถานะเปิดวงรอบ (Open-Loop A<sub>OL</sub> ≈ 10<sup>5</sup>)<br>` +
-      `• เมื่อ V_{in} ({state.proc.vin.toFixed(2)}V) > V_{ref} ({state.proc.vref.toFixed(2)}V) \implies V_{out} = +V_{sat} = <strong>+13.5V</strong><br>` +
-      `• เมื่อ V_{in} < V_{ref} \implies V_{out} = -V_{sat} = <strong>-13.5V</strong>`;
+      `• เมื่อ V<sub>in</sub> (${state.proc.vin.toFixed(2)}V) > V_${ref} (${state.proc.vref.toFixed(2)}V) → V<sub>out</sub> = +V<sub>sat</sub> = <strong>+13.5V</strong><br>` +
+      `• เมื่อ V<sub>in</sub> < V_${ref} → V<sub>out</sub> = -V<sub>sat</sub> = <strong>-13.5V</strong>`;
 
   } else if (circ === 'schmitt') {
     const sVin = document.getElementById('slider-proc-vin');
@@ -2065,20 +2065,20 @@ function onProcChange() {
     const v_h = v_ut - v_lt;
 
     document.getElementById('proc-r1-title').textContent = 'Upper Threshold V_UT';
-    document.getElementById('proc-r1-val').innerHTML = `+{v_ut.toFixed(2)} <span class="unit">V</span>`;
+    document.getElementById('proc-r1-val').innerHTML = `+${v_ut.toFixed(2)} <span class="unit">V</span>`;
     document.getElementById('proc-r2-title').textContent = 'Lower Threshold V_LT';
-    document.getElementById('proc-r2-val').innerHTML = `{v_lt.toFixed(2)} <span class="unit">V</span>`;
+    document.getElementById('proc-r2-val').innerHTML = `${v_lt.toFixed(2)} <span class="unit">V</span>`;
     document.getElementById('proc-r3-title').textContent = 'ฮีสเตอรีซิส (Hysteresis)';
-    document.getElementById('proc-r3-val').innerHTML = `{v_h.toFixed(2)} <span class="unit">V</span>`;
+    document.getElementById('proc-r3-val').innerHTML = `${v_h.toFixed(2)} <span class="unit">V</span>`;
     document.getElementById('proc-r4-title').textContent = 'อัตราส่วน β (R1/R1+R2)';
-    document.getElementById('proc-r4-val').innerHTML = `{beta.toFixed(3)}`;
+    document.getElementById('proc-r4-val').innerHTML = `${beta.toFixed(3)}`;
 
     document.getElementById('proc-step-math-box').innerHTML = 
       `<strong style="color:var(--accent-primary);"><i class="fa-solid fa-calculator"></i> การคำนวณชมิตต์ทริกเกอร์ (Schmitt Trigger Hysteresis):</strong><br>` +
-      `1. <strong>อัตราส่วนป้อนกลับบวก (Positive Feedback Factor):</strong> \beta = R_1 / (R_1 + R_2) = {state.proc.r1_k}/({state.proc.r1_k}+{state.proc.r2_k}) = <strong>{beta.toFixed(3)}</strong><br>` +
-      `2. <strong>จุดเปลี่ยนสถานะบน (Upper Trigger Point):</strong> V_{UT} = +\beta · V_{sat} = +({beta.toFixed(3)} × 13.5V) = <strong style="color:#34d399;">+{v_ut.toFixed(2)} V</strong><br>` +
-      `3. <strong>จุดเปลี่ยนสถานะล่าง (Lower Trigger Point):</strong> V_{LT} = -\beta · V_{sat} = -({beta.toFixed(3)} × 13.5V) = <strong style="color:#fb7185;">{v_lt.toFixed(2)} V</strong><br>` +
-      `4. <strong>ช่วงกักสัญญาณรบกวน (Hysteresis Voltage Width):</strong> V_H = V_{UT} − V_{LT} = <strong>{v_h.toFixed(2)} V</strong> (กำจัดปัญหาการสั่นกระเพื่อม Noise Chatter)`;
+      `1. <strong>อัตราส่วนป้อนกลับบวก (Positive Feedback Factor):</strong> \beta = R_1 / (R_1 + R_2) = ${state.proc.r1_k}/(${state.proc.r1_k}+${state.proc.r2_k}) = <strong>${beta.toFixed(3)}</strong><br>` +
+      `2. <strong>จุดเปลี่ยนสถานะบน (Upper Trigger Point):</strong> V<sub>UT</sub> = +\beta · V<sub>sat</sub> = +(${beta.toFixed(3)} × 13.5V) = <strong style="color:#34d399;">+${v_ut.toFixed(2)} V</strong><br>` +
+      `3. <strong>จุดเปลี่ยนสถานะล่าง (Lower Trigger Point):</strong> V<sub>LT</sub> = -\beta · V<sub>sat</sub> = -(${beta.toFixed(3)} × 13.5V) = <strong style="color:#fb7185;">${v_lt.toFixed(2)} V</strong><br>` +
+      `4. <strong>ช่วงกักสัญญาณรบกวน (Hysteresis Voltage Width):</strong> V_H = V<sub>UT</sub> − V<sub>LT</sub> = <strong>${v_h.toFixed(2)} V</strong> (กำจัดปัญหาการสั่นกระเพื่อม Noise Chatter)`;
 
   } else if (circ === 'integrator' || circ === 'differentiator' || circ === 'active_filter') {
     const sFreq = document.getElementById('slider-proc-freq');
@@ -2096,9 +2096,9 @@ function onProcChange() {
     const fc = 1 / (2 * Math.PI * (r_k * 1000) * (c_uF * 1e-6));
 
     document.getElementById('proc-r1-title').textContent = 'ความถี่สัญญาณ f';
-    document.getElementById('proc-r1-val').innerHTML = `{freq} <span class="unit">Hz</span>`;
+    document.getElementById('proc-r1-val').innerHTML = `${freq} <span class="unit">Hz</span>`;
     document.getElementById('proc-r2-title').textContent = 'ความถี่คัตออฟ f_c';
-    document.getElementById('proc-r2-val').innerHTML = `{fc.toFixed(1)} <span class="unit">Hz</span>`;
+    document.getElementById('proc-r2-val').innerHTML = `${fc.toFixed(1)} <span class="unit">Hz</span>`;
     document.getElementById('proc-r3-title').textContent = 'ค่าเวลา Time Constant τ';
     document.getElementById('proc-r3-val').innerHTML = `{(r_k * c_uF).toFixed(2)} <span class="unit">ms</span>`;
     document.getElementById('proc-r4-title').textContent = 'Gain Roll-off';
@@ -2106,7 +2106,7 @@ function onProcChange() {
 
     document.getElementById('proc-step-math-box').innerHTML = 
       `<strong style="color:var(--accent-primary);"><i class="fa-solid fa-calculator"></i> การคำนวณความถี่และวงจรกรองแอกทีฟ (Active Filter Math):</strong><br>` +
-      `• <strong>ความถี่ตัด (Cutoff Frequency):</strong> f<sub>c</sub> = 1 / (2π · R · C) = 1 / [2π × ({r_k}kΩ) × ({c_uF}μF)} = <strong style="color:#34d399;">{fc.toFixed(1)} Hz</strong><br>` +
+      `• <strong>ความถี่ตัด (Cutoff Frequency):</strong> f<sub>c</sub> = 1 / (2π · R · C) = 1 / [2π × (${r_k}kΩ) × (${c_uF}μF)} = <strong style="color:#34d399;">${fc.toFixed(1)} Hz</strong><br>` +
       `• ที่ความถี่ f = f<sub>c</sub> อัตราขยายจะลดลงเหลือ 0.707 เท่า (−3 dB) และเฟสเลื่อน 45°`;
   }
 
@@ -2148,7 +2148,7 @@ function drawProcSchematicCanvas() {
     procCtx.setLineDash([4, 4]); procCtx.strokeStyle = '#f59e0b';
     procCtx.beginPath(); procCtx.moveTo(vrefX, 30); procCtx.lineTo(vrefX, H - 30); procCtx.stroke();
     procCtx.setLineDash([]);
-    procCtx.fillStyle = '#f59e0b'; procCtx.fillText(`V_ref ({state.proc.vref.toFixed(1)}V)`, vrefX + 6, 55);
+    procCtx.fillStyle = '#f59e0b'; procCtx.fillText(`V_ref (${state.proc.vref.toFixed(1)}V)`, vrefX + 6, 55);
 
     // Comparator S-Curve
     procCtx.strokeStyle = '#06b6d4'; procCtx.lineWidth = 3.5;
@@ -2170,7 +2170,7 @@ function drawProcSchematicCanvas() {
     procCtx.strokeStyle = '#ffffff'; procCtx.lineWidth = 2; procCtx.stroke();
 
     procCtx.font = 'bold 11px JetBrains Mono'; procCtx.fillStyle = '#34d399';
-    procCtx.fillText(`Q (V_in={state.proc.vin.toFixed(1)}V, V_out={state.proc.vin > state.proc.vref ? '+13.5V' : '-13.5V'})`, vinX + 10, voutY - 8);
+    procCtx.fillText(`Q (V_in=${state.proc.vin.toFixed(1)}V, V_out=${state.proc.vin > state.proc.vref ? '+13.5V' : '-13.5V'})`, vinX + 10, voutY - 8);
 
   } else if (circ === 'schmitt') {
     // Hysteresis Loop
@@ -2195,7 +2195,7 @@ function drawProcSchematicCanvas() {
     procCtx.setLineDash([]);
 
     procCtx.font = 'bold 9px JetBrains Mono'; procCtx.fillStyle = '#34d399';
-    procCtx.fillText(`V_UT (+{v_ut.toFixed(2)}V)`, utX + 4, 45);
+    procCtx.fillText(`V_UT (+${v_ut.toFixed(2)}V)`, utX + 4, 45);
     procCtx.fillStyle = '#fb7185';
     procCtx.fillText(`V_LT ({(-v_ut).toFixed(2)}V)`, ltX - 75, 45);
 
@@ -2278,10 +2278,10 @@ function onLabParamChange() {
   document.getElementById('lab-freq-badge').textContent = state.lab.freq + ' Hz';
   document.getElementById('lab-r1-badge').textContent = state.lab.r1_k.toFixed(1) + ' kΩ';
   document.getElementById('lab-rf-badge').textContent = state.lab.rf_k.toFixed(1) + ' kΩ';
-  document.getElementById('lab-vcc-badge').textContent = `±{state.lab.vcc.toFixed(1)} V`;
+  document.getElementById('lab-vcc-badge').textContent = `±${state.lab.vcc.toFixed(1)} V`;
 
   const vsat = state.lab.vcc - 1.5;
-  document.getElementById('lab-vsat-val').innerHTML = `±{vsat.toFixed(1)} <span class="unit">V</span>`;
+  document.getElementById('lab-vsat-val').innerHTML = `±${vsat.toFixed(1)} <span class="unit">V</span>`;
 
   let av = 1.0, phaseStr = '0°';
   if (state.lab.circuit === 'inverting') {
@@ -2305,8 +2305,8 @@ function onLabParamChange() {
   const isClipped = vout_unclipped > vsat;
   const vout_pk = isClipped ? vsat : vout_unclipped;
 
-  document.getElementById('lab-gain-val').innerHTML = `{av.toFixed(2)} <span class="unit">V/V</span>`;
-  document.getElementById('lab-vout-pk-val').innerHTML = `{vout_pk.toFixed(2)} <span class="unit">V</span>`;
+  document.getElementById('lab-gain-val').innerHTML = `${av.toFixed(2)} <span class="unit">V/V</span>`;
+  document.getElementById('lab-vout-pk-val').innerHTML = `${vout_pk.toFixed(2)} <span class="unit">V</span>`;
   document.getElementById('lab-phase-val').textContent = phaseStr;
 
   const clipBadge = document.getElementById('lab-clipping-badge');
@@ -2620,11 +2620,11 @@ function submitQuiz() {
   let score = 0;
   OPAMP_QUIZ_QUESTIONS.forEach((q, idx) => {
     const userAns = state.quiz.answers[idx];
-    const expEl = document.getElementById(`quiz-exp-{idx}`);
+    const expEl = document.getElementById(`quiz-exp-${idx}`);
     if (expEl) expEl.style.display = 'block';
 
     q.options.forEach((opt, optIdx) => {
-      const lbl = document.getElementById(`label-q{idx}-opt{optIdx}`);
+      const lbl = document.getElementById(`label-q${idx}-opt${optIdx}`);
       if (lbl) {
         lbl.classList.remove('correct', 'incorrect');
         if (optIdx === q.correct) lbl.classList.add('correct');
@@ -2768,7 +2768,7 @@ function gndSymbol(ctx, x, y) {
 
 function vddRail(ctx, x, y, v) {
   ctx.fillStyle = '#f97316'; ctx.font = 'bold 10px JetBrains Mono'; ctx.textAlign = 'center';
-  ctx.fillText(`+{v}V (V_CC)`, x, y - 6);
+  ctx.fillText(`+${v}V (V_CC)`, x, y - 6);
   ctx.beginPath(); ctx.moveTo(x - 14, y); ctx.lineTo(x + 14, y);
   ctx.strokeStyle = '#f97316'; ctx.lineWidth = 2.5; ctx.stroke();
   ctx.textAlign = 'left';
