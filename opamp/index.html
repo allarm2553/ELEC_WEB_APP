@@ -1796,6 +1796,7 @@ function onAmpChange() {
     if (sV1) state.amp.vin1 = parseFloat(sV1.value);
     if (sV2) state.amp.vin2 = parseFloat(sV2.value);
     const diffGain = sGain ? parseFloat(sGain.value) : 2.0;
+    state.amp.ratio = diffGain;
 
     document.getElementById('ctrl-amp-v1-badge').textContent = state.amp.vin1.toFixed(2) + ' V (Inv)';
     document.getElementById('ctrl-amp-v2-badge').textContent = state.amp.vin2.toFixed(2) + ' V (Non-Inv)';
@@ -1818,6 +1819,8 @@ function onAmpChange() {
     const sRg = document.getElementById('slider-amp-rg');
     const dvin_mV = sDvin ? parseFloat(sDvin.value) : 50.0;
     const rg_k = sRg ? parseFloat(sRg.value) : 1.0;
+    state.amp.dvin_mv = dvin_mV;
+    state.amp.rg_k = rg_k;
 
     document.getElementById('ctrl-amp-vin-badge').textContent = dvin_mV.toFixed(1) + ' mV';
     document.getElementById('ctrl-amp-rg-badge').textContent = rg_k.toFixed(2) + ' kΩ';
@@ -1903,7 +1906,7 @@ function drawAmpSchematicCanvas() {
     ampCtx.fillStyle = '#64748b'; ampCtx.font = 'bold 9px JetBrains Mono'; ampCtx.fillText('A3', a3x - 5, a3y + 3);
 
     // Inputs to A1 and A2
-    const dVin = state.amp.dvin_mv;
+    const dVin = (state.amp.dvin_mv !== undefined ? state.amp.dvin_mv : 50.0);
     const v1 = (dVin / 2000.0);
     const v2 = - (dVin / 2000.0);
 
@@ -2062,7 +2065,7 @@ function drawAmpSchematicCanvas() {
     // =========================================================
     // SUMMING AMPLIFIER (INVERTING SUMMER) SCHEMATIC
     // =========================================================
-    const v1 = state.amp.v1, v2 = state.amp.v2, rf = state.amp.rf_k;
+    const v1 = (state.amp.vin1 !== undefined ? state.amp.vin1 : 1.0), v2 = (state.amp.vin2 !== undefined ? state.amp.vin2 : 2.0), rf = (state.amp.rf_k !== undefined ? state.amp.rf_k : 10.0);
     const sumNodeX = 230, sumNodeY = cy - 25;
 
     // V1 Branch (Top Input)
@@ -2098,7 +2101,7 @@ function drawAmpSchematicCanvas() {
     // =========================================================
     // DIFFERENCE / DIFFERENTIAL AMPLIFIER SCHEMATIC
     // =========================================================
-    const v1 = state.amp.v1, v2 = state.amp.v2, ratio = state.amp.ratio;
+    const v1 = (state.amp.vin1 !== undefined ? state.amp.vin1 : 1.0), v2 = (state.amp.vin2 !== undefined ? state.amp.vin2 : 3.0), ratio = (state.amp.ratio !== undefined ? state.amp.ratio : 2.0);
     const invNodeX = 230, invNodeY = cy - 25;
     const nonInvNodeX = 230, nonInvNodeY = cy + 25;
 
