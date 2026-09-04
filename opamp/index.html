@@ -1494,18 +1494,23 @@ function drawIcPinoutCanvas() {
   icPinoutCtx.strokeStyle = '#475569'; icPinoutCtx.lineWidth = 2;
   icPinoutCtx.strokeRect(leftX, topY, icW, icH);
 
-  // Top Index Notch (รอยบากบอกหัวไอซี)
-  icPinoutCtx.fillStyle = '#0f172a';
+  // Left Index Notch (รอยบากบอกหัวไอซีมาตรฐานด้านซ้าย)
+  icPinoutCtx.fillStyle = '#050b14';
   icPinoutCtx.beginPath();
-  icPinoutCtx.arc(cx, topY, 14, 0, Math.PI);
+  icPinoutCtx.arc(leftX, cy, 14, -Math.PI / 2, Math.PI / 2);
   icPinoutCtx.fill();
-  icPinoutCtx.strokeStyle = '#475569'; icPinoutCtx.stroke();
+  icPinoutCtx.strokeStyle = '#475569';
+  icPinoutCtx.lineWidth = 2;
+  icPinoutCtx.stroke();
 
-  // Pin 1 Indicator Dot
-  icPinoutCtx.fillStyle = '#64748b';
+  // Pin 1 Indicator Dot (จุดมาร์คระบุตำแหน่งขา 1 ที่มุมซ้ายล่าง)
+  icPinoutCtx.fillStyle = '#94a3b8';
   icPinoutCtx.beginPath();
-  icPinoutCtx.arc(leftX + 22, topY + 22, 5, 0, Math.PI * 2);
+  icPinoutCtx.arc(leftX + 22, topY + icH - 22, 5, 0, Math.PI * 2);
   icPinoutCtx.fill();
+  icPinoutCtx.strokeStyle = '#cbd5e1';
+  icPinoutCtx.lineWidth = 1;
+  icPinoutCtx.stroke();
 
   // IC Text Part Number
   icPinoutCtx.font = 'bold 15px JetBrains Mono';
