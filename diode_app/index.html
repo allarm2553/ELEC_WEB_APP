@@ -2021,6 +2021,9 @@
               <span class="control-label-title">
                 <i class="fa-brands fa-google-drive" style="color: #38bdf8;"></i> Google Apps Script Web App URL:
               </span>
+              <button type="button" class="btn btn-sm" onclick="copyStudentShareLink('diode')" title="คัดลอกลิงก์ที่แนบ Google Apps Script ส่งให้นักเรียน" style="padding: 2px 8px; font-size: 0.72rem; background: rgba(16, 185, 129, 0.2); border: 1px solid #10b981; color: #6ee7b7; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+                <i class="fa-solid fa-share-nodes"></i> คัดลอกลิงก์ให้นักเรียน
+              </button>
             </div>
             <input type="url" id="gas-url" placeholder="https://script.google.com/macros/s/.../exec" style="font-family: var(--font-mono); font-size: 0.8rem;">
           </div>
@@ -5545,9 +5548,32 @@
       requestAnimationFrame(mainAnimationLoop);
     }
 
+    function copyStudentShareLink(prefix) {
+      const input = document.getElementById('gas-url');
+      const val = (input && input.value.trim()) || localStorage.getItem(prefix + '_gas_url') || localStorage.getItem('gas_url') || '';
+      if (!val || !val.startsWith('https://script.google.com')) {
+        alert('กรุณากรอกหรือวาง Google Apps Script Web App URL ก่อนคัดลอกลิงก์ครับ');
+        return;
+      }
+      const shareUrl = window.location.origin + window.location.pathname + '?gas=' + encodeURIComponent(val);
+      navigator.clipboard.writeText(shareUrl).then(() => {
+        alert('คัดลอกลิงก์สำหรับส่งให้นักเรียนเรียบร้อยแล้ว! 🎉\n\n' + shareUrl + '\n\nเมื่อนักเรียนคลิกลิงก์นี้ ระบบจะเชื่อมต่อ Google Sheets ของอาจารย์โดยอัตโนมัติ');
+      }).catch(() => {
+        prompt('คัดลอกลิงก์นี้ส่งให้นักเรียน:', shareUrl);
+      });
+    }
+
     window.addEventListener('DOMContentLoaded', () => {
-      // Restore cached student info and GAS URL
+      // Restore cached student info and GAS URL (Support ?gas= or ?endpoint= in URL)
       try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const queryGas = urlParams.get('gas') || urlParams.get('endpoint') || urlParams.get('gasUrl') || urlParams.get('gas_url');
+        if (queryGas && queryGas.trim().startsWith('https://script.google.com')) {
+          const cleanGas = queryGas.trim();
+          localStorage.setItem('diode_gas_url', cleanGas);
+          localStorage.setItem('gas_url', cleanGas);
+        }
+
         const savedName = localStorage.getItem('diode_student_name');
         const savedClass = localStorage.getItem('diode_student_class');
         const savedUrl = localStorage.getItem('diode_gas_url') || localStorage.getItem('gas_url');

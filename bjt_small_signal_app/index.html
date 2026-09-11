@@ -582,7 +582,12 @@
         </div>
       </div>
       <div style="margin-bottom:1.1rem;">
-        <label style="font-size:0.82rem;color:var(--text-secondary);display:block;margin-bottom:0.35rem;">Google Apps Script Web App URL:</label>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.35rem;">
+          <label style="font-size:0.82rem;color:var(--text-secondary);">Google Apps Script Web App URL:</label>
+          <button type="button" onclick="copyStudentShareLink('bjt_ac')" title="คัดลอกลิงก์ที่แนบ Google Apps Script ส่งให้นักเรียน" style="padding:2px 8px;font-size:0.75rem;background:rgba(16,185,129,0.2);border:1px solid #10b981;color:#6ee7b7;border-radius:4px;cursor:pointer;display:inline-flex;align-items:center;gap:4px;">
+            <i class="fa-solid fa-share-nodes"></i> คัดลอกลิงก์ให้นักเรียน
+          </button>
+        </div>
         <input type="url" id="gas-url" placeholder="https://script.google.com/macros/s/.../exec" style="font-family:var(--font-mono);font-size:0.78rem;">
       </div>
       <div style="font-size:0.85rem;font-weight:600;color:var(--text-secondary);margin-bottom:0.55rem;">
@@ -2351,7 +2356,48 @@ function mainLoop() {
   requestAnimationFrame(mainLoop);
 }
 
+function copyStudentShareLink(prefix) {
+  const input = document.getElementById('gas-url');
+  const val = (input && input.value.trim()) || localStorage.getItem(prefix + '_gas_url') || localStorage.getItem('gas_url') || '';
+  if (!val || !val.startsWith('https://script.google.com')) {
+    alert('กรุณากรอกหรือวาง Google Apps Script Web App URL ก่อนคัดลอกลิงก์ครับ');
+    return;
+  }
+  const shareUrl = window.location.origin + window.location.pathname + '?gas=' + encodeURIComponent(val);
+  navigator.clipboard.writeText(shareUrl).then(() => {
+    alert('คัดลอกลิงก์สำหรับส่งให้นักเรียนเรียบร้อยแล้ว! 🎉\n\n' + shareUrl + '\n\nเมื่อนักเรียนคลิกลิงก์นี้ ระบบจะเชื่อมต่อ Google Sheets ของอาจารย์โดยอัตโนมัติ');
+  }).catch(() => {
+    prompt('คัดลอกลิงก์นี้ส่งให้นักเรียน:', shareUrl);
+  });
+}
+
 function init() {
+  try {
+    const urlParams = new URLSearchParams(window.location.search);
+    const queryGas = urlParams.get('gas') || urlParams.get('endpoint') || urlParams.get('gasUrl') || urlParams.get('gas_url');
+    if (queryGas && queryGas.trim().startsWith('https://script.google.com')) {
+      const cleanGas = queryGas.trim();
+      localStorage.setItem('bjt_ac_gas_url', cleanGas);
+      localStorage.setItem('gas_url', cleanGas);
+    }
+    const savedUrl = localStorage.getItem('bjt_ac_gas_url') || localStorage.getItem('gas_url');
+    const gasInput = document.getElementById('gas-url');
+    if (savedUrl && gasInput) gasInput.value = savedUrl;
+    if (gasInput) {
+      gasInput.addEventListener('input', () => {
+        try { localStorage.setItem('bjt_ac_gas_url', gasInput.value.trim()); } catch(e){}
+      });
+    }
+    const savedName = localStorage.getItem('elec_student_name');
+    const savedClass = localStorage.getItem('elec_student_class');
+    const nameInput = document.getElementById('student-name');
+    const classInput = document.getElementById('student-class');
+    if (savedName && nameInput) nameInput.value = savedName;
+    if (savedClass && classInput) classInput.value = savedClass;
+    if (nameInput) nameInput.addEventListener('input', () => { try { localStorage.setItem('elec_student_name', nameInput.value.trim()); } catch(e){} });
+    if (classInput) classInput.addEventListener('input', () => { try { localStorage.setItem('elec_student_class', classInput.value.trim()); } catch(e){} });
+  } catch(e){}
+
   onReChange();
   onHparamChange();
   onConfigChange();
