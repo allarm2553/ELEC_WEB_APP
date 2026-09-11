@@ -584,9 +584,17 @@
       <div style="margin-bottom:1.1rem;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.35rem;">
           <label style="font-size:0.82rem;color:var(--text-secondary);">Google Apps Script Web App URL:</label>
+          <div style="display:inline-flex;gap:4px;align-items:center;flex-wrap:wrap;">
+          <a href="./Code.gs" download="Code_bjt_small_signal_app.gs" title="ดาวน์โหลดไฟล์ Code.gs ประจำบทนี้" style="padding:2px 8px;font-size:0.75rem;background:rgba(59,130,246,0.2);border:1px solid #3b82f6;color:#93c5fd;border-radius:4px;text-decoration:none;display:inline-flex;align-items:center;gap:4px;">
+            <i class="fa-solid fa-download"></i> โหลด Code.gs
+          </a>
+          <button type="button" onclick="copyCodeGsContent('bjt_small_signal_app')" title="คัดลอกโค้ด Code.gs ไปวางใน Google Apps Script" style="padding:2px 8px;font-size:0.75rem;background:rgba(168,85,247,0.2);border:1px solid #a855f7;color:#d8b4fe;border-radius:4px;cursor:pointer;display:inline-flex;align-items:center;gap:4px;">
+            <i class="fa-solid fa-copy"></i> คัดลอก Code.gs
+          </button>
           <button type="button" onclick="copyStudentShareLink('bjt_ac')" title="คัดลอกลิงก์ที่แนบ Google Apps Script ส่งให้นักเรียน" style="padding:2px 8px;font-size:0.75rem;background:rgba(16,185,129,0.2);border:1px solid #10b981;color:#6ee7b7;border-radius:4px;cursor:pointer;display:inline-flex;align-items:center;gap:4px;">
             <i class="fa-solid fa-share-nodes"></i> คัดลอกลิงก์ให้นักเรียน
           </button>
+        </div>
         </div>
         <input type="url" id="gas-url" placeholder="https://script.google.com/macros/s/.../exec" style="font-family:var(--font-mono);font-size:0.78rem;">
       </div>
@@ -2356,7 +2364,26 @@ function mainLoop() {
   requestAnimationFrame(mainLoop);
 }
 
-function copyStudentShareLink(prefix) {
+
+    function copyCodeGsContent(folderName) {
+      fetch('./Code.gs')
+        .then(res => {
+          if (!res.ok) throw new Error("Network error");
+          return res.text();
+        })
+        .then(code => {
+          navigator.clipboard.writeText(code).then(() => {
+            alert("คัดลอก Code.gs สำเร็จ! 🎉\n\nคัดลอกโค้ด Google Apps Script ประจำบทนี้ลง Clipboard เรียบร้อยแล้ว\nสามารถเปิด Google Apps Script แล้วกด Ctrl+V วางเพื่อ Deploy ได้ทันที!");
+          }).catch(() => {
+            prompt("คัดลอกโค้ดด้านล่างนี้ไปวางใน Code.gs:", code);
+          });
+        })
+        .catch(() => {
+          window.open("https://github.com/allarm2553/ELEC_WEB_APP/blob/main/" + folderName + "/Code.gs", "_blank");
+        });
+    }
+
+    function copyStudentShareLink(prefix) {
   const input = document.getElementById('gas-url');
   const val = (input && input.value.trim()) || localStorage.getItem(prefix + '_gas_url') || localStorage.getItem('gas_url') || '';
   if (!val || !val.startsWith('https://script.google.com')) {

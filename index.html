@@ -1070,6 +1070,14 @@
               <button class="btn-launch" onclick="openWorkspaceModal('${app.id}')">
                 <i class="fa-solid fa-play"></i> เปิดแอปพลิเคชัน
               </button>
+              ${app.id !== "multimeter" && app.id !== "oscilloscope" ? `
+              <a href="./${app.path}Code.gs" download="Code_${app.id}.gs" class="btn-icon-ext" style="border-color: rgba(59,130,246,0.4); color: #60a5fa;" title="ดาวน์โหลด Code.gs ประจำแอปนี้">
+                <i class="fa-solid fa-download"></i>
+              </a>
+              <button type="button" class="btn-icon-ext" onclick="copyCodeGsFromPortal('${app.path}', '${app.id}')" style="border-color: rgba(168,85,247,0.4); color: #c084fc; cursor: pointer;" title="คัดลอก Code.gs ไปวางใน Google Apps Script">
+                <i class="fa-solid fa-copy"></i>
+              </button>
+              ` : ""}
               <a href="${appUrl}" target="_blank" class="btn-icon-ext" title="เปิดในแท็บใหม่แยกต่างหาก">
                 <i class="fa-solid fa-arrow-up-right-from-square"></i>
               </a>
@@ -1079,6 +1087,25 @@
       });
 
       container.innerHTML = html;
+    }
+
+    
+    function copyCodeGsFromPortal(appPath, appId) {
+      fetch('./' + appPath + 'Code.gs')
+        .then(res => {
+          if (!res.ok) throw new Error("Network error");
+          return res.text();
+        })
+        .then(code => {
+          navigator.clipboard.writeText(code).then(() => {
+            alert("📋 คัดลอก Code.gs สำหรับ " + appId + " สำเร็จแล้ว!\nนำไปเปิดใน Google Apps Script แล้วกด Ctrl+V วางเพื่อ Deploy ได้ทันที");
+          }).catch(() => {
+            prompt("คัดลอกโค้ดด้านล่างนี้สำหรับ " + appId + ":", code);
+          });
+        })
+        .catch(() => {
+          window.open("https://github.com/allarm2553/ELEC_WEB_APP/blob/main/" + appPath + "Code.gs", "_blank");
+        });
     }
 
     function setCategory(cat, btn) {
